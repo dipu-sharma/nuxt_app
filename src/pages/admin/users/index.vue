@@ -1,10 +1,10 @@
 <template>
-    <div class="mt-5">
-        <h1 class="text-center font-bold">Admin User Page</h1>
+    <div>
+        <h2 class="text-center font-bold pt-5">All Users</h2>
     </div>
 </template>
 
-<script>
+<script setup>
 definePageMeta({
   layout: 'admin' // Use the 'admin' layout created above
 })
