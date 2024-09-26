@@ -1,6 +1,6 @@
 <template>
   <!-- Desktop sidebar -->
-  <aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
+  <aside class="z-20 hidden w-64 overflow-y-auto bg-black dark:bg-gray-800 md:block flex-shrink-0">
     <div class="py-4 text-gray-500 dark:text-gray-400">
       <a class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="#">
         D-Shop
@@ -58,8 +58,8 @@
   </aside>
 
   <!-- Mobile sidebar -->
-  <div v-if="navStore.isSideMenuOpen" class="fixed inset-0 z-10 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center"></div>
-  <aside class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-white dark:bg-gray-800 md:hidden" v-if="navStore.isSideMenuOpen" @click.self="navStore.toggleSideMenu" @keydown.esc="navStore.toggleSideMenu">
+  <div v-if="navStore.isSideMenuOpen" class="fixed inset-0 z-10 flex items-end bg-white-100 bg-opacity-50 sm:items-center sm:justify-center"></div>
+  <aside class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-black dark:bg-gray-800 md:hidden" v-if="navStore.isSideMenuOpen" @click.self="navStore.toggleSideMenu" @keydown.esc="navStore.toggleSideMenu">
     <div class="py-4 text-gray-500 dark:text-gray-400">
       <a class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="#">
         D-Shop

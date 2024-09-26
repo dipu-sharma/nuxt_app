@@ -9,7 +9,7 @@
         items-center
         justify-between
         w-full
-        py-4
+        py-3
         md:py-0
         px-4
         text-lg text-gray-700
@@ -27,9 +27,9 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
       </svg>
 
-      <div class="w-full md:flex md:items-center md:w-auto" :class="{ hidden: !isMenuOpen }">
+      <div class="w-full flex justify-center items-center md:flex md:items-center md:w-auto" :class="{ hidden: !isMenuOpen }">
         <ul class="
-            pt-4
+            pt-0
             text-base text-gray-700
             md:flex
             md:justify-between 
@@ -47,7 +47,7 @@
             <NuxtLink class="md:p-4 py-2 block hover:text-purple-400" to="/product/grocery">Grocery</NuxtLink>
           </li>
         </ul>
-        <ul class="pt-4
+        <ul class="pt-0
             text-base text-gray-700
             md:flex
             md:justify-between 
@@ -61,7 +61,7 @@
             </NuxtLink>
           </li>
         </ul>
-        <ul class="pt-4
+        <ul class="
             text-base text-gray-700
             md:flex
             md:justify-between 
