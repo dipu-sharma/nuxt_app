@@ -8,7 +8,7 @@
     <!-- Planning Data Input -->
     <div class="mt-8">
       <h3 class="text-lg font-semibold mb-4">Save for Planning: <span class="font-normal">{{
-          projectStore.save_for_planning }}</span></h3>
+        projectStore.save_for_planning }}</span></h3>
 
       <!-- Input field for planning data -->
       <input v-model="planningData" placeholder="Enter planning data"
@@ -20,7 +20,7 @@
         Save Planning Data
       </button>
     </div>
-
+    <UploadImage />
     <h1>Selected Products</h1>
     <div class="d-flex gap-4">
       <div v-if="selectedSystems.length > 0" @click="SaveMilestone"
@@ -44,16 +44,9 @@
         :totalItems="datatable.total_items[index]" :itemsPerPage="6" /> -->
     </div>
     <v-container>
-      <TablesTable2 
-        :headers="table2_datatable.headers" 
-        :items="table2_datatable.items" 
-        :page="table2_datatable.page" 
-        :itemsPerPage="itemsPerPage" 
-        :totalItems="totalItems"
-        :loading="loading" 
-        @update:page="updatePage" 
-        @update:itemsPerPage="updateItemsPerPage" 
-      />
+      <TablesTable2 :headers="table2_datatable.headers" :items="table2_datatable.items" :page="table2_datatable.page"
+        :itemsPerPage="itemsPerPage" :totalItems="totalItems" :loading="loading" @update:page="updatePage"
+        @update:itemsPerPage="updateItemsPerPage" />
     </v-container>
   </div>
 </template>
@@ -93,11 +86,11 @@ const datatable = ref({
 
 
 const table2_datatable = ref({
-  items:[],
+  items: [],
   loading: false,
-  totalItems : 0,
-  page : 1,
-  itemsPerPage : 5,
+  totalItems: 0,
+  page: 1,
+  itemsPerPage: 5,
   headers: [
     { title: 'Sr No.', value: 'index', sortable: false, align: 'left' },
     { title: 'Milestone No', value: 'milestone_no', sortable: false, align: 'left' },
@@ -113,7 +106,7 @@ const table2_datatable = ref({
     { title: 'Quantity', value: 'quantity', sortable: false, align: 'left' },
     { title: 'Stock', value: 'image', sortable: false, align: 'left' },
   ],
-  
+
 })
 const savePlanningData = () => {
   projectStore.SaveForPlanning(planningData.value.split(','))
@@ -159,7 +152,7 @@ const exportToExcel = () => {
 const fetchData = async () => {
   loading.value = true
   const { data, total } = await getDataFromServer(page.value, itemsPerPage.value)
-  
+
   items.value = data
   totalItems.value = total
   loading.value = false
