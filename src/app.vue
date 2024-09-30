@@ -1,9 +1,3 @@
-<template>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
-</template>
-
 <script setup>
 definePageMeta({
   title: 'D-shop',
@@ -12,5 +6,13 @@ definePageMeta({
   ]
 })
 </script>
+
+<template>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
+</template>
+
+
 
 <style></style>

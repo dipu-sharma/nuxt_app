@@ -1,3 +1,20 @@
+<script setup>
+definePageMeta({
+  layout: 'admin' // Use the 'admin' layout created above
+})
+import { ref } from "vue";
+
+const isModalOpen = ref(false);
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+};
+</script>
+
 <template>
   <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
     Cards
@@ -167,20 +184,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-definePageMeta({
-  layout: 'admin' // Use the 'admin' layout created above
-})
-import { ref } from "vue";
-
-const isModalOpen = ref(false);
-
-const openModal = () => {
-  isModalOpen.value = true;
-};
-
-const closeModal = () => {
-  isModalOpen.value = false;
-};
-</script>

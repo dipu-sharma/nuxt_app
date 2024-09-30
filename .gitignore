@@ -21,5 +21,7 @@ logs
 # Local env files
 .env
 .env.*
+.env.dev
+.env.prod
 !.env.example
 temp.vue

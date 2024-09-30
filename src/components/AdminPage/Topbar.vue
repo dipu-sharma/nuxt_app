@@ -120,13 +120,13 @@
                                     </a>
                                 </li>
                                 <li class="flex">
-                                    <a @click="" class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                                        href="#">
-                                        <svg class="w-4 h-4 mr-3" aria-hidden="true" fill="none" stroke-linecap="round"
+                                    <a @click="logout"
+                                        class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                                        <!-- <svg class="w-4 h-4 mr-3" aria-hidden="true" fill="none" stroke-linecap="round"
                                             stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"
                                             stroke="currentColor">
                                             <path d="M19 9l-7 7-7-7"></path>
-                                        </svg>
+                                        </svg> -->
                                         <span>Log out</span>
                                     </a>
                                 </li>
@@ -140,67 +140,83 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useNavStore } from '~/stores/navStore';
-const navStore = useNavStore();
-const isNotificationsMenuOpen = ref(false);
-const isProfileMenuOpen = ref(false);
-const dark = ref(true);
+import { ref, onMounted } from 'vue'
+import { toast } from 'vue3-toastify';
+import { useNavStore } from '~/stores/navStore'
+import { useAuthStore } from '~/stores/auth'
+const { $ResetAuth } = useAuthStore()
+const navStore = useNavStore()
+const isNotificationsMenuOpen = ref(false)
+const isProfileMenuOpen = ref(false)
+const dark = ref(true)
 
 const toggleTheme = () => {
-  dark.value = !dark.value;
-  console.log("Theme Toggle___________________", dark.value);
+    dark.value = !dark.value;
+    //   console.log("Theme Toggle___________________", dark.value);
 
-  if (dark.value) {
-    document.documentElement.classList.add('dark');
-    document.documentElement.classList.remove('light');
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('theme', 'dark');
-      console.log(`Toggle Theme Button______________${dark.value}`);
+    if (dark.value) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('theme', 'dark');
+            //   console.log(`Toggle Theme Button______________${dark.value}`);
+        }
+    } else {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('theme', 'light');
+            //   console.log(`Toggle Theme Button______________${dark.value}`);
+        }
     }
-  } else {
-    document.documentElement.classList.add('light');
-    document.documentElement.classList.remove('dark');
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('theme', 'light');
-      console.log(`Toggle Theme Button______________${dark.value}`);
-    }
-  }
 };
 
 // Initialize the theme based on user's preference stored in localStorage
 onMounted(() => {
-  if (typeof window !== 'undefined') {
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'dark') {
-      dark.value = true;
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    } else {
-      dark.value = false;
-      document.documentElement.classList.add('light');
-      document.documentElement.classList.remove('dark');
+    if (typeof window !== 'undefined') {
+        const storedTheme = localStorage.getItem('theme');
+        if (storedTheme === 'dark') {
+            dark.value = true;
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+        } else {
+            dark.value = false;
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
+        }
     }
-  }
 });
 
 // Notifications menu functions
 const toggleNotificationsMenu = () => {
-  isNotificationsMenuOpen.value = !isNotificationsMenuOpen.value;
+    isNotificationsMenuOpen.value = !isNotificationsMenuOpen.value;
 };
 
 const closeNotificationsMenu = () => {
-  isNotificationsMenuOpen.value = false;
+    isNotificationsMenuOpen.value = false;
 };
 
 // Profile menu functions
 const toggleProfileMenu = () => {
-  isProfileMenuOpen.value = !isProfileMenuOpen.value;
+    isProfileMenuOpen.value = !isProfileMenuOpen.value;
 };
 
 const closeProfileMenu = () => {
-  isProfileMenuOpen.value = false;
-};
+    isProfileMenuOpen.value = false;
+}
+const logout = () => {
+    try {
+        $ResetAuth()
+        toast.error("Logout Successfully", {
+            position: "top-right",
+            autoClose: 3000,
+        })
+        // Redirect to login page
+        navigateTo('/login', { redirectCode: 301 })
+    } catch (error) {
+        console.error("An error occurred during logout:", error);
+    }
+}
 
 </script>
 

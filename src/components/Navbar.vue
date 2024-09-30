@@ -27,7 +27,8 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
       </svg>
 
-      <div class="w-full flex justify-center items-center md:flex md:items-center md:w-auto" :class="{ hidden: !isMenuOpen }">
+      <div class="w-full flex justify-center items-center md:flex md:items-center md:w-auto"
+        :class="{ hidden: !isMenuOpen }">
         <ul class="
             pt-0
             text-base text-gray-700
@@ -94,9 +95,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { useAuthStore } from '~/stores/auth';
-const authStore = useAuthStore();
+const authStore = useAuthStore()
 
 const isMenuOpen = ref(false);
 const isDropdownOpen = ref(false);
@@ -110,8 +110,8 @@ function toggleDropdown() {
   isDropdownOpen.value = !isDropdownOpen.value;
 }
 
-function logout() {
-  authStore.setAuthenticated(false)
+const logout = () => {
+  authStore.$ResetAuth()
   navigateTo('/login')
 }
 </script>
