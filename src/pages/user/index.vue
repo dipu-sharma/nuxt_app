@@ -1,8 +1,6 @@
 <template>
     <div>
         <h1 class="pt-10">User Page</h1>
-        
-        <ChartBarchart/>
     </div>
 </template>
 
@@ -11,7 +9,7 @@
 import { useAuthStore } from '~/stores/auth';
 const authStore = useAuthStore();
 
-if(!authStore.isAuthenticated){
+if (!authStore.isAuthenticated) {
     navigateTo('/login')
 }
 </script>

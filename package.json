@@ -16,6 +16,7 @@
     "@pinia/nuxt": "^0.5.3",
     "axios": "^1.7.3",
     "chart.js": "^4.4.4",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "nuxt": "^3.12.4",
     "pinia": "^2.2.1",
     "pinia-plugin-persistedstate": "^3.2.1",
