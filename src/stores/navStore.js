@@ -8,8 +8,6 @@ export const useNavStore = defineStore('navdata', () => {
 
   // Actions
   function toggleSideMenu() {
-    console.log("Toggle Side menu__________________________");
-    
     isSideMenuOpen.value = !isSideMenuOpen.value;
   }
   function $reset() {

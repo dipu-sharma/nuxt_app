@@ -16,7 +16,6 @@ export const useProjectStore = defineStore("project", {
       this.project_payload.system_info = payload;
     },
     SaveForPlanning(payload: any) {
-      // console.log("Stor method__________________", payload);
 
       this.save_for_planning = payload;
     },

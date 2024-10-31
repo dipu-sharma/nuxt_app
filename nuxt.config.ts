@@ -47,7 +47,7 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  plugins: ["~/plugins/piniaPersist.js"],
+  plugins: ["~/plugins/piniaPersist.js", '~/plugins/vue3-toastify.js', '~/plugins/vuetify.ts'],
   modules: ["@pinia/nuxt"],
   pinia: {
     storesDirs: ["./stores/**", "./custom-folder/stores/**"],
