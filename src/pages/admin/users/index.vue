@@ -7,15 +7,13 @@
     >
       {{ isOpen ? 'Close Filter' : 'Open Filter' }}
     </button>
-
-    <!-- Filter Component as a Sidebar -->
     <AdminPageFilter :isOpen="isOpen" @updateFilters="handleFilterUpdate" />
   </div>
 </template>
 
 <script setup>
 definePageMeta({
-  layout: 'admin' // Use the 'admin' layout created above
+  layout: 'admin'
 })
 
 const isOpen = ref(false);

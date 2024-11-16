@@ -144,7 +144,7 @@ import { ref, onMounted } from 'vue'
 import { toast } from 'vue3-toastify';
 import { useNavStore } from '~/stores/navStore'
 import { useAuthStore } from '~/stores/auth'
-const { $ResetAuth } = useAuthStore()
+const authStore = useAuthStore()
 const navStore = useNavStore()
 const isNotificationsMenuOpen = ref(false)
 const isProfileMenuOpen = ref(false)
@@ -206,7 +206,7 @@ const closeProfileMenu = () => {
 }
 const logout = () => {
     try {
-        $ResetAuth()
+        authStore.$ResetAuth()
         toast.error("Logout Successfully", {
             position: "top-right",
             autoClose: 3000,

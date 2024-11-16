@@ -1,6 +1,6 @@
 <template>
   <div class="flex min-h-[95vh] items-center justify-center bg-white shadow-lg">
-    <div class="w-full max-w-md space-y-6 p-6 bg-white shadow-lg rounded-md">
+    <div class="w-full max-w-md items-center justify-center space-y-6 p-6 bg-white shadow-lg rounded-md">
       <div>
         <h2 class="mt-6 text-center text-3xl font-bold text-gray-900">
           Sign in to your account
@@ -10,31 +10,17 @@
         <div class="rounded-md shadow-sm">
           <div>
             <label for="email" class="sr-only">Email address</label>
-            <input
-              id="username"
-              name="username"
-              type="email"
-              required
+            <input id="username" name="username" type="email" required
               class="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              placeholder="Email address"
-              v-model="loginform.username"
-            />
+              placeholder="Email address" v-model="loginform.username" />
           </div>
           <div class="mt-4 relative">
             <label for="password" class="sr-only">Password</label>
-            <input
-              :type="showPassword ? 'text' : 'password'"
-              id="password"
-              name="password"
-              required
+            <input :type="showPassword ? 'text' : 'password'" id="password" name="password" required
               class="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              placeholder="Password"
-              v-model="loginform.password"
-            />
-            <span
-              @click="togglePasswordVisibility"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-            >
+              placeholder="Password" v-model="loginform.password" />
+            <span @click="togglePasswordVisibility"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
               <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
             </span>
           </div>
@@ -42,32 +28,20 @@
 
         <div class="flex items-center justify-between">
           <div class="flex items-center">
-            <input
-              id="is_remember"
-              name="is_remember"
-              type="checkbox"
+            <input id="is_remember" name="is_remember" type="checkbox"
               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-              v-model="loginform.is_remember"
-            />
-            <label for="is_remember" class="ml-2 block text-sm text-gray-900"
-              >Remember me</label
-            >
+              v-model="loginform.is_remember" />
+            <label for="is_remember" class="ml-2 block text-sm text-gray-900">Remember me</label>
           </div>
 
           <div class="text-sm">
-            <a
-              href="#"
-              class="font-medium text-indigo-600 hover:text-indigo-500"
-              >Forgot your password?</a
-            >
+            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Forgot your password?</a>
           </div>
         </div>
 
         <div>
-          <button
-            type="submit"
-            class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
+          <button type="submit"
+            class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             Sign in
           </button>
         </div>
@@ -88,57 +62,90 @@ const loginform = ref({
   password: "",
 });
 const UserType = {
-  SUPERADMIN: "SUPERADMIN",
-  ADMIN: "ADMIN",
-  VENDOR: "VENDOR",
-  USER: "USER",
-};
-
+  SUPERADMIN: "superadmin",
+  ADMIN: "admin",
+  VENDOR: "vendor",
+  USER: "user",
+}
 const showPassword = ref(false);
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value;
 };
 
-const handleLogin = async () => {
-  const { loginApi, getCorrentUser } = authAPI();
+// const handleLogin = async () => {
+//   const { loginApi, getCorrentUser } = authAPI();
 
-  try {
-    const response = await loginApi(loginform);
-    if (response) {
-      authStore.addToken(response?.data?.access_token);
-      const get_user = await getCorrentUser(response.data.access_token);
+//   try {
+//     const response = await loginApi(loginform);
+//     if (response) {
+//       authStore.addToken(response?.data?.access_token);
+//       const get_user = await getCorrentUser(response.data.access_token);
 
-      if (get_user) {
-        authStore.setUserData(get_user.data);
-        useNuxtApp().$toast("Logged in Successfully");
+//       if (get_user) {
+//         authStore.setUserData(get_user.data);
+//         useNuxtApp().$toast("Logged in Successfully");
 
-        switch (get_user.data.user_type) {
-          case UserType.SUPERADMIN:
-          case UserType.ADMIN:
-            navigateTo("/admin", { redirectCode: 301 });
-            break;
-          case UserType.VENDOR:
-            navigateTo("/vendor", { redirectCode: 301 });
-            break;
-          default:
-            navigateTo("/user", { redirectCode: 301 });
-            break;
-        }
-      }
-    } else {
-      toast.error("Invalid credentials", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
-  } catch (error) {
-    toast.error("Login failed, please try again later", {
-      position: "top-right",
-      autoClose: 3000,
-    });
+//         switch (get_user.data.user_type) {
+//           case UserType.SUPERADMIN:
+//           case UserType.ADMIN:
+//             navigateTo("/admin", { redirectCode: 301 });
+//             break;
+//           case UserType.VENDOR:
+//             navigateTo("/vendor", { redirectCode: 301 });
+//             break;
+//           default:
+//             navigateTo("/user", { redirectCode: 301 });
+//             break;
+//         }
+//       }
+//     } else {
+//       toast.error("Invalid credentials", {
+//         position: "top-right",
+//         autoClose: 3000,
+//       });
+//     }
+//   } catch (error) {
+//     toast.error("Login failed, please try again later", {
+//       position: "top-right",
+//       autoClose: 3000,
+//     });
 
-    console.error("Login failed", error);
+//     console.error("Login failed", error);
+//   }
+// };
+
+const handleLogin = () => {
+  const staticToken = "staticToken123";
+  const staticUser = {
+    id: 1,
+    name: "John Doe",
+    email: "johndoe@example.com",
+    user_type: UserType.USER,
+  };
+
+
+
+  // Notify user of successful login
+  toast.success("Logged in Successfully", {
+    position: "top-right",
+    autoClose: 3000,
+  });
+  authStore.addToken(staticToken);
+  authStore.setUserData(staticUser);
+  authStore.setRoles(staticUser.user_type);
+
+  switch (staticUser.user_type) {
+    case UserType.SUPERADMIN:
+    case UserType.ADMIN:
+      navigateTo("/admin", { redirectCode: 301 });
+      break;
+    case UserType.VENDOR:
+      navigateTo("/vendor", { redirectCode: 301 });
+      break;
+    default:
+      navigateTo("/user", { redirectCode: 301 });
+      break;
   }
 };
 

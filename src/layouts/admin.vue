@@ -1,5 +1,6 @@
 <template>
   <div class="flex h-screen bg-gray-50 dark:bg-white" :class="{ 'overflow-hidden': navStore.isSideMenuOpen }">
+
     <!-- SideBar -->
     <SideBar />
     <div class="flex flex-col flex-1 w-full">

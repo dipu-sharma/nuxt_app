@@ -4,12 +4,11 @@
     </div>
 </template>
 
-
 <script setup>
-import { useAuthStore } from '~/stores/auth';
-const authStore = useAuthStore();
-
-if (!authStore.isAuthenticated) {
-    navigateTo('/login')
-}
+definePageMeta({
+  title: 'User',
+  description: 'Learn more about our company',
+  middleware: ['auth-role'],
+  role: ['user', 'admin']
+})
 </script>

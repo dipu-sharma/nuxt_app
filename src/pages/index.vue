@@ -1,7 +1,7 @@
 <template>
-    <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800">
-        <Carousels />
-        <div class=" bg-black px-10 py-2 mx-20 border rounded-lg">
+    <div class="">
+        <!-- <Carousels /> -->
+        <div class="px-10 py-2 mx-20 text-black">
             <h1 class="">All Category</h1>
         </div>
         <Product />

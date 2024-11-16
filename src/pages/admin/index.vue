@@ -22,8 +22,12 @@
   </div>
 </template>
 
-<script>
+<script setup>
 definePageMeta({
-  layout: 'admin' // Use the 'admin' layout created above
+  title: 'Admin',
+  description: 'Learn more about our company',
+  middleware: ['auth-role'],
+  role: ['admin'],
+  layout: 'admin' 
 })
 </script>

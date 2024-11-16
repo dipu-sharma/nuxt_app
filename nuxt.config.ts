@@ -11,15 +11,11 @@ if (process.env.NUXT_ENV === "dev") {
 } else if (process.env.NUXT_ENV === "prod") {
   dotenv.config({ path: join(__dirname, ".env.prod") });
 } else {
-  // console.log("Directory Name_________________________", __dirname);
-
   dotenv.config({ path: join(__dirname, ".env") });
 }
 
 const publicRuntimeConfig: Record<string, string> = {};
 const privateRuntimeConfig: Record<string, string> = {};
-
-// All environment variables need to start with NUXT_
 for (const key in process.env) {
   if (key.startsWith("NUXT_PUBLIC_")) {
     publicRuntimeConfig[key] = process.env[key] as string;
@@ -38,8 +34,7 @@ export default defineNuxtConfig({
   srcDir: "src",
   css: [
     "~/assets/css/tailwind.css",
-    "vuetify/styles", // Include Vuetify styles
-    "@mdi/font/css/materialdesignicons.min.css", // Include MDI icons
+    "@mdi/font/css/materialdesignicons.min.css",
   ],
   postcss: {
     plugins: {
@@ -47,11 +42,7 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  plugins: ["~/plugins/piniaPersist.js", '~/plugins/vue3-toastify.js', '~/plugins/vuetify.ts'],
-  modules: ["@pinia/nuxt"],
-  pinia: {
-    storesDirs: ["./stores/**", "./custom-folder/stores/**"],
-  },
+  plugins: ["~/plugins/pinia.js", '~/plugins/vue3-toastify.js', '~/plugins/vuetify.ts'],
   build: {
     transpile: ["vuetify"],
   },

@@ -63,6 +63,11 @@ definePageMeta({
 const projectStore = useProjectStore()
 const planningData = ref('')
 const selectedSystems = ref([])
+const loading = ref(false)
+const page = ref(0)
+const items = ref([])
+let totalItems = 100
+const itemsPerPage = ref([])
 
 const datatable = ref({
   total_items: [],
@@ -154,7 +159,7 @@ const fetchData = async () => {
   const { data, total } = await getDataFromServer(page.value, itemsPerPage.value)
 
   items.value = data
-  totalItems.value = total
+  totalItems = total || 100
   loading.value = false
 }
 
