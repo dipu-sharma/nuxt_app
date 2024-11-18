@@ -13,6 +13,7 @@
 
 <script setup>
 definePageMeta({
+  title: 'Admin',
   layout: 'admin'
 })
 

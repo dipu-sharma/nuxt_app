@@ -57,6 +57,7 @@ import { multiple_items } from '~/utils/repository'
 import * as XLSX from 'xlsx' // Import xlsx library
 
 definePageMeta({
+  title: 'Admin',
   layout: 'admin'
 })
 

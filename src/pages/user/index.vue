@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <h1 class="pt-10">User Page</h1>
-    </div>
+  <div>
+    <h1 class="pt-10">User Page</h1>
+  </div>
 </template>
 
 <script setup>

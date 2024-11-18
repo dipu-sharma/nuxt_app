@@ -54,10 +54,6 @@
             md:justify-between 
             md:pt-0" v-if="!authStore.isAuthenticated">
           <li>
-            <NuxtLink class="md:p-4 py-2 block hover:text-purple-400 text-purple-500" :to="{ name: 'register' }">Sign Up
-            </NuxtLink>
-          </li>
-          <li>
             <NuxtLink class="md:p-4 py-2 block hover:text-purple-400 text-purple-500" :to="{ name: 'login' }">Sign In
             </NuxtLink>
           </li>

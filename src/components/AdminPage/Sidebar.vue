@@ -2,7 +2,7 @@
   <aside class="z-20 flex-shrink-0 hidden w-64 overflow-y-auto bg-black dark:bg-gray-800 md:block">
     <div class="py-4 text-gray-500 dark:text-gray-400">
       <div class="py-2 px-8">
-        <h1 class="items-center justify-center text-white">Admin Dashboard</h1>
+        <h1 class="items-center text-xl justify-center text-white">Admin Dashboard</h1>
       </div>
       <ul class="mt-6">
         <li class="relative px-6 py-3" v-for="(item, index) in sidebarItems" :key="index">
@@ -18,7 +18,6 @@
           </NuxtLink>
         </li>
       </ul>
-
       <ul class="">
         <li class="relative px-6 py-3">
           <button

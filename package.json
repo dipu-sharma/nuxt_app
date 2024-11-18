@@ -8,7 +8,9 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "uat": "cross-env NUXT_ENV=uat nuxt dev",
+    "prod": "cross-env NUXT_ENV=production nuxt dev"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -30,6 +32,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
+    "cross-env": "^7.0.3",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.9"
   },

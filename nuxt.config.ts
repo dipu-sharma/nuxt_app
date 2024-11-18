@@ -1,8 +1,11 @@
-import dotenv from "dotenv";
 import { defineNuxtConfig } from "nuxt/config";
 import vuetifyPlugin from "vite-plugin-vuetify"; // Import the Vite Vuetify plugin
 import { join } from "path";
+import * as dotenv from "dotenv";
 
+// Load the correct .env file based on the environment
+const env = process.env.NUXT_ENV || process.env.NODE_ENV || "dev";
+dotenv.config({ path: `.env.${env}` });
 // Logic to handle environment file based on the NODE_ENV value set in the package.json
 if (process.env.NUXT_ENV === "dev") {
   dotenv.config({ path: join(__dirname, ".env.dev") });
@@ -42,7 +45,11 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  plugins: ["~/plugins/pinia.js", '~/plugins/vue3-toastify.js', '~/plugins/vuetify.ts'],
+  plugins: [
+    "~/plugins/pinia.js",
+    "~/plugins/vue3-toastify.js",
+    "~/plugins/vuetify.ts",
+  ],
   build: {
     transpile: ["vuetify"],
   },
@@ -65,9 +72,7 @@ export default defineNuxtConfig({
   // },
   runtimeConfig: {
     public: {
-      apiUrl:
-        process.env[`NUXT_API_URL_${process.env.NODE_ENV?.toUpperCase()}`],
+      apiBaseUrl: process.env.API_BASE_URL || "http://localhost:8001", // Default fallback
     },
-    secretKey: process.env[`SECRET_KEY_${process.env.NODE_ENV?.toUpperCase()}`],
   },
 });
