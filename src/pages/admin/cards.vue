@@ -170,6 +170,7 @@
 
 
 <script setup>
+import * as common_date from '@/utils/common/data_formate'
 definePageMeta({
   layout: 'admin' // Use the 'admin' layout created above
 })
@@ -178,6 +179,8 @@ import { ref } from "vue";
 const isModalOpen = ref(false);
 
 const openModal = () => {
+  console.log("Date______________________modal_____________________", common_date.input_date());
+
   isModalOpen.value = true;
 };
 
