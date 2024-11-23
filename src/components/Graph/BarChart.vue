@@ -1,11 +1,10 @@
 <template>
     <div class="chart-container">
-        <BaseChart type="bar" :data="chartData" :options="chartOptions" />
+        <GraphBaseChart type="bar" :data="chartData" :options="chartOptions" />
     </div>
 </template>
 
 <script setup>
-import BaseChart from './BaseChart.vue';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Chart } from 'chart.js';
 

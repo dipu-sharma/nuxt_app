@@ -8,7 +8,7 @@
     <!-- Planning Data Input -->
     <div class="mt-8">
       <h3 class="text-lg font-semibold mb-4">Save for Planning: <span class="font-normal">{{
-          projectStore.save_for_planning }}</span></h3>
+        projectStore.save_for_planning }}</span></h3>
 
       <!-- Input field for planning data -->
       <input v-model="planningData" placeholder="Enter planning data"
@@ -81,6 +81,7 @@ import * as XLSX from 'xlsx'
 
 definePageMeta({
   title: 'Admin',
+  description: 'Learn more about our company',
   layout: 'admin'
 })
 

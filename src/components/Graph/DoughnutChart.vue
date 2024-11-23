@@ -1,9 +1,8 @@
 <template>
-    <BaseChart type="doughnut" :data="chartData" :options="chartOptions" />
+    <GraphBaseChart type="doughnut" :data="chartData" :options="chartOptions" />
 </template>
 
 <script setup>
-import BaseChart from './BaseChart.vue';
 
 const chartData = {
     labels: ['Red', 'Blue', 'Yellow'],

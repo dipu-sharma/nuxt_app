@@ -7,6 +7,7 @@
 <script setup>
 definePageMeta({
     title: 'Admin',
+    description: 'Learn more about our company',
     layout: 'admin' // Use the 'admin' layout created above
 })
 </script>

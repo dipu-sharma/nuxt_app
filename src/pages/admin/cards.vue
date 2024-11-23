@@ -172,6 +172,8 @@
 <script setup>
 import * as common_date from '@/utils/common/data_formate'
 definePageMeta({
+  title: 'Admin',
+  description: 'Learn more about our company',
   layout: 'admin' // Use the 'admin' layout created above
 })
 import { ref } from "vue";

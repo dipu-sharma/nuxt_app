@@ -13,6 +13,4 @@ definePageMeta({
   </NuxtLayout>
 </template>
 
-
-
 <style></style>

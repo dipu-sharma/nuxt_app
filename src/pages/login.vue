@@ -68,6 +68,7 @@
 import { useAuthStore } from "~/stores/auth";
 import authAPI from "@/utils/api/autheAPI";
 import { toast } from "vue3-toastify";
+import { onMounted } from "vue";
 
 const authStore = useAuthStore();
 
@@ -85,49 +86,7 @@ const showPassword = ref(false);
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value;
-};
-
-// const handleLogin = async () => {
-//   const { loginApi, getCorrentUser } = authAPI();
-
-//   try {
-//     const response = await loginApi(loginform);
-//     if (response) {
-//       authStore.addToken(response?.data?.access_token);
-//       const get_user = await getCorrentUser(response.data.access_token);
-
-//       if (get_user) {
-//         authStore.setUserData(get_user.data);
-//         useNuxtApp().$toast("Logged in Successfully");
-
-//         switch (get_user.data.user_type) {
-//           case UserType.SUPERADMIN:
-//           case UserType.ADMIN:
-//             navigateTo("/admin", { redirectCode: 301 });
-//             break;
-//           case UserType.VENDOR:
-//             navigateTo("/vendor", { redirectCode: 301 });
-//             break;
-//           default:
-//             navigateTo("/user", { redirectCode: 301 });
-//             break;
-//         }
-//       }
-//     } else {
-//       toast.error("Invalid credentials", {
-//         position: "top-right",
-//         autoClose: 3000,
-//       });
-//     }
-//   } catch (error) {
-//     toast.error("Login failed, please try again later", {
-//       position: "top-right",
-//       autoClose: 3000,
-//     });
-
-//     console.error("Login failed", error);
-//   }
-// };
+}
 
 const handleLogin = () => {
   const staticToken = "staticToken123";
@@ -136,20 +95,33 @@ const handleLogin = () => {
     name: "John Doe",
     email: "johndoe@example.com",
     user_type: UserType.ADMIN,
-  };
+  }
 
-
+  // Store token and user data
+  authStore.addToken(staticToken);
+  authStore.setUserData(staticUser);
+  authStore.setRoles(staticUser.user_type);
 
   // Notify user of successful login
   toast.success("Logged in Successfully", {
     position: "top-right",
     autoClose: 3000,
   });
-  authStore.addToken(staticToken);
-  authStore.setUserData(staticUser);
-  authStore.setRoles(staticUser.user_type);
 
-  switch (staticUser.user_type) {
+  // Redirect based on role
+  redirectToRole(staticUser.user_type);
+}
+onMounted(() => {
+  if (import.meta.client) {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser && storedUser.user_type) {
+      redirectToRole(storedUser.user_type);
+    }
+  }
+});
+
+const redirectToRole = (userType) => {
+  switch (userType) {
     case UserType.SUPERADMIN:
     case UserType.ADMIN:
       navigateTo("/admin", { redirectCode: 301 });
