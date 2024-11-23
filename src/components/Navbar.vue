@@ -47,29 +47,17 @@
           <li>
             <NuxtLink class="md:p-4 py-2 block hover:text-purple-400" to="/product/grocery">Grocery</NuxtLink>
           </li>
-        </ul>
-        <ul class="pt-0
-            text-base text-gray-700
-            md:flex
-            md:justify-between 
-            md:pt-0" v-if="!authStore.isAuthenticated">
-          <li>
+          <li v-if="!authStore.isAuthenticated">
             <NuxtLink class="md:p-4 py-2 block hover:text-purple-400 text-purple-500" :to="{ name: 'login' }">Sign In
             </NuxtLink>
           </li>
-        </ul>
-        <ul class="
-            text-base text-gray-700
-            md:flex
-            md:justify-between 
-            md:pt-0" v-if="authStore.isAuthenticated">
-          <li class="relative">
+          <li v-else>
             <button @click="toggleDropdown"
               class="md:p-4 py-2 block hover:text-purple-400 text-purple-500 focus:outline-none">
               Profile
             </button>
             <div v-if="isDropdownOpen"
-              class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+              class="absolute right-0 mt-2 mr-12 md:mr-6 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
               <NuxtLink to="/user" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                 Account
               </NuxtLink>
