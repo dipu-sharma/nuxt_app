@@ -35,7 +35,11 @@
 </template>
 
 <script setup>
-
+definePageMeta({
+    title: 'Login',
+    description: 'Learn more about our company',
+    layout: 'default'
+})
 const user_type_list = ref([
     'Admin',
     'User',

@@ -9,7 +9,11 @@
 </template>
 
 <script setup>
-const value = ref(10);
+definePageMeta({
+    title: 'Login',
+    description: 'Learn more about our company',
+    layout: 'default'
+})
 const items = ref([
     { title: 'Slide 1', src: 'https://via.placeholder.com/800x400.png?text=Slide+1' },
     { title: 'Slide 2', src: 'https://via.placeholder.com/800x400.png?text=Slide+2' },

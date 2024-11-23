@@ -71,9 +71,9 @@ export const useAuthStore = defineStore("authStore", () => {
   function checkAuth() {
     initializeAuthFromStorage();
   }
-  onMounted(() => {
-    initializeAuthFromStorage();
-  });
+  // onMounted(() => {
+  //   initializeAuthFromStorage();
+  // });
 
   return {
     isAuthenticated,

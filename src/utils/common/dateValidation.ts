@@ -2,7 +2,9 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjsBusinessDays from "dayjs-business-days2";
 dayjs.extend(relativeTime);
-dayjs.extend(dayjsBusinessDays);
+if (import.meta.client) {
+  dayjs.extend(dayjsBusinessDays);
+}
 
 export const date_to_string = (date: any, format: string = "YYYY-MM-DD") => {
   if (!date || !dayjs(date).isValid()) {
@@ -28,7 +30,6 @@ export const calculate_date = (start_date: any, end_date: any) => {
 };
 
 export const input_date = () => {
-  //   dayjs.setWorkingWeekdays([1, 2, 3, 4, 5,6]); // set working days means 0 for Saturday 6 for Sunday include
   let data = dayjs.getWorkingWeekdays();
   //   let add_date = dayjs(`2020-12-24`).businessDaysAdd(1).format(`DD/MM/YYYY`);
   console.log("Data____________________", data);

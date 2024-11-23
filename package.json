@@ -4,13 +4,21 @@
   "type": "module",
   "version": "0.0.0",
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "dev": "cross-env NUXT_ENV=dev nuxt dev",
     "uat": "cross-env NUXT_ENV=uat nuxt dev",
-    "prod": "cross-env NUXT_ENV=production nuxt dev"
+    "prod": "cross-env NUXT_ENV=prod nuxt dev",
+    "dev:build": "cross-env NUXT_ENV=dev nuxt build",
+    "uat:build": "cross-env NUXT_ENV=uat nuxt build",
+    "prod:build": "cross-env NUXT_ENV=prod nuxt build",
+    "dev:generate": "cross-env NUXT_ENV=dev nuxt generate",
+    "uat:generate": "cross-env NUXT_ENV=uat nuxt generate",
+    "prod:generate": "cross-env NUXT_ENV=prod nuxt generate",
+    "dev:preview": "cross-env NUXT_ENV=dev nuxt preview",
+    "uat:preview": "cross-env NUXT_ENV=uat nuxt preview",
+    "prod:preview": "cross-env NUXT_ENV=prod nuxt preview",
+    "dev:postinstall": "cross-env NUXT_ENV=dev nuxt postinstall",
+    "uat:postinstall": "cross-env NUXT_ENV=uat nuxt postinstall",
+    "prod:postinstall": "cross-env NUXT_ENV=prod nuxt postinstall"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

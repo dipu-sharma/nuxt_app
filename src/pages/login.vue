@@ -65,8 +65,13 @@
 </template>
 
 <script setup>
+definePageMeta({
+  title: 'Login',
+  description: 'Learn more about our company',
+  layout: 'default'
+})
 import { useAuthStore } from "~/stores/auth";
-import authAPI from "@/utils/api/autheAPI";
+// import authAPI from "@/utils/api/autheAPI";
 import { toast } from "vue3-toastify";
 import { onMounted } from "vue";
 
@@ -135,9 +140,9 @@ const redirectToRole = (userType) => {
   }
 };
 
-watch(authStore.isAuthenticated, (newValue, oldValue) => {
-  console.log(`Count changed from ${oldValue} to ${newValue}`);
-});
+// watch(authStore?.isAuthenticated, (newValue, oldValue) => {
+//   console.log(`Count changed from ${oldValue} to ${newValue}`);
+// });
 </script>
 
 <style scoped>

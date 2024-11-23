@@ -2,27 +2,43 @@ import { useAuthStore } from "~/stores/auth";
 
 export function useAutoLogout() {
   const authStore = useAuthStore();
-  let logoutTimer = null;
+  const logoutTimer = ref(null);
+  const countdownTimer = ref(null);
+  const remainingTime = ref(30 * 60); // 30 minutes in seconds
 
+  // Reset Timer Function
   const resetTimer = () => {
-    if (logoutTimer) clearTimeout(logoutTimer);
-    logoutTimer = setTimeout(() => {
+    // Clear existing timers
+    if (logoutTimer.value) clearTimeout(logoutTimer.value);
+    if (countdownTimer.value) clearInterval(countdownTimer.value);
+
+    // Reset remaining time and start countdown
+    remainingTime.value = 30 * 60; // Reset to 30 minutes
+    countdownTimer.value = setInterval(() => {
+      remainingTime.value -= 1;
+      if (remainingTime.value <= 0) {
+        clearInterval(countdownTimer.value);
+      }
+    }, 1000);
+
+    // Set logout timer
+    logoutTimer.value = setTimeout(() => {
       authStore.$ResetAuth();
-      navigateTo("/login");
-    }, 30 * 60 * 1000);
+      navigateTo("/login"); // Redirect to login
+    }, 30 * 60 * 1000); // 30 minutes
   };
 
+  // Start Listening for User Activity
   const startTimer = () => {
-    document.addEventListener("mousemove", resetTimer);
-    document.addEventListener("keypress", resetTimer);
-    resetTimer();
+    resetTimer(); // Initialize timer
   };
 
+  // Stop Listening and Clear Timers
   const stopTimer = () => {
-    if (logoutTimer) clearTimeout(logoutTimer);
-    document.removeEventListener("mousemove", resetTimer);
-    document.removeEventListener("keypress", resetTimer);
+    if (logoutTimer.value) clearTimeout(logoutTimer.value);
+    if (countdownTimer.value) clearInterval(countdownTimer.value);
+    remainingTime.value = 30 * 60; // Reset time
   };
 
-  return { startTimer, stopTimer };
+  return { startTimer, stopTimer, remainingTime };
 }

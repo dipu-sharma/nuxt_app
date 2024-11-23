@@ -4,10 +4,9 @@
   </div>
 </template>
 
-<script>
-
+<script setup>
 definePageMeta({
-  title: 'Admin',
+  title: 'Settings',
   description: 'Learn more about our company',
   layout: 'admin' // Use the 'admin' layout created above
 })
