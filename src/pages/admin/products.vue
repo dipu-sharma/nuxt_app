@@ -8,7 +8,7 @@
     <!-- Planning Data Input -->
     <div class="mt-8">
       <h3 class="text-lg font-semibold mb-4">Save for Planning: <span class="font-normal">{{
-        projectStore.save_for_planning }}</span></h3>
+          projectStore.save_for_planning }}</span></h3>
 
       <!-- Input field for planning data -->
       <input v-model="planningData" placeholder="Enter planning data"
@@ -16,13 +16,48 @@
 
       <!-- Save Button -->
       <button @click="savePlanningData"
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200">
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200 mb-4">
         Save Planning Data
       </button>
     </div>
-    <UploadImage />
-    <h1>Selected Products</h1>
-    <div class="d-flex gap-4">
+    <!-- File Upload Component -->
+    <div class="flex gap-4">
+      <UploadFileSingleFile @file-uploaded="handleFileUpload" :details="file_type.excel_details" />
+      <UploadFileSingleFile @file-uploaded="handleFileUpload" :details="file_type.image_details" />
+      <UploadFileSingleFile @file-uploaded="handleFileUpload" :details="file_type.pdf_details" />
+    </div>
+    <!-- File Preview Section -->
+    <div class="filePreview">
+      <!-- Image Preview -->
+      <div v-if="fileType === 'image' && previewUrl">
+        <img :src="previewUrl" alt="Image Preview" />
+      </div>
+
+      <!-- PDF Preview -->
+      <div v-else-if="fileType === 'pdf' && file">
+        <iframe v-if="pdfviewurl" :src="pdfviewurl" width="100%" height="400px"></iframe>
+        <p v-else>No PDF uploaded</p>
+      </div>
+
+      <!-- Excel Preview -->
+      <div v-else-if="fileType === 'excel' && file">
+        <p>Excel file uploaded: {{ file.name }}</p>
+      </div>
+    </div>
+
+    <!-- Multi File Upload Component -->
+    <UploadFileMultiFile @files-uploaded="handleFilesUpload" />
+    <div v-for="(file, index) in files" :key="index" class="imgPreview">
+      <div v-if="file.preview">
+        <img :src="file.preview" />
+        <button class="removeButton" @click="removeImage(index)">✖</button>
+      </div>
+      <div v-else class="previewText">
+        No preview available
+      </div>
+    </div>
+    <h1 class="text-center text-2xl font-bold">Selected Products</h1>
+    <!-- <div class="d-flex gap-4">
       <div v-if="selectedSystems.length > 0" @click="SaveMilestone"
         class="text-white bg-gradient-to-r from-[#FF9C06] to-[#F42C00] focus:outline-none font-medium rounded-lg text-sm px-8 py-2.5 text-center cursor-pointer">
         Save
@@ -31,30 +66,18 @@
         class="text-white bg-gradient-to-r from-[#FF9C06] to-[#F42C00] focus:outline-none font-medium rounded-lg text-sm px-8 py-2.5 text-center cursor-pointer">
         Download Template
       </div>
-    </div>
+    </div> -->
 
-    <div v-for="(system_item, index) in datatable.multiple_items" :key="index" class="table_data">
-      <div class="d-flex rr-items-center">
-        <!-- Checkbox for selecting systems -->
-        <input type="checkbox" :value="system_item" v-model="selectedSystems" class="mr-2 p-4" />
-      </div>
-
-      <!-- Editable Table component -->
-      <!-- <TablesTable1 :items="system_item" :headers="datatable.header" :isLoading="isTableLoading"
-        :totalItems="datatable.total_items[index]" :itemsPerPage="6" /> -->
-    </div>
-    <v-container>
-      <TablesTable2 :headers="table2_datatable.headers" :items="table2_datatable.items" :page="table2_datatable.page"
-        :itemsPerPage="itemsPerPage" :totalItems="totalItems" :loading="loading" @update:page="updatePage"
-        @update:itemsPerPage="updateItemsPerPage" />
-    </v-container>
+    <TablesTable2 :headers="table2_datatable.headers" :items="table2_datatable.items" :page="table2_datatable.page"
+      :itemsPerPage="itemsPerPage" :totalItems="totalItems" :loading="loading" @update:page="updatePage"
+      @update:itemsPerPage="updateItemsPerPage" />
   </div>
 </template>
 
 <script setup>
 import { useProjectStore } from '~/stores/projects'
 import { multiple_items } from '~/utils/repository'
-import * as XLSX from 'xlsx' // Import xlsx library
+import * as XLSX from 'xlsx'
 
 definePageMeta({
   title: 'Admin',
@@ -64,11 +87,16 @@ definePageMeta({
 const projectStore = useProjectStore()
 const planningData = ref('')
 const selectedSystems = ref([])
+const file_type = {
+  excel_details: { type: 'excel', extension: ['xls', 'xlsx'], size: 5 },
+  image_details: { type: 'image', extension: ['png', 'jpeg', 'jpg'], size: 5 },
+  pdf_details: { type: 'pdf', extension: ['pdf'], size: 5 }
+}
 const loading = ref(false)
 const page = ref(0)
 const items = ref([])
 let totalItems = 100
-const itemsPerPage = ref([])
+const itemsPerPage = ref(10)
 
 const datatable = ref({
   total_items: [],
@@ -90,7 +118,43 @@ const datatable = ref({
   ],
 })
 
+const errorMessage = ref('')
+const file = ref(null)
+const previewUrl = ref('');
+const pdfviewurl = ref('')
+const fileType = ref('');
+const files = ref([])
 
+const handleFileUpload = (payload) => {
+  console.log('File upload payload:', payload)
+  if (!payload || !payload.file) {
+    console.error('Invalid file upload payload:', payload);
+    return;
+  }
+  if (payload.file && payload.type === 'pdf') {
+    pdfviewurl.value = URL.createObjectURL(payload?.file)
+  }
+  file.value = payload.file
+  previewUrl.value = payload.previewUrl
+  fileType.value = payload.type
+
+  console.log('File:', file.value);
+  console.log('Preview URL:', previewUrl.value);
+  console.log('File Type:', fileType.value);
+};
+
+const handleFilesUpload = (payload) => {
+  files.value = payload.files
+
+  if (!files.value) {
+    errorMessage.value = 'No image preview available.'
+  } else {
+    errorMessage.value = ''
+  }
+}
+const removeImage = (index) => {
+  files.value.splice(index, 1)
+}
 const table2_datatable = ref({
   items: [],
   loading: false,
@@ -111,6 +175,7 @@ const table2_datatable = ref({
     { title: 'Man Power', value: 'man_power', sortable: false, align: 'left' },
     { title: 'Quantity', value: 'quantity', sortable: false, align: 'left' },
     { title: 'Stock', value: 'image', sortable: false, align: 'left' },
+    { title: '', value: 'actions', sortable: false, align: 'left' },
   ],
 
 })
@@ -128,7 +193,6 @@ const SaveMilestone = () => {
   }
 }
 
-// Function to export selected systems to Excel
 const exportToExcel = () => {
   const ws_data = selectedSystems.value.map((system, index) => ({
     'Sr No.': index + 1,
@@ -190,7 +254,6 @@ const updateItemsPerPage = (newItemsPerPage) => {
   fetchData() // Refetch data when items per page changes
 }
 
-// Initially fetch data
 fetchData()
 watch(
   () => projectStore.save_for_planning,

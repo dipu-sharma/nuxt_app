@@ -40,3 +40,39 @@ export function fullName(fname: string, lname: string) {
   }
 }
 
+export function validateFile(
+  file: any,
+  allowedExtensions: string[],
+  type: string,
+  maxSizeInMB: number
+): ValidationResult {
+  if (!file) {
+    return { valid: false, error: "No file selected" };
+  }
+
+  const fileExtension = file.name.split(".").pop().toLowerCase();
+  const fileSizeInMB = file.size / (1024 * 1024);
+
+  if (!allowedExtensions.includes(fileExtension)) {
+    return {
+      valid: false,
+      error:
+        type === "image"
+          ? "Please upload a valid image file (.png, .jpeg, .jpg)"
+          : type === "pdf"
+          ? "Please upload a valid PDF file"
+          : type === "excel"
+          ? "Please upload a valid Excel file"
+          : "Invalid file type",
+    };
+  }
+
+  if (fileSizeInMB > maxSizeInMB) {
+    return {
+      valid: false,
+      error: `File size exceeds the maximum limit of ${maxSizeInMB} MB`,
+    };
+  }
+
+  return { valid: true, error: "" };
+}
