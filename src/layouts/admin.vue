@@ -21,10 +21,21 @@
 import SideBar from '~/components/AdminPage/Sidebar.vue';
 import Topbar from '~/components/AdminPage/Topbar.vue';
 import { useNavStore } from '~/stores/navStore';
+import { useAuthStore } from '~/stores/auth';
+import { useAutoLogout } from '~/composables/autoLogout';
 
+const authStore = useAuthStore()
+const { startTimer, stopTimer } = useAutoLogout()
 const navStore = useNavStore();
 const isDesktop = ref(false);
 
+watch(() => authStore.isAuthenticated, (isLoggedIn) => {
+  if (isLoggedIn) {
+    startTimer();
+  } else {
+    stopTimer();
+  }
+});
 onMounted(() => {
   isDesktop.value = window.innerWidth >= 1024;
   window.addEventListener('resize', () => {
