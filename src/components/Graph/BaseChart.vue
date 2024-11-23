@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="chart-container" style="position: relative; height:40vh">
         <canvas ref="canvas" @click="onChartClick"></canvas>
     </div>
 </template>

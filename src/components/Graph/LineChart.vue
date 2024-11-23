@@ -77,16 +77,25 @@ const chartOptions = {
             }
         }
     },
-    animation: {
-        duration: 1000,
-        easing: 'easeOutBounce',
-        onProgress: function (animation) {
-
-        },
-        onComplete: function () {
-            // Custom logic to be executed after animation completes
-            console.log('Animation complete!');
+    animations: {
+        tension: {
+            duration: 1000,
+            easing: 'linear',
+            from: 1,
+            to: 0,
+            loop: true
         }
-    }
+    },
+    // animation: {
+    //     duration: 1000,
+    //     easing: 'easeOutBounce',
+    //     onProgress: function (animation) {
+
+    //     },
+    //     onComplete: function () {
+    //         // Custom logic to be executed after animation completes
+    //         console.log('Animation complete!');
+    //     }
+    // }
 };
 </script>

@@ -18,7 +18,7 @@ const chartData = {
     datasets: [
         {
             label: 'Milestone Planned',
-            data: [10, 15, 30, 20, 28, 32, 36],
+            data: [10, 15, 30, 20, 0, 32, 36],
             backgroundColor: '#ff867c',
             stack: 'Stack 0',
         },
@@ -59,7 +59,12 @@ const chartOptions = {
             color: '#000',
             anchor: 'center',
             align: 'center',
-            formatter: (value) => `${value}%`,
+            formatter: (value) => {
+                if (value === 0 || value === '') {
+                    return '';
+                }
+                return `${value}%`;
+            },
         }
     },
     scales: {

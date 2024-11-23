@@ -4,19 +4,20 @@
 
     <!-- Grid layout for the graphs with two equal columns -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-      <div class="col-span-1">
+      <div class="col-span-1 flex justify-center items-center">
         <GraphBarChart />
       </div>
-      <div class="col-span-1">
+      <div class="col-span-1 flex justify-center items-center">
         <GraphLineChart />
       </div>
-      <div class="col-span-1">
+      <div class="col-span-1 flex justify-center items-center">
         <GraphPieChart />
       </div>
-      <div class="col-span-1">
+      <div class="col-span-1 flex justify-center items-center">
         <GraphDoughnutChart />
       </div>
     </div>
+
 
     <AdminPageProductTable />
   </div>
@@ -28,6 +29,6 @@ definePageMeta({
   description: 'Learn more about our company',
   middleware: ['auth-role'],
   role: ['admin'],
-  layout: 'admin' 
+  layout: 'admin'
 })
 </script>

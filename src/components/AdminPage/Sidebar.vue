@@ -67,7 +67,6 @@
               </li>
             </ul>
           </div>
-
           <ul v-if="navStore.isSideMenuOpen" class="mt-2 space-y-3 text-center items-center">
             <li v-for="(item, index) in usersMenuItems" :key="index"
               :class="['relative px-6 py-3 items-center', { active: activeIndex === index }]">
@@ -94,8 +93,8 @@ const isMobileUsersMenuOpen = ref(false)
 const activeIndex = ref(null)
 
 const usersMenuItems = ref([
-  { label: 'View Users', path: '/admin/users/view' },
-  { label: 'Add User', path: '/admin/users/add' }
+  // { label: 'View Users', path: '/admin/users/view' },
+  // { label: 'Add User', path: '/admin/users/add' }
 ])
 
 const sidebarItems = ref([
