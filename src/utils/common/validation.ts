@@ -32,6 +32,7 @@ export function matches(value: string, compareTo: string): ValidationResult {
     : { valid: false, error: "Fields do not match." };
 }
 
+// Full name formatter
 export function fullName(fname: string, lname: string) {
   if (fname && lname) {
     return `${fname} ${lname}`;
@@ -40,6 +41,17 @@ export function fullName(fname: string, lname: string) {
   }
 }
 
+export function isMobile(value: string): ValidationResult {
+  const mobileRegex = /^[0-9]{10}$/;
+  return mobileRegex.test(value)
+    ? { valid: true, error: null }
+    : {
+        valid: false,
+        error: "Invalid mobile number. It should be 10 digits long.",
+      };
+}
+
+// File validator
 export function validateFile(
   file: any,
   allowedExtensions: string[],
