@@ -42,12 +42,13 @@ export function fullName(fname: string, lname: string) {
 }
 
 export function isMobile(value: string): ValidationResult {
-  const mobileRegex = /^[0-9]{10}$/;
-  return mobileRegex.test(value)
+  const numericValue = value.replace(/[^0-9]/g, ""); // Remove all non-numeric characters
+  const mobileRegex = /^[0-9]{10}$/; // Ensure exactly 10 numeric digits
+  return mobileRegex.test(numericValue)
     ? { valid: true, error: null }
     : {
         valid: false,
-        error: "Invalid mobile number. It should be 10 digits long.",
+        error: "Invalid mobile number. It should be exactly 10 digits long.",
       };
 }
 

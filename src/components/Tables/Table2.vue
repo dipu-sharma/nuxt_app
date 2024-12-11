@@ -41,6 +41,18 @@
         <!-- Pagination Control -->
         <v-pagination v-model="internalPage" :length="totalPages" :total-visible="5"></v-pagination>
     </div>
+
+    <Dialog v-model="showEditProductDialog" :model-value="showEditProductDialog" title="Edit Product"
+        button_text="Update" @cancel="closeModal" @submit="updateProduct">
+        <template #content>
+            <v-form ref="productForm" v-model="isValid">
+                {{ editData }}
+                <!-- <v-text-field v-model="productData.name" label="Product Name" outlined></v-text-field>
+                <v-text-field v-model="productData.price" label="Price" type="number" outlined></v-text-field>
+                <v-text-field v-model="productData.quantity" label="Quantity" type="number" outlined></v-text-field> -->
+            </v-form>
+        </template>
+    </Dialog>
 </template>
 
 <script setup>
@@ -53,12 +65,20 @@ const props = defineProps({
     totalItems: { type: Number, required: true },
     loading: { type: Boolean, default: false },
 })
-
-const emit = defineEmits(['update:page', 'update:itemsPerPage'])
-
+const productData = ref({
+    name: '',
+    price: '',
+    quantity: ''
+})
+const isValid = ref('')
+const editData = ref({})
+const emit = defineEmits(['update:page', 'update:itemsPerPage', 'reload:table'])
+const showEditProductDialog = ref(false)
 const internalPage = ref(props.page)
 const internalItemsPerPage = ref(props.itemsPerPage)
-
+const updateProduct = (data) => {
+    console.log("Updated__________________________", data);
+}
 const search = ref('')
 
 watch(internalPage, (newPage) => {
@@ -74,11 +94,17 @@ const totalPages = computed(() =>
 )
 
 const editItem = (item) => {
+    showEditProductDialog.value = true
+    editData.value = item
     console.log('Edit item:', item)
 }
 
 const deleteItem = (item) => {
     console.log('Delete item:', item)
+}
+
+const closeModal = () => {
+    showEditProductDialog.value = false
 }
 </script>
 

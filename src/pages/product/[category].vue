@@ -15,21 +15,19 @@
     <WatchCompute />
     <Onmounted />
     <!-- Base input fields -->
-    <BaseInput v-model="event.title" label="Title" type="text" />
-    <BaseInput v-model="event.first_name" label="First Name" type="text" />
-    <BaseInput v-model="event.last_name" label="Last Name" type="text" />
+    <!-- <BaseInput v-model="payload.title" label="Title" type="text" />
+    <BaseInput v-model="payload.first_name" label="First Name" type="text" />
+    <BaseInput v-model="payload.last_name" label="Last Name" type="text" /> -->
     <v-text-field v-model="mobileNumber" label="Mobile" class="w-2/6" type="tel" inputmode="numeric" maxlength="10"
-      :rules="[isRequiredRule, isMobileRule]" required />
+      @input="filterMobileNumber" :rules="[isRequiredRule, isMobileRule]" required />
   </div>
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router';
 import { isMobile, isRequired } from '~/utils/common/validation';
-
 const route = useRoute();
 const category = route.params.category;
-const event = ref({
+const payload = ref({
   title: '',
   first_name: '',
   last_name: ''
@@ -41,9 +39,18 @@ const isMobileRule = (value) => {
   return result.valid || result.error;
 };
 
+
 const isRequiredRule = (value) => {
   const result = isRequired(value);
   return result.valid || result.error;
 };
 
+const filterMobileNumber = (event) => {
+  const target = event.target;
+  mobileNumber.value = target.value.replace(/[^0-9]/g, '').slice(0, 10);
+};
+
+
 </script>
+
+<style scoped></style>

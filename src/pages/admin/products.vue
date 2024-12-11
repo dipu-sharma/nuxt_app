@@ -19,6 +19,11 @@
         class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200 mb-4">
         Save Planning Data
       </button>
+
+      <button @click="createProduct"
+        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-200 mb-4 ml-4">
+        Create Product
+      </button>
     </div>
     <!-- File Upload Component -->
     <div class="flex gap-4">
@@ -72,6 +77,16 @@
       :itemsPerPage="itemsPerPage" :totalItems="totalItems" :loading="loading" @update:page="updatePage"
       @update:itemsPerPage="updateItemsPerPage" />
   </div>
+  <Dialog v-model="showEditProductDialog" :model-value="addModal" title="Add Product" button_text="Save"
+    @cancel="closeModal" @submit="updateProduct">
+    <template #content>
+      <v-form ref="productForm" v-model="isValid">
+        <v-text-field v-model="productData.name" label="Product Name" outlined></v-text-field>
+        <v-text-field v-model="productData.price" label="Price" type="number" outlined></v-text-field>
+        <v-text-field v-model="productData.quantity" label="Quantity" type="number" outlined></v-text-field>
+      </v-form>
+    </template>
+  </Dialog>
 </template>
 
 <script setup>
@@ -84,7 +99,7 @@ definePageMeta({
   description: 'Learn more about our company',
   layout: 'admin'
 })
-
+const isValid = ref('')
 const projectStore = useProjectStore()
 const planningData = ref('')
 const selectedSystems = ref([])
@@ -98,6 +113,7 @@ const page = ref(0)
 const items = ref([])
 let totalItems = 100
 const itemsPerPage = ref(10)
+const addModal = ref(false)
 
 const datatable = ref({
   total_items: [],
@@ -180,10 +196,24 @@ const table2_datatable = ref({
   ],
 
 })
+const productData = ref({
+  name: '',
+  price: '',
+  quantity: ''
+})
 const savePlanningData = () => {
   projectStore.SaveForPlanning(planningData.value.split(','))
 }
+const createProduct = () => {
+  addModal.value = true
+}
+const closeModal = () => {
+  addModal.value = false
+}
+const updateProduct = (item) => {
+  console.log("Update__________________________________", item);
 
+}
 datatable.value.multiple_items = multiple_items
 table2_datatable.value.items = multiple_items
 table2_datatable.value.totalItems = multiple_items.length
@@ -247,7 +277,7 @@ const getDataFromServer = async (page, itemsPerPage) => {
 // Methods to handle pagination changes
 const updatePage = (newPage) => {
   page.value = newPage
-  fetchData() // Refetch data when the page changes
+  fetchData()
 }
 
 const updateItemsPerPage = (newItemsPerPage) => {

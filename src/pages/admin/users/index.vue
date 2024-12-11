@@ -4,7 +4,12 @@
     <button @click="toggleFilter" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none">
       {{ isOpen ? 'Close Filter' : 'Open Filter' }}
     </button>
+    <button @click="toggleNewFilter"
+      class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none">
+      {{ isNewOpen ? 'Close Filter' : 'Open Filter' }}
+    </button>
     <AdminPageFilter :isOpen="isOpen" @updateFilters="handleFilterUpdate" />
+    <AdminPageFilterTabFilter :isOpen="isNewOpen" @updateFilters="handleFilterUpdate" />
   </div>
 </template>
 
@@ -16,6 +21,7 @@ definePageMeta({
 })
 
 const isOpen = ref(false);
+const isNewOpen = ref(false);
 const selectedFilters = ref({
   startDate: null,
   endDate: null,
@@ -24,6 +30,9 @@ const selectedFilters = ref({
 
 const toggleFilter = () => {
   isOpen.value = !isOpen.value;
+}
+const toggleNewFilter = () => {
+  isNewOpen.value = !isNewOpen.value;
 }
 
 const handleFilterUpdate = (filters) => {
