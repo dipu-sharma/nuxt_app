@@ -4,7 +4,10 @@
         <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
             Table with actions
         </h4>
-        <div class="w-full overflow-hidden rounded-lg shadow-xs">
+
+
+
+        <div class="w-full overflow-hidden rounded-lg shadow-xs mt-5">
             <div class="w-full overflow-x-auto">
                 <table class="w-full whitespace-no-wrap">
                     <thead>
@@ -148,6 +151,7 @@ definePageMeta({
     description: 'Learn more about our company',
     layout: 'admin'
 })
+
 const users = [
     {
         name: "Hans Burger",
@@ -193,3 +197,5 @@ const handleDelete = (data) => {
     console.log("Order Page Table Delete________________________________", data);
 }
 </script>
+
+<style scoped></style>
