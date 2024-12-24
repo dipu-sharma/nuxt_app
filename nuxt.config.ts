@@ -49,6 +49,7 @@ export default defineNuxtConfig({
     "~/plugins/pinia.js",
     "~/plugins/vue3-toastify.js",
     "~/plugins/vuetify.ts",
+    { src: "~/plugins/recaptcha-v3.js", mode: "client" },
   ],
   build: {
     transpile: ["vuetify"],
