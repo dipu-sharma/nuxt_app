@@ -69,8 +69,7 @@
                 >
               </div>
             </div>
-            khkhkhk
-            <Captcha @onSuccess="handleCaptchaSuccess" />
+            <!-- <Captcha @onSuccess="handleCaptchaSuccess" /> -->
             <div>
               <button
                 type="submit"

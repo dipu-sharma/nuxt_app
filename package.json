@@ -29,6 +29,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "dayjs": "^1.11.13",
     "dayjs-business-days2": "^1.2.2",
+    "jsbarcode": "^3.11.6",
     "nuxt": "^3.12.4",
     "pinia": "^2.2.1",
     "pinia-plugin-persistedstate": "^3.2.1",

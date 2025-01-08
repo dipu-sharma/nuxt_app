@@ -1,5 +1,7 @@
 <template>
-    <div>
-        <h1>Order Page</h1>
-    </div>
+  <div>
+    <h1>Order Page</h1>
+
+    <SkuProduct />
+  </div>
 </template>
