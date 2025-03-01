@@ -1,15 +1,17 @@
 <template>
-  <div class="flex h-screen bg-gray-50 dark:bg-white">
-    <!-- Sidebar: Visible only on desktop or toggled on mobile -->
+  <div class="flex h-screen">
     <SideBar v-if="isDesktop" />
-
     <div class="flex flex-col flex-1 w-full">
       <!-- Topbar -->
       <Topbar />
-
       <!-- Main page content -->
       <main class="h-full pb-16 overflow-y-auto">
-        <div class="container grid px-6 mx-auto">
+        <div
+          :class="{
+            'bg-gray-700 text-white': themeStore.theme === 'light',
+            'bg-gray-200 text-black': themeStore.theme === 'dark',
+          }"
+        >
           <slot />
         </div>
       </main>
@@ -19,16 +21,18 @@
 </template>
 
 <script setup>
-import SideBar from '~/components/AdminPage/Sidebar.vue'
-import Topbar from '~/components/AdminPage/Topbar.vue'
-import { useAuthStore } from '~/stores/auth'
-import { useAutoLogout } from '~/composables/autoLogout'
+import SideBar from "~/components/AdminPage/Sidebar.vue";
+import Topbar from "~/components/AdminPage/Topbar.vue";
+import { useAuthStore } from "~/stores/auth";
+import { useAutoLogout } from "~/composables/autoLogout";
+import { useThemeStore } from "~/stores/themeStore";
 
-const authStore = useAuthStore()
+const themeStore = useThemeStore();
+const authStore = useAuthStore();
+const is_theme = ref("");
+const { startTimer, stopTimer } = useAutoLogout();
 
-const { startTimer, stopTimer } = useAutoLogout()
-
-const isDesktop = ref(false)
+const isDesktop = ref(false);
 
 watch(
   () => authStore.isAuthenticated,
@@ -45,12 +49,14 @@ onMounted(() => {
   const updateIsDesktop = () => {
     isDesktop.value = window.innerWidth >= 1024;
   };
-  updateIsDesktop()
-  window.addEventListener('resize', updateIsDesktop);
+  updateIsDesktop();
+  window.addEventListener("resize", updateIsDesktop);
 
   onUnmounted(() => {
-    window.removeEventListener('resize', updateIsDesktop);
+    window.removeEventListener("resize", updateIsDesktop);
   });
+
+  is_theme.value = localStorage.getItem("theme");
 });
 </script>
 

@@ -11,11 +11,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        'gradient-start': '#6EE7B7', // Customize gradient start color
-        'gradient-end': '#3B82F6', // Customize gradient end color
+        primary: {
+          light: "#3B82F6",
+          dark: "#1E3A8A",
+        },
       },
     },
   },
   plugins: [],
-}
-
+};
