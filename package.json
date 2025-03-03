@@ -31,6 +31,7 @@
     "dayjs-business-days2": "^1.2.2",
     "jsbarcode": "^3.11.6",
     "nuxt": "^3.12.4",
+    "nuxt-icon": "^1.0.0-beta.7",
     "pinia": "^2.2.1",
     "pinia-plugin-persistedstate": "^3.2.1",
     "vite-plugin-vuetify": "^2.0.4",
@@ -42,6 +43,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@nuxt/icon": "^1.10.3",
     "autoprefixer": "^10.4.20",
     "cross-env": "^7.0.3",
     "postcss": "^8.4.41",
