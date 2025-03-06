@@ -1,0 +1,6 @@
+projectKey=nuxt_project
+serverUrl=http://localhost:9000
+serverVersion=25.3.0.104237
+dashboardUrl=http://localhost:9000/dashboard?id=nuxt_project
+ceTaskId=78d5cefc-4bf7-4834-992d-bfcd31751c74
+ceTaskUrl=http://localhost:9000/api/ce/task?id=78d5cefc-4bf7-4834-992d-bfcd31751c74
