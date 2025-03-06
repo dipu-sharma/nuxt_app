@@ -55,8 +55,10 @@ const isRequiredRule = (value) => {
 
 const filterMobileNumber = (event) => {
 	const target = event.target
-	mobileNumber.value = target.value.replace(/[^0-9]/g, '').slice(0, 10)
+	mobileNumber.value = target.value.replace(/\D/g, '').slice(0, 10)
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+/* Style */
+</style>

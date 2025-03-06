@@ -25,3 +25,4 @@ logs
 .env.prod
 !.env.example
 temp.vue
+.scannerwork
