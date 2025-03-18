@@ -27,7 +27,7 @@ export default defineNuxtRouteMiddleware((to) => {
 	const userRole = userRoles.find((role) => rolesRoutes[role])
 
 	if (userRole && authStore.isAuthenticated) {
-		console.log('User role:', userRole)
+		console.log('User role___:', userRole)
 
 		const specificRoute = rolesRoutes[userRole]
 		if (to.path !== specificRoute) {
