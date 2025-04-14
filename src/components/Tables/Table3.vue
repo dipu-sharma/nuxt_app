@@ -1,17 +1,39 @@
 <template>
 	<div class="rr-my-6">
 		<!-- Search Bar -->
-		<v-text-field v-if="!no_search" autocomplete="one-time-code" clearable single-line hide-details
-			variant="outlined" v-model="SearchItem" placeholder="Search" density="comfortable"
-			prepend-inner-icon="mdi-magnify" class="rr-mb-6 !rr-rounded-lg rr-bg-white" />
+		<v-text-field
+			v-if="!no_search"
+			clearable
+			single-line
+			hide-details
+			variant="outlined"
+			v-model="SearchItem"
+			placeholder="Search"
+			density="comfortable"
+			prepend-inner-icon="mdi-magnify"
+			class="rr-mb-6 !rr-rounded-lg rr-bg-white"
+		/>
 
 		<!-- Server-side Table -->
-		<v-data-table hover :items="items" item-key="index" :headers="header" :loading="isLoading" :search="SearchItem"
-			density="comfortable" class="!rr-rounded-lg" v-model="SelectedItems" :show-select="showSelect"
-			:item-value="selectableKey" @update:options="ChangePage" :items-length="items_length"
-			item-selectable="selectable" :items-per-page="itemsPerPage" :items-per-page-options="itemsPerPageOptions"
-			:header-props="{ class: 'rr-bg-[#FBAB33] rr-table-header rr-text-white !rr-font-semibold' }">
-
+		<v-data-table
+			hover
+			:items="items"
+			item-key="index"
+			:headers="header"
+			:loading="isLoading"
+			:search="SearchItem"
+			density="comfortable"
+			class="!rr-rounded-lg"
+			v-model="SelectedItems"
+			:show-select="showSelect"
+			:item-value="selectableKey"
+			@update:options="ChangePage"
+			:items-length="items_length"
+			item-selectable="selectable"
+			:items-per-page="itemsPerPage"
+			:items-per-page-options="itemsPerPageOptions"
+			:header-props="{ class: 'rr-bg-[#FBAB33] rr-table-header rr-text-white !rr-font-semibold' }"
+		>
 			<template v-slot:item.system_status_table="{ item }">
 				<span :class="getStatusClass(item.system_status_table)">
 					{{ item.system_status_table }}
@@ -31,8 +53,14 @@
 			</template>
 			<template v-slot:item.image_list="{ item }">
 				<div v-if="item.image_list.length">
-					<v-img v-for="(image, index) in item.image_list" :key="index" :src="image" max-width="100"
-						max-height="100" class="mx-2" />
+					<v-img
+						v-for="(image, index) in item.image_list"
+						:key="index"
+						:src="image"
+						max-width="100"
+						max-height="100"
+						class="mx-2"
+					/>
 				</div>
 			</template>
 			<!-- System Status Code End -->
@@ -47,19 +75,27 @@
 
 			<template v-slot:[`item.link`]="{ item }">
 				<div class="rr-flex rr-justify-center rr-items-center">
-					<div v-if="action_edit && item.is_kickoff_done === false" @click="emit('edit:item', item)"
-						class="rr-text-orange-500 hover:rr-bg-orange-100 hover:rr-text-orange-800 focus:rr-outline-none rr-font-medium rr-rounded-full rr-text-sm rr-p-2.5 rr-text-center rr-inline-flex rr-items-center rr-cursor-pointer">
+					<div
+						v-if="action_edit && item.is_kickoff_done === false"
+						@click="emit('edit:item', item)"
+						class="rr-text-orange-500 hover:rr-bg-orange-100 hover:rr-text-orange-800 focus:rr-outline-none rr-font-medium rr-rounded-full rr-text-sm rr-p-2.5 rr-text-center rr-inline-flex rr-items-center rr-cursor-pointer"
+					>
 						<Icon name="lucide:edit" class="rr-w-4 rr-h-4" />
 					</div>
 
-					<div v-if="action_delete"
+					<div
+						v-if="action_delete"
 						@click="ConfirmDelete(Object.keys(item).includes('_id') ? item._id : item)"
-						class="rr-text-red-500 hover:rr-bg-red-100 hover:rr-text-red-800 focus:rr-outline-none rr-font-medium rr-rounded-full rr-text-sm rr-p-2.5 rr-text-center rr-inline-flex rr-items-center rr-cursor-pointer">
+						class="rr-text-red-500 hover:rr-bg-red-100 hover:rr-text-red-800 focus:rr-outline-none rr-font-medium rr-rounded-full rr-text-sm rr-p-2.5 rr-text-center rr-inline-flex rr-items-center rr-cursor-pointer"
+					>
 						<Icon name="lucide:trash-2" class="rr-w-4 rr-h-4" />
 					</div>
 
-					<div v-if="action_view" @click="MoveToNewPage(item.link, item.index)"
-						class="rr-text-blue-500 hover:rr-bg-blue-100 hover:rr-text-blue-800 focus:rr-outline-none rr-font-medium rr-rounded-full rr-text-sm rr-p-2.5 rr-text-center rr-inline-flex rr-items-center rr-cursor-pointer">
+					<div
+						v-if="action_view"
+						@click="MoveToNewPage(item.link, item.index)"
+						class="rr-text-blue-500 hover:rr-bg-blue-100 hover:rr-text-blue-800 focus:rr-outline-none rr-font-medium rr-rounded-full rr-text-sm rr-p-2.5 rr-text-center rr-inline-flex rr-items-center rr-cursor-pointer"
+					>
 						<Icon name="lucide:eye" class="rr-w-4 rr-h-4" />
 					</div>
 				</div>
@@ -149,7 +185,7 @@ const CopyToClipboard = async (itemToCopy) => {
 	console.log('🚀 ~ CopyToClipboard ~ permissionStatus:', permissionStatus)
 	const clipboardAccess = usePermission('clipboard-write')
 	if (clipboardAccess) {
-		const { copy, isSupported } = useClipboard()
+		const { isSupported } = useClipboard()
 		console.log('🚀 ~ CopyToClipboard ~ isSupported:', isSupported)
 		// copy(itemToCopy)
 		navigator.clipboard.writeText(itemToCopy)

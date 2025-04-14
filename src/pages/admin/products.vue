@@ -44,12 +44,18 @@
 		<div class="filePreview">
 			<!-- Image Preview -->
 			<div v-if="fileType === 'image' && previewUrl">
-				<img :src="previewUrl" alt="Image Preview" />
+				<img :src="previewUrl" alt="Preview" />
 			</div>
 
 			<!-- PDF Preview -->
 			<div v-else-if="fileType === 'pdf' && file">
-				<iframe v-if="pdfviewurl" :src="pdfviewurl" width="100%" height="400px"></iframe>
+				<iframe
+					v-if="pdfviewurl"
+					:src="pdfviewurl"
+					width="100%"
+					height="400px"
+					title="PDF Preview"
+				></iframe>
 				<p v-else>No PDF uploaded</p>
 			</div>
 
@@ -59,26 +65,15 @@
 			</div>
 		</div>
 
-		<!-- Multi File Upload Component -->
 		<UploadFileMultiFile @files-uploaded="handleFilesUpload" />
 		<div v-for="(file, index) in files" :key="index" class="imgPreview">
 			<div v-if="file.preview">
-				<img :src="file.preview" />
+				<img :src="file.preview" alt="Preview" />
 				<button class="removeButton" @click="removeImage(index)">✖</button>
 			</div>
 			<div v-else class="previewText">No preview available</div>
 		</div>
 		<h1 class="text-center text-2xl font-bold">Selected Products</h1>
-		<!-- <div class="d-flex gap-4">
-      <div v-if="selectedSystems.length > 0" @click="SaveMilestone"
-        class="text-white bg-gradient-to-r from-[#FF9C06] to-[#F42C00] focus:outline-none font-medium rounded-lg text-sm px-8 py-2.5 text-center cursor-pointer">
-        Save
-      </div>
-      <div v-if="selectedSystems.length > 0" @click="exportToExcel"
-        class="text-white bg-gradient-to-r from-[#FF9C06] to-[#F42C00] focus:outline-none font-medium rounded-lg text-sm px-8 py-2.5 text-center cursor-pointer">
-        Download Template
-      </div>
-    </div> -->
 
 		<TablesTable2
 			:headers="table2_datatable.headers"
