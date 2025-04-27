@@ -1,12 +1,13 @@
 import { defineNuxtConfig } from 'nuxt/config'
-import vuetifyPlugin from 'vite-plugin-vuetify' // Import the Vite Vuetify plugin
+import vuetifyPlugin from 'vite-plugin-vuetify'
 import { join } from 'path'
 import * as dotenv from 'dotenv'
 
-// Load the correct .env file based on the environment
+// Load environment variables
 const env = process.env.NUXT_ENV || process.env.NODE_ENV || 'dev'
 dotenv.config({ path: `.env.${env}` })
-// Logic to handle environment file based on the NODE_ENV value set in the package.json
+
+// Explicit environment file loading (optional, the above line might be enough)
 if (process.env.NUXT_ENV === 'dev') {
 	dotenv.config({ path: join(__dirname, '.env.dev') })
 } else if (process.env.NUXT_ENV === 'uat') {
@@ -17,16 +18,6 @@ if (process.env.NUXT_ENV === 'dev') {
 	dotenv.config({ path: join(__dirname, '.env') })
 }
 
-const publicRuntimeConfig: Record<string, string> = {}
-const privateRuntimeConfig: Record<string, string> = {}
-for (const key in process.env) {
-	if (key.startsWith('NUXT_PUBLIC_')) {
-		publicRuntimeConfig[key] = process.env[key] as string
-	} else if (key.startsWith('NUXT_')) {
-		privateRuntimeConfig[key] = process.env[key] as string
-	}
-}
-
 export default defineNuxtConfig({
 	devServer: {
 		port: 5000,
@@ -35,6 +26,7 @@ export default defineNuxtConfig({
 	compatibilityDate: '2024-04-03',
 	devtools: { enabled: true },
 	srcDir: 'src',
+	imports: { dirs: ['api'] },
 	css: ['~/assets/css/tailwind.css', '@mdi/font/css/materialdesignicons.min.css'],
 	postcss: {
 		plugins: {
@@ -65,7 +57,7 @@ export default defineNuxtConfig({
 	modules: ['@nuxt/icon'],
 	runtimeConfig: {
 		public: {
-			apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:8000/api',
+			API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:8001',
 		},
 	},
 })

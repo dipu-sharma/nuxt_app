@@ -23,7 +23,7 @@ export function useAutoLogout() {
 
     // Set logout timer
     logoutTimer.value = setTimeout(() => {
-      authStore.$ResetAuth();
+      authStore.logout()
       navigateTo("/login"); // Redirect to login
     }, 30 * 60 * 1000); // 30 minutes
   };

@@ -53,7 +53,7 @@
 							class="text-purple-500"
 						/>
 					</li>
-					<li v-if="!authStore.getData().isAuthenticated">
+					<li v-if="!authStore.isAuthenticated">
 						<NuxtLink
 							class="md:p-4 py-2 block hover:text-purple-400 text-purple-500"
 							:to="{ name: 'login' }"
@@ -117,7 +117,7 @@ const toggleTheme = () => {
 }
 
 const logout = () => {
-	authStore.$ResetAuth()
+	authStore.logout()
 	navigateTo('/login')
 }
 </script>

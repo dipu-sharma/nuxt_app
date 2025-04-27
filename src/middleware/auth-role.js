@@ -2,38 +2,34 @@ import { useAuthStore } from '~/stores/auth'
 
 export default defineNuxtRouteMiddleware((to) => {
 	const authStore = useAuthStore()
-
 	if (import.meta.server) return
 
 	authStore.checkAuth()
+
 	if (!authStore.isAuthenticated) {
-		authStore.$ResetAuth()
+		authStore.logout()
 		return navigateTo('/login')
 	}
 
-	const userRoles = Array.isArray(authStore.roles) ? authStore.roles : [authStore.roles]
+	const userRoles = Array.isArray(authStore.role) ? authStore.role : [authStore.role]
 
-	if (userRoles.includes('admin')) {
-		return
+	const roleRoutes = {
+		ADMIN: '/admin/',
+		VENDOR: '/vendor/',
+		USER: '/user/',
 	}
+	const hasAccess = userRoles.some((role) => {
+		const commonRoutes = ['/profile', '/settings']
+		if (commonRoutes.some((route) => to.path.startsWith(route))) return true
+		return to.path.startsWith(roleRoutes[role])
+	})
+	if (!hasAccess) {
+		const primaryRole = userRoles.find((role) => ['ADMIN', 'VENDOR', 'USER'].includes(role))
 
-	const rolesRoutes = {
-		superadmin: '/superadmin',
-		vendor: '/vendor',
-		user: '/user',
-		admin: '/admin',
-	}
-
-	const userRole = userRoles.find((role) => rolesRoutes[role])
-
-	if (userRole && authStore.isAuthenticated) {
-		console.log('User role___:', userRole)
-
-		const specificRoute = rolesRoutes[userRole]
-		if (to.path !== specificRoute) {
-			return navigateTo(specificRoute)
+		if (primaryRole) {
+			return navigateTo(roleRoutes[primaryRole])
+		} else {
+			return navigateTo('/not-authorized')
 		}
-	} else {
-		return navigateTo('/not-authorized')
 	}
 })

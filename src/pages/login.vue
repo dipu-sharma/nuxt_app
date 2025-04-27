@@ -92,19 +92,18 @@
 definePageMeta({
 	title: 'Login',
 	description: 'Learn more about our company',
-	layout: 'default',
-	role: ['admin', 'user', 'vendor'],
+	layout: 'login',
 })
 import { useAuthStore } from '~/stores/auth'
-// import authAPI from "@/utils/api/autheAPI";
 import { toast } from 'vue3-toastify'
 import { onMounted } from 'vue'
+import auth_api from '../api/auth_api'
 
 const authStore = useAuthStore()
 
 const loginform = ref({
-	username: '',
-	password: '',
+	username: 'admin@yopmail.com',
+	password: 'Dipu1234@',
 })
 const UserType = {
 	SUPERADMIN: 'superadmin',
@@ -132,8 +131,8 @@ const togglePasswordVisibility = () => {
 	showPassword.value = !showPassword.value
 }
 
-const handleLogin = () => {
-	const staticToken = 'staticToken123'
+const handleLogin = async () => {
+	const { login_user } = auth_api()
 	const staticUser = {
 		id: 1,
 		name: 'John Doe',
@@ -141,19 +140,25 @@ const handleLogin = () => {
 		user_type: UserType.ADMIN,
 	}
 
-	// Store token and user data
-	authStore.addToken(staticToken)
-	authStore.setUserData(staticUser)
-	authStore.setRoles(staticUser.user_type)
+	const response = await login_user(loginform)
 
-	// Notify user of successful login
+	console.log('Response______________________', response.data)
+
+	// Store token and user data
+	authStore.login({
+		token: response?.data?.access_token,
+		user: staticUser,
+		role: response?.data?.role,
+	})
+
+	// // Notify user of successful login
 	toast.success('Logged in Successfully', {
 		position: 'top-right',
 		autoClose: 3000,
 	})
 
-	// Redirect based on role
-	redirectToRole(staticUser.user_type)
+	// // Redirect based on role
+	redirectToRole(response.data.role)
 }
 onMounted(() => {
 	if (import.meta.client) {
@@ -178,10 +183,6 @@ const redirectToRole = (userType) => {
 			break
 	}
 }
-
-// watch(authStore?.isAuthenticated, (newValue, oldValue) => {
-//   console.log(`Count changed from ${oldValue} to ${newValue}`);
-// });
 </script>
 
 <style scoped>

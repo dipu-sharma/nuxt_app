@@ -1,101 +1,134 @@
 <template>
-    <GraphBaseChart type="line" :data="chartData" :options="chartOptions" />
+	<GraphBaseChart type="line" :data="chartData" :options="chartOptions" :is_gradient="true" />
 </template>
 
 <script setup>
-
 const chartData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-    datasets: [
-        {
-            label: 'Revenue',
-            data: [65, 59, 80, 17, 50, 60, 30, 45, 25, 75, 69],
-            borderColor: '#ff6384',
-            pointBackgroundColor: '#ff6384',
-            pointRadius: 5,
-            pointStyle: 'circle',
-            fill: false,
-            tension: 0.4 // Smooth line
-        },
-        {
-            label: 'Expenses',
-            data: [45, 49, 60, 10, 50, 70, 30, 25, 42, 39],
-            borderColor: '#36a2eb',
-            pointBackgroundColor: '#36a2eb',
-            pointRadius: 5,
-            pointStyle: 'circle',
-            fill: false,
-            tension: 0.4 // Smooth line
-        },
-        {
-            label: 'Profit',
-            data: [20, 10, 20, 15, 42, 35, 78, 48, 23, 15],
-            borderColor: '#4bc0c0',
-            pointBackgroundColor: '#4bc0c0',
-            pointRadius: 5,
-            pointStyle: 'circle',
-            fill: false,
-            tension: 0.4 // Smooth line
-        }
-    ]
-};
+	labels: [
+		'January',
+		'February',
+		'March',
+		'April',
+		'May',
+		'June',
+		'July',
+		'August',
+		'September',
+		'October',
+		'November',
+		'December',
+	],
+	datasets: [
+		{
+			label: 'Revenue',
+			data: [65, 59, 80, 17, 50, 60, 30, 45, 25, 75, 69, 34],
+			borderColor: '#ff6384',
+			// pointBackgroundColor: '#ff6384',
+			// pointRadius: 5,
+			// pointStyle: 'circle',
+			fill: false,
+			tension: 0.4,
+			datalabels: {
+				labels: {
+					title: null,
+				},
+			},
+		},
+		{
+			label: 'Expenses',
+			data: [45, 49, 60, 10, 50, 70, 30, 25, 42, 39, 55, 12],
+			// borderColor: '#36a2eb',
+			// pointBackgroundColor: '#36a2eb',
+			// pointRadius: 5,
+			pointStyle: 'circle',
+			fill: false,
+			tension: 0.4,
+			datalabels: {
+				labels: {
+					title: null,
+				},
+			},
+		},
+		{
+			label: 'Profit',
+			data: [20, 10, 20, 15, 42, 35, 78, 48, 23, 15, 34, 12],
+			// borderColor: '#4bc0c0',
+			// pointBackgroundColor: '#4bc0c0',
+			// pointRadius: 5,
+			pointStyle: 'circle',
+			fill: false,
+			tension: 0.4,
+			datalabels: {
+				labels: {
+					title: null,
+				},
+			},
+		},
+	],
+}
 
 const chartOptions = {
-    responsive: true,
-    plugins: {
-        legend: {
-            position: 'top',
-            labels: {
-                boxWidth: 18,
-                usePointStyle: true,
-                font: {
-                    family: 'Lexend Deca',
-                },
-            },
-            onClick: (e, legendItem, legend) => {
-                // Custom label click event
-                alert(`Clicked on label: ${legendItem.text}`);
-            }
-        },
-        datalabels: {
-            display: false,
-            color: '#000',
-            anchor: 'center',
-            align: 'center',
-            formatter: (value) => `${value}%`,
-        }
-    },
-    scales: {
-        x: {
-            grid: {
-                display: false // Disable grid on the x-axis
-            }
-        },
-        y: {
-            grid: {
-                display: false // Disable grid on the y-axis
-            }
-        }
-    },
-    animations: {
-        tension: {
-            duration: 1000,
-            easing: 'linear',
-            from: 1,
-            to: 0,
-            loop: true
-        }
-    },
-    // animation: {
-    //     duration: 1000,
-    //     easing: 'easeOutBounce',
-    //     onProgress: function (animation) {
-
-    //     },
-    //     onComplete: function () {
-    //         // Custom logic to be executed after animation completes
-    //         console.log('Animation complete!');
-    //     }
-    // }
-};
+	responsive: true,
+	plugins: {
+		legend: {
+			position: 'top',
+			labels: {
+				boxWidth: 18,
+				usePointStyle: false,
+				font: {
+					family: 'Lexend Deca',
+				},
+			},
+			onClick: (e, legendItem, legend) => {
+				alert(`Clicked on label: ${legendItem.text}`)
+			},
+		},
+		datalabels: {
+			labels: {
+				title: null,
+			},
+		},
+		tooltip: {
+			enabled: false, // Optional: disable tooltips if you don't want any numbers to show
+		},
+	},
+	scales: {
+		x: {
+			grid: {
+				display: false,
+				drawBorder: false,
+			},
+			ticks: {
+				display: false, // Set to false if you want to hide x-axis labels
+			},
+		},
+		y: {
+			grid: {
+				display: false,
+				drawBorder: false,
+				drawOnChartArea: false,
+			},
+			ticks: {
+				display: false, // This hides the y-axis numbers
+			},
+		},
+	},
+	// animations: {
+	// 	tension: {
+	// 		duration: 2000,
+	// 		easing: 'linear',
+	// 		from: 1,
+	// 		to: 0,
+	// 		loop: true,
+	// 	},
+	// },
+	elements: {
+		line: {
+			borderWidth: 2,
+		},
+		point: {
+			radius: 0,
+		},
+	},
+}
 </script>

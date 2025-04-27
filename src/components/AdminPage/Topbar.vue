@@ -279,7 +279,7 @@ const closeProfileMenu = () => {
 };
 const logout = () => {
   try {
-    authStore.$ResetAuth();
+    authStore.logout()
     toast.error("Logout Successfully", {
       position: "top-right",
       autoClose: 3000,
