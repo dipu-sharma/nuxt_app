@@ -63,7 +63,6 @@
 								>
 							</div>
 						</div>
-						<!-- <Captcha @onSuccess="handleCaptchaSuccess" /> -->
 						<div>
 							<button
 								type="submit"
@@ -89,11 +88,14 @@
 </template>
 
 <script setup>
+import { useThemeStore } from '~/stores/themeStore'
 definePageMeta({
 	title: 'Login',
 	description: 'Learn more about our company',
 	layout: 'login',
 })
+
+const useTheme = useThemeStore()
 import { useAuthStore } from '~/stores/auth'
 import { toast } from 'vue3-toastify'
 import { onMounted } from 'vue'
@@ -106,22 +108,19 @@ const loginform = ref({
 	password: 'Dipu1234@',
 })
 const UserType = {
-	SUPERADMIN: 'superadmin',
-	ADMIN: 'admin',
-	VENDOR: 'vendor',
-	USER: 'user',
+	ADMIN: 'ADMIN',
+	VENDOR: 'VENDOR',
+	USER: 'USER',
 }
 const showPassword = ref(false)
 const captchaToken = ref(null)
 
 const handleCaptchaSuccess = (token) => {
-	console.log('Captcha solved, token:', token)
 	captchaToken.value = token
 }
 
 const submitForm = () => {
 	if (captchaToken.value) {
-		console.log('Form submitted with captcha token:', captchaToken.value)
 		// Send captchaToken.value to your server for verification
 	} else {
 		console.error('Please solve the CAPTCHA first.')
@@ -132,24 +131,14 @@ const togglePasswordVisibility = () => {
 }
 
 const handleLogin = async () => {
-	const { login_user } = auth_api()
-	const staticUser = {
-		id: 1,
-		name: 'John Doe',
-		email: 'johndoe@example.com',
-		user_type: UserType.ADMIN,
-	}
-
-	const response = await login_user(loginform)
-
-	console.log('Response______________________', response.data)
-
+	const { login_user, getCorrentUser } = auth_api()
+	const response = await login_user(loginform.value)
 	// Store token and user data
-	authStore.login({
-		token: response?.data?.access_token,
-		user: staticUser,
-		role: response?.data?.role,
-	})
+	authStore.addToken(response?.data?.access_token)
+	authStore.addRole(response?.data?.role)
+	const response_user = await getCorrentUser(response?.data?.access_token)
+
+	authStore.addUser(response_user.data)
 
 	// // Notify user of successful login
 	toast.success('Logged in Successfully', {
@@ -158,7 +147,7 @@ const handleLogin = async () => {
 	})
 
 	// // Redirect based on role
-	redirectToRole(response.data.role)
+	redirectToRole(response?.data?.role)
 }
 onMounted(() => {
 	if (import.meta.client) {
@@ -171,7 +160,6 @@ onMounted(() => {
 
 const redirectToRole = (userType) => {
 	switch (userType) {
-		case UserType.SUPERADMIN:
 		case UserType.ADMIN:
 			navigateTo('/admin', { redirectCode: 301 })
 			break

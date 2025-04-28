@@ -27,7 +27,7 @@ definePageMeta({
 	title: 'Admin',
 	description: 'Learn more about our company',
 	middleware: ['auth-role'],
-	role: ['admin'],
 	layout: 'admin',
+	role: ['ADMIN'],
 })
 </script>

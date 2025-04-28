@@ -1,65 +1,66 @@
 import { useAuthStore } from '@/stores/auth'
+import axios from 'axios'
 
 export default function () {
 	const { token } = useAuthStore()
 	const config = useRuntimeConfig()
 	const BASE_URL = config.public.API_BASE_URL
-	console.log('Base url______________________________', BASE_URL)
+
+	// Create axios instance with base URL
+	const api = axios.create({
+		baseURL: BASE_URL,
+		headers: {
+			'Content-Type': 'application/json',
+			Accept: 'application/json',
+		},
+	})
 
 	const login_user = async (payload) => {
-		const { data, error } = await useFetch(`${BASE_URL}/login`, {
-			method: 'POST',
-			body: payload,
-		})
-
-		if (error.value) {
-			console.error('Error during login:', error.value)
-			return error.value.data
+		try {
+			const response = await api.post('/login', payload)
+			return response.data
+		} catch (error) {
+			console.error('Error during login:', error.response?.data || error.message)
+			return error.response?.data || { message: error.message }
 		}
-		return data.value
 	}
 
 	const getCorrentUser = async (token) => {
-		const { data, error } = await useFetch(`${BASE_URL}/user/me`, {
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		})
-
-		if (error.value) {
-			console.error('Error fetching user data:', error.value)
-			return error.value.data
+		try {
+			const response = await api.get('/me', {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+			return response.data
+		} catch (error) {
+			console.error('Error fetching user data:', error.response?.data || error.message)
+			return error.response?.data || { message: error.message }
 		}
-		console.log('User data___________________________', data.value)
-		return data.value
 	}
 
 	const resetEmployeePassword = async (payload) => {
-		const { data, error } = await useFetch(`${BASE_URL}/employee/resetEmployeePassword`, {
-			method: 'PUT',
-			body: payload, // Ensure payload is passed correctly as body
-		})
-
-		if (error.value) {
-			console.error('Error fetching data:', error.value)
-			return error.value.data // Return error data
+		try {
+			const response = await api.put('/employee/resetEmployeePassword', payload)
+			return response.data
+		} catch (error) {
+			console.error('Error resetting password:', error.response?.data || error.message)
+			return error.response?.data || { message: error.message }
 		}
-		return data.value // Return the successful data
 	}
 
 	const resetEmployeePasswordByAdmin = async (payload) => {
-		const { data, error } = await useFetch(`${BASE_URL}/employee/admin/resetEmployeePasswordByAdmin`, {
-			method: 'PUT',
-			body: payload, // Ensure payload is passed correctly as body
-			headers: { Authorization: `Bearer ${token}` }, // Include token for authorization
-		})
-
-		if (error.value) {
-			console.error('Error fetching data:', error.value)
-			return error.value.data // Return error data
+		try {
+			const response = await api.put('/employee/admin/resetEmployeePasswordByAdmin', payload, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+			return response.data
+		} catch (error) {
+			console.error('Error resetting password by admin:', error.response?.data || error.message)
+			return error.response?.data || { message: error.message }
 		}
-		return data.value // Return the successful data
 	}
 
 	return {

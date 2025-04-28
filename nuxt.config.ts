@@ -34,6 +34,9 @@ export default defineNuxtConfig({
 			autoprefixer: {},
 		},
 	},
+	pinia: {
+		autoImports: ['defineStore', 'acceptHMRUpdate'],
+	},
 	plugins: [
 		'~/plugins/pinia.js',
 		'~/plugins/vue3-toastify.js',
@@ -54,6 +57,7 @@ export default defineNuxtConfig({
 			}),
 		],
 	},
+
 	modules: ['@nuxt/icon'],
 	runtimeConfig: {
 		public: {

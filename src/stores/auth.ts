@@ -5,7 +5,6 @@ interface AuthState {
 	token: string
 	role: string
 	user: object
-	isAuthenticated: boolean
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -13,7 +12,6 @@ export const useAuthStore = defineStore('auth', {
 		token: '',
 		role: '',
 		user: {},
-		isAuthenticated: false,
 	}),
 	actions: {
 		checkAuth() {
@@ -21,7 +19,6 @@ export const useAuthStore = defineStore('auth', {
 				this.token = useCookie('token').value ?? localStorage.getItem('token')
 				this.user = JSON.parse(localStorage.getItem('user') || '{}')
 				this.role = localStorage.getItem('role') || ''
-				this.isAuthenticated = localStorage.getItem('is_authenticated') === 'true'
 			}
 		},
 		addToken(payload: string) {
@@ -29,6 +26,7 @@ export const useAuthStore = defineStore('auth', {
 			const tokenLocalStorage = useStorage('token', '')
 			this.token = payload
 			tokenCookie.value = payload
+			tokenLocalStorage.value = payload
 		},
 		addUser(payload: object) {
 			const userLocalStorage = useStorage('user', {})
@@ -43,9 +41,12 @@ export const useAuthStore = defineStore('auth', {
 		doLogout() {
 			const tokenCookie = useCookie('token')
 			const tokenLocalStorage = useStorage('token', '')
+			const themLocalStorage = useStorage('theme', '')
+
 			this.token = ''
 			tokenLocalStorage.value = null
 			tokenCookie.value = null
+			themLocalStorage.value = null
 
 			this.user = {}
 			const userLocalStorage = useStorage('user', {})
@@ -54,7 +55,6 @@ export const useAuthStore = defineStore('auth', {
 			this.role = ''
 			const roleLocalStorage = useStorage('role', '')
 			roleLocalStorage.value = null
-
 			navigateTo('/')
 		},
 	},
@@ -62,6 +62,5 @@ export const useAuthStore = defineStore('auth', {
 		getToken: (state) => state.token,
 		getUser: (state) => state.user,
 		getRole: (state) => state.role,
-		getAuthStatus: (state) => state.isAuthenticated,
 	},
 })

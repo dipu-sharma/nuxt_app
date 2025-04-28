@@ -1,8 +1,9 @@
 <template>
-	<GraphBaseChart type="line" :data="chartData" :options="chartOptions" :is_gradient="true" />
+	<BaseChart type="line" :data="chartData" :options="chartOptions" :is_gradient="true" :height="300" />
 </template>
 
 <script setup>
+import BaseChart from './BaseChart.vue'
 const chartData = {
 	labels: [
 		'January',
@@ -89,7 +90,7 @@ const chartOptions = {
 			},
 		},
 		tooltip: {
-			enabled: false, // Optional: disable tooltips if you don't want any numbers to show
+			enabled: true,
 		},
 	},
 	scales: {
@@ -97,19 +98,20 @@ const chartOptions = {
 			grid: {
 				display: false,
 				drawBorder: false,
+				drawOnChartArea: true, // Add this
 			},
 			ticks: {
-				display: false, // Set to false if you want to hide x-axis labels
+				display: true,
 			},
 		},
 		y: {
 			grid: {
 				display: false,
 				drawBorder: false,
-				drawOnChartArea: false,
+				drawOnChartArea: true,
 			},
 			ticks: {
-				display: false, // This hides the y-axis numbers
+				display: true,
 			},
 		},
 	},
@@ -127,7 +129,7 @@ const chartOptions = {
 			borderWidth: 2,
 		},
 		point: {
-			radius: 0,
+			radius: 1,
 		},
 	},
 }

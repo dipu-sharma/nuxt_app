@@ -1,43 +1,29 @@
 import { useAuthStore } from '@/stores/auth'
-
+import { handleAxiosError } from '~/utils/ErrorHandle/error'
+import { toast } from 'vue3-toastify'
 export default function () {
 	const { token } = useAuthStore()
 	const config = useRuntimeConfig()
-	// const BASE_URL = config.public.apiUrl;
-	const BASE_URL = 'http://localhost:8001'
-	const loginApi = async (payload) => {
-		const { data, error } = await useFetch(`${BASE_URL}/login`, {
-			method: 'POST',
-			body: payload,
-		})
+	const BASE_URL = config.public.API_BASE_URL
 
-		if (error.value) {
-			console.error('Error during login:', error.value)
-			return error.value.data
-		}
-		return data.value
-	}
-
-	const getCorrentUser = async (token) => {
-		const { data, error } = await useFetch(`${BASE_URL}/user/me`, {
+	const get_vendor_product_list = async (payload) => {
+		const { data, error } = useFetch(`${BASE_URL}/vendor/product/list`, {
 			method: 'GET',
+			...payload,
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
 		})
 
-		if (error.value) {
-			console.error('Error fetching user data:', error.value)
-			return error.value.data
+		if (error) {
+			console.log('Error________________________', error.value.data)
+			handleAxiosError(error?.value?.statusCode, error?.value?.data?.detail, toast)
 		}
-		console.log('User data___________________________', data.value)
+
 		return data.value
 	}
 
 	return {
-		loginApi,
-		getCorrentUser,
-		resetEmployeePassword,
-		resetEmployeePasswordByAdmin,
+		get_vendor_product_list,
 	}
 }

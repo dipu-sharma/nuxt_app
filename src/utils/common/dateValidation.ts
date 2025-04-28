@@ -22,7 +22,6 @@ export const date_to_string_with_month_name = (date: any) => {
 export const calculate_date = (start_date: any, end_date: any) => {
 	if (start_date && end_date) {
 		const relativeDifference = start_date.from(end_date)
-		console.log(relativeDifference)
 		return relativeDifference
 	} else {
 		return null
@@ -32,6 +31,5 @@ export const calculate_date = (start_date: any, end_date: any) => {
 export const input_date = () => {
 	let data = dayjs.getWorkingWeekdays()
 	//   let add_date = dayjs(`2020-12-24`).businessDaysAdd(1).format(`DD/MM/YYYY`);
-	console.log('Data____________________', data)
 	return data
 }

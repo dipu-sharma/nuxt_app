@@ -171,8 +171,6 @@ definePageMeta({
 const isModalOpen = ref(false)
 
 const openModal = () => {
-	console.log('Date______________________modal_____________________', input_date())
-
 	isModalOpen.value = true
 }
 

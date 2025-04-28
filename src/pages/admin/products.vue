@@ -80,7 +80,7 @@
 			:items="table2_datatable.items"
 			:page="table2_datatable.page"
 			:itemsPerPage="itemsPerPage"
-			:totalItems="totalItems"
+			:item_total="totalItems"
 			:loading="loading"
 			@update:page="updatePage"
 			@update:itemsPerPage="updateItemsPerPage"
@@ -120,6 +120,7 @@ definePageMeta({
 	layout: 'admin',
 	middleware: ['auth-role'],
 })
+const showEditProductDialog = ref(false)
 const isValid = ref('')
 const projectStore = useProjectStore()
 const planningData = ref('')
@@ -226,6 +227,8 @@ const handleFilesUpload = (payload) => {
 const removeImage = (index) => {
 	files.value.splice(index, 1)
 }
+
+const updateProduct = () => {}
 const table2_datatable = ref({
 	items: [],
 	loading: false,
@@ -295,6 +298,7 @@ const createProduct = () => {
 }
 const closeModal = () => {
 	addModal.value = false
+	showEditProductDialog.value = false
 }
 
 datatable.value.multiple_items = multiple_items

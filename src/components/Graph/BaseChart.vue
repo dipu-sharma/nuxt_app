@@ -7,6 +7,8 @@
 <script setup>
 import { Chart, registerables } from 'chart.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
+
+// Register plugins
 Chart.register(ChartDataLabels, ...registerables)
 
 const props = defineProps({
@@ -42,13 +44,11 @@ const props = defineProps({
 const canvas = ref(null)
 let chartInstance = null
 
-const containerStyle = computed(() => {
-	return {
-		position: 'relative',
-		width: typeof props.width === 'number' ? `${props.width}px` : props.width,
-		height: typeof props.height === 'number' ? `${props.height}px` : props.height,
-	}
-})
+const containerStyle = computed(() => ({
+	position: 'relative',
+	width: typeof props.width === 'number' ? `${props.width}px` : props.width,
+	height: typeof props.height === 'number' ? `${props.height}px` : props.height,
+}))
 
 const createGradient = (ctx, chartArea, colors) => {
 	if (!chartArea) return colors.top
@@ -90,30 +90,30 @@ const renderChart = () => {
 	if (chartInstance) chartInstance.destroy()
 
 	const chartOptions = {
-		...props.options,
 		responsive: true,
 		maintainAspectRatio: false,
 		plugins: {
-			legend: {
-				position: 'top',
-			},
-			tooltip: {
-				mode: 'index',
-				intersect: false,
-			},
+			...(props.options?.plugins || {}),
+			legend: { position: 'top' },
+			tooltip: { mode: 'index', intersect: false },
 		},
 		hover: {
 			mode: 'nearest',
 			intersect: true,
 		},
 		scales: {
+			...(props.options?.scales || {}),
 			y: {
 				beginAtZero: true,
+				...(props.options?.scales?.y || {}),
+			},
+			x: {
+				...(props.options?.scales?.x || {}),
 			},
 		},
+		...props.options, // Spread parent options last so it overrides if needed
 	}
 
-	// Apply custom aspect ratio if provided
 	if (props.aspectRatio !== null) {
 		chartOptions.aspectRatio = props.aspectRatio
 	}

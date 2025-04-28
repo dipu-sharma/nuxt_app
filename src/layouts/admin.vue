@@ -1,20 +1,16 @@
 <template>
 	<div class="flex h-screen">
-		<SideBar v-if="isDesktop" />
+		<Sidebar v-if="isDesktop" />
 		<div class="flex flex-col flex-1 w-full">
-			<!-- Topbar -->
 			<Topbar />
-			<!-- Main page content -->
-			<main class="h-full pb-16 overflow-y-auto">
-				<div
-					class="p-6"
-					:class="{
-						'bg-gray-700 text-white': themeStore.theme === 'light',
-						'bg-gray-200 text-black': themeStore.theme === 'dark',
-					}"
-				>
-					<slot />
-				</div>
+			<main
+				class="h-full pb-16 overflow-y-auto px-8"
+				:class="{
+					'bg-gray-700 text-white': themeStore.theme === 'light',
+					'bg-gray-200 text-black': themeStore.theme === 'dark',
+				}"
+			>
+				<slot />
 			</main>
 			<AutoLogOut />
 		</div>
@@ -22,8 +18,6 @@
 </template>
 
 <script setup>
-import SideBar from '~/components/AdminPage/Sidebar.vue'
-import Topbar from '~/components/AdminPage/Topbar.vue'
 import { useAuthStore } from '~/stores/auth'
 import { useAutoLogout } from '~/composables/autoLogout'
 import { useThemeStore } from '~/stores/themeStore'
