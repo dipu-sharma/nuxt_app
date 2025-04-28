@@ -26,3 +26,4 @@ logs
 !.env.example
 temp.vue
 .scannerwork
+public

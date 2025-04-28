@@ -1,4 +1,4 @@
-const scanner = require('sonarqube-scanner').default // Use .default to access the function
+const scanner = require('sonarqube-scanner').default
 
 scanner(
 	{
