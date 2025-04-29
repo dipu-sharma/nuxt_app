@@ -1,71 +1,27 @@
-import { useAuthStore } from '@/stores/auth'
-import axios from 'axios'
+import useApiCall from '@/composables/useApiCall'
 
 export default function () {
-	const { token } = useAuthStore()
-	const config = useRuntimeConfig()
-	const BASE_URL = config.public.API_BASE_URL
-
-	// Create axios instance with base URL
-	const api = axios.create({
-		baseURL: BASE_URL,
-		headers: {
-			'Content-Type': 'application/json',
-			Accept: 'application/json',
-		},
-	})
+	const { callApi } = useApiCall()
 
 	const login_user = async (payload) => {
-		try {
-			const response = await api.post('/login', payload)
-			return response.data
-		} catch (error) {
-			console.error('Error during login:', error.response?.data || error.message)
-			return error.response?.data || { message: error.message }
-		}
+		return callApi('post', '/login', payload)
 	}
 
-	const getCorrentUser = async (token) => {
-		try {
-			const response = await api.get('/me', {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			})
-			return response.data
-		} catch (error) {
-			console.error('Error fetching user data:', error.response?.data || error.message)
-			return error.response?.data || { message: error.message }
-		}
+	const get_current_user = async (payload) => {
+		return callApi('get', '/me', payload, true)
 	}
 
 	const resetEmployeePassword = async (payload) => {
-		try {
-			const response = await api.put('/employee/resetEmployeePassword', payload)
-			return response.data
-		} catch (error) {
-			console.error('Error resetting password:', error.response?.data || error.message)
-			return error.response?.data || { message: error.message }
-		}
+		return callApi('put', '/employee/resetEmployeePassword', payload)
 	}
 
 	const resetEmployeePasswordByAdmin = async (payload) => {
-		try {
-			const response = await api.put('/employee/admin/resetEmployeePasswordByAdmin', payload, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			})
-			return response.data
-		} catch (error) {
-			console.error('Error resetting password by admin:', error.response?.data || error.message)
-			return error.response?.data || { message: error.message }
-		}
+		return callApi('put', '/employee/admin/resetEmployeePasswordByAdmin', payload, true)
 	}
 
 	return {
 		login_user,
-		getCorrentUser,
+		get_current_user,
 		resetEmployeePassword,
 		resetEmployeePasswordByAdmin,
 	}

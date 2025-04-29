@@ -8,6 +8,7 @@
 			>
 				Add Product
 			</button>
+			<button type="button" @click="exportToExcel">Export Excel</button>
 		</section>
 
 		<TablesTable2
@@ -40,6 +41,7 @@
 <script setup>
 import { useProjectStore } from '~/stores/projects'
 import { useAuthStore } from '~/stores/auth'
+
 const AuthStore = useAuthStore()
 import * as XLSX from 'xlsx'
 import { toast } from 'vue3-toastify'
@@ -134,8 +136,29 @@ const removeUploadedFile = (index) => {
 }
 
 const exportToExcel = () => {
-	// Excel export logic would go here
-	// Currently using mock data from the original code
+	const { convertToExcel } = useExcel()
+
+	convertToExcel(
+		[
+			{
+				'Sr No.': '',
+				'Product Name': '',
+				'Product Type': '',
+				'Batch No': '',
+				Quantity: '',
+				Unit: '',
+				MRP: '',
+				'Selling Price': '',
+				Size: '',
+				Color: '',
+				HSN: '',
+				Discount: '',
+				Packing: '',
+			},
+		],
+		false,
+		'product_data.xlsx',
+	)
 }
 
 const fetchData = async () => {
@@ -149,7 +172,6 @@ const fetchData = async () => {
 	}
 	try {
 		const respnse = await get_vendor_product_list({ query: filters })
-		console.log('Response___________________________', respnse)
 		if (respnse?.data?.detail?.status_code === 401) {
 			AuthStore.doLogout()
 			navigateTo('/login')
@@ -163,8 +185,6 @@ const fetchData = async () => {
 				...item,
 				index: i + 1,
 			}))
-
-			console.log('Data Table____________________', data_table.value.items)
 		}
 		data_table.value.total_data = respnse?.data?.total
 	} finally {

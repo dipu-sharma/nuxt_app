@@ -7,7 +7,7 @@ export default function () {
 	const BASE_URL = config.public.API_BASE_URL
 
 	const get_vendor_product_list = async (payload) => {
-		const { data, error } = useFetch(`${BASE_URL}/vendor/product/list`, {
+		const { data, error } = await useFetch(`${BASE_URL}/vendor/product/list`, {
 			method: 'GET',
 			...payload,
 			headers: {
@@ -15,9 +15,10 @@ export default function () {
 			},
 		})
 
-		if (error) {
-			console.log('Error________________________', error.value.data)
-			handleAxiosError(error?.value?.statusCode, error?.value?.data?.detail, toast)
+		if (error?.value) {
+			if (import.meta.client) {
+				handleAxiosError(error?.value?.statusCode, error?.value?.data?.detail, toast)
+			}
 		}
 
 		return data.value

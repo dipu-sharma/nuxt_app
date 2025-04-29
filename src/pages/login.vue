@@ -2,8 +2,8 @@
 	<div class="fill-height" fluid>
 		<div class="grid grid-cols-3 gap-4 place-items-center">
 			<div></div>
-			<div class="mt-10 details-field">
-				<div class="w-full max-w-xl px-6 py-6 mt-10 bg-white shadow-lg rounded-md">
+			<div class="details-field">
+				<div class="w-full max-w-xl px-6 py-6 dark:text-black bg-white shadow-lg rounded-md">
 					<div>
 						<h2 class="mt-6 text-center text-3xl font-bold text-gray-900">Sign-In</h2>
 					</div>
@@ -131,23 +131,29 @@ const togglePasswordVisibility = () => {
 }
 
 const handleLogin = async () => {
-	const { login_user, getCorrentUser } = auth_api()
+	const { login_user, get_current_user } = auth_api()
 	const response = await login_user(loginform.value)
 	// Store token and user data
 	authStore.addToken(response?.data?.access_token)
 	authStore.addRole(response?.data?.role)
-	const response_user = await getCorrentUser(response?.data?.access_token)
+	const response_user = await get_current_user(response?.data?.access_token)
 
 	authStore.addUser(response_user.data)
 
-	// // Notify user of successful login
-	toast.success('Logged in Successfully', {
-		position: 'top-right',
-		autoClose: 3000,
-	})
-
-	// // Redirect based on role
-	redirectToRole(response?.data?.role)
+	if (response.data.access_token) {
+		toast.success('Logged in Successfully', {
+			position: 'top-right',
+			autoClose: 3000,
+			limit: 1,
+		})
+		redirectToRole(response?.data?.role)
+	} else {
+		toast.error('Invalid Credentials', {
+			position: 'top-right',
+			autoClose: 3000,
+			limit: 1,
+		})
+	}
 }
 onMounted(() => {
 	if (import.meta.client) {
