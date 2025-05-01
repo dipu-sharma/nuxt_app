@@ -73,3 +73,23 @@ bun run preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+# Create a new migration
+
+alembic revision --autogenerate -m "description"
+
+# Apply migrations
+
+alembic upgrade head
+
+# Revert migrations
+
+alembic downgrade -1
+
+# Show current revision
+
+alembic current
+
+# Show migration history
+
+alembic history

@@ -3,7 +3,7 @@
 		<section class="mb-4">
 			<button
 				type="button"
-				@click="showAddProductDialog"
+				@click="handleAddProduct"
 				class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
 			>
 				Add Product
@@ -27,13 +27,14 @@
 
 	<Dialog
 		v-model="isAddProductDialogVisible"
+		:loading="isLoading"
 		title="Add Product"
 		button-text="Save"
 		max-width="1000px"
 		@confirm="handleSaveProduct"
 	>
 		<template #content>
-			<FormsProduct :payload="productPayload" />
+			<FormsProduct :modelValue="payload" />
 		</template>
 	</Dialog>
 </template>
@@ -68,7 +69,7 @@ const isLoading = ref(false)
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const projectStore = useProjectStore()
-
+const isEdit = ref(false)
 const data_table = ref({
 	items: [],
 	total_data: 0,
@@ -92,10 +93,26 @@ const data_table = ref({
 })
 
 // Form data
-const productPayload = ref({
-	product_name: '',
-	price: '',
-	quantity: '',
+const payload = ref({
+	product_name: null,
+	brand_name: null,
+	product_tax: 0.0,
+	description: null,
+	product_sku: null,
+	product_cost_price: 0.0,
+	product_mrp: null,
+	selling_price: null,
+	discount: 0.0,
+	product_qty: 0.0,
+	product_packing: null,
+	hsn_no: null,
+	mfg_date: null,
+	exp_date: null,
+	batch_no: null,
+	size: null,
+	color: null,
+	product_unit: 'PCS',
+	product_type: 'FASHION',
 })
 
 // File upload related refs
@@ -197,8 +214,45 @@ const handlePageChange = (newPage) => {
 	fetchData()
 }
 
+const handleAddProduct = () => {
+	isEdit.value = false
+	isAddProductDialogVisible.value = true
+	payload.value = {
+		product_name: null,
+		brand_name: null,
+		product_tax: 0.0,
+		description: null,
+		product_sku: null,
+		product_cost_price: 0.0,
+		product_mrp: null,
+		selling_price: null,
+		discount: 0.0,
+		product_qty: 0.0,
+		product_packing: null,
+		hsn_no: null,
+		mfg_date: null,
+		exp_date: null,
+		batch_no: null,
+		size: null,
+		color: null,
+		product_unit: 'PCS',
+		product_type: 'FASHION',
+	}
+}
+
 const handleEdit = (item) => {
 	console.log('Edit in parent____________________', item)
+	isEdit.value = true
+	isAddProductDialogVisible.value = true
+	payload.value = {
+		...item,
+		product_mrp: item.product_mrp || 0.0,
+		selling_price: item.selling_price || 0.0,
+		product_cost_price: item.product_cost_price || 0.0,
+		product_qty: item.product_qty || 0.0,
+		product_tax: item.product_tax || 0.0,
+	}
+	payload.value.product_unit = item.product_unit || 'PCS'
 }
 
 const handleDelete = (item) => {

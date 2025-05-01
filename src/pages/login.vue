@@ -7,7 +7,6 @@
 					<div>
 						<h2 class="mt-6 text-center text-3xl font-bold text-gray-900">Sign-In</h2>
 					</div>
-
 					<form class="mt-8 space-y-6" @submit.prevent="handleLogin">
 						<div class="rounded-md shadow-sm">
 							<div>

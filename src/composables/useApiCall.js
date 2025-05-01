@@ -37,9 +37,10 @@ export default function useApiCall() {
 				headers,
 			})
 
+			
 			return response.data
 		} catch (error) {
-			console.error(`API Error (${endpoint}):`, error.response?.data || error.message)
+			// console.error(`API Error (${endpoint}):`, error.response?.data || error.message)
 			return error.response?.data || { message: error.message }
 		}
 	}
