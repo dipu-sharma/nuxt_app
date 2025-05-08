@@ -1,14 +1,27 @@
 <template>
 	<div class="container mx-auto p-5">
-		<section class="mb-4">
-			<button
-				type="button"
-				@click="handleAddProduct"
-				class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-			>
-				Add Product
-			</button>
-			<button type="button" @click="exportToExcel">Export Excel</button>
+		<section class="mb-4 flex gap-4 justify-between items-center">
+			<h1 class="text-2xl font-bold">Products</h1>
+			<div class="flex gap-4 items-center">
+				<button
+					type="button"
+					@click="handleAddProduct"
+					class="light:text-black text-center rounded-lg transition"
+					alt="Add Product"
+					title="Add Product"
+				>
+					<Icon name="mdi-plus" class="" width="50" height="50" />
+				</button>
+				<button
+					type="button"
+					@click="exportToExcel"
+					class="light:text-black text-center rounded-lg transition"
+					alt="Export to Excel"
+					title="Export to Excel"
+				>
+					<Icon name="mdi-cloud-download" width="50" height="50" />
+				</button>
+			</div>
 		</section>
 
 		<TablesTable2
@@ -44,7 +57,6 @@ import { useProjectStore } from '~/stores/projects'
 import { useAuthStore } from '~/stores/auth'
 
 const AuthStore = useAuthStore()
-import * as XLSX from 'xlsx'
 import { toast } from 'vue3-toastify'
 
 // Page metadata
@@ -126,7 +138,6 @@ const showAddProductDialog = () => {
 }
 
 const handleSaveProduct = () => {
-	// Add product save logic here
 	isAddProductDialogVisible.value = false
 }
 

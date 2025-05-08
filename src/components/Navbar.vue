@@ -117,7 +117,7 @@ const toggleTheme = () => {
 }
 
 const logout = () => {
-	authStore.logout()
+	authStore.doLogout()
 	navigateTo('/login')
 }
 </script>

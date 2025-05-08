@@ -17,7 +17,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
 	// Public routes
 	const publicRoutes = ['/login', '/register', '/forgot-password']
-	const isPublicRoute = publicRoutes.some((route) => to.path.startsWith(route))
+	const isPublicRoute = publicRoutes.some((route) => to?.path?.startsWith(route))
 
 	// Allow public routes
 	if (isPublicRoute) {
@@ -46,7 +46,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 		if (!to.path.startsWith(`/${role.value.toLowerCase()}`)) {
 			// Allow some shared routes (optional)
 			const sharedRoutes = ['/settings', '/profile'] // Add your shared routes
-			if (!sharedRoutes.some((route) => to.path.startsWith(route))) {
+			if (!sharedRoutes.some((route) => to?.path?.startsWith(route))) {
 				return navigateTo(roleHome)
 			}
 		}

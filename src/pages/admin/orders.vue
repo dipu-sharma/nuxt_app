@@ -1,7 +1,9 @@
 <template>
 	<div>
 		<!-- With actions -->
-		<h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">Table with actions</h4>
+		<h4 class="mb-4 text-lg font-semibold text-white dark:text-black">Table with actions</h4>
+		<!-- <VCalendar /> -->
+		<FormElementDateRange />
 
 		<div class="w-full overflow-hidden rounded-lg shadow-xs mt-5">
 			<div class="w-full overflow-x-auto">
@@ -183,10 +185,22 @@
 definePageMeta({
 	title: 'Order',
 	description: 'Learn more about our company',
-	layout: 'admin',
-	middleware: ['auth-role'],
+	// layout: 'admin',
+	// 	middleware: ['auth-role'],
 })
 
+const range = ref({
+	start: new Date(2020, 0, 6),
+	end: new Date(2020, 0, 10),
+})
+
+const attributes_data = ref([
+	{
+		key: 'today',
+		highlight: true,
+		dates: new Date(),
+	},
+])
 const users = [
 	{
 		name: 'Hans Burger',
@@ -225,6 +239,8 @@ const users = [
 		date: '6/10/2020',
 	},
 ]
+
+const updateRange = () => {}
 
 const getStatusClass = () => {}
 const handleEdit = (data) => {

@@ -292,7 +292,8 @@
 const props = defineProps({
 	modelValue: Object,
 })
-
+const { isListening, isSupported, error, transcript, activeField, startListening, stopListening } =
+	useVoiceRecognition()
 const emit = defineEmits(['update:modelValue'])
 
 const payload = computed({

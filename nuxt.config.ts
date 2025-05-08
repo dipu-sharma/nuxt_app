@@ -27,13 +27,14 @@ export default defineNuxtConfig({
 	devtools: { enabled: true },
 	srcDir: 'src',
 	imports: { dirs: ['api'] },
-	css: ['~/assets/css/tailwind.css', '@mdi/font/css/materialdesignicons.min.css'],
+	css: ['~/assets/css/tailwind.css', '@mdi/font/css/materialdesignicons.min.css', 'vuetify/styles'],
 	postcss: {
 		plugins: {
 			tailwindcss: {},
 			autoprefixer: {},
 		},
 	},
+	modules: ['@nuxt/icon'],
 	pinia: {
 		autoImports: ['defineStore', 'acceptHMRUpdate'],
 	},
@@ -46,6 +47,16 @@ export default defineNuxtConfig({
 	build: {
 		transpile: ['vuetify'],
 	},
+	vuetify: {
+		vuetifyOptions: {
+			date: {
+				adapter: 'vuetify',
+			},
+		},
+		moduleOptions: {
+			treeshake: true,
+		},
+	},
 	vite: {
 		ssr: {
 			noExternal: ['vuetify'],
@@ -57,8 +68,6 @@ export default defineNuxtConfig({
 			}),
 		],
 	},
-
-	modules: ['@nuxt/icon'],
 	runtimeConfig: {
 		public: {
 			API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:8001',

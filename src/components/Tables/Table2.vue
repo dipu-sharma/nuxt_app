@@ -1,13 +1,14 @@
 <template>
 	<div class="w-full">
 		<!-- Search Bar -->
+		{{ darkMode }}
 		<div class="flex gap-6 justify-between mb-6">
 			<p class="text-2xl font-bold"></p>
 			<input
 				v-model="search"
 				type="text"
 				placeholder="Single Search"
-				class="w-64 border-2 border-gray-300 rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500 px-4 py-2"
+				class="w-64 border-2 border-gray-300 dark:text-white light:text-black rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500 px-4 py-2"
 			/>
 		</div>
 
@@ -67,6 +68,9 @@
 </template>
 
 <script setup>
+import { useThemeStore } from '~/stores/themeStore'
+const ThemeStore = useThemeStore()
+const darkMode = ThemeStore.theme
 const props = defineProps({
 	headers: { type: Array, required: true },
 	items: { type: Array, required: true },
