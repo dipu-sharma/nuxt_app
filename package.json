@@ -26,7 +26,6 @@
 		"@mdi/js": "^7.4.47",
 		"@nuxt/ui": "^3.0.2",
 		"@pinia/nuxt": "^0.5.3",
-		"@popperjs/core": "^2.11.8",
 		"axios": "^1.7.3",
 		"chart.js": "^4.4.4",
 		"chartjs-plugin-datalabels": "^2.2.0",
@@ -38,7 +37,6 @@
 		"pinia": "^2.2.1",
 		"pinia-plugin-persistedstate": "^3.2.1",
 		"sonarqube-scanner": "^4.2.8",
-		"v-calendar": "^3.1.2",
 		"vite-plugin-vuetify": "^2.0.4",
 		"vue": "3.5.13",
 		"vue-chartjs": "^5.2.0",
@@ -57,8 +55,5 @@
 		"sass-loader": "^16.0.5",
 		"sonarqube-scanner": "^4.2.8",
 		"tailwindcss": "^3.4.9"
-	},
-	"overrides": {
-		"vue": "latest"
 	}
 }
