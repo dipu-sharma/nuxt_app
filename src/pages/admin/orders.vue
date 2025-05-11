@@ -185,8 +185,8 @@
 definePageMeta({
 	title: 'Order',
 	description: 'Learn more about our company',
-	// layout: 'admin',
-	// 	middleware: ['auth-role'],
+	layout: 'admin',
+	middleware: ['auth-role'],
 })
 
 const range = ref({

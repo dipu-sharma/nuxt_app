@@ -98,7 +98,6 @@ const useTheme = useThemeStore()
 import { useAuthStore } from '~/stores/auth'
 import { toast } from 'vue3-toastify'
 import { onMounted } from 'vue'
-import auth_api from '../api/auth_api'
 
 const authStore = useAuthStore()
 
@@ -130,7 +129,7 @@ const togglePasswordVisibility = () => {
 }
 
 const handleLogin = async () => {
-	const { login_user, get_current_user } = auth_api()
+	const { login_user, get_current_user } = authApi()
 	const response = await login_user(loginform.value)
 	// Store token and user data
 	authStore.addToken(response?.data?.access_token)
@@ -139,7 +138,7 @@ const handleLogin = async () => {
 
 	authStore.addUser(response_user.data)
 
-	if (response.data.access_token) {
+	if (response?.data?.access_token) {
 		toast.success('Logged in Successfully', {
 			position: 'top-right',
 			autoClose: 3000,

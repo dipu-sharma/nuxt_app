@@ -19,10 +19,19 @@ export default function () {
 		return callApi('put', '/employee/admin/resetEmployeePasswordByAdmin', payload, true)
 	}
 
+	const set_cookie = async () => {
+		return callApi('post', '/set-cookie')
+	}
+	const get_cookie = async () => {
+		return callApi('get', '/get-cookie')
+	}
+
 	return {
 		login_user,
 		get_current_user,
 		resetEmployeePassword,
 		resetEmployeePasswordByAdmin,
+		set_cookie,
+		get_cookie,
 	}
 }

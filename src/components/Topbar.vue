@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<header :class="['z-10 py-4 bg-white shadow-md', { 'dark:bg-black': dark }]">
+		<header class="z-10 py-4 shadow-md dark:bg-white light:bg-black">
 			<div
 				class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300"
 			>

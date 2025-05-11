@@ -22,6 +22,12 @@ export default defineNuxtConfig({
 	devServer: {
 		port: 5000,
 	},
+	server: {
+		host: '0.0.0.0',
+		hmr: {
+			clientPort: 80,
+		},
+	},
 	ssr: true,
 	compatibilityDate: '2024-04-03',
 	devtools: { enabled: true },

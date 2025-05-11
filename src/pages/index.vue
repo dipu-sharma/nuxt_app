@@ -4,6 +4,12 @@
 		<div class="lg:col-span-2 md:col-span-3 sm:col-span-6 px-4 py-4 text-center">
 			<h1 class="text-lg font-semibold">All Category</h1>
 			<hr class="my-2" />
+			<div>
+				<button type="button" @click="handleCookieSet" class="bg-black rounded-lg p-4">Set Cookie</button>
+				<button type="button" @click="handleCookieGet" class="bg-blue-400 rounded-lg p-4">
+					Get Cookie
+				</button>
+			</div>
 
 			<!-- Category Dropdown -->
 			<div class="py-2 px-6 w-full">
@@ -50,6 +56,17 @@ const items = ref([
 	{ name: 'Category 3', id: '3' },
 	{ name: 'Category 4', id: '4' },
 ])
+
+const handleCookieSet = async () => {
+	const { set_cookie } = authApi()
+	const res = set_cookie()
+}
+
+const handleCookieGet = async () => {
+	const { get_cookie } = authApi()
+	const res = await get_cookie()
+	console.log('Response___________________________', res)
+}
 </script>
 
 <style scoped></style>
