@@ -4,7 +4,7 @@ import { join } from 'path'
 import * as dotenv from 'dotenv'
 
 // Load environment variables
-const env = process.env.NUXT_ENV || process.env.NODE_ENV || 'dev'
+const env = process.env.NUXT_ENV ?? process.env.NODE_ENV ?? 'dev'
 dotenv.config({ path: `.env.${env}` })
 
 // Explicit environment file loading (optional, the above line might be enough)
@@ -21,12 +21,6 @@ if (process.env.NUXT_ENV === 'dev') {
 export default defineNuxtConfig({
 	devServer: {
 		port: 5000,
-	},
-	server: {
-		host: '0.0.0.0',
-		hmr: {
-			clientPort: 80,
-		},
 	},
 	ssr: true,
 	compatibilityDate: '2024-04-03',
