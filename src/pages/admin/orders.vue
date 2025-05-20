@@ -2,8 +2,6 @@
 	<div>
 		<!-- With actions -->
 		<h4 class="mb-4 text-lg font-semibold text-white dark:text-black">Table with actions</h4>
-		<!-- <VCalendar /> -->
-		<FormElementDateRange />
 
 		<div class="w-full overflow-hidden rounded-lg shadow-xs mt-5">
 			<div class="w-full overflow-x-auto">

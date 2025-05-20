@@ -1,7 +1,8 @@
 import { defineNuxtConfig } from 'nuxt/config'
-import vuetifyPlugin from 'vite-plugin-vuetify'
-import { join } from 'path'
+
 import * as dotenv from 'dotenv'
+import { join } from 'path'
+import { transformAssetUrls } from 'vite-plugin-vuetify'
 
 // Load environment variables
 const env = process.env.NUXT_ENV ?? process.env.NODE_ENV ?? 'dev'
@@ -47,26 +48,10 @@ export default defineNuxtConfig({
 	build: {
 		transpile: ['vuetify'],
 	},
-	vuetify: {
-		vuetifyOptions: {
-			date: {
-				adapter: 'vuetify',
-			},
-		},
-		moduleOptions: {
-			treeshake: true,
-		},
-	},
+	vuetify: { moduleOptions: {}, vuetifyOptions: { labComponents: true } },
 	vite: {
-		ssr: {
-			noExternal: ['vuetify'],
-		},
-		plugins: [
-			vuetifyPlugin({
-				autoImport: true,
-				styles: true,
-			}),
-		],
+		ssr: { noExternal: ['vuetify'] },
+		vue: { template: { transformAssetUrls } },
 	},
 	runtimeConfig: {
 		public: {

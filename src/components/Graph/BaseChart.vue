@@ -62,7 +62,7 @@ const createGradient = (ctx, chartArea, colors) => {
 const prepareDatasets = () => {
 	if (props.type !== 'line') return props.data.datasets
 
-	return props.data.datasets.map((dataset, index) => {
+	return props.data.datasets?.map((dataset, index) => {
 		const colors = props.gradientColors[index] || props.gradientColors[0]
 		const baseConfig = {
 			...dataset,

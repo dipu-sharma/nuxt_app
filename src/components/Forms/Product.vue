@@ -77,7 +77,6 @@
 					type="number"
 					v-model="payload.product_cost_price"
 					placeholder="0.00"
-					prefix="$"
 					clearable
 					class="[&_.v-field__outline]:!border-gray-300 hover:[&_.v-field__outline]:!border-indigo-300 [&_.v-field--active_.v-field__outline]:!border-indigo-500 [&_.v-field--focused_.v-field__outline]:!border-indigo-500"
 				/>

@@ -32,6 +32,7 @@
 			:item_total="data_table.total_data"
 			:loading="isLoading"
 			@update="handleEdit"
+			@search="handleSearchProduct"
 			@delete="handleDelete"
 			@page_change="handlePageChange"
 			@item_per_page="handleItemsPerPageChange"
@@ -42,7 +43,7 @@
 		v-model="isAddProductDialogVisible"
 		:loading="isLoading"
 		title="Add Product"
-		button-text="Save"
+		:button-text="isEdit ? 'Update' : 'Save'"
 		max-width="1000px"
 		@confirm="handleSaveProduct"
 	>
@@ -78,6 +79,7 @@ const FILE_TYPE_SPECS = {
 // Refs
 const isAddProductDialogVisible = ref(false)
 const isLoading = ref(false)
+const search = ref('')
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const projectStore = useProjectStore()
@@ -137,8 +139,28 @@ const showAddProductDialog = () => {
 	isAddProductDialogVisible.value = true
 }
 
-const handleSaveProduct = () => {
-	isAddProductDialogVisible.value = false
+const handleSaveProduct = async () => {
+	isLoading.value = true
+	try {
+		const { create_product, edit_product } = productApi()
+		if (isEdit.value) {
+			const response = await edit_product({ body: payload.value }, payload.value?.product_id)
+			if (response.status_code === 200) {
+				toast.success(response?.message || 'Product updated successfully')
+			}
+		} else {
+			const response = await create_product({ body: payload.value })
+			if (response.status_code === 200) {
+				toast.success(response?.message || 'Product created successfully')
+			}
+		}
+		await fetchData()
+	} catch (error) {
+		toast.error('Failed to save product')
+	} finally {
+		isLoading.value = false
+		isAddProductDialogVisible.value = false
+	}
 }
 
 const handleFileUpload = (payload) => {
@@ -197,6 +219,7 @@ const fetchData = async () => {
 		sort_by: '-created_at',
 		per_page: 10,
 		is_paginate: true,
+		search: search.value,
 	}
 	try {
 		const respnse = await get_vendor_product_list({ query: filters })
@@ -266,6 +289,11 @@ const handleEdit = (item) => {
 	payload.value.product_unit = item.product_unit || 'PCS'
 }
 
+const handleSearchProduct = async (search_keyword) => {
+	search.value = search_keyword
+	fetchData()
+}
+
 const handleDelete = (item) => {
 	console.log('Delete in parent____________________', item)
 }
@@ -284,10 +312,14 @@ watch(
 )
 
 onMounted(async () => {
+	isLoading.value = true
 	await fetchData()
+	isLoading.value = false
 })
 
 onServerPrefetch(async () => {
+	isLoading.value = true
 	await fetchData()
+	isLoading.value = false
 })
 </script>

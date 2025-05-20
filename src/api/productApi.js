@@ -24,7 +24,37 @@ export default function () {
 		return data.value
 	}
 
+	const create_product = async (payload) => {
+		const { data, error } = await useFetch(`${BASE_URL}/vendor/product`, {
+			method: 'POST',
+			...payload,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
+		if (error?.value) {
+			handleAxiosError(error?.value?.statusCode, error?.value?.data?.detail, toast)
+		}
+		return data.value
+	}
+
+	const edit_product = async (payload, product_id) => {
+		const { data, error } = await useFetch(`${BASE_URL}/vendor/product?product_id=${product_id}`, {
+			method: 'PUT',
+			...payload,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
+		if (error?.value) {
+			handleAxiosError(error?.value?.statusCode, error?.value?.data?.detail, toast)
+		}
+		return data.value
+	}
+
 	return {
 		get_vendor_product_list,
+		create_product,
+		edit_product,
 	}
 }

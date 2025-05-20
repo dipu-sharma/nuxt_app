@@ -9,6 +9,7 @@
 				type="text"
 				placeholder="Single Search"
 				class="w-64 border-2 border-gray-300 dark:text-white light:text-black rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500 px-4 py-2"
+				@input="handleSearch"
 			/>
 		</div>
 
@@ -79,7 +80,7 @@ const props = defineProps({
 	item_total: { type: Number, required: true },
 	loading: { type: Boolean, default: false },
 })
-const emit = defineEmits(['page_change', 'item_per_page', 'reload:table', 'update', 'delete'])
+const emit = defineEmits(['page_change', 'item_per_page', 'reload:table', 'update', 'delete', 'search'])
 const internalPage = ref(props.page)
 const internalItemsPerPage = ref(props.itemsPerPage)
 
@@ -92,6 +93,12 @@ watch(internalPage, (newPage) => {
 watch(internalItemsPerPage, (newItemsPerPage) => {
 	emit('item_per_page', newItemsPerPage)
 })
+
+const handleSearch = () => {
+	console.log('emit value____________', search.value)
+
+	emit('search', search.value)
+}
 
 const editItem = (item = {}) => {
 	emit('update', item)

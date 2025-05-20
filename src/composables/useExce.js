@@ -21,8 +21,8 @@ export const useExcel = () => {
 			}))
 
 			// Prepare data rows
-			const dataRows = excelData.map((row) => {
-				return headers.map((header) => {
+			const dataRows = excelData?.map((row) => {
+				return headers?.map((header) => {
 					if (header === 'Role') {
 						return {
 							value: row[header],
@@ -45,13 +45,13 @@ export const useExcel = () => {
 			excelConfig = []
 			for (const [sheetName, sheetData] of Object.entries(excelData)) {
 				const headers = Object.keys(sheetData[0] || {})
-				const headerRow = headers.map((header) => ({
+				const headerRow = headers?.map((header) => ({
 					value: header,
 					fontWeight: 'bold',
 				}))
 
-				const dataRows = sheetData.map((row) => {
-					return headers.map((header) => ({ value: row[header] }))
+				const dataRows = sheetData?.map((row) => {
+					return headers?.map((header) => ({ value: row[header] }))
 				})
 
 				excelConfig = [...excelConfig, ...dataRows]

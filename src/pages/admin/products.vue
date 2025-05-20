@@ -306,7 +306,7 @@ table2_datatable.value.items = multiple_items
 table2_datatable.value.totalItems = multiple_items.length
 
 const exportToExcel = () => {
-	const ws_data = selectedSystems.value.map((system, index) => ({
+	const ws_data = selectedSystems.value?.map((system, index) => ({
 		'Sr No.': index + 1,
 		'System Name': system[0].system_name,
 		'Module No': system[0]?.module_no,

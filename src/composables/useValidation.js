@@ -50,8 +50,8 @@ export const useValidation = () => {
 		if (!str) return ''
 		return str
 			.trim()
-			.split(' ')
-			.map((word) => capitalize(word))
+			?.split(' ')
+			?.map((word) => capitalize(word))
 			.join(' ')
 	}
 
@@ -65,7 +65,7 @@ export const useValidation = () => {
 		return Object.fromEntries(
 			Object.entries(obj)
 				.filter(([_, v]) => v !== null && v !== undefined && v !== '')
-				.map(([k, v]) => [k, filterNullValues(v)]),
+				?.map(([k, v]) => [k, filterNullValues(v)]),
 		)
 	}
 
