@@ -16,17 +16,22 @@ export default function useApiCall() {
 		withCredentials: true,
 	})
 
-	const callApi = async (method, endpoint, payload = null, isTokenRequired = false) => {
+	const callApi = async (method, endpoint, payload = null, queryParams = null, isTokenRequired = false) => {
 		try {
 			const headers = {}
 
 			if (isTokenRequired && authStore.token) {
 				headers['Authorization'] = `Bearer ${authStore.token}`
 			}
+			let url = endpoint
+			if (queryParams) {
+				const queryString = new URLSearchParams(queryParams).toString()
+				url += `?${queryString}`
+			}
 
 			const response = await api({
 				method,
-				url: endpoint,
+				url,
 				data: payload,
 				headers,
 			})

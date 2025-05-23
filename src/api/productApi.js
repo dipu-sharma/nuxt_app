@@ -1,55 +1,45 @@
-import { useAuthStore } from '@/stores/auth'
 import { handleAxiosError } from '~/utils/ErrorHandle/error'
 import { toast } from 'vue3-toastify'
+
 export default function () {
-	const { token } = useAuthStore()
-	const config = useRuntimeConfig()
-	const BASE_URL = config.public.API_BASE_URL
+	const { callApi } = useApiCall()
 
-	const get_vendor_product_list = async (payload) => {
-		const { data, error } = await useFetch(`${BASE_URL}/vendor/product/list`, {
-			method: 'GET',
-			...payload,
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		})
-
-		if (error?.value) {
+	const get_vendor_product_list = async (queryParams = {}) => {
+		try {
+			const response = await callApi(
+				'GET',
+				'/vendor/product/list',
+				null,
+				queryParams,
+				true,
+			)
+			return response
+		} catch (error) {
 			if (import.meta.client) {
-				handleAxiosError(error?.value?.statusCode, error?.value?.data?.detail, toast)
+				handleAxiosError(error?.statusCode, error?.data?.detail, toast)
 			}
+			throw error
 		}
-
-		return data.value
 	}
 
 	const create_product = async (payload) => {
-		const { data, error } = await useFetch(`${BASE_URL}/vendor/product`, {
-			method: 'POST',
-			...payload,
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		})
-		if (error?.value) {
-			handleAxiosError(error?.value?.statusCode, error?.value?.data?.detail, toast)
+		try {
+			const response = await callApi('POST', '/vendor/product', payload, null, true)
+			return response
+		} catch (error) {
+			handleAxiosError(error?.statusCode, error?.data?.detail, toast)
+			throw error
 		}
-		return data.value
 	}
 
 	const edit_product = async (payload, product_id) => {
-		const { data, error } = await useFetch(`${BASE_URL}/vendor/product?product_id=${product_id}`, {
-			method: 'PUT',
-			...payload,
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		})
-		if (error?.value) {
-			handleAxiosError(error?.value?.statusCode, error?.value?.data?.detail, toast)
+		try {
+			const response = await callApi('PUT', '/vendor/product', payload, { product_id }, true)
+			return response
+		} catch (error) {
+			handleAxiosError(error?.statusCode, error?.data?.detail, toast)
+			throw error
 		}
-		return data.value
 	}
 
 	return {

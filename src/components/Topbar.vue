@@ -1,6 +1,11 @@
 <template>
-	<div>
-		<header class="z-10 py-4 shadow-md dark:bg-white light:bg-black">
+	<div
+		:class="{
+			'bg-white': themeStore.theme === 'light',
+			'bg-black': themeStore.theme !== 'light',
+		}"
+	>
+		<header class="z-10 py-4 shadow-md">
 			<div
 				class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300"
 			>
@@ -160,7 +165,7 @@
 								<li class="flex">
 									<a
 										@click="logout"
-										class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+										class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200 cursor-pointer"
 									>
 										<span>Log out</span>
 									</a>

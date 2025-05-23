@@ -1,7 +1,7 @@
 <template>
 	<header>
 		<nav
-			class="fixed top-0 left-0 right-0 flex flex-wrap items-center justify-between w-full py-3 md:py-0 px-4 text-lg text-gray-700 bg-white shadow-md z-50"
+			class="fixed top-0 left-0 right-0 flex flex-wrap items-center justify-between w-full py-3 md:py-0 px-4 text-lg text-gray-700 shadow-md z-50"
 		>
 			<div>
 				<NuxtLink to="/" class="h2 w-6 text-black font-bold"> D-Shop </NuxtLink>
@@ -115,7 +115,7 @@ const toggleTheme = () => {
 	themeStore.theme = themeStore.theme === 'light' ? 'dark' : 'light'
 	themeStore.addTheme(themeStore.theme)
 }
-
+watch(themeStore.getData(), (newVal, oldVal) => {})
 const logout = () => {
 	authStore.doLogout()
 	navigateTo('/login')

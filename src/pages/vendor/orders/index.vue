@@ -7,13 +7,13 @@
 </template>
 
 <script setup>
-// definePageMeta({
-// 	title: 'Orders',
-// 	description: 'List of orders',
-// 	middleware: ['auth-role'],
-// 	role: ['vendor'],
-// 	layout: 'admin',
-// })
+definePageMeta({
+	title: 'Orders',
+	description: 'List of orders',
+	middleware: ['auth-role'],
+	role: ['vendor'],
+	layout: 'admin',
+})
 
 const handleCookieSet = async () => {
 	const { set_cookie } = authApi()

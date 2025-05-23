@@ -144,16 +144,17 @@ const handleSaveProduct = async () => {
 	try {
 		const { create_product, edit_product } = productApi()
 		if (isEdit.value) {
-			const response = await edit_product({ body: payload.value }, payload.value?.product_id)
+			const response = await edit_product(payload.value, payload.value?.product_id)
 			if (response.status_code === 200) {
 				toast.success(response?.message || 'Product updated successfully')
 			}
 		} else {
-			const response = await create_product({ body: payload.value })
+			const response = await create_product(payload.value)
 			if (response.status_code === 200) {
 				toast.success(response?.message || 'Product created successfully')
 			}
 		}
+		isAddProductDialogVisible.value = false
 		await fetchData()
 	} catch (error) {
 		toast.error('Failed to save product')
@@ -222,7 +223,7 @@ const fetchData = async () => {
 		search: search.value,
 	}
 	try {
-		const respnse = await get_vendor_product_list({ query: filters })
+		const respnse = await get_vendor_product_list(filters)
 		if (respnse?.data?.detail?.status_code === 401) {
 			AuthStore.doLogout()
 			navigateTo('/login')

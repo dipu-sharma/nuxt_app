@@ -111,7 +111,7 @@ const renderChart = () => {
 				...(props.options?.scales?.x || {}),
 			},
 		},
-		...props.options, // Spread parent options last so it overrides if needed
+		...props.options,
 	}
 
 	if (props.aspectRatio !== null) {

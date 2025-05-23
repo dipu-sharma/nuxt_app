@@ -1,8 +1,11 @@
 <template>
+	{{ themeStore.theme }}
 	<BaseChart type="line" :data="chartData" :options="chartOptions" :is_gradient="true" :height="300" />
 </template>
 
 <script setup>
+import { useThemeStore } from '~/stores/themeStore'
+const themeStore = useThemeStore()
 import BaseChart from './BaseChart.vue'
 const chartData = {
 	labels: [
@@ -98,7 +101,7 @@ const chartOptions = {
 			grid: {
 				display: false,
 				drawBorder: false,
-				drawOnChartArea: true, // Add this
+				drawOnChartArea: true,
 			},
 			ticks: {
 				display: true,
@@ -115,15 +118,6 @@ const chartOptions = {
 			},
 		},
 	},
-	// animations: {
-	// 	tension: {
-	// 		duration: 2000,
-	// 		easing: 'linear',
-	// 		from: 1,
-	// 		to: 0,
-	// 		loop: true,
-	// 	},
-	// },
 	elements: {
 		line: {
 			borderWidth: 2,
@@ -133,4 +127,16 @@ const chartOptions = {
 		},
 	},
 }
+watch(
+	() => themeStore.theme,
+	(newTheme) => {
+		console.log('theme_______________________', themeStore.theme)
+
+		chartOptions.plugins.legend.labels.color = newTheme === 'light' ? '#000000' : '#ffffff'
+		chartOptions.scales.x.ticks.color = newTheme === 'light' ? '#ffffff' : '#000000'
+		chartOptions.scales.y.ticks.color = newTheme === 'light' ? '#ffffff' : '#000000'
+
+		console.log('Options_____________________', chartOptions)
+	},
+)
 </script>

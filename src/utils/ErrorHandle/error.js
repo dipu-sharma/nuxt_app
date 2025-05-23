@@ -28,6 +28,8 @@ export const handleAxiosError = (status_code, error, toast) => {
 				break
 			case 500:
 				errorMessage = 'Internal server error.'
+				authStore.doLogout()
+				navigateTo('/login')
 				break
 			default:
 				errorMessage = message || 'An error occurred.'

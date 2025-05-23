@@ -1,20 +1,26 @@
 <template>
 	<div class="w-full">
 		<!-- Search Bar -->
-		{{ darkMode }}
 		<div class="flex gap-6 justify-between mb-6">
 			<p class="text-2xl font-bold"></p>
 			<input
 				v-model="search"
 				type="text"
 				placeholder="Single Search"
-				class="w-64 border-2 border-gray-300 dark:text-white light:text-black rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500 px-4 py-2"
+				class="w-64 rounded-full shadow-md focus:ring-blue-500 focus:border-blue-500 px-4 py-2"
+				:class="{
+					'text-black': themeStore.theme === 'light',
+					'text-white': themeStore.theme === 'dark',
+					'bg-white': themeStore.theme === 'light',
+					'bg-gray-800': themeStore.theme === 'dark',
+				}"
 				@input="handleSearch"
 			/>
 		</div>
 
 		<!-- Data Table -->
 		<v-data-table
+			item-key="index"
 			:headers="headers"
 			:items="items"
 			:page.sync="internalPage"
@@ -24,7 +30,7 @@
 			:loading="loading"
 			class="!rounded-lg"
 			v-model:search="search"
-			:header-props="{ class: 'bg-[#FBAB33] table-header text-white !font-semibold' }"
+			:header-props="{ class: 'bg-teal-400' }"
 		>
 			<!-- Custom Header for Stock -->
 			<template v-slot:header.stock>
@@ -70,8 +76,7 @@
 
 <script setup>
 import { useThemeStore } from '~/stores/themeStore'
-const ThemeStore = useThemeStore()
-const darkMode = ThemeStore.theme
+const themeStore = useThemeStore()
 const props = defineProps({
 	headers: { type: Array, required: true },
 	items: { type: Array, required: true },
@@ -95,8 +100,6 @@ watch(internalItemsPerPage, (newItemsPerPage) => {
 })
 
 const handleSearch = () => {
-	console.log('emit value____________', search.value)
-
 	emit('search', search.value)
 }
 
@@ -107,8 +110,12 @@ const editItem = (item = {}) => {
 const deleteItem = (item) => {
 	emit('delete', item)
 }
-
+watch(themeStore.getData(), (newVal, oldVal) => {})
 const totalPages = computed(() => Math.ceil(props.item_total / internalItemsPerPage.value))
+
+onMounted(async () => {
+	themeStore.getData()
+})
 </script>
 
 <style scoped></style>
