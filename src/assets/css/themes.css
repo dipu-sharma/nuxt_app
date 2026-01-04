@@ -10,8 +10,8 @@
   --color-accent: 239 68 68; /* red-500 */
   --color-card: 255 255 255; /* white */
   --color-border: 229 231 235; /* gray-200 */
-  --color-sidebar: 31 41 55; /* gray-800 */
-  --color-sidebar-text: 156 163 175; /* gray-400 */
+  --color-sidebar: 255 255 255; /* white */
+  --color-sidebar-text: 17 24 39; /* gray-900 - black text */
 }
 
 /* Dark Theme */
@@ -24,7 +24,7 @@
   --color-card: 31 41 55; /* gray-800 */
   --color-border: 55 65 81; /* gray-700 */
   --color-sidebar: 17 24 39; /* gray-900 */
-  --color-sidebar-text: 156 163 175; /* gray-400 */
+  --color-sidebar-text: 255 255 255; /* white */
 }
 
 /* Sepia Theme */

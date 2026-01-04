@@ -24,8 +24,12 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 	// Allow public routes
 	if (isPublicRoute) {
 		// If already authenticated and trying to access login/register, redirect to home
+		// But only if they're not already on their home page
 		if (token.value && ['/login', '/register'].includes(to.path)) {
-			return navigateTo(role.value ? getRoleHome(role.value) : '/')
+			const homePage = role.value ? getRoleHome(role.value) : '/'
+			if (to.path !== homePage) {
+				return navigateTo(homePage)
+			}
 		}
 		return
 	}
@@ -39,7 +43,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 		if (to.path === '/') {
 			return navigateTo(roleHome)
 		}
-		if (!to.path.startsWith(`/${role.value.toLowerCase()}`)) {
+		const rolePathPrefix = getRolePathPrefix(role.value)
+		if (!to.path.startsWith(rolePathPrefix)) {
 			// Allow some shared routes (optional)
 			const sharedRoutes = ['/settings', '/profile']
 			if (!sharedRoutes.some((route) => to?.path?.startsWith(route))) {
@@ -58,8 +63,23 @@ function getRoleHome(role) {
 	switch (role) {
 		case 'ADMIN':
 			return '/admin'
-		case 'VENDOR':
-			return '/vendor'
+		case 'BUSINESS_OWNER':
+		case 'BUSINESS_MEMBER':
+			return '/business'
+		case 'USER':
+			return '/user'
+		default:
+			return '/'
+	}
+}
+
+function getRolePathPrefix(role) {
+	switch (role) {
+		case 'ADMIN':
+			return '/admin'
+		case 'BUSINESS_OWNER':
+		case 'BUSINESS_MEMBER':
+			return '/business'
 		case 'USER':
 			return '/user'
 		default:

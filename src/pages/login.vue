@@ -107,7 +107,8 @@ const loginform = ref({
 })
 const UserType = {
 	ADMIN: 'ADMIN',
-	VENDOR: 'VENDOR',
+	BUSINESS_OWNER: 'BUSINESS_OWNER',
+	BUSINESS_MEMBER: 'BUSINESS_MEMBER',
 	USER: 'USER',
 }
 const showPassword = ref(false)
@@ -167,8 +168,11 @@ const redirectToRole = (userType) => {
 		case UserType.ADMIN:
 			navigateTo('/admin', { redirectCode: 301 })
 			break
-		case UserType.VENDOR:
-			navigateTo('/vendor', { redirectCode: 301 })
+		case UserType.BUSINESS_OWNER:
+			navigateTo('/business', { redirectCode: 301 })
+			break
+		case UserType.BUSINESS_MEMBER:
+			navigateTo('/business', { redirectCode: 301 })
 			break
 		default:
 			navigateTo('/user', { redirectCode: 301 })

@@ -43,7 +43,7 @@ definePageMeta({
 const user_type_list = ref([
     'Admin',
     'User',
-    'Vendor'
+    'Business'
 ])
 
 const payload = ref({
