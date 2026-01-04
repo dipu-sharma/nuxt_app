@@ -1,5 +1,15 @@
 /** @type {import('tailwindcss').Config} */
+function withOpacity(variableName) {
+	return ({ opacityValue }) => {
+		if (opacityValue !== undefined) {
+			return `rgba(var(${variableName}), ${opacityValue})`
+		}
+		return `rgb(var(${variableName}))`
+	}
+}
+
 export default {
+	darkMode: 'class', // or 'media'
 	content: [
 		'./src/components/**/*.{js,vue,ts}',
 		'./src/layouts/**/*.vue',
@@ -11,10 +21,13 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				primary: {
-					light: '#3B82F6',
-					dark: '#1E3A8A',
-				},
+				background: withOpacity('--color-background'),
+				text: withOpacity('--color-text'),
+				primary: withOpacity('--color-primary'),
+				secondary: withOpacity('--color-secondary'),
+				accent: withOpacity('--color-accent'),
+				card: withOpacity('--color-card'),
+				border: withOpacity('--color-border'),
 			},
 		},
 	},

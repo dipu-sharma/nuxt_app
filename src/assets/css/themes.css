@@ -1,0 +1,72 @@
+/* src/assets/css/themes.css */
+
+/* Light Theme (Default) */
+:root,
+[data-theme="light"] {
+  --color-background: 255 255 255; /* white */
+  --color-text: 17 24 39; /* gray-900 */
+  --color-primary: 59 130 246; /* blue-500 */
+  --color-secondary: 243 244 246; /* gray-100 */
+  --color-accent: 239 68 68; /* red-500 */
+  --color-card: 255 255 255; /* white */
+  --color-border: 229 231 235; /* gray-200 */
+  --color-sidebar: 31 41 55; /* gray-800 */
+  --color-sidebar-text: 156 163 175; /* gray-400 */
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --color-background: 17 24 39; /* gray-900 */
+  --color-text: 243 244 246; /* gray-100 */
+  --color-primary: 96 165 250; /* blue-400 */
+  --color-secondary: 31 41 55; /* gray-800 */
+  --color-accent: 248 113 113; /* red-400 */
+  --color-card: 31 41 55; /* gray-800 */
+  --color-border: 55 65 81; /* gray-700 */
+  --color-sidebar: 17 24 39; /* gray-900 */
+  --color-sidebar-text: 156 163 175; /* gray-400 */
+}
+
+/* Sepia Theme */
+[data-theme="sepia"] {
+  --color-background: 254 243 199; /* yellow-50 */
+  --color-text: 120 53 15; /* yellow-900 */
+  --color-primary: 245 158 11; /* amber-500 */
+  --color-secondary: 254 249 195; /* yellow-100 */
+  --color-accent: 234 88 12; /* orange-500 */
+  --color-card: 254 243 199; /* yellow-50 */
+  --color-border: 253 230 138; /* yellow-200 */
+  --color-sidebar: 154 52 18; /* yellow-800 */
+  --color-sidebar-text: 217 119 6; /* yellow-600 */
+}
+
+/* Blue Theme */
+[data-theme="blue"] {
+  --color-background: 239 246 255; /* blue-50 */
+  --color-text: 30 58 138; /* blue-900 */
+  --color-primary: 37 99 235; /* blue-600 */
+  --color-secondary: 219 234 254; /* blue-100 */
+  --color-accent: 99 102 241; /* indigo-500 */
+  --color-card: 239 246 255; /* blue-50 */
+  --color-border: 191 219 254; /* blue-200 */
+  --color-sidebar: 30 58 138; /* blue-900 */
+  --color-sidebar-text: 96 165 250; /* blue-400 */
+}
+
+/* Green Theme */
+[data-theme="green"] {
+  --color-background: 236 253 245; /* green-50 */
+  --color-text: 20 83 45; /* green-900 */
+  --color-primary: 34 197 94; /* green-500 */
+  --color-secondary: 220 252 231; /* green-100 */
+  --color-accent: 16 185 129; /* emerald-500 */
+  --color-card: 236 253 245; /* green-50 */
+  --color-border: 187 247 208; /* green-200 */
+  --color-sidebar: 20 83 45; /* green-900 */
+  --color-sidebar-text: 74 222 128; /* green-400 */
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

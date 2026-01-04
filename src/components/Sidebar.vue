@@ -1,19 +1,18 @@
 <template>
-	<aside :class="['z-20 flex-shrink-0 hidden w-64 overflow-y-auto md:block', themeStore.theme]">
-		<div :class="['py-4 text-gray-500', themeStore.theme]">
+	<aside class="z-20 flex-shrink-0 hidden w-64 overflow-y-auto bg-gray-800 md:block" style="background-color: rgb(var(--color-sidebar)); color: rgb(var(--color-sidebar-text))">
+		<div class="py-4 text-gray-400">
 			<div class="py-2 px-8">
-				<h1 class="items-center text-xl text-bold justify-center">{{ role }} Dashboard</h1>
+				<h1 class="items-center text-xl text-bold justify-center" style="color: rgb(var(--color-text))">{{ role }} Dashboard</h1>
 			</div>
 			<ul class="mt-6">
 				<li class="relative px-6 py-3" v-for="(item, index) in filteredSidebarItems" :key="index">
 					<NuxtLink
-						class="inline-flex text-center items-center w-full text-sm font-semibold"
+						class="inline-flex text-center items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-white"
 						:to="item.path"
 						:class="{
-							'p-2 rounded-lg text-center items-center': isActive(item.path),
-							'bg-black text-white': themeStore.theme === 'light' && isActive(item.path),
-							'bg-white text-black': themeStore.theme === 'dark' && isActive(item.path),
+							'p-2 rounded-lg': isActive(item.path),
 						}"
+						:style="isActive(item.path) ? { backgroundColor: 'rgb(var(--color-primary))', color: 'white' } : {}"
 					>
 						<svg
 							class="w-5 h-5"
@@ -126,8 +125,6 @@ function toggleMobileUsersMenu() {
 function isActive(path) {
 	return route.path === path
 }
-
-watch(themeStore.getData(), (newVal, oldVal) => {})
 </script>
 
 <style scoped>

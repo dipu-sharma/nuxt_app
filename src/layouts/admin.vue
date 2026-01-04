@@ -1,15 +1,9 @@
 <template>
-	<div class="flex h-screen">
+	<div class="flex h-screen" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text))">
 		<Sidebar v-if="isDesktop" />
 		<div class="flex flex-col flex-1 w-full">
 			<Topbar />
-			<main
-				class="h-full pb-16 overflow-y-auto px-8"
-				:class="{
-					'bg-gray-700 text-white': themeStore.theme === 'light',
-					'bg-gray-200 text-black': themeStore.theme === 'dark',
-				}"
-			>
+			<main class="h-full pb-16 overflow-y-auto px-8" style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
 				<slot />
 			</main>
 			<AutoLogOut />
@@ -46,8 +40,6 @@ watch(
 onMounted(() => {
 	updateIsDesktop()
 	window.addEventListener('resize', updateIsDesktop)
-
-	is_theme.value = localStorage.getItem('theme')
 })
 
 onUnmounted(() => {

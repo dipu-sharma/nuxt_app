@@ -1,13 +1,8 @@
 <template>
-	<div
-		:class="{
-			'bg-white': themeStore.theme === 'light',
-			'bg-black': themeStore.theme !== 'light',
-		}"
-	>
-		<header class="z-10 py-4 shadow-md">
+	<div style="background-color: rgb(var(--color-sidebar)); color: rgb(var(--color-sidebar-text))">
+		<header class="z-10 py-4 shadow-md" style="background-color: rgb(var(--color-sidebar)); border-bottom: 1px solid rgb(var(--color-border))">
 			<div
-				class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300"
+				class="container flex items-center justify-between h-full px-6 mx-auto text-primary"
 			>
 				<!-- Mobile hamburger -->
 				<button
@@ -26,32 +21,47 @@
 				</button>
 				<!-- Search input -->
 				<div class="flex justify-center flex-1 lg:mr-32">
-					<div class="relative w-full max-w-xl mr-7 focus-within:text-purple-500"></div>
+					<div class="relative w-full max-w-xl mr-7 focus-within:text-primary"></div>
 				</div>
 				<ul class="flex items-center flex-shrink-0 space-x-6">
 					<!-- Theme toggler -->
 					<li class="flex">
 						<button
-							class="rounded-md focus:outline-none focus:shadow-outline-purple"
-							@click="toggleTheme"
-							aria-label="Toggle color mode"
+							class="rounded-md focus:outline-none focus:shadow-outline-purple p-2"
+							@click="themeStore.toggleTheme()"
+							:aria-label="`Switch to ${getNextThemeName()} theme`"
 						>
-							<template v-if="!dark">
-								<svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-									<path
-										d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"
-									></path>
-								</svg>
-							</template>
-							<template v-else>
-								<svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-									<path
-										fill-rule="evenodd"
-										d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-										clip-rule="evenodd"
-									></path>
-								</svg>
-							</template>
+							<!-- Current theme indicator -->
+							<div class="flex items-center space-x-1">
+								<!-- Theme icon based on current theme -->
+								<template v-if="themeStore.currentTheme === 'light'">
+									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+										<path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+									</svg>
+								</template>
+								<template v-else-if="themeStore.currentTheme === 'dark'">
+									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+										<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+									</svg>
+								</template>
+								<template v-else-if="themeStore.currentTheme === 'sepia'">
+									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+										<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+									</svg>
+								</template>
+								<template v-else-if="themeStore.currentTheme === 'blue'">
+									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+										<path fill-rule="evenodd" d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-6a1 1 0 00-1 1v4a1 1 0 102 0V5a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+									</svg>
+								</template>
+								<template v-else-if="themeStore.currentTheme === 'green'">
+									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+										<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+									</svg>
+								</template>
+								<!-- Theme name -->
+								<span class="text-xs ml-1 capitalize">{{ themeStore.currentTheme }}</span>
+							</div>
 						</button>
 					</li>
 					<!-- Notifications menu -->
@@ -71,23 +81,23 @@
 							<!-- Notification badge -->
 							<span
 								aria-hidden="true"
-								class="absolute top-0 right-0 inline-block w-3 h-3 transform translate-x-1 -translate-y-1 bg-red-600 border-2 border-white rounded-full dark:border-gray-800"
+								class="absolute top-0 right-0 inline-block w-3 h-3 transform translate-x-1 -translate-y-1 bg-accent border-2 border-background rounded-full"
 							></span>
 						</button>
 						<template v-if="isNotificationsMenuOpen">
 							<ul
 								@click.away="closeNotificationsMenu"
 								@keydown.escape="closeNotificationsMenu"
-								class="absolute right-0 z-10 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:text-gray-300 dark:border-gray-700 dark:bg-gray-700"
+								class="absolute right-0 z-10 w-56 p-2 mt-2 space-y-2 text-text bg-card border border-border rounded-md shadow-md"
 							>
 								<li class="flex">
 									<a
-										class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+										class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-background hover:text-text"
 										href="#"
 									>
 										<span>Messages</span>
 										<span
-											class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-600 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-600"
+											class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full"
 										>
 											13
 										</span>
@@ -95,12 +105,12 @@
 								</li>
 								<li class="flex">
 									<a
-										class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+										class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-background hover:text-text"
 										href="#"
 									>
 										<span>Sales</span>
 										<span
-											class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-600 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-600"
+											class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full"
 										>
 											2
 										</span>
@@ -108,7 +118,7 @@
 								</li>
 								<li class="flex">
 									<a
-										class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+										class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-background hover:text-text"
 										href="#"
 									>
 										<span>Alerts</span>
@@ -137,12 +147,12 @@
 							<ul
 								@click.away="closeProfileMenu"
 								@keydown.escape="closeProfileMenu"
-								class="absolute right-0 z-10 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700"
+								class="absolute right-0 z-10 w-56 p-2 mt-2 space-y-2 text-text bg-card border border-border rounded-md shadow-md"
 								aria-label="submenu"
 							>
 								<li class="flex">
 									<a
-										class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+										class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-background hover:text-text"
 										href="/admin/profile"
 									>
 										<svg
@@ -165,7 +175,7 @@
 								<li class="flex">
 									<a
 										@click="logout"
-										class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200 cursor-pointer"
+										class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-background hover:text-text cursor-pointer"
 									>
 										<span>Log out</span>
 									</a>
@@ -188,51 +198,20 @@ import { useThemeStore } from '~/stores/themeStore'
 
 const authStore = useAuthStore()
 const navStore = useNavStore()
-const isNotificationsMenuOpen = ref(false)
-const isProfileMenuOpen = ref(false)
-const dark = ref(true)
-
 const themeStore = useThemeStore()
 
-const toggleTheme = () => {
-	dark.value = !dark.value
-	if (dark.value) {
-		document.body.classList.add('dark')
-		document.body.classList.remove('light')
-		if (typeof window !== 'undefined') {
-			localStorage.setItem('theme', 'dark')
-			themeStore.addTheme('dark')
-		}
-	} else {
-		document.body.classList.add('light')
-		document.body.classList.remove('dark')
-		if (typeof window !== 'undefined') {
-			localStorage.setItem('theme', 'light')
-			themeStore.addTheme('light')
-		}
-	}
-}
+const isNotificationsMenuOpen = ref(false)
+const isProfileMenuOpen = ref(false)
 
 const toggleMenu = () => {
 	navStore.toggleSideMenu()
 }
 
-onMounted(() => {
-	if (typeof window !== 'undefined') {
-		const storedTheme = localStorage.getItem('theme')
-		if (storedTheme === 'dark') {
-			dark.value = true
-			document.body.classList.add('dark')
-			document.body.classList.remove('light')
-			themeStore.addTheme('dark')
-		} else {
-			dark.value = false
-			document.body.classList.add('light')
-			document.body.classList.remove('dark')
-			themeStore.addTheme('light')
-		}
-	}
-})
+const getNextThemeName = () => {
+	const currentIndex = themeStore.themes.indexOf(themeStore.currentTheme)
+	const nextIndex = (currentIndex + 1) % themeStore.themes.length
+	return themeStore.themes[nextIndex]
+}
 
 // Notifications menu functions
 const toggleNotificationsMenu = () => {

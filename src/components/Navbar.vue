@@ -1,10 +1,11 @@
 <template>
 	<header>
 		<nav
-			class="fixed top-0 left-0 right-0 flex flex-wrap items-center justify-between w-full py-3 md:py-0 px-4 text-lg text-gray-700 shadow-md z-50"
+			class="fixed top-0 left-0 right-0 flex flex-wrap items-center justify-between w-full py-3 md:py-0 px-4 text-lg shadow-md z-50"
+			style="background-color: rgb(var(--color-sidebar)); color: rgb(var(--color-sidebar-text))"
 		>
 			<div>
-				<NuxtLink to="/" class="h2 w-6 text-black font-bold"> D-Shop </NuxtLink>
+				<NuxtLink to="/" class="h2 w-6 text-black font-bold" style="color: rgb(var(--color-sidebar-text))"> D-Shop </NuxtLink>
 			</div>
 
 			<svg
@@ -47,7 +48,7 @@
 							>Grocery</NuxtLink
 						>
 					</li>
-					<li class="p-4" @click="toggleTheme">
+					<li class="p-4" @click="themeStore.toggleTheme()">
 						<Icon
 							:name="themeStore.theme === 'light' ? 'ri:moon-line' : 'ri:sun-line'"
 							class="text-purple-500"
@@ -111,11 +112,6 @@ function toggleDropdown() {
 	isDropdownOpen.value = !isDropdownOpen.value
 }
 
-const toggleTheme = () => {
-	themeStore.theme = themeStore.theme === 'light' ? 'dark' : 'light'
-	themeStore.addTheme(themeStore.theme)
-}
-watch(themeStore.getData(), (newVal, oldVal) => {})
 const logout = () => {
 	authStore.doLogout()
 	navigateTo('/login')

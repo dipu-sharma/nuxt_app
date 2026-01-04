@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { useStorage } from '@vueuse/core'
 
 interface AuthState {
 	token: string
@@ -15,47 +14,49 @@ export const useAuthStore = defineStore('auth', {
 	}),
 	actions: {
 		checkAuth() {
-			if (import.meta.client) {
-				this.token = useCookie('token').value ?? localStorage.getItem('token')
+			if (process.client) {
+				this.token = (useCookie('token').value ?? localStorage.getItem('token')) || ''
 				this.user = JSON.parse(localStorage.getItem('user') || '{}')
 				this.role = localStorage.getItem('role') || ''
 			}
 		},
 		addToken(payload: string) {
-			const tokenCookie = useCookie('token')
-			const tokenLocalStorage = useStorage('token', '')
 			this.token = payload
-			tokenCookie.value = payload
-			tokenLocalStorage.value = payload
+			if (process.client) {
+				const tokenCookie = useCookie('token')
+				tokenCookie.value = payload
+				localStorage.setItem('token', payload)
+			}
 		},
 		addUser(payload: object) {
-			const userLocalStorage = useStorage('user', {})
 			this.user = payload
-			userLocalStorage.value = payload
+			if (process.client) {
+				localStorage.setItem('user', JSON.stringify(payload))
+			}
 		},
 		addRole(payload: string) {
-			const roleLocalStorage = useStorage('role', '')
 			this.role = payload
-			roleLocalStorage.value = payload
+			if (process.client) {
+				localStorage.setItem('role', payload)
+			}
 		},
 		doLogout() {
-			const tokenCookie = useCookie('token')
-			const tokenLocalStorage = useStorage('token', '')
-			const themLocalStorage = useStorage('theme', '')
-
 			this.token = ''
-			tokenLocalStorage.value = null
-			tokenCookie.value = null
-			themLocalStorage.value = null
-
-			this.user = {}
-			const userLocalStorage = useStorage('user', {})
-			userLocalStorage.value = null
-
 			this.role = ''
-			const roleLocalStorage = useStorage('role', '')
-			roleLocalStorage.value = null
+			this.user = {}
+			if (process.client) {
+				const tokenCookie = useCookie('token')
+				tokenCookie.value = null
+				localStorage.removeItem('token')
+				localStorage.removeItem('user')
+				localStorage.removeItem('role')
+			}
 			navigateTo('/')
+		},
+		setLoginData(loginResponse: any) {
+			const { access_token, role } = loginResponse.data
+			this.addToken(access_token)
+			this.addRole(role)
 		},
 	},
 	getters: {

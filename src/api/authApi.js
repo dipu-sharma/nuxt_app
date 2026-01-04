@@ -7,8 +7,8 @@ export default function () {
 		return callApi('post', '/login', payload)
 	}
 
-	const get_current_user = async (payload) => {
-		return callApi('get', '/me', payload, true)
+	const get_current_user = async () => {
+		return callApi('get', '/me', null, null, true)
 	}
 
 	const resetEmployeePassword = async (payload) => {

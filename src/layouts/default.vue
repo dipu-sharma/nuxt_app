@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div style="background-color: rgb(var(--color-background)); min-height: 100vh">
         <Navbar />
         <main class="pt-20">
             <slot />

@@ -132,9 +132,8 @@ const handleLogin = async () => {
 	const { login_user, get_current_user } = authApi()
 	const response = await login_user(loginform.value)
 	// Store token and user data
-	authStore.addToken(response?.data?.access_token)
-	authStore.addRole(response?.data?.role)
-	const response_user = await get_current_user(response?.data?.access_token)
+	authStore.setLoginData(response)
+	const response_user = await get_current_user()
 
 	authStore.addUser(response_user.data)
 

@@ -1,6 +1,6 @@
 <template>
-	<div class="p-4">
-		<h1 class="text-center font-bold">Admin Page</h1>
+	<div class="p-4" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text)); min-height: 100vh">
+		<h1 class="text-center font-bold" style="color: rgb(var(--color-text))">Admin Page</h1>
 
 		<!-- Grid layout for the graphs with two equal columns -->
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">

@@ -8,12 +8,7 @@
 				type="text"
 				placeholder="Single Search"
 				class="w-64 rounded-full shadow-md focus:ring-blue-500 focus:border-blue-500 px-4 py-2"
-				:class="{
-					'text-black': themeStore.theme === 'light',
-					'text-white': themeStore.theme === 'dark',
-					'bg-white': themeStore.theme === 'light',
-					'bg-gray-800': themeStore.theme === 'dark',
-				}"
+				style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text)); border: 1px solid rgb(var(--color-border))"
 				@input="handleSearch"
 			/>
 		</div>
@@ -110,12 +105,8 @@ const editItem = (item = {}) => {
 const deleteItem = (item) => {
 	emit('delete', item)
 }
-watch(themeStore.getData(), (newVal, oldVal) => {})
-const totalPages = computed(() => Math.ceil(props.item_total / internalItemsPerPage.value))
 
-onMounted(async () => {
-	themeStore.getData()
-})
+const totalPages = computed(() => Math.ceil(props.item_total / internalItemsPerPage.value))
 </script>
 
 <style scoped></style>

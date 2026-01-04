@@ -4,7 +4,23 @@
 	</NuxtLayout>
 </template>
 
-<script setup></script>
-<style scoped>
-/* Add any scoped styles here if needed */
+<script setup>
+import { useThemeStore } from '~/stores/themeStore'
+
+const themeStore = useThemeStore()
+
+useHead({
+	htmlAttrs: {
+		'data-theme': () => themeStore.currentTheme,
+	},
+})
+</script>
+
+<style>
+/* Global styles */
+body {
+	background-color: rgb(var(--color-background));
+	color: rgb(var(--color-text));
+	transition: background-color 0.3s, color 0.3s;
+}
 </style>
