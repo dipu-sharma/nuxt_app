@@ -41,6 +41,7 @@ export default defineNuxtConfig({
 	},
 	plugins: [
 		'~/plugins/pinia.js',
+		'~/plugins/auth.js',
 		'~/plugins/vue3-toastify.js',
 		'~/plugins/vuetify.ts',
 		{ src: '~/plugins/recaptcha-v3.js', mode: 'client' },

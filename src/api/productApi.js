@@ -8,7 +8,7 @@ export default function () {
 		try {
 			const response = await callApi(
 				'GET',
-				'/business/product/list',
+				'/business/products',
 				null,
 				queryParams,
 				true,
@@ -24,7 +24,7 @@ export default function () {
 
 	const create_product = async (payload) => {
 		try {
-			const response = await callApi('POST', '/business/product', payload, null, true)
+			const response = await callApi('POST', '/business/products', payload, null, true)
 			return response
 		} catch (error) {
 			handleAxiosError(error?.statusCode, error?.data?.detail, toast)
@@ -34,7 +34,7 @@ export default function () {
 
 	const edit_product = async (payload, product_id) => {
 		try {
-			const response = await callApi('PUT', '/business/product', payload, { product_id }, true)
+			const response = await callApi('PUT', `/business/products/${product_id}`, payload, null, true)
 			return response
 		} catch (error) {
 			handleAxiosError(error?.statusCode, error?.data?.detail, toast)

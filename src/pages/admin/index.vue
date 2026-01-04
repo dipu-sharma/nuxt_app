@@ -92,8 +92,24 @@
 			</div>
 		</div>
 
-		<!-- Bottom Section -->
-		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+		<!-- Small Charts and Activity Section -->
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+			<!-- Product Types Chart -->
+			<div class="p-6 rounded-xl shadow-lg" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
+				<h3 class="text-xl font-semibold mb-4" style="color: rgb(var(--color-text))">Product Types</h3>
+				<div class="h-64 flex items-center justify-center">
+					<GraphDoughnutChart />
+				</div>
+			</div>
+			
+			<!-- Top Categories -->
+			<div class="p-6 rounded-xl shadow-lg" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
+				<h3 class="text-xl font-semibold mb-4" style="color: rgb(var(--color-text))">Top Categories</h3>
+				<div class="h-64 flex items-center justify-center">
+					<GraphPieChart />
+				</div>
+			</div>
+
 			<!-- Recent Activity -->
 			<div class="p-6 rounded-xl shadow-lg" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
 				<h3 class="text-xl font-semibold mb-4" style="color: rgb(var(--color-text))">Recent Activity</h3>
@@ -121,15 +137,10 @@
 					</div>
 				</div>
 			</div>
+		</div>
 
-			<!-- Top Categories -->
-			<div class="p-6 rounded-xl shadow-lg" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
-				<h3 class="text-xl font-semibold mb-4" style="color: rgb(var(--color-text))">Top Categories</h3>
-				<div class="h-64 flex items-center justify-center">
-					<GraphPieChart />
-				</div>
-			</div>
-
+		<!-- Bottom Section -->
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 			<!-- Quick Actions -->
 			<div class="p-6 rounded-xl shadow-lg" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
 				<h3 class="text-xl font-semibold mb-4" style="color: rgb(var(--color-text))">Quick Actions</h3>

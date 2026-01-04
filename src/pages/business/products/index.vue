@@ -1,5 +1,5 @@
 <template>
-	<div class="container mx-auto p-5">
+	<div class="container mx-auto p-6">
 		<section class="mb-4 flex gap-4 justify-between items-center">
 			<h1 class="text-2xl font-bold">Products</h1>
 			<div class="flex gap-4 items-center">
@@ -100,7 +100,7 @@ const data_table = ref({
 		{ title: 'Size', value: 'size', sortable: false, align: 'left', width: '120px' },
 		{ title: 'Color', value: 'color', sortable: false, align: 'left', width: '100px' },
 		{ title: 'HSN', value: 'hsn_no', sortable: false, align: 'left' },
-		{ title: 'Discount', value: 'discount', sortable: false, align: 'left' },
+		{ title: 'Discount', value: 'discount_percent', sortable: false, align: 'left' },
 		{ title: 'Packing', value: 'product_packing', sortable: false, align: 'left' },
 		{ title: '', value: 'actions', sortable: false, align: 'left' },
 	],
@@ -116,7 +116,7 @@ const payload = ref({
 	product_cost_price: 0.0,
 	product_mrp: null,
 	selling_price: null,
-	discount: 0.0,
+	discount_percent: 0.0,
 	product_qty: 0.0,
 	product_packing: null,
 	hsn_no: null,
@@ -233,12 +233,12 @@ const fetchData = async () => {
 		}
 
 		if (respnse?.status_code === 200) {
-			data_table.value.items = respnse?.data?.result?.map((item, i) => ({
+			data_table.value.items = (respnse?.data?.items || []).map((item, i) => ({
 				...item,
 				index: i + 1,
 			}))
 		}
-		data_table.value.total_data = respnse?.data?.total
+		data_table.value.total_data = respnse?.data?.total ?? 0
 	} finally {
 		isLoading.value = false
 	}
@@ -261,7 +261,7 @@ const handleAddProduct = () => {
 		product_cost_price: 0.0,
 		product_mrp: null,
 		selling_price: null,
-		discount: 0.0,
+		discount_percent: 0.0,
 		product_qty: 0.0,
 		product_packing: null,
 		hsn_no: null,

@@ -22,9 +22,9 @@ const props = defineProps({
 	gradientColors: {
 		type: Array,
 		default: () => [
-			{ top: 'rgba(75, 192, 192, 1)', middle: 'rgba(75, 192, 192, 0.5)', bottom: 'rgba(255, 255, 255, 0)' },
-			{ top: 'rgba(255, 99, 132, 1)', middle: 'rgba(255, 99, 132, 0.5)', bottom: 'rgba(255, 255, 255, 0)' },
-			{ top: 'rgba(54, 162, 235, 1)', middle: 'rgba(54, 162, 235, 0.5)', bottom: 'rgba(255, 255, 255, 0)' },
+			{ top: 'rgba(59, 130, 246, 1)', middle: 'rgba(59, 130, 246, 0.5)', bottom: 'rgba(59, 130, 246, 0.1)' },
+			{ top: 'rgba(139, 92, 246, 1)', middle: 'rgba(139, 92, 246, 0.5)', bottom: 'rgba(139, 92, 246, 0.1)' },
+			{ top: 'rgba(20, 184, 166, 1)', middle: 'rgba(20, 184, 166, 0.5)', bottom: 'rgba(20, 184, 166, 0.1)' },
 		],
 	},
 	width: {
@@ -92,10 +92,33 @@ const renderChart = () => {
 	const chartOptions = {
 		responsive: true,
 		maintainAspectRatio: false,
+		animation: {
+			tension: {
+				duration: 1000,
+				easing: 'linear',
+				from: 1,
+				to: 0,
+				loop: true
+			}
+		},
 		plugins: {
 			...(props.options?.plugins || {}),
-			legend: { position: 'top' },
-			tooltip: { mode: 'index', intersect: false },
+			legend: { 
+				position: 'top',
+				labels: {
+					color: 'rgba(200, 200, 200, 0.9)'
+				}
+			},
+			tooltip: {
+				mode: 'index',
+				intersect: false,
+				backgroundColor: 'rgba(0, 0, 0, 0.8)',
+				titleFont: { size: 14, weight: 'bold' },
+				bodyFont: { size: 12 },
+				padding: 10,
+				cornerRadius: 4,
+				boxPadding: 4,
+			 },
 		},
 		hover: {
 			mode: 'nearest',
@@ -105,9 +128,25 @@ const renderChart = () => {
 			...(props.options?.scales || {}),
 			y: {
 				beginAtZero: true,
+				grid: {
+					color: 'rgba(200, 200, 200, 0.2)',
+					drawBorder: false,
+				},
+				ticks: {
+					color: 'rgba(200, 200, 200, 0.7)',
+					padding: 10,
+				},
 				...(props.options?.scales?.y || {}),
 			},
 			x: {
+				grid: {
+					color: 'rgba(200, 200, 200, 0.2)',
+					drawBorder: false,
+				},
+				ticks: {
+					color: 'rgba(200, 200, 200, 0.7)',
+					padding: 10,
+				},
 				...(props.options?.scales?.x || {}),
 			},
 		},

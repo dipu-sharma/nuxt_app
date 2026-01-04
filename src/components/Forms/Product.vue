@@ -117,7 +117,7 @@
 					density="comfortable"
 					variant="outlined"
 					type="number"
-					v-model="payload.discount"
+					v-model="payload.discount_percent"
 					placeholder="0.00"
 					suffix="%"
 					clearable

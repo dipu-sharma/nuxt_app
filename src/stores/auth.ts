@@ -13,11 +13,38 @@ export const useAuthStore = defineStore('auth', {
 		user: {},
 	}),
 	actions: {
-		checkAuth() {
+		addRole(payload: string) {
+			this.role = payload
 			if (process.client) {
-				this.token = (useCookie('token').value ?? localStorage.getItem('token')) || ''
+				const roleCookie = useCookie('role')
+				roleCookie.value = payload
+				localStorage.setItem('role', payload)
+			}
+		},
+		doLogout() {
+			this.token = ''
+			this.role = ''
+			this.user = {}
+			if (process.client) {
+				const tokenCookie = useCookie('token')
+				tokenCookie.value = null
+				const roleCookie = useCookie('role')
+				roleCookie.value = null
+				localStorage.removeItem('token')
+				localStorage.removeItem('user')
+				localStorage.removeItem('role')
+			}
+			navigateTo('/')
+		},
+		checkAuth() {
+			const tokenCookie = useCookie('token')
+			const roleCookie = useCookie('role')
+			this.token = tokenCookie.value || ''
+			this.role = roleCookie.value || ''
+			if (process.client) {
+				this.token = this.token || localStorage.getItem('token') || ''
 				this.user = JSON.parse(localStorage.getItem('user') || '{}')
-				this.role = localStorage.getItem('role') || ''
+				this.role = this.role || localStorage.getItem('role') || ''
 			}
 		},
 		addToken(payload: string) {
@@ -33,25 +60,6 @@ export const useAuthStore = defineStore('auth', {
 			if (process.client) {
 				localStorage.setItem('user', JSON.stringify(payload))
 			}
-		},
-		addRole(payload: string) {
-			this.role = payload
-			if (process.client) {
-				localStorage.setItem('role', payload)
-			}
-		},
-		doLogout() {
-			this.token = ''
-			this.role = ''
-			this.user = {}
-			if (process.client) {
-				const tokenCookie = useCookie('token')
-				tokenCookie.value = null
-				localStorage.removeItem('token')
-				localStorage.removeItem('user')
-				localStorage.removeItem('role')
-			}
-			navigateTo('/')
 		},
 		setLoginData(loginResponse: any) {
 			const { access_token, role } = loginResponse.data

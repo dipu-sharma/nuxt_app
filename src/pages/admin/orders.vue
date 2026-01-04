@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="p-6">
 		<!-- With actions -->
 		<h4 class="mb-4 text-lg font-semibold text-white dark:text-black">Table with actions</h4>
 

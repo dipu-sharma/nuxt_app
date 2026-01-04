@@ -9,7 +9,6 @@
 				placeholder="Single Search"
 				class="w-64 rounded-full shadow-md focus:ring-blue-500 focus:border-blue-500 px-4 py-2"
 				style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text)); border: 1px solid rgb(var(--color-border))"
-				@input="handleSearch"
 			/>
 		</div>
 
@@ -65,7 +64,7 @@
 		</v-data-table>
 
 		<!-- Pagination Control -->
-		<v-pagination v-model="internalPage" :length="totalPages" :total-visible="5"></v-pagination>
+		<v-pagination v-if="totalPages > 1" v-model="internalPage" :length="totalPages" :total-visible="5"></v-pagination>
 	</div>
 </template>
 
@@ -86,6 +85,24 @@ const internalItemsPerPage = ref(props.itemsPerPage)
 
 const search = ref('')
 
+const debounce = (func, delay) => {
+	let timeout
+	return (...args) => {
+		clearTimeout(timeout)
+		timeout = setTimeout(() => {
+			func(...args)
+		}, delay)
+	}
+}
+
+const debouncedSearch = debounce((value) => {
+	emit('search', value)
+}, 300)
+
+watch(search, (newValue) => {
+	debouncedSearch(newValue)
+})
+
 watch(internalPage, (newPage) => {
 	emit('page_change', newPage)
 })
@@ -93,10 +110,6 @@ watch(internalPage, (newPage) => {
 watch(internalItemsPerPage, (newItemsPerPage) => {
 	emit('item_per_page', newItemsPerPage)
 })
-
-const handleSearch = () => {
-	emit('search', search.value)
-}
 
 const editItem = (item = {}) => {
 	emit('update', item)

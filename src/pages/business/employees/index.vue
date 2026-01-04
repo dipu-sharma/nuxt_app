@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="container mx-auto p-6">
 		<h3>Employee List</h3>
 	</div>
 </template>

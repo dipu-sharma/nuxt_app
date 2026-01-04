@@ -2,16 +2,17 @@
 import { createVuetify } from "vuetify";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
+import { VTimePicker } from "vuetify/components"; // Import VTimePicker from standard components
 
 // Import experimental (Labs) components
-import { VDateInput, VTimePicker } from "vuetify/labs/components";
+import { VDateInput } from "vuetify/labs/components";
 
 export default defineNuxtPlugin((nuxtApp) => {
   const vuetify = createVuetify({
     components: {
       ...components, // All standard Vuetify components
+      VTimePicker, // Standard component
       VDateInput, // Experimental (Labs) component
-      VTimePicker, // Experimental (Labs) component
     },
     directives, // All Vuetify directives
     theme: {

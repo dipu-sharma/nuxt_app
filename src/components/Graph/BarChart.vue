@@ -6,19 +6,18 @@
 
 <script setup>
 const chartData = {
-	labels: ['30 Sep - 7 Oct', '8-14 Oct', '15-21 Oct', '22-28 Oct', '29-4 Nov', '5-11 Nov', '12-18 Nov'],
+	labels: ['Fashion', 'Electronics', 'Grocery', 'Home', 'Beauty'],
 	datasets: [
 		{
-			label: 'Milestone Planned',
-			data: [10, 15, 30, 20, 0, 32, 36],
-			backgroundColor: '#ff867c',
-			stack: 'Stack 0',
-		},
-		{
-			label: 'Milestone Completed',
-			data: [5, 13, 18, 14, 20, 20, 10],
-			backgroundColor: '#84e1ce',
-			stack: 'Stack 0',
+			label: 'Sales',
+			data: [12000, 19000, 3000, 5000, 2000],
+			backgroundColor: [
+				'rgba(59, 130, 246, 0.8)',
+				'rgba(139, 92, 246, 0.8)',
+				'rgba(20, 184, 166, 0.8)',
+				'rgba(245, 158, 11, 0.8)',
+				'rgba(239, 68, 68, 0.8)'
+			],
 		},
 	],
 }
@@ -28,60 +27,51 @@ const chartOptions = {
 	maintainAspectRatio: false,
 	plugins: {
 		legend: {
-			position: 'top',
-			labels: {
-				boxWidth: 12,
-				usePointStyle: true,
-			},
-			onClick: (e, legendItem, legend) => {
-				alert(`Clicked on label: ${legendItem.text}`)
-			},
+			display: false,
 		},
 		tooltip: {
 			callbacks: {
 				label: function (context) {
 					const label = context.dataset.label || ''
 					const value = context.raw
-					return `${label}: ${value}%`
+					return `${label}: $${value}`
 				},
 			},
 		},
 		datalabels: {
 			display: true,
-			color: '#000',
+			color: '#fff',
 			anchor: 'center',
 			align: 'center',
 			formatter: (value) => {
 				if (value === 0 || value === '') {
 					return ''
 				}
-				return `${value}%`
+				return `$${value / 1000}k`
 			},
 		},
 	},
 	scales: {
 		x: {
-			stacked: true,
 			grid: {
 				display: false, // Disable grid for x-axis
 			},
 			title: {
 				display: true,
-				text: 'Date',
+				text: 'Category',
 			},
 		},
 		y: {
-			stacked: true,
 			beginAtZero: true,
 			ticks: {
-				callback: (value) => `${value}%`,
+				callback: (value) => `$${value / 1000}k`,
 			},
 			grid: {
-				display: true, // Disable grid for y-axis
+				display: true, 
 			},
 			title: {
 				display: true,
-				text: 'Achievement %',
+				text: 'Sales',
 			},
 		},
 	},

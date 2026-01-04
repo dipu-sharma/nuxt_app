@@ -3,7 +3,7 @@
 		<Sidebar v-if="isDesktop" />
 		<div class="flex flex-col flex-1 w-full">
 			<Topbar />
-			<main class="h-full pb-16 overflow-y-auto px-8" style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
+			<main class="h-full pb-16 overflow-y-auto" style="color: rgb(var(--color-text))">
 				<slot />
 			</main>
 			<AutoLogOut />

@@ -2,21 +2,39 @@
     <div>
         <div>
             <v-col cols="3" >
-                <!-- append-inner-icon="mdi-microphone" -->
-                <v-autocomplete :items="items" class="mx-auto" density="comfortable" menu-icon=""
-                    placeholder="Enter the keyword to search" prepend-inner-icon="mdi-magnify" style="max-width: 350px;"
-                    theme="light" variant="solo" auto-select-first item-props rounded></v-autocomplete>
+                <v-autocomplete
+                    v-model="searchQuery"
+                    :items="[]"
+                    class="mx-auto"
+                    density="comfortable"
+                    menu-icon=""
+                    placeholder="Enter the keyword to search"
+                    prepend-inner-icon="mdi-magnify"
+                    style="max-width: 350px;"
+                    theme="light"
+                    variant="solo"
+                    auto-select-first
+                    item-props
+                    rounded
+                ></v-autocomplete>
             </v-col>
         </div>
-        <v-data-table-server v-model:items-per-page="itemsPerPage" :headers="headers" :items="serverItems"
-            :items-length="totalItems" :loading="loading" item-value="name"
-            @update:options="loadItems"></v-data-table-server>
-
+        <v-data-table-server
+            v-model:items-per-page="itemsPerPage"
+            :headers="headers"
+            :items="serverItems"
+            :items-length="totalItems"
+            :loading="loading"
+            item-value="name"
+            @update:options="loadItems"
+        ></v-data-table-server>
     </div>
 </template>
 
-<script>
-const desserts = [
+<script setup>
+import { ref, watch, onMounted } from 'vue'
+
+const products = [
     {
         name: 'Frozen Yogurt',
         calories: 159,
@@ -100,85 +118,85 @@ const desserts = [
 ]
 
 const FakeAPI = {
-    async fetch({ page, itemsPerPage, sortBy }) {
+    async fetch({ page, itemsPerPage, sortBy, searchQuery }) {
         return new Promise(resolve => {
             setTimeout(() => {
-                const start = (page - 1) * itemsPerPage
-                const end = start + itemsPerPage
-                const items = desserts.slice()
+                let filteredItems = products.slice()
+
+                if (searchQuery) {
+                    filteredItems = filteredItems.filter(item =>
+                        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                }
 
                 if (sortBy.length) {
                     const sortKey = sortBy[0].key
                     const sortOrder = sortBy[0].order
-                    items.sort((a, b) => {
+                    filteredItems.sort((a, b) => {
                         const aValue = a[sortKey]
                         const bValue = b[sortKey]
                         return sortOrder === 'desc' ? bValue - aValue : aValue - bValue
                     })
                 }
 
-                const paginated = items.slice(start, end)
+                const start = (page - 1) * itemsPerPage
+                const end = start + itemsPerPage
+                const paginated = filteredItems.slice(start, end)
 
-                resolve({ items: paginated, total: items.length })
+                resolve({ items: paginated, total: filteredItems.length })
             }, 500)
         })
     },
 }
 
-export default {
-    data: () => ({
-        itemsPerPage: 5,
-        headers: [
-            {
-                title: 'Dessert (100g serving)',
-                align: 'start',
-                sortable: false,
-                key: 'name',
-            },
-            { title: 'Calories', key: 'calories', align: 'end' },
-            { title: 'Fat (g)', key: 'fat', align: 'end' },
-            { title: 'Carbs (g)', key: 'carbs', align: 'end' },
-            { title: 'Protein (g)', key: 'protein', align: 'end' },
-            { title: 'Iron (%)', key: 'iron', align: 'end' },
-        ],
-        serverItems: [],
-        loading: true,
-        totalItems: 0,
-        dialog: false,
-        items: [
-            {
-                prependIcon: 'mdi-clock-outline',
-                title: 'recipe with chicken',
-            },
-            {
-                prependIcon: 'mdi-clock-outline',
-                title: 'best hiking trails near me',
-            },
-            {
-                prependIcon: 'mdi-clock-outline',
-                title: 'how to learn a new language',
-            },
-            {
-                prependIcon: 'mdi-clock-outline',
-                title: 'DIY home organization ideas',
-            },
-            {
-                prependIcon: 'mdi-clock-outline',
-                title: 'latest fashion trends',
-            },
-        ],
-    }),
-    methods: {
-        loadItems({ page, itemsPerPage, sortBy }) {
-            this.loading = true
-            FakeAPI.fetch({ page, itemsPerPage, sortBy }).then(({ items, total }) => {
-                this.serverItems = items
-                this.totalItems = total
-                this.loading = false
-            })
-        },
+const itemsPerPage = ref(5)
+const headers = ref([
+    {
+        title: 'Dessert (100g serving)',
+        align: 'start',
+        sortable: false,
+        key: 'name',
     },
-}
-</script>
+    { title: 'Calories', key: 'calories', align: 'end' },
+    { title: 'Fat (g)', key: 'fat', align: 'end' },
+    { title: 'Carbs (g)', key: 'carbs', align: 'end' },
+    { title: 'Protein (g)', key: 'protein', align: 'end' },
+    { title: 'Iron (%)', key: 'iron', align: 'end' },
+])
+const serverItems = ref([])
+const loading = ref(true)
+const totalItems = ref(0)
+const dialog = ref(false)
+const searchQuery = ref('')
 
-<style></style>
+const loadItems = async ({ page, itemsPerPage, sortBy }) => {
+    loading.value = true
+    const { items, total } = await FakeAPI.fetch({ page, itemsPerPage, sortBy, searchQuery: searchQuery.value })
+    serverItems.value = items
+    totalItems.value = total
+    loading.value = false
+}
+
+// Debounce function
+const debounce = (func, delay) => {
+    let timeout;
+    return function executed(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, delay);
+    };
+};
+
+const debouncedLoadItems = debounce(loadItems, 300);
+
+watch(searchQuery, () => {
+    debouncedLoadItems({ page: 1, itemsPerPage: itemsPerPage.value, sortBy: [] });
+});
+
+onMounted(() => {
+    loadItems({ page: 1, itemsPerPage: itemsPerPage.value, sortBy: [] });
+});
+</script>

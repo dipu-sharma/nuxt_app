@@ -6721,9 +6721,9 @@ vuetify@^3.6.12:
   integrity sha512-W/mTaNDyO6NRqAQmnkMUn9TYvRb//BPF/vk7h3+2xNJOyI9ev90JmYjrihOtb+6QDrB79wVUH0Y+0OjYK73GsA==
 
 vuetify@^3.8.4:
-  version "3.8.4"
-  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-3.8.4.tgz#3d3316868d789407c6fb5adb26ad90a0e09b6dfc"
-  integrity sha512-hfA1eqA6vhrF5LF8Yfk0uHdNUmh8Uckxn5wREiThO82HW/9Vfreh+IpxPgEtCsAhV33KW+NVamltQCu3HczRKw==
+  version "3.11.6"
+  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-3.11.6.tgz#d992b5fcad53fd8a5a572635a4ea0a40b7ae5cd6"
+  integrity sha512-vaWvEpDSeldRoib1tCKNVBp60paTD2/n0a0TmrVLF9BN4CJJn6/A4VKG2Sg+DE8Yc+SNOtFtipChxSlQxjcUvw==
 
 web-streams-polyfill@^3.0.3:
   version "3.3.3"

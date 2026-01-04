@@ -25,7 +25,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 	if (isPublicRoute) {
 		// If already authenticated and trying to access login/register, redirect to home
 		// But only if they're not already on their home page
-		if (token.value && ['/login', '/register'].includes(to.path)) {
+		if (process.client && token.value && ['/login', '/register'].includes(to.path)) {
 			const homePage = role.value ? getRoleHome(role.value) : '/'
 			if (to.path !== homePage) {
 				return navigateTo(homePage)

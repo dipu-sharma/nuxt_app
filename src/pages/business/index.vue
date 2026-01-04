@@ -1,5 +1,5 @@
 <template>
-	<div class="p-6" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text)); min-height: 100vh">
+	<div class="container mx-auto p-6" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text)); min-height: 100vh">
 		<!-- Header Section -->
 		<div class="mb-8">
 			<h1 class="text-3xl font-bold mb-2" style="color: rgb(var(--color-text))">Business Dashboard</h1>
@@ -88,7 +88,17 @@
 					<GraphLineChart />
 				</div>
 			</div>
+			<!-- Sales by Category Chart -->
+			<div class="p-6 rounded-xl shadow-lg" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
+				<h3 class="text-xl font-semibold mb-4" style="color: rgb(var(--color-text))">Sales by Category</h3>
+				<div class="h-64 flex items-center justify-center">
+					<GraphBarChart />
+				</div>
+			</div>
+		</div>
 
+		<!-- Bottom Section -->
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 			<!-- Order Status Chart -->
 			<div class="p-6 rounded-xl shadow-lg" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
 				<h3 class="text-xl font-semibold mb-4" style="color: rgb(var(--color-text))">Order Status</h3>
@@ -96,10 +106,6 @@
 					<GraphDoughnutChart />
 				</div>
 			</div>
-		</div>
-
-		<!-- Bottom Section -->
-		<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 			<!-- Recent Orders -->
 			<div class="p-6 rounded-xl shadow-lg" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
 				<h3 class="text-xl font-semibold mb-4" style="color: rgb(var(--color-text))">Recent Orders</h3>
