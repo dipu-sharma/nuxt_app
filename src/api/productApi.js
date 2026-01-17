@@ -4,6 +4,24 @@ import { toast } from 'vue3-toastify'
 export default function () {
 	const { callApi } = useApiCall()
 
+	const get_home_product_list = async (queryParams = {}) => {
+		try {
+			const response = await callApi(
+				'GET',
+				'/home/products',
+				null,
+				queryParams,
+				false,
+			)
+			return response
+		} catch (error) {
+			if (import.meta.client) {
+				handleAxiosError(error?.statusCode, error?.data?.detail, toast)
+			}
+			throw error
+		}
+	}
+
 	const get_business_product_list = async (queryParams = {}) => {
 		try {
 			const response = await callApi(
@@ -43,6 +61,7 @@ export default function () {
 	}
 
 	return {
+        get_home_product_list, // Export the new function
 		get_business_product_list,
 		create_product,
 		edit_product,

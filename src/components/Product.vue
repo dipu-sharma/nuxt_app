@@ -12,17 +12,17 @@
 					:key="product.id"
 				>
 					<img
-						:src="product.image"
-						:alt="product.name"
+						:src="product.images && product.images.length > 0 ? product.images[0].image_url : 'https://via.placeholder.com/300x200?text=No+Image'"
+						:alt="product.product_name"
 						class="h-80 w-full object-cover transition-transform duration-300 group-hover:scale-110"
 					/>
 					<div
 						class="absolute inset-x-0 bottom-0 bg-black/70 p-4 transition-transform duration-300 transform translate-y-full group-hover:translate-y-0"
 					>
-						<h3 class="text-lg font-bold text-white">{{ product.name }}</h3>
-						<p class="text-sm text-gray-300">{{ product.brand }}</p>
+						<h3 class="text-lg font-bold text-white">{{ product.product_name }}</h3>
+						<p class="text-sm text-gray-300">{{ product.brand_name }}</p>
 						<div class="mt-4 flex items-center justify-between">
-							<p class="text-lg font-bold text-white">${{ product.price }}</p>
+							<p class="text-lg font-bold text-white">${{ product.selling_price }}</p>
 							<div class="flex items-center space-x-2">
 								<button
 									class="text-white hover:text-red-500 transition-colors"
@@ -68,13 +68,13 @@
 					:key="product.id"
 				>
 					<a href="#" class="text-center items-center mx-12">
-						<img :src="product.image" alt="Product" class="w-full h-72 object-cover rounded-t-xl" />
+						<img :src="product.images && product.images.length > 0 ? product.images[0].image_url : 'https://via.placeholder.com/300x200?text=No+Image'" alt="Product" class="w-full h-72 object-cover rounded-t-xl" />
 						<div class="p-4">
-							<span class="text-gray-400 uppercase text-xs">{{ product.brand }}</span>
-							<p class="text-lg font-bold text-black truncate capitalize">{{ product.name }}</p>
+							<span class="text-gray-400 uppercase text-xs">{{ product.brand_name }}</span>
+							<p class="text-lg font-bold text-black truncate capitalize">{{ product.product_name }}</p>
 							<div class="flex items-center mt-2">
-								<p class="text-lg font-semibold text-black">${{ product.price }}</p>
-								<del class="ml-2 text-sm text-gray-600">${{ product.discount }}</del>
+								<p class="text-lg font-semibold text-black">${{ product.selling_price }}</p>
+								<del class="ml-2 text-sm text-gray-600">${{ product.product_mrp }}</del>
 								<button class="ml-auto bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -102,80 +102,13 @@
 </template>
 
 <script setup>
-const products = ref([
-	{
-		id: 1,
-		name: 'Product 1',
-		price: 149,
-		discount: 199,
-		image: 'https://images.unsplash.com/photo-1649261191606-cb2496e97eee?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8NDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
-		brand: 'Brand',
+defineProps({
+	products: {
+		type: Array,
+		required: false,
+		default: () => [],
 	},
-	{
-		id: 2,
-		name: 'Product 2',
-		price: 149,
-		discount: 199,
-		image: 'https://images.unsplash.com/photo-1649261191606-cb2496e97eee?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8NDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
-		brand: 'Brand',
-	},
-	{
-		id: 3,
-		name: 'Product 3',
-		price: 149,
-		discount: 199,
-		image: 'https://images.unsplash.com/photo-1649261191606-cb2496e97eee?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8NDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
-		brand: 'Brand',
-	},
-	{
-		id: 4,
-		name: 'Product 4',
-		price: 149,
-		discount: 199,
-		image: 'https://images.unsplash.com/photo-1649261191606-cb2496e97eee?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8NDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
-		brand: 'Brand',
-	},
-	{
-		id: 5,
-		name: 'Product 5',
-		price: 149,
-		discount: 199,
-		image: 'https://images.unsplash.com/photo-1649261191606-cb2496e97eee?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8NDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
-		brand: 'Brand',
-	},
-	{
-		id: 6,
-		name: 'Product 6',
-		price: 149,
-		discount: 199,
-		image: 'https://images.unsplash.com/photo-1649261191606-cb2496e97eee?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8NDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
-		brand: 'Brand',
-	},
-	{
-		id: 7,
-		name: 'Product 7',
-		price: 149,
-		discount: 199,
-		image: 'https://images.unsplash.com/photo-1649261191606-cb2496e97eee?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8NDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
-		brand: 'Brand',
-	},
-	{
-		id: 8,
-		name: 'Product 8',
-		price: 149,
-		discount: 199,
-		image: 'https://images.unsplash.com/photo-1649261191606-cb2496e97eee?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8NDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
-		brand: 'Brand',
-	},
-	{
-		id: 9,
-		name: 'Product 9',
-		price: 149,
-		discount: 199,
-		image: 'https://images.unsplash.com/photo-1649261191606-cb2496e97eee?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8NDR8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
-		brand: 'Brand',
-	},
-])
+})
 </script>
 
 <style scoped></style>

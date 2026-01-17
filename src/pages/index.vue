@@ -37,17 +37,30 @@
 
 		<!-- Right Column -->
 		<div class="lg:col-span-10 md:col-span-5 sm:col-span-6">
-			<Product />
+			<Product :products="products" />
 		</div>
 	</div>
 </template>
 
 <script setup>
+import productApi from '~/api/productApi.js'
+import authApi from '~/api/authApi.js'
+
 definePageMeta({
-	title: 'Login',
-	description: 'Learn more about our company',
+	title: 'Home',
+	description: 'Product page',
 	layout: 'default',
 })
+
+const { get_home_product_list } = productApi()
+const { data: productResponse } = await useAsyncData('homeProducts', () => get_home_product_list({
+    sort_by: '-created_at',
+    page: 1,
+    per_page: 50,
+    paginate: 1
+}))
+
+const products = computed(() => productResponse.value?.data?.items || []);
 
 const amount_range = ref([10, 500])
 const items = ref([

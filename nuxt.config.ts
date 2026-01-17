@@ -51,6 +51,12 @@ export default defineNuxtConfig({
 	},
 	vuetify: { moduleOptions: {}, vuetifyOptions: { labComponents: true } },
 	vite: {
+		server: {
+			watch: {
+				usePolling: true,
+				ignored: ['**/node_modules/**', '**/dist/**'],
+			},
+		},
 		ssr: { noExternal: ['vuetify'] },
 		vue: { template: { transformAssetUrls } },
 	},
