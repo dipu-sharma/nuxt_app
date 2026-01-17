@@ -38,20 +38,33 @@ const changeValue = (rowIndex, callIndex) => {
 	}
 }
 
-const startRollback = () => {
-	const interval = setInterval(() => {
-		if (selectedCell.value.size === 0) {
-			clearInterval(interval)
-			return
-		}
+let interval = null // Declare interval outside
 
-		const lastKey = Array.from(selectedCell.value.keys()).pop()
-		const newStack = cloneDeep(selectedCell.value)
-		newStack.delete(lastKey)
-		selectedCell.value = newStack
-		console.log('Removing selected cell:', lastKey)
-	}, 3000)
+const startRollback = () => {
+	if (process.client) {
+		interval = setInterval(() => {
+			if (selectedCell.value.size === 0) {
+				clearInterval(interval)
+				interval = null // Clear interval reference
+				return
+			}
+
+			const lastKey = Array.from(selectedCell.value.keys()).pop()
+			const newStack = cloneDeep(selectedCell.value)
+			newStack.delete(lastKey)
+			selectedCell.value = newStack
+			console.log('Removing selected cell:', lastKey)
+		}, 3000)
+	}
 }
+
+// Ensure the interval is cleared when the component is unmounted
+onBeforeUnmount(() => {
+	if (interval) {
+		clearInterval(interval)
+		interval = null
+	}
+})
 </script>
 <style scoped>
 .gridLight {

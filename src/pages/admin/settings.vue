@@ -1,5 +1,5 @@
 <template>
-	<div class="mt-5">
+	<div class="p-6">
 		<h1 class="text-center font-bold">Admin Settings Page</h1>
 		<!-- <a href="http://localhost:3002/verify?id=xyzedfs&verify=true">Click Me</a> -->
 		<v-btn class="" @click="handleResponse">Click Me</v-btn>

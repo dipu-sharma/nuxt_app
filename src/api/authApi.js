@@ -25,6 +25,9 @@ export default function () {
 	const get_cookie = async () => {
 		return callApi('get', '/get-cookie')
 	}
+	const sso_login = async (provider, code, state) => {
+		return callApi('post', `/sso/${provider}/callback`, { code, state })
+	}
 
 	return {
 		login_user,
@@ -33,5 +36,6 @@ export default function () {
 		resetEmployeePasswordByAdmin,
 		set_cookie,
 		get_cookie,
+		sso_login,
 	}
 }

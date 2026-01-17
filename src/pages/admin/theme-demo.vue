@@ -1,5 +1,5 @@
 <template>
-	<div class="p-8" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text)); min-height: 100vh">
+	<div class="p-6" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text)); min-height: 100vh">
 		<div class="max-w-4xl mx-auto">
 			<h1 class="text-4xl font-bold mb-8 text-center" style="color: rgb(var(--color-text))">
 				🎨 Multiple Theme System Demo

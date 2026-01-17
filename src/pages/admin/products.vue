@@ -1,5 +1,5 @@
 <template>
-	<div class="container mx-auto p-6">
+	<div class="p-6">
 		<!-- Header -->
 		<div>
 			<h1 class="text-2xl font-bold text-center pt-5">Admin Products Page</h1>

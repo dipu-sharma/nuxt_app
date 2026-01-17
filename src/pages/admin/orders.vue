@@ -1,7 +1,7 @@
 <template>
 	<div class="p-6">
 		<!-- With actions -->
-		<h4 class="mb-4 text-lg font-semibold text-white dark:text-black">Table with actions</h4>
+		<h4 class="mb-4 text-lg" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text))">Table with actions</h4>
 
 		<div class="w-full overflow-hidden rounded-lg shadow-xs mt-5">
 			<div class="w-full overflow-x-auto">

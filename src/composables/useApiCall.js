@@ -1,5 +1,7 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import { toast } from 'vue3-toastify'
+import { handleAxiosError } from '@/utils/ErrorHandle/error' // Import handleAxiosError
 
 export default function useApiCall() {
 	const config = useRuntimeConfig()
@@ -38,7 +40,11 @@ export default function useApiCall() {
 
 			return response.data
 		} catch (error) {
-			return error.response?.data || { message: error.message }
+			const status_code = error.response?.status
+			// Pass toast to handleAxiosError for consistent toast notifications
+			handleAxiosError(status_code, error, toast)
+			// Re-throw the error so that calling functions can also handle it if needed
+			throw error
 		}
 	}
 

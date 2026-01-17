@@ -14,12 +14,14 @@ export function useAutoLogout() {
 
     // Reset remaining time and start countdown
     remainingTime.value = 30 * 60; // Reset to 30 minutes
-    countdownTimer.value = setInterval(() => {
-      remainingTime.value -= 1;
-      if (remainingTime.value <= 0) {
-        clearInterval(countdownTimer.value);
-      }
-    }, 1000);
+    if (process.client) { // <--- ADD THIS CHECK
+        countdownTimer.value = setInterval(() => {
+            remainingTime.value -= 1;
+            if (remainingTime.value <= 0) {
+                clearInterval(countdownTimer.value);
+            }
+        }, 1000);
+    }
 
     // Set logout timer
     logoutTimer.value = setTimeout(() => {

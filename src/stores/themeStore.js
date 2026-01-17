@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useThemeStore = defineStore('theme', () => {
 	// Available themes
-	const themes = ['light', 'dark', 'sepia', 'blue', 'green', 'coolBlue']
+	const themes = ['light', 'dark', 'sepia', 'blue', 'green', 'coolBlue', 'glassmorphism']
 
 	// Use ref instead of useStorage to avoid SSR issues
 	const currentTheme = ref('light')
@@ -77,7 +77,14 @@ export const useThemeStore = defineStore('theme', () => {
 				accent: 'bg-teal-500'
 			}
 		}
-		return themeColors[currentTheme.value] || themeColors.light
+		themeColors.glassmorphism = {
+		background: 'bg-blue-50',
+		text: 'text-slate-800',
+		primary: 'bg-purple-600',
+		secondary: 'bg-purple-100',
+		accent: 'bg-pink-500'
+	}
+	return themeColors[currentTheme.value] || themeColors.light
 	}
 
 	// Initialize theme on client-side

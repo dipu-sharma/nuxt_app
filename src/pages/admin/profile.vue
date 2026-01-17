@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="p-6">
 		<h4 class="text-2xl text-center">Admin Page</h4>
 	</div>
 </template>

@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', {
 				localStorage.removeItem('user')
 				localStorage.removeItem('role')
 			}
-			navigateTo('/')
+			navigateTo('/login')
 		},
 		checkAuth() {
 			const tokenCookie = useCookie('token')
@@ -71,5 +71,6 @@ export const useAuthStore = defineStore('auth', {
 		getToken: (state) => state.token,
 		getUser: (state) => state.user,
 		getRole: (state) => state.role,
+		isAuthenticated: (state) => !!state.token,
 	},
 })
