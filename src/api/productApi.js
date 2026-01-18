@@ -16,7 +16,7 @@ export default function () {
 			return response
 		} catch (error) {
 			if (import.meta.client) {
-				handleAxiosError(error?.statusCode, error?.data?.detail, toast)
+				handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
 			}
 			throw error
 		}
@@ -34,7 +34,7 @@ export default function () {
 			return response
 		} catch (error) {
 			if (import.meta.client) {
-				handleAxiosError(error?.statusCode, error?.data?.detail, toast)
+				handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
 			}
 			throw error
 		}
@@ -45,7 +45,7 @@ export default function () {
 			const response = await callApi('POST', '/business/products', payload, null, true)
 			return response
 		} catch (error) {
-			handleAxiosError(error?.statusCode, error?.data?.detail, toast)
+			handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
 			throw error
 		}
 	}
@@ -55,13 +55,13 @@ export default function () {
 			const response = await callApi('PUT', `/business/products/${product_id}`, payload, null, true)
 			return response
 		} catch (error) {
-			handleAxiosError(error?.statusCode, error?.data?.detail, toast)
+			handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
 			throw error
 		}
 	}
 
 	return {
-        get_home_product_list, // Export the new function
+        get_home_product_list,
 		get_business_product_list,
 		create_product,
 		edit_product,

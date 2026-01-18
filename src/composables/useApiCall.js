@@ -19,33 +19,25 @@ export default function useApiCall() {
 	})
 
 	const callApi = async (method, endpoint, payload = null, queryParams = null, isTokenRequired = false) => {
-		try {
-			const headers = {}
+		const headers = {}
 
-			if (isTokenRequired && authStore.token) {
-				headers['Authorization'] = `Bearer ${authStore.token}`
-			}
-			let url = endpoint
-			if (queryParams) {
-				const queryString = new URLSearchParams(queryParams).toString()
-				url += `?${queryString}`
-			}
-
-			const response = await api({
-				method,
-				url,
-				data: payload,
-				headers,
-			})
-
-			return response.data
-		} catch (error) {
-			const status_code = error.response?.status
-			// Pass toast to handleAxiosError for consistent toast notifications
-			handleAxiosError(status_code, error, toast)
-			// Re-throw the error so that calling functions can also handle it if needed
-			throw error
+		if (isTokenRequired && authStore.token) {
+			headers['Authorization'] = `Bearer ${authStore.token}`
 		}
+		let url = endpoint
+		if (queryParams) {
+			const queryString = new URLSearchParams(queryParams).toString()
+			url += `?${queryString}`
+		}
+
+		const response = await api({
+			method,
+			url,
+			data: payload,
+			headers,
+		})
+
+		return response.data
 	}
 
 	return {

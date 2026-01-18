@@ -45,6 +45,7 @@
 								</button>
 								<button
 									class="bg-blue-500 text-white py-2 px-4 rounded-full font-bold hover:bg-blue-600"
+									@click="handleAddToCart(product.product_id)"
 								>
 									Add to Cart
 								</button>
@@ -75,7 +76,10 @@
 							<div class="flex items-center mt-2">
 								<p class="text-lg font-semibold text-black">${{ product.selling_price }}</p>
 								<del class="ml-2 text-sm text-gray-600">${{ product.product_mrp }}</del>
-								<button class="ml-auto bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
+								<button
+									class="ml-auto bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
+									@click="handleAddToCart(product.product_id)"
+								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										width="20"
@@ -102,13 +106,27 @@
 </template>
 
 <script setup>
-defineProps({
+import { defineProps } from 'vue'
+import cartApi from '~/api/cartApi'
+
+const { add_to_cart } = cartApi()
+
+const props = defineProps({
 	products: {
 		type: Array,
 		required: false,
 		default: () => [],
 	},
 })
+
+const handleAddToCart = async (product_id) => {
+	try {
+		const items = [{ product_id: product_id, quantity: 1 }]
+		await add_to_cart(items)
+	} catch (error) {
+		console.error('Failed to add product to cart:', error)
+	}
+}
 </script>
 
 <style scoped></style>

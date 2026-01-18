@@ -7,7 +7,7 @@ export default () => {
 		/**
 		 * Get list of employees with optional filters
 		 * @param {Object} queryParams - Query parameters (page, per_page, search, department, role, status, sort_by)
-		 * @returns {Promise} Employee list with pagination
+		 * @returns {Promise}
 		 */
 		get_employee_list(queryParams = {}) {
 			return apiCall('GET', '/business/employees', { params: queryParams })
