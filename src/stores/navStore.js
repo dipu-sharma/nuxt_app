@@ -1,14 +1,21 @@
-// stores/authStore.js
+// stores/navStore.js
 
 import { defineStore } from 'pinia'
 export const useNavStore = defineStore('navdata', () => {
-	const isSideMenuOpen = ref(false)
+	const isDesktopSidebarOpen = ref(true)
+	const isMobileSidebarOpen = ref(false)
 
-	function toggleSideMenu() {
-		isSideMenuOpen.value = !isSideMenuOpen.value
+	function toggleDesktopSideMenu() {
+		isDesktopSidebarOpen.value = !isDesktopSidebarOpen.value
 	}
+
+	function toggleMobileSideMenu() {
+		isMobileSidebarOpen.value = !isMobileSidebarOpen.value
+	}
+
 	function $reset() {
-		isSideMenuOpen.value = false
+		isDesktopSidebarOpen.value = true
+		isMobileSidebarOpen.value = false
 	}
-	return { isSideMenuOpen, toggleSideMenu, $reset }
+	return { isDesktopSidebarOpen, isMobileSidebarOpen, toggleDesktopSideMenu, toggleMobileSideMenu, $reset }
 })

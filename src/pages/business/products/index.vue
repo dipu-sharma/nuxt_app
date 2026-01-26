@@ -5,6 +5,15 @@
 			<div class="flex gap-4 items-center">
 				<button
 					type="button"
+					@click="filterStore.toggleFilterSidebar()"
+					class="light:text-black text-center rounded-lg transition"
+					alt="Filter"
+					title="Filter"
+				>
+					<Icon name="mdi:filter" class="" width="50" height="50" />
+				</button>
+				<button
+					type="button"
 					@click="handleAddProduct"
 					class="light:text-black text-center rounded-lg transition"
 					alt="Add Product"
@@ -56,8 +65,11 @@
 <script setup>
 import { useProjectStore } from '~/stores/projects'
 import { useAuthStore } from '~/stores/auth'
+import { useFilterStore } from '~/stores/filterStore'
+import { ref, onMounted, watch } from 'vue'
 
 const AuthStore = useAuthStore()
+const filterStore = useFilterStore();
 import { toast } from 'vue3-toastify'
 
 // Page metadata
@@ -221,6 +233,8 @@ const fetchData = async () => {
 		per_page: 10,
 		is_paginate: true,
 		search: search.value,
+		startDate: filterStore.startDate,
+		endDate: filterStore.endDate,
 	}
 	try {
 		const respnse = await get_business_product_list(filters)
@@ -243,6 +257,10 @@ const fetchData = async () => {
 		isLoading.value = false
 	}
 }
+
+watch(() => [filterStore.startDate, filterStore.endDate], () => {
+    fetchData();
+});
 
 const handlePageChange = (newPage) => {
 	currentPage.value = newPage

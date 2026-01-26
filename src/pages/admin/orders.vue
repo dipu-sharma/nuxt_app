@@ -1,7 +1,12 @@
 <template>
 	<div class="p-6">
 		<!-- With actions -->
-		<h4 class="mb-4 text-lg" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text))">Table with actions</h4>
+		<div class="flex justify-between items-center mb-4">
+			<h4 class="text-lg" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text))">Table with actions</h4>
+			<button @click="filterStore.toggleFilterSidebar()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition duration-200">
+				Filter
+			</button>
+		</div>
 
 		<div class="w-full overflow-hidden rounded-lg shadow-xs mt-5">
 			<div class="w-full overflow-x-auto">
@@ -180,6 +185,11 @@
 </template>
 
 <script setup>
+import { useFilterStore } from '~/stores/filterStore';
+import { watch } from 'vue';
+
+const filterStore = useFilterStore();
+
 definePageMeta({
 	title: 'Order',
 	description: 'Learn more about our company',
@@ -237,6 +247,14 @@ const users = [
 		date: '6/10/2020',
 	},
 ]
+
+const fetchData = () => {
+	console.log('fetchData called with date range:', filterStore.startDate, filterStore.endDate);
+}
+
+watch(() => [filterStore.startDate, filterStore.endDate], () => {
+    fetchData();
+});
 
 const updateRange = () => {}
 

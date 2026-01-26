@@ -7,6 +7,10 @@
 				<p class="page-subtitle">Manage your team and track employee information</p>
 			</div>
 			<div class="header-actions">
+				<button @click="filterStore.toggleFilterSidebar()" class="btn btn-secondary">
+					<Icon name="mdi:filter" />
+					<span>Filter</span>
+				</button>
 				<SharedExportButton :data="employees" :headers="tableHeaders" filename="all_employees" format="excel" />
 				<button @click="openAddDialog" class="btn btn-primary">
 					<Icon name="mdi:plus" />
@@ -190,8 +194,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import employeeApi from '@/api/employeeApi'
+import { useFilterStore } from '~/stores/filterStore'
+
+const filterStore = useFilterStore();
 
 definePageMeta({
 	middleware: 'auth-role',
@@ -247,6 +254,8 @@ const queryParams = computed(() => ({
 	sort_by: sort.value.key,
 	sort_order: sort.value.order,
 	is_paginate: true,
+	startDate: filterStore.startDate,
+	endDate: filterStore.endDate,
 }))
 
 // Headers
@@ -319,6 +328,11 @@ const loadData = async () => {
 		loading.value = false
 	}
 }
+
+watch(() => [filterStore.startDate, filterStore.endDate], () => {
+    loadData();
+});
+
 const openAddDialog = () => {
 	editingEmployee.value = null
 	showFormDialog.value = true

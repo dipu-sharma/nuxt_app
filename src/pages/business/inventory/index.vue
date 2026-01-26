@@ -5,10 +5,19 @@
 			<div class="flex gap-4 items-center">
 				<button
 					type="button"
-					@click="handleAddStockItem"
+					@click="filterStore.toggleFilterSidebar()"
 					class="light:text-black text-center rounded-lg transition"
-					alt="Add Stock Item"
-					title="Add Stock Item"
+					alt="Filter"
+					title="Filter"
+				>
+					<Icon name="mdi:filter" class="" width="50" height="50" />
+				</button>
+				<button
+					type="button"
+					@click="openAddItemModal"
+					class="light:text-black text-center rounded-lg transition"
+					:alt="selectedTab === 'stock' ? 'Add Stock Item' : 'Add Purchase Order'"
+					:title="selectedTab === 'stock' ? 'Add Stock Item' : 'Add Purchase Order'"
 				>
 					<Icon name="mdi-plus" class="" width="50" height="50" />
 				</button>
@@ -24,41 +33,64 @@
 			</div>
 		</section>
 
-		<!-- Inventory Table Component -->
-		<TablesTable2
-			:headers="data_table?.headers"
-			:items="data_table?.items"
-			:page="currentPage"
-			:itemsPerPage="itemsPerPage"
-			:item_total="data_table.total_data"
-			:loading="isLoading"
-			@update="handleEdit"
-			@search="handleSearchInventory"
-			@delete="handleDelete"
-			@page_change="handlePageChange"
-			@item_per_page="handleItemsPerPageChange"
-		/>
+		<v-tabs v-model="selectedTab" background-color="transparent" color="primary" grow>
+			<v-tab value="stock">Stock</v-tab>
+			<v-tab value="purchase-orders">Purchase Orders</v-tab>
+		</v-tabs>
+
+		<v-window v-model="selectedTab">
+			<v-window-item value="stock">
+				<TablesTable2
+					:headers="stock_table?.headers"
+					:items="stock_table?.items"
+					:page="currentPage"
+					:itemsPerPage="itemsPerPage"
+					:item_total="stock_table.total_data"
+					:loading="isLoading"
+					@update="handleEdit"
+					@search="handleSearchInventory"
+					@delete="handleDelete"
+					@page_change="handlePageChange"
+					@item_per_page="handleItemsPerPageChange"
+				/>
+			</v-window-item>
+			<v-window-item value="purchase-orders">
+				<BusinessPurchaseOrderTable />
+			</v-window-item>
+		</v-window>
 	</div>
+
 	<Dialog
 		v-model="is_modal_visible"
 		:loading="isLoading"
-		title="Add Stock Item"
+		:title="selectedTab === 'stock' ? 'Add Stock Item' : 'Add Purchase Order'"
 		:button-text="isEdit ? 'Update' : 'Save'"
 		max-width="1000px"
-		@confirm="handleSaveStockItem"
+		@confirm="handleSaveItem"
 	>
 		<template #content>
-			<FormsStockItem />
+			<FormsStockItem v-if="selectedTab === 'stock'" ref="formComponent" />
+			<FormsPurchaseOrder v-else ref="formComponent" />
 		</template>
 	</Dialog>
 </template>
 <script setup>
+import { ref } from 'vue';
+import purchaseOrderApi from '~/api/purchaseOrderApi';
+import { useFilterStore } from '~/stores/filterStore';
+
+const { createPurchaseOrder } = purchaseOrderApi();
+const filterStore = useFilterStore();
+
 definePageMeta({
 	middleware: 'auth-role',
 	layout: 'admin',
 })
 
-const data_table = ref({
+const selectedTab = ref('stock');
+const formComponent = ref(null);
+
+const stock_table = ref({
 	items: [],
 	total_data: 0,
 	total_pages: 0,
@@ -79,6 +111,7 @@ const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const is_modal_visible = ref(false)
 const isLoading = ref(false)
+const isEdit = ref(false);
 
 const handlePageChange = (page) => {
 	currentPage.value = page
@@ -89,9 +122,9 @@ const handleItemsPerPageChange = (items) => {
 	currentPage.value = 1
 }
 
-const handleAddStockItem = () => {
+const openAddItemModal = () => {
 	is_modal_visible.value = true
-	console.log('handleAddStockItem function is not yet defined')
+	isEdit.value = false;
 }
 
 const exportToExcel = () => {
@@ -99,6 +132,8 @@ const exportToExcel = () => {
 }
 
 const handleEdit = (item) => {
+	is_modal_visible.value = true;
+	isEdit.value = true;
 	console.log('handleEdit function is not yet defined', item)
 }
 
@@ -110,8 +145,25 @@ const handleDelete = (item) => {
 	console.log('handleDelete function is not yet defined', item)
 }
 
-const handleSaveStockItem = () => {
-	console.log('handleSaveStockItem function is not yet defined')
+const handleSaveItem = async () => {
+	if (formComponent.value) {
+		const formData = await formComponent.value.submit();
+		if (formData) {
+			isLoading.value = true;
+			try {
+				if (selectedTab.value === 'purchase-orders') {
+					await createPurchaseOrder(formData);
+				} else {
+					console.log('handleSaveStockItem function is not yet defined');
+				}
+				is_modal_visible.value = false;
+			} catch (error) {
+				console.error('Failed to save item:', error);
+			} finally {
+				isLoading.value = false;
+			}
+		}
+	}
 }
 </script>
 <style scoped></style>

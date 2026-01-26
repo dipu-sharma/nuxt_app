@@ -2,9 +2,14 @@
 	<div class="p-6">
 		<div class="flex justify-between items-center mb-6">
 			<h1 class="text-2xl font-bold">Manage Products</h1>
-			<button @click="openCreateDialog" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200">
-				Create Product
-			</button>
+			<div>
+				<button @click="filterStore.toggleFilterSidebar()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition duration-200 mr-2">
+					Filter
+				</button>
+				<button @click="openCreateDialog" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200">
+					Create Product
+				</button>
+			</div>
 		</div>
 
 		<TablesTable2
@@ -42,10 +47,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import productApi from '~/api/productApi'
 import { toast } from 'vue3-toastify'
 import Dialog from '~/components/Dialog/Dialog.vue'
+import { useFilterStore } from '~/stores/filterStore'
+
+const filterStore = useFilterStore();
 
 definePageMeta({
 	title: 'Admin Products',
@@ -86,6 +94,8 @@ const fetchData = async () => {
 			page: page.value,
 			per_page: itemsPerPage.value,
             is_paginate: true,
+			startDate: filterStore.startDate,
+			endDate: filterStore.endDate,
         }
         if(search.value) {
             params.search = search.value
@@ -102,6 +112,10 @@ const fetchData = async () => {
 		loading.value = false
 	}
 }
+
+watch(() => [filterStore.startDate, filterStore.endDate], () => {
+    fetchData();
+});
 
 const openCreateDialog = () => {
 	editingProduct.value = null

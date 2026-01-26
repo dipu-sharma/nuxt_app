@@ -1,14 +1,17 @@
 <template>
-	<div class="flex h-screen" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text))">
-		<Sidebar v-if="isDesktop" />
+	<v-app>
+		<Sidebar />
 		<div class="flex flex-col flex-1 w-full">
 			<Topbar />
-			<main class="h-full pb-16 overflow-y-auto" style="color: rgb(var(--color-text))">
-				<slot />
-			</main>
+			<v-main>
+				<main class="h-full pb-16 overflow-y-auto" style="color: rgb(var(--color-text))">
+					<slot />
+				</main>
+			</v-main>
 			<AutoLogOut />
+			<FiltersRightSidebarFilter />
 		</div>
-	</div>
+	</v-app>
 </template>
 <script setup>
 import { useAuthStore } from '~/stores/auth'
