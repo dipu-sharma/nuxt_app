@@ -90,6 +90,11 @@ const allSidebarItems = {
 				'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
 		},
 		{
+			label: 'Inventory',
+			path: '/business/inventory',
+			iconPath: 'M3 3h18v2H3V3zm0 4h18v2H3V7zm0 4h18v2H3v-2zm0 4h18v2H3v-2z',
+		},
+		{
 			label: 'Products',
 			path: '/business/products',
 			iconPath:
@@ -120,6 +125,11 @@ const allSidebarItems = {
 				'M12 2C8.14 2 5 5.14 5 9V17.59L2.7 19.9C2.53 20.05 2.39 20.28 2.35 20.54C2.31 20.79 2.37 21.05 2.5 21.27L12 22L21.5 21.27C21.63 21.05 21.69 20.79 21.65 20.54C21.61 20.28 21.47 20.05 21.3 19.9L19 17.59V9C19 5.14 15.86 2 12 2Z',
 		},
 		{
+			label: 'Inventory',
+			path: '/business/inventory',
+			iconPath: 'M3 3h18v2H3V3zm0 4h18v2H3V7zm0 4h18v2H3v-2zm0 4h18v2H3v-2z',
+		},
+		{
 			label: 'Orders',
 			path: '/business/orders',
 			iconPath: 'M4 4h16v2H4V4zm0 5h16v2H4V9zm0 5h16v2H4v-2zm0 5h16v2H4v-2z',
@@ -147,7 +157,14 @@ function toggleMobileUsersMenu() {
 }
 
 function isActive(path) {
-	return route.path === path
+	if (path === route.path) {
+		return true
+	}
+	// If path is a base path and doesn't end with a slash, check if the current route is a sub-path.
+	if (!path.endsWith('/') && route.path.startsWith(path + '/')) {
+		return true
+	}
+	return false
 }
 </script>
 

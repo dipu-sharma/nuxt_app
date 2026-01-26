@@ -1,5 +1,5 @@
 <template>
-	<div class="container mx-auto p-6">
+	<div class="p-6">
 		<h2>Orders Table</h2>
 		<button type="button" @click="handleCookieSet">Set Cookie</button>
 		<button type="button" @click="handleCookieGet">Get Cookie</button>

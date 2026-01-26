@@ -225,7 +225,8 @@
 import { ref, watch, onMounted } from 'vue'
 import FormField from '@/components/Shared/FormField.vue'
 import ImageUploader from '@/components/Shared/ImageUploader.vue'
-import { useEmployeeStore } from '@/stores/employeeStore'
+import employeeApi from '@/api/employeeApi'
+import { toast } from 'vue3-toastify'
 
 const props = defineProps({
 	employee: {
@@ -235,8 +236,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['submit', 'cancel'])
+const api = employeeApi()
 
-const employeeStore = useEmployeeStore()
 const saving = ref(false)
 const editMode = ref(false)
 
@@ -327,23 +328,29 @@ const handleSubmit = async () => {
 			}
 		})
 
+        let employeeId = editMode.value ? props.employee.id : null;
+
 		if (editMode.value) {
-			await employeeStore.updateEmployee(props.employee.id, payload)
+			await api.edit_employee(payload, employeeId)
+            toast.success('Employee updated successfully.')
 		} else {
-			await employeeStore.createEmployee(payload)
+			const response = await api.create_employee(payload)
+            if(response.data){
+                employeeId = response.data.id
+            }
+			toast.success('Employee created successfully.')
 		}
 
-		// Handle image upload if present
 		if (formData.value.profile_image && formData.value.profile_image instanceof File) {
-			const employeeId = editMode.value ? props.employee.id : employeeStore.employees[0]?.id
 			if (employeeId) {
-				await employeeStore.uploadEmployeeImage(employeeId, formData.value.profile_image)
+				console.warn("Image upload is not implemented in the API yet.")
 			}
 		}
 
 		emit('submit')
 	} catch (error) {
 		console.error('Error saving employee:', error)
+        toast.error(error.response?.data?.message || 'Failed to save employee.')
 	} finally {
 		saving.value = false
 	}
@@ -358,20 +365,24 @@ const loadEmployeeData = () => {
 			}
 		})
 
-		// Handle image URL
 		if (props.employee.image_url) {
 			formData.value.profile_image = props.employee.image_url
 		}
-	}
+	} else {
+        editMode.value = false
+        Object.keys(formData.value).forEach(key => {
+            formData.value[key] = ''
+        })
+        formData.value.payment_type = 'Monthly'
+        formData.value.status = 'Active'
+        formData.value.profile_image = null
+    }
 }
 
-// Watch for employee changes
 watch(() => props.employee, loadEmployeeData, { immediate: true })
 
 onMounted(() => {
-	if (props.employee) {
-		loadEmployeeData()
-	}
+	loadEmployeeData()
 })
 </script>
 

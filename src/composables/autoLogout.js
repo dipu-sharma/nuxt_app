@@ -9,12 +9,10 @@ export function useAutoLogout() {
   // Reset Timer Function
   const resetTimer = () => {
     // Clear existing timers
+    remainingTime.value = 30 * 60;
     if (logoutTimer.value) clearTimeout(logoutTimer.value);
     if (countdownTimer.value) clearInterval(countdownTimer.value);
-
-    // Reset remaining time and start countdown
-    remainingTime.value = 30 * 60; // Reset to 30 minutes
-    if (process.client) { // <--- ADD THIS CHECK
+    if (import.meta.client) {
         countdownTimer.value = setInterval(() => {
             remainingTime.value -= 1;
             if (remainingTime.value <= 0) {
@@ -25,21 +23,21 @@ export function useAutoLogout() {
 
     // Set logout timer
     logoutTimer.value = setTimeout(() => {
-      authStore.logout()
-      navigateTo("/login"); // Redirect to login
-    }, 30 * 60 * 1000); // 30 minutes
+      authStore.doLogout()
+      navigateTo("/login");
+    }, 30 * 60 * 1000);
   };
 
   // Start Listening for User Activity
   const startTimer = () => {
-    resetTimer(); // Initialize timer
+    resetTimer();
   };
 
   // Stop Listening and Clear Timers
   const stopTimer = () => {
     if (logoutTimer.value) clearTimeout(logoutTimer.value);
     if (countdownTimer.value) clearInterval(countdownTimer.value);
-    remainingTime.value = 30 * 60; // Reset time
+    remainingTime.value = 30 * 60;
   };
 
   return { startTimer, stopTimer, remainingTime };

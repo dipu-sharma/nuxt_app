@@ -45,20 +45,20 @@
 			<!-- Custom Item Template for Actions -->
 			<template v-slot:item.actions="{ item }">
 				<div class="flex justify-between gap-2">
-					<button
+					<v-btn
 						icon
 						@click="editItem(item)"
 						class="bg-orange-500 rounded-full p-3 hover:bg-green-500 shadow-lg"
 					>
 						<v-icon>mdi-pencil</v-icon>
-					</button>
-					<button
+					</v-btn>
+					<v-btn
 						icon
 						@click="deleteItem(item)"
 						class="bg-red-700 rounded-full p-3 hover:bg-green-500 shadow-lg"
 					>
 						<v-icon>mdi-delete</v-icon>
-					</button>
+					</v-btn>
 				</div>
 			</template>
 		</v-data-table>

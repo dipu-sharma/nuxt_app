@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { ref, nextTick } from 'vue'
 
 export const useThemeStore = defineStore('theme', () => {
 	// Available themes

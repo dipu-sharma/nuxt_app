@@ -1,5 +1,5 @@
 <template>
-	<div class="container mx-auto p-6">
+	<div class="p-6">
 		<section class="mb-4 flex gap-4 justify-between items-center">
 			<h1 class="text-2xl font-bold">Products</h1>
 			<div class="flex gap-4 items-center">

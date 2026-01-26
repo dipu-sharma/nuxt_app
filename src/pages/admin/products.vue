@@ -1,361 +1,157 @@
 <template>
 	<div class="p-6">
-		<!-- Header -->
-		<div>
-			<h1 class="text-2xl font-bold text-center pt-5">Admin Products Page</h1>
-		</div>
-
-		<!-- Planning Data Input -->
-		<div class="mt-8">
-			<h3 class="text-lg font-semibold mb-4">
-				Save for Planning:
-				<span class="font-normal">{{ projectStore.save_for_planning }}</span>
-			</h3>
-
-			<!-- Input field for planning data -->
-			<input
-				v-model="planningData"
-				placeholder="Enter planning data"
-				class="w-full p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-			/>
-
-			<!-- Save Button -->
-			<button
-				@click="savePlanningData"
-				class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200 mb-4"
-			>
-				Save Planning Data
-			</button>
-
-			<button
-				@click="createProduct"
-				class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-200 mb-4 ml-4"
-			>
+		<div class="flex justify-between items-center mb-6">
+			<h1 class="text-2xl font-bold">Manage Products</h1>
+			<button @click="openCreateDialog" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200">
 				Create Product
 			</button>
 		</div>
-		<!-- File Upload Component -->
-		<div class="flex gap-4">
-			<UploadFileSingleFile @file-uploaded="handleFileUpload" :details="file_type.excel_details" />
-			<UploadFileSingleFile @file-uploaded="handleFileUpload" :details="file_type.image_details" />
-			<UploadFileSingleFile @file-uploaded="handleFileUpload" :details="file_type.pdf_details" />
-		</div>
-		<!-- File Preview Section -->
-		<div class="filePreview">
-			<!-- Image Preview -->
-			<div v-if="fileType === 'image' && previewUrl">
-				<img :src="previewUrl" alt="Preview" />
-			</div>
-
-			<!-- PDF Preview -->
-			<div v-else-if="fileType === 'pdf' && file">
-				<iframe
-					v-if="pdfviewurl"
-					:src="pdfviewurl"
-					width="100%"
-					height="400px"
-					title="PDF Preview"
-				></iframe>
-				<p v-else>No PDF uploaded</p>
-			</div>
-
-			<!-- Excel Preview -->
-			<div v-else-if="fileType === 'excel' && file">
-				<p>Excel file uploaded: {{ file.name }}</p>
-			</div>
-		</div>
-
-		<UploadFileMultiFile @files-uploaded="handleFilesUpload" />
-		<div v-for="(file, index) in files" :key="index" class="imgPreview">
-			<div v-if="file.preview">
-				<img :src="file.preview" alt="Preview" />
-				<button class="removeButton" @click="removeImage(index)">✖</button>
-			</div>
-			<div v-else class="previewText">No preview available</div>
-		</div>
-		<h1 class="text-center text-2xl font-bold">Selected Products</h1>
 
 		<TablesTable2
-			:headers="table2_datatable.headers"
-			:items="table2_datatable.items"
-			:page="table2_datatable.page"
+			:headers="headers"
+			:items="products"
+			:page="page"
 			:itemsPerPage="itemsPerPage"
 			:item_total="totalItems"
 			:loading="loading"
-			@update:page="updatePage"
-			@update:itemsPerPage="updateItemsPerPage"
+			@page_change="updatePage"
+			@item_per_page="updateItemsPerPage"
+            @update="openEditDialog"
+            @delete="confirmDeleteProduct"
+            @search="handleSearch"
 		/>
+
+		<Dialog
+			v-model="showEditProductDialog"
+			:title="editingProduct ? 'Edit Product' : 'Create Product'"
+			button_text="Save"
+			@cancel="closeModal"
+			@submit="saveProduct"
+		>
+			<template #content>
+				<form @submit.prevent="saveProduct" class="p-4">
+                    <div class="grid gap-4">
+                        <input v-model="productData.name" placeholder="Product Name" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <input v-model.number="productData.price" type="number" placeholder="Price" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <input v-model.number="productData.quantity" type="number" placeholder="Quantity" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                </form>
+			</template>
+		</Dialog>
 	</div>
-	<Dialog
-		v-model="showEditProductDialog"
-		:model-value="addModal"
-		title="Add Product"
-		button_text="Save"
-		@cancel="closeModal"
-		@submit="updateProduct"
-	>
-		<template #content>
-			<v-form ref="productForm" v-model="isValid">
-				<v-text-field v-model="productData.name" label="Product Name" outlined></v-text-field>
-				<v-text-field v-model="productData.price" label="Price" type="number" outlined></v-text-field>
-				<v-text-field
-					v-model="productData.quantity"
-					label="Quantity"
-					type="number"
-					outlined
-				></v-text-field>
-			</v-form>
-		</template>
-	</Dialog>
 </template>
 
 <script setup>
-import { useProjectStore } from '~/stores/projects'
-import { multiple_items } from '~/utils/repository'
-import * as XLSX from 'xlsx'
+import { ref, onMounted } from 'vue'
+import productApi from '~/api/productApi'
+import { toast } from 'vue3-toastify'
+import Dialog from '~/components/Dialog/Dialog.vue'
 
 definePageMeta({
-	title: 'Admin',
-	description: 'Learn more about our company',
+	title: 'Admin Products',
 	layout: 'admin',
 	middleware: ['auth-role'],
 })
-const showEditProductDialog = ref(false)
-const isValid = ref('')
-const projectStore = useProjectStore()
-const planningData = ref('')
-const selectedSystems = ref([])
-const file_type = {
-	excel_details: { type: 'excel', extension: ['xls', 'xlsx'], size: 5 },
-	image_details: { type: 'image', extension: ['png', 'jpeg', 'jpg'], size: 5 },
-	pdf_details: { type: 'pdf', extension: ['pdf'], size: 5 },
-}
+
+const api = productApi()
+
+const products = ref([])
 const loading = ref(false)
-const page = ref(0)
-const items = ref([])
-let totalItems = 100
+const page = ref(1)
 const itemsPerPage = ref(10)
-const addModal = ref(false)
+const totalItems = ref(0)
+const search = ref('')
 
-const datatable = ref({
-	total_items: [],
-	multiple_items: [],
-	itemsPerPageOptions: [5, 10, 50, 100, 200, -1],
-	header: [
-		{ title: 'Sr No.', value: 'index', sortable: false, align: 'left' },
-		{
-			title: 'Milestone No',
-			value: 'milestone_no',
-			sortable: false,
-			align: 'left',
-		},
-		{ title: 'Task', value: 'task', sortable: false, align: 'left' },
-		{
-			title: 'Description',
-			value: 'description',
-			sortable: false,
-			align: 'left',
-		},
-		{ title: 'Comment', value: 'comment', sortable: false, align: 'left' },
-		{ title: 'Location', value: 'location', sortable: false, align: 'left' },
-		{
-			title: 'Configuration',
-			value: 'configuration',
-			sortable: false,
-			align: 'left',
-		},
-		{
-			title: 'Start Date',
-			value: 'start_date',
-			sortable: false,
-			align: 'center',
-			width: '200px',
-		},
-		{
-			title: 'End Date',
-			value: 'end_date',
-			sortable: false,
-			align: 'left',
-			width: '120px',
-		},
-		{
-			title: 'Working Days',
-			value: 'working_days',
-			sortable: false,
-			align: 'left',
-			width: '100px',
-		},
-		{ title: 'Man Power', value: 'man_power', sortable: false, align: 'left' },
-		{ title: 'Quantity', value: 'quantity', sortable: false, align: 'left' },
-	],
-})
+const showEditProductDialog = ref(false)
+const editingProduct = ref(null)
 
-const errorMessage = ref('')
-const file = ref(null)
-const previewUrl = ref('')
-const pdfviewurl = ref('')
-const fileType = ref('')
-const files = ref([])
-
-const handleFileUpload = (payload) => {
-	console.log('File upload payload:', payload)
-	if (!payload || !payload.file) {
-		console.error('Invalid file upload payload:', payload)
-		return
-	}
-	if (payload.file && payload.type === 'pdf') {
-		pdfviewurl.value = URL.createObjectURL(payload?.file)
-	}
-	file.value = payload.file
-	previewUrl.value = payload.previewUrl
-	fileType.value = payload.type
-
-	console.log('File:', file.value)
-	console.log('Preview URL:', previewUrl.value)
-	console.log('File Type:', fileType.value)
-}
-
-const handleFilesUpload = (payload) => {
-	files.value = payload.files
-
-	if (!files.value) {
-		errorMessage.value = 'No image preview available.'
-	} else {
-		errorMessage.value = ''
-	}
-}
-const removeImage = (index) => {
-	files.value.splice(index, 1)
-}
-
-const updateProduct = () => {}
-const table2_datatable = ref({
-	items: [],
-	loading: false,
-	totalItems: 0,
-	page: 1,
-	itemsPerPage: 5,
-	headers: [
-		{ title: 'Sr No.', value: 'index', sortable: false, align: 'left' },
-		{
-			title: 'Milestone No',
-			value: 'milestone_no',
-			sortable: false,
-			align: 'left',
-		},
-		{ title: 'Task', value: 'task', sortable: false, align: 'left' },
-		{
-			title: 'Description',
-			value: 'description',
-			sortable: false,
-			align: 'left',
-		},
-		{ title: 'Comment', value: 'comment', sortable: false, align: 'left' },
-		{ title: 'Location', value: 'location', sortable: false, align: 'left' },
-		{
-			title: 'Configuration',
-			value: 'configuration',
-			sortable: false,
-			align: 'left',
-		},
-		{
-			title: 'Start Date',
-			value: 'start_date',
-			sortable: false,
-			align: 'center',
-			width: '200px',
-		},
-		{
-			title: 'End Date',
-			value: 'end_date',
-			sortable: false,
-			align: 'left',
-			width: '120px',
-		},
-		{
-			title: 'Working Days',
-			value: 'working_days',
-			sortable: false,
-			align: 'left',
-			width: '100px',
-		},
-		{ title: 'Man Power', value: 'man_power', sortable: false, align: 'left' },
-		{ title: 'Quantity', value: 'quantity', sortable: false, align: 'left' },
-		{ title: 'Stock', value: 'image', sortable: false, align: 'left' },
-		{ title: '', value: 'actions', sortable: false, align: 'left' },
-	],
-})
 const productData = ref({
 	name: '',
 	price: '',
 	quantity: '',
 })
-const savePlanningData = () => {
-	projectStore.SaveForPlanning(planningData.value.split(','))
+
+const headers = [
+    { title: 'ID', value: 'id' },
+    { title: 'Name', value: 'name' },
+    { title: 'Price', value: 'price' },
+    { title: 'Quantity', value: 'quantity' },
+    { title: 'Actions', value: 'actions', sortable: false },
+]
+
+const fetchData = async () => {
+	loading.value = true
+	try {
+		const params = {
+			page: page.value,
+			per_page: itemsPerPage.value,
+            is_paginate: true,
+        }
+        if(search.value) {
+            params.search = search.value
+        }
+		const response = await api.get_business_product_list(params)
+		products.value = response.data.items
+		totalItems.value = response.data.total
+        page.value = response.data.page
+        itemsPerPage.value = response.data.per_page
+
+	} catch (error) {
+		toast.error('Failed to fetch products')
+	} finally {
+		loading.value = false
+	}
 }
-const createProduct = () => {
-	addModal.value = true
+
+const openCreateDialog = () => {
+	editingProduct.value = null
+	productData.value = { name: '', price: '', quantity: '' }
+	showEditProductDialog.value = true
 }
+
+const openEditDialog = (product) => {
+	editingProduct.value = { ...product }
+	productData.value = { ...product }
+	showEditProductDialog.value = true
+}
+
 const closeModal = () => {
-	addModal.value = false
 	showEditProductDialog.value = false
 }
 
-datatable.value.multiple_items = multiple_items
-table2_datatable.value.items = multiple_items
-table2_datatable.value.totalItems = multiple_items.length
+const saveProduct = async () => {
+	if (!productData.value.name || !productData.value.price || !productData.value.quantity) {
+		toast.error("Please fill all fields")
+		return
+	}
 
-const exportToExcel = () => {
-	const ws_data = selectedSystems.value?.map((system, index) => ({
-		'Sr No.': index + 1,
-		'System Name': system[0].system_name,
-		'Module No': system[0]?.module_no,
-		Location: system[0]?.location,
-		Task: system[0]?.task,
-		'Start Date': system[0]?.start_date,
-		'End Date': system[0]?.end_date,
-		'Working Days': system[0]?.working_days,
-		'Man Power': system[0]?.man_power,
-		Quantity: system[0]?.quantity,
-	}))
-
-	// Create a worksheet
-	const worksheet = XLSX.utils.json_to_sheet(ws_data)
-
-	// Create a new workbook
-	const workbook = XLSX.utils.book_new()
-
-	// Append the worksheet to the workbook
-	XLSX.utils.book_append_sheet(workbook, worksheet, 'Selected Systems')
-
-	// Generate an XLSX file and trigger the download
-	XLSX.writeFile(workbook, 'selected_systems.xlsx')
-}
-const fetchData = async () => {
-	loading.value = true
-	const { data, total } = await getDataFromServer(page.value, itemsPerPage.value)
-
-	items.value = data
-	totalItems = total || 100
-	loading.value = false
+	try {
+		if (editingProduct.value) {
+			await api.edit_product(productData.value, editingProduct.value.id)
+			toast.success('Product updated')
+		} else {
+			await api.create_product(productData.value)
+			toast.success('Product created')
+		}
+		closeModal()
+		fetchData()
+	} catch (error) {
+		toast.error('Failed to save product')
+	}
 }
 
-const getDataFromServer = async (page, itemsPerPage) => {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			const data = [
-				{ id: 1, name: 'John', age: 25 },
-				{ id: 2, name: 'Jane', age: 30 },
-				{ id: 3, name: 'Mike', age: 28 },
-				// More items...
-			]
-			const total = 50 // Total number of items in the server
-			resolve({ data, total })
-		}, 1000)
-	})
+const confirmDeleteProduct = async (item) => {
+    if(!confirm(`Are you sure you want to delete ${item.name}?`)) return
+    try {
+        await api.delete_product(item.id)
+        toast.success('Product deleted')
+        fetchData()
+    } catch (error) {
+        toast.error('Failed to delete product')
+    }
 }
 
-// Methods to handle pagination changes
+
 const updatePage = (newPage) => {
 	page.value = newPage
 	fetchData()
@@ -363,14 +159,17 @@ const updatePage = (newPage) => {
 
 const updateItemsPerPage = (newItemsPerPage) => {
 	itemsPerPage.value = newItemsPerPage
-	fetchData() // Refetch data when items per page changes
+    page.value = 1;
+	fetchData()
 }
 
-fetchData()
-watch(
-	() => projectStore.save_for_planning,
-	(newVal, oldVal) => {
-		console.log('Save for Planning changed from', oldVal, 'to', newVal)
-	},
-)
+const handleSearch = (query) => {
+    page.value = 1
+    search.value = query
+    fetchData()
+}
+
+onMounted(() => {
+	fetchData()
+})
 </script>

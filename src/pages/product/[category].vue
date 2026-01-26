@@ -1,61 +1,52 @@
 <template>
-	<div>
-		<h1 class="text-center font-bold">{{ category }} Products</h1>
-	</div>
-	<div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-		<div class="col-span-12 md:col-span-2 bg-white ml-2 mr-2 shadow-lg rounded-md">
-			<h2 class="text-center">{{ category }}</h2>
-		</div>
-		<div class="col-span-12 md:col-span-10 bg-white ml-2 mr-2 shadow-lg rounded-md">
-			<h2 class="text-center">{{ category }} Product</h2>
-		</div>
-	</div>
-	<div class="text-center justify-center mt-5">
-		<Watch />
-		<WatchCompute />
-		<Onmounted />
-		<!-- Base input fields -->
-		<BaseInput v-model="payload.title" label="Title" type="text" />
-		<BaseInput v-model="payload.first_name" label="First Name" type="text" />
-		<BaseInput v-model="payload.last_name" label="Last Name" type="text" />
-		<v-text-field
-			v-model="mobileNumber"
-			label="Mobile"
-			class="w-2/6"
-			type="tel"
-			inputmode="numeric"
-			maxlength="10"
-			@input="filterMobileNumber"
-			:rules="[isRequiredRule, isMobileRule]"
-			required
-		/>
-	</div>
+	
 </template>
 
 <script setup>
-import { isMobile, isRequired } from '~/utils/common/validation'
+import cartApi from '~/api/cartApi'
+import productApi from '~/api/productApi'
+
 const route = useRoute()
-const category = route.params.category
-const payload = ref({
-	title: '',
-	first_name: '',
-	last_name: '',
-})
-const mobileNumber = ref('')
+const router = useRouter()
 
-const isMobileRule = (value) => {
-	const result = isMobile(value)
-	return result.valid || result.error
+const category_name = route.params.category
+
+const products = ref(null)
+const loading = ref(true)
+const error = ref(null)
+const isFavorite = ref(false)
+const { get_product_category_name } = productApi()
+
+const fetchProduct = async () => {
+	loading.value = true
+	error.value = null
+
+	try {
+		const response = await get_product_category_name(category_name)
+		products.value = response.data || response
+	} catch (err) {
+		console.error('Failed to load product:', err)
+		error.value = err.status === 404 ? 'Product not found' : 'Failed to load product details'
+	} finally {
+		loading.value = false
+	}
 }
 
-const isRequiredRule = (value) => {
-	const result = isRequired(value)
-	return result.valid || result.error
+watch(
+	() => route.params.category,
+	(newCategory, oldCategory) => {
+		if (newCategory === oldCategory) return
+		fetchProduct()
+	},
+	{ immediate: true },
+)
+
+const goBack = () => {
+	router.back() 
 }
 
-const filterMobileNumber = (event) => {
-	const target = event.target
-	mobileNumber.value = target.value.replace(/\D/g, '').slice(0, 10)
+const toggleFavorite = () => {
+	isFavorite.value = !isFavorite.value
 }
 </script>
 

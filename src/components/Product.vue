@@ -16,7 +16,7 @@
 						:alt="product.product_name"
 						class="h-80 w-full object-cover transition-transform duration-300 group-hover:scale-110"
 					/>
-					<div
+					<div @click="getDetails(product.product_id)"
 						class="absolute inset-x-0 bottom-0 bg-black/70 p-4 transition-transform duration-300 transform translate-y-full group-hover:translate-y-0"
 					>
 						<h3 class="text-lg font-bold text-white">{{ product.product_name }}</h3>
@@ -68,7 +68,7 @@
 					v-for="product in products"
 					:key="product.id"
 				>
-					<a href="#" class="text-center items-center mx-12">
+					<div @click="getDetails(product.product_id)" class="text-center items-center mx-12">
 						<img :src="product.images && product.images.length > 0 ? product.images[0].image_url : 'https://via.placeholder.com/300x200?text=No+Image'" alt="Product" class="w-full h-72 object-cover rounded-t-xl" />
 						<div class="p-4">
 							<span class="text-gray-400 uppercase text-xs">{{ product.brand_name }}</span>
@@ -98,7 +98,7 @@
 								</button>
 							</div>
 						</div>
-					</a>
+					</div>
 				</div>
 			</section>
 		</div>
@@ -107,8 +107,7 @@
 
 <script setup>
 import { defineProps } from 'vue'
-import cartApi from '~/api/cartApi'
-
+const router = useRouter()
 const { add_to_cart } = cartApi()
 
 const props = defineProps({
@@ -126,6 +125,11 @@ const handleAddToCart = async (product_id) => {
 	} catch (error) {
 		console.error('Failed to add product to cart:', error)
 	}
+}
+
+const getDetails = (product_id) => {
+	console.log('Navigate to product details page', product_id)
+	router.push(`/products/${product_id}`)
 }
 </script>
 

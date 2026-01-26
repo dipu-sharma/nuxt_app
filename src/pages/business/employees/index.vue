@@ -1,5 +1,5 @@
 <template>
-	<div class="employees-page">
+	<div class="p-6">
 		<!-- Page Header -->
 		<div class="page-header">
 			<div class="header-content">
@@ -7,12 +7,7 @@
 				<p class="page-subtitle">Manage your team and track employee information</p>
 			</div>
 			<div class="header-actions">
-				<ExportButton
-					:data="employeeStore.employees"
-					:headers="tableHeaders"
-					filename="all_employees"
-					format="excel"
-				/>
+				<SharedExportButton :data="employees" :headers="tableHeaders" filename="all_employees" format="excel" />
 				<button @click="openAddDialog" class="btn btn-primary">
 					<Icon name="mdi:plus" />
 					<span>Add Employee</span>
@@ -22,15 +17,15 @@
 
 		<!-- Stats Cards -->
 		<div class="stats-grid">
-			<StatsCard
+			<SharedStatsCard
 				title="Total Employees"
-				:value="stats.total || 0"
+				:value="pagination.total || 0"
 				icon="mdi:account-group"
 				icon-color="#3B82F6"
 				:trend="12"
 				subtitle="Active workforce"
 			/>
-			<StatsCard
+			<SharedStatsCard
 				title="Active Employees"
 				:value="stats.active || 0"
 				icon="mdi:account-check"
@@ -38,7 +33,7 @@
 				:trend="5"
 				subtitle="Currently working"
 			/>
-			<StatsCard
+			<SharedStatsCard
 				title="Inactive Employees"
 				:value="stats.inactive || 0"
 				icon="mdi:account-off"
@@ -46,7 +41,7 @@
 				:trend="-2"
 				subtitle="On leave or terminated"
 			/>
-			<StatsCard
+			<SharedStatsCard
 				title="New This Month"
 				:value="stats.new_this_month || 0"
 				icon="mdi:account-plus"
@@ -55,53 +50,23 @@
 			/>
 		</div>
 
-		<!-- Filters -->
-		<GlassCard class="filters-card">
-			<div class="filters-container">
-				<div class="filter-row">
-					<FormField
-						v-model="filters.department"
-						type="select"
-						label="Department"
-						placeholder="All Departments"
-						:options="departmentOptions"
-						@change="applyFilters"
-					/>
-
-					<FormField
-						v-model="filters.role"
-						type="select"
-						label="Role"
-						placeholder="All Roles"
-						:options="roleOptions"
-						@change="applyFilters"
-					/>
-
-					<FormField
-						v-model="filters.status"
-						type="select"
-						label="Status"
-						placeholder="All Statuses"
-						:options="statusOptions"
-						@change="applyFilters"
-					/>
-
-					<button @click="clearFilters" class="btn btn-secondary clear-btn">
-						<Icon name="mdi:filter-remove" />
-						<span>Clear Filters</span>
-					</button>
-				</div>
-			</div>
-		</GlassCard>
 
 		<!-- Employee Table -->
-		<EmployeeTable
+		<BusinessEmployeeTable
+			:employees="employees"
+			:loading="loading"
+			:total-items="pagination.total"
+			:per-page="pagination.per_page"
 			@add-employee="openAddDialog"
 			@edit-employee="openEditDialog"
 			@view-employee="openViewDialog"
 			@delete-employee="handleDelete"
 			@bulk-delete="handleBulkDelete"
 			@bulk-update="handleBulkUpdate"
+			@page-change="handlePageChange"
+			@page-size-change="handlePageSizeChange"
+			@sort="handleSort"
+			@search="handleSearch"
 		/>
 
 		<!-- Add/Edit Dialog -->
@@ -112,11 +77,7 @@
 			:show-button="false"
 		>
 			<template #content>
-				<EmployeeForm
-					:employee="editingEmployee"
-					@submit="handleFormSubmit"
-					@cancel="closeFormDialog"
-				/>
+				<BusinessEmployeeForm :employee="editingEmployee" @submit="handleFormSubmit" @cancel="closeFormDialog" />
 			</template>
 		</Dialog>
 
@@ -132,9 +93,17 @@
 							{{ getInitials(viewingEmployee.first_name, viewingEmployee.last_name) }}
 						</div>
 						<div class="detail-info">
-							<h3>{{ viewingEmployee.full_name || `${viewingEmployee.first_name} ${viewingEmployee.last_name}` }}</h3>
+							<h3>
+								{{
+									viewingEmployee.full_name ||
+									`${viewingEmployee.first_name} ${viewingEmployee.last_name}`
+								}}
+							</h3>
 							<p>{{ viewingEmployee.designation || viewingEmployee.role }}</p>
-							<StatusBadge :status="viewingEmployee.status.toLowerCase()" :label="viewingEmployee.status" />
+							<SharedStatusBadge
+								:status="viewingEmployee.status.toLowerCase()"
+								:label="viewingEmployee.status"
+							/>
 						</div>
 					</div>
 
@@ -177,7 +146,8 @@
 						<h4>Address</h4>
 						<p>{{ viewingEmployee.address }}</p>
 						<p v-if="viewingEmployee.city || viewingEmployee.state">
-							{{ viewingEmployee.city }}{{ viewingEmployee.city && viewingEmployee.state ? ', ' : '' }}{{ viewingEmployee.state }} {{ viewingEmployee.postal_code }}
+							{{ viewingEmployee.city }}{{ viewingEmployee.city && viewingEmployee.state ? ', ' : ''
+							}}{{ viewingEmployee.state }} {{ viewingEmployee.postal_code }}
 						</p>
 						<p v-if="viewingEmployee.country">{{ viewingEmployee.country }}</p>
 					</div>
@@ -221,23 +191,25 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useEmployeeStore } from '@/stores/employeeStore'
-import EmployeeTable from '@/components/Business/Employee/EmployeeTable.vue'
-import EmployeeForm from '@/components/Business/Employee/EmployeeForm.vue'
-import GlassCard from '@/components/Shared/GlassCard.vue'
-import StatsCard from '@/components/Shared/StatsCard.vue'
-import FormField from '@/components/Shared/FormField.vue'
-import StatusBadge from '@/components/Shared/StatusBadge.vue'
-import ExportButton from '@/components/Shared/ExportButton.vue'
+import employeeApi from '@/api/employeeApi'
 
 definePageMeta({
 	middleware: 'auth-role',
-	layout: 'admin'
+	layout: 'admin',
 })
 
-const employeeStore = useEmployeeStore()
+const api = employeeApi()
 
 // State
+const employees = ref([])
+const stats = ref({
+	total: 0,
+	active: 0,
+	inactive: 0,
+	new_this_month: 0,
+})
+const loading = ref(false)
+
 const showFormDialog = ref(false)
 const showViewDialog = ref(false)
 const showDeleteDialog = ref(false)
@@ -248,12 +220,36 @@ const deletingEmployee = ref(null)
 const filters = ref({
 	department: '',
 	role: '',
-	status: ''
+	status: '',
+	search: '',
 })
 
-// Computed
-const stats = computed(() => employeeStore.stats)
+const pagination = ref({
+	page: 1,
+	per_page: 10,
+	total: 0,
+	total_pages: 1,
+})
 
+const sort = ref({
+	key: 'created_at',
+	order: 'desc',
+})
+
+// Query Params
+const queryParams = computed(() => ({
+	page: pagination.value.page,
+	per_page: pagination.value.per_page,
+	search: filters.value.search,
+	department: filters.value.department,
+	role: filters.value.role,
+	status: filters.value.status,
+	sort_by: sort.value.key,
+	sort_order: sort.value.order,
+	is_paginate: true,
+}))
+
+// Headers
 const tableHeaders = [
 	{ key: 'employee_id', label: 'Employee ID' },
 	{ key: 'full_name', label: 'Name' },
@@ -263,7 +259,7 @@ const tableHeaders = [
 	{ key: 'department', label: 'Department' },
 	{ key: 'join_date', label: 'Join Date' },
 	{ key: 'salary', label: 'Salary' },
-	{ key: 'status', label: 'Status' }
+	{ key: 'status', label: 'Status' },
 ]
 
 // Options
@@ -278,7 +274,7 @@ const departmentOptions = [
 	{ value: 'Finance', label: 'Finance' },
 	{ value: 'Operations', label: 'Operations' },
 	{ value: 'Customer Support', label: 'Customer Support' },
-	{ value: 'IT', label: 'Information Technology' }
+	{ value: 'IT', label: 'Information Technology' },
 ]
 
 const roleOptions = [
@@ -288,7 +284,7 @@ const roleOptions = [
 	{ value: 'Senior Employee', label: 'Senior Employee' },
 	{ value: 'Employee', label: 'Employee' },
 	{ value: 'Intern', label: 'Intern' },
-	{ value: 'Contractor', label: 'Contractor' }
+	{ value: 'Contractor', label: 'Contractor' },
 ]
 
 const statusOptions = [
@@ -296,17 +292,33 @@ const statusOptions = [
 	{ value: 'Active', label: 'Active' },
 	{ value: 'Inactive', label: 'Inactive' },
 	{ value: 'On Leave', label: 'On Leave' },
-	{ value: 'Terminated', label: 'Terminated' }
+	{ value: 'Terminated', label: 'Terminated' },
 ]
 
 // Methods
 const loadData = async () => {
-	await Promise.all([
-		employeeStore.fetchEmployees(),
-		employeeStore.fetchStats()
-	])
-}
+	loading.value = true
+	try {
+		const response = await api.get_employee_list(queryParams.value)
+		employees.value = response?.data?.items?.map((emp) => ({
+			...emp.user,
+			...emp,
+			
+		}))
+		pagination.value.total = response.data?.total
+		pagination.value.total_pages = response?.data?.total_pages
+		stats.value.total = response.data?.stats?.total
+		stats.value.active = response.data?.stats?.active
+		stats.value.inactive = response.data?.stats?.inactive
+		stats.value.new_this_month = response.data?.stats?.new_this_month
 
+		console.log('Employees loaded:', employees.value)
+	} catch (error) {
+		console.error('Failed to load employees:', error)
+	} finally {
+		loading.value = false
+	}
+}
 const openAddDialog = () => {
 	editingEmployee.value = null
 	showFormDialog.value = true
@@ -339,25 +351,38 @@ const handleDelete = (employee) => {
 
 const confirmDelete = async () => {
 	if (deletingEmployee.value) {
-		await employeeStore.deleteEmployee(deletingEmployee.value.id)
-		showDeleteDialog.value = false
-		showViewDialog.value = false
-		deletingEmployee.value = null
-		await loadData()
+		try {
+			await api.delete_employee(deletingEmployee.value.id)
+			showDeleteDialog.value = false
+			showViewDialog.value = false
+			deletingEmployee.value = null
+			await loadData()
+		} catch (error) {
+		}
 	}
 }
 
-const handleBulkDelete = async (employees) => {
-	if (confirm(`Delete ${employees.length} employees?`)) {
-		const employeeIds = employees.map(emp => emp.id)
-		await employeeStore.bulkDeleteEmployees(employeeIds)
-		await loadData()
+const handleBulkDelete = async (emps) => {
+	if (confirm(`Delete ${emps.length} employees?`)) {
+		const employeeIds = emps.map((emp) => emp.id)
+		try {
+			await api.bulk_delete_employees(employeeIds)
+			toast.success(`${employeeIds.length} employees deleted`)
+			await loadData()
+		} catch (error) {
+			toast.error(error.response?.data?.message || 'Failed to delete employees')
+		}
 	}
 }
 
-const handleBulkUpdate = async (employeeIds, updates) => {
-	await employeeStore.bulkUpdateEmployees(employeeIds, updates)
-	await loadData()
+const handleBulkUpdate = async ({ employeeIds, updates }) => {
+	try {
+		await api.bulk_update_employees(employeeIds, updates)
+		toast.success(`${employeeIds.length} employees updated`)
+		await loadData()
+	} catch (error) {
+		toast.error(error.response?.data?.message || 'Failed to update employees')
+	}
 }
 
 const editFromView = () => {
@@ -367,20 +392,43 @@ const editFromView = () => {
 }
 
 const applyFilters = () => {
-	employeeStore.setDepartmentFilter(filters.value.department)
-	employeeStore.setRoleFilter(filters.value.role)
-	employeeStore.setStatusFilter(filters.value.status)
-	employeeStore.fetchEmployees()
+	pagination.value.page = 1
+	loadData()
 }
 
 const clearFilters = () => {
 	filters.value = {
 		department: '',
 		role: '',
-		status: ''
+		status: '',
+		search: '',
 	}
-	employeeStore.clearFilters()
-	employeeStore.fetchEmployees()
+	pagination.value.page = 1
+	loadData()
+}
+
+// Table event handlers
+const handlePageChange = (page) => {
+	pagination.value.page = page
+	loadData()
+}
+
+const handlePageSizeChange = (size) => {
+	pagination.value.per_page = size
+	pagination.value.page = 1
+	loadData()
+}
+
+const handleSort = ({ key, order }) => {
+	sort.value.key = key
+	sort.value.order = order
+	loadData()
+}
+
+const handleSearch = (query) => {
+	filters.value.search = query
+	pagination.value.page = 1
+	loadData()
 }
 
 // Utility functions
@@ -396,7 +444,7 @@ const formatDate = (dateString) => {
 	return date.toLocaleDateString('en-US', {
 		year: 'numeric',
 		month: 'long',
-		day: 'numeric'
+		day: 'numeric',
 	})
 }
 
@@ -404,7 +452,7 @@ const formatNumber = (value) => {
 	if (!value) return '0'
 	return new Intl.NumberFormat('en-US', {
 		minimumFractionDigits: 0,
-		maximumFractionDigits: 2
+		maximumFractionDigits: 2,
 	}).format(value)
 }
 
@@ -503,7 +551,7 @@ onMounted(() => {
 }
 
 .btn-danger {
-	background-color: #EF4444;
+	background-color: #ef4444;
 	color: white;
 }
 
@@ -650,7 +698,7 @@ onMounted(() => {
 
 .confirm-icon {
 	font-size: 4rem;
-	color: #EF4444;
+	color: #ef4444;
 }
 
 .confirm-dialog h3 {
@@ -675,8 +723,12 @@ onMounted(() => {
 }
 
 @keyframes spin {
-	from { transform: rotate(0deg); }
-	to { transform: rotate(360deg); }
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 @media (max-width: 768px) {

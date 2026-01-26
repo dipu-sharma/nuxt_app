@@ -11,7 +11,7 @@
 		:page-sizes="[10, 25, 50, 100]"
 		:loading="loading"
 		:server-side="true"
-		:total-items="totalEmployees"
+		:total-items="totalItems"
 		@search="handleSearch"
 		@sort="handleSort"
 		@select="handleSelect"
@@ -66,7 +66,7 @@
 				</div>
 				<div class="employee-details">
 					<div class="employee-name">{{ item.full_name || `${item.first_name} ${item.last_name}` }}</div>
-					<div class="employee-email">{{ item.email }}</div>
+					<div class="employee-email">{{ item.email || item.username }}</div>
 				</div>
 			</div>
 		</template>
@@ -87,7 +87,7 @@
 			/>
 		</template>
 
-		<template #item.join_date="{ value }">
+		<template #item.joined_at="{ value }">
 			<span class="date-text">{{ formatDate(value) }}</span>
 		</template>
 
@@ -145,7 +145,6 @@ import { computed } from 'vue'
 import DataTable from '@/components/Shared/DataTable.vue'
 import StatusBadge from '@/components/Shared/StatusBadge.vue'
 import ExportButton from '@/components/Shared/ExportButton.vue'
-import { useEmployeeStore } from '@/stores/employeeStore'
 
 const emit = defineEmits([
 	'add-employee',
@@ -153,16 +152,32 @@ const emit = defineEmits([
 	'view-employee',
 	'delete-employee',
 	'bulk-delete',
-	'bulk-update'
+	'bulk-update',
+	'search',
+	'sort',
+	'page-change',
+	'page-size-change',
 ])
 
-const employeeStore = useEmployeeStore()
+defineProps({
+	employees: {
+		type: Array,
+		default: () => [],
+	},
+	loading: {
+		type: Boolean,
+		default: false,
+	},
+	totalItems: {
+		type: Number,
+		default: 0,
+	},
+	perPage: {
+		type: Number,
+		default: 10,
+	},
+})
 
-// Computed
-const employees = computed(() => employeeStore.employees)
-const loading = computed(() => employeeStore.loading)
-const totalEmployees = computed(() => employeeStore.totalEmployees)
-const perPage = computed(() => employeeStore.perPage)
 
 // Table headers
 const headers = [
@@ -171,7 +186,7 @@ const headers = [
 	{ key: 'role', label: 'Role', sortable: true },
 	{ key: 'department', label: 'Department', sortable: true },
 	{ key: 'phone', label: 'Phone', sortable: false },
-	{ key: 'join_date', label: 'Join Date', sortable: true },
+	{ key: 'joined_at', label: 'Join Date', sortable: true },
 	{ key: 'salary', label: 'Salary', sortable: true },
 	{ key: 'status', label: 'Status', sortable: true },
 	{ key: 'actions', label: 'Actions', sortable: false }
@@ -179,13 +194,11 @@ const headers = [
 
 // Methods
 const handleSearch = (query) => {
-	employeeStore.setSearch(query)
-	employeeStore.fetchEmployees()
+	emit('search', query)
 }
 
-const handleSort = ({ key, order }) => {
-	employeeStore.setSort(key, order)
-	employeeStore.fetchEmployees()
+const handleSort = (sortInfo) => {
+	emit('sort', sortInfo)
 }
 
 const handleSelect = (selected) => {
@@ -198,13 +211,11 @@ const handleRowClick = (item) => {
 }
 
 const handlePageChange = (page) => {
-	employeeStore.setPage(page)
-	employeeStore.fetchEmployees()
+	emit('page-change', page)
 }
 
 const handlePageSizeChange = (size) => {
-	employeeStore.setPerPage(size)
-	employeeStore.fetchEmployees()
+	emit('page-size-change', size)
 }
 
 const handleAction = ({ action, item }) => {
@@ -233,7 +244,7 @@ const handleBulkDelete = (employees) => {
 
 const handleBulkStatusChange = (employees, status) => {
 	const employeeIds = employees.map(emp => emp.id)
-	emit('bulk-update', employeeIds, { status })
+	emit('bulk-update', { employeeIds, updates: { status } })
 }
 
 // Utility functions

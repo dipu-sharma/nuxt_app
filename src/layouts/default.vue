@@ -1,20 +1,26 @@
 <template>
-    <div style="background-color: rgb(var(--color-background)); min-height: 100vh">
-        <Navbar />
-        <main class="pt-20">
-            <slot />
-        </main>
-        <AutoLogOut />
-    </div>
+  <div style="background-color: rgb(var(--color-background)); min-height: 100vh">
+    <Navbar />
+    <main :class="{ 'pt-20': !isLoginPage }">
+      <slot />
+    </main>
+    <AutoLogOut />
+  </div>
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 
+const route = useRoute()
+
+const isLoginPage = computed(() => route.path === '/login')
+// or more flexible:
+// route.path.startsWith('/login') 
+// || route.name === 'Login'
+// || ['login', 'signin', 'auth'].includes(route.name)
 </script>
 
 <style scoped>
-.default-main {
-    align-items: center !important;
-    justify-content: center !important;
-}
+/* your existing styles */
 </style>

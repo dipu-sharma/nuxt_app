@@ -6,7 +6,7 @@
 					<!-- Placeholder for logo -->
 					<div class="w-32 mx-auto">
 						<svg
-							class="w-full h-full"
+							class="w-24 h-24"
 							viewBox="0 0 24 24"
 							fill="none"
 							xmlns="http://www.w3.org/2000/svg"
@@ -110,9 +110,7 @@
 								<span class="ml-3"> Sign In </span>
 							</button>
 							<p class="mt-6 text-xs text-gray-600 text-center">
-								<a href="#" class="border-b border-gray-500 border-dotted">
-									Forgot Password?
-								</a>
+								<a href="#" class="border-b border-gray-500 border-dotted"> Forgot Password? </a>
 							</p>
 							<p class="mt-6 text-xs text-gray-600 text-center">
 								Don't have an account?
@@ -127,7 +125,9 @@
 			<div class="flex-1 bg-indigo-100 text-center hidden lg:flex">
 				<div
 					class="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-					style="background-image: url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg');"
+					style="
+						background-image: url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg');
+					"
 				></div>
 			</div>
 		</div>
@@ -181,7 +181,6 @@ const togglePasswordVisibility = () => {
 const handleLogin = async () => {
 	const { login_user, get_current_user } = authApi()
 	const response = await login_user(loginform.value)
-	// Store token and user data
 	authStore.setLoginData(response)
 	const response_user = await get_current_user()
 

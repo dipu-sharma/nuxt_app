@@ -1,126 +1,87 @@
-import useApiCall from '@/composables/useApiCall'
-
+import { handleAxiosError } from '~/utils/ErrorHandle/error'
+import { toast } from 'vue3-toastify'
 export default () => {
-	const { apiCall } = useApiCall()
+	const { callApi } = useApiCall()
+
+	const get_employee_list  = async (params) => {
+		try {
+			const response = await callApi('GET', '/business/members', null, params, true)
+			return response
+		} catch (error) {
+			handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
+			throw error
+		}
+	}
+
+	const get_employe_details = async (employeeId) => {
+		try {
+			const response = await callApi('GET', `/business/members/${employeeId}`, null, null, true)
+			return response
+		} catch (error) {
+			handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
+			throw error
+		}
+	}
+
+	const create_employee = async (payload) => {
+		try {
+			const response = await callApi('POST', '/business/members', payload, null, true)
+			return response
+		} catch (error) {
+			handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
+			throw error
+		}
+	}
+
+	const edit_employee = async (payload, employeeId) => {
+		try {
+			const response = await callApi('PUT', `/business/members/${employeeId}`, payload, null, true)
+			return response
+		} catch (error) {
+			handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
+			throw error
+		}
+	}
+
+	const delete_employee = async (employeeId) => {
+		try {
+			const response = await callApi('DELETE', `/business/members/${employeeId}`, null, null, true)
+			return response	
+		} catch (error) {
+			handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
+			throw error
+		}
+	}
+
+	const bulk_delete_employees = async (employeeIds) => {
+		try {
+			const response = await callApi('POST', '/business/members/bulk-delete', { ids: employeeIds }, null, true)
+			return response
+		} catch (error) {
+			handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
+			throw error
+		}
+	}
+
+	const bulk_update_employees = async (employeeIds, updates) => {
+		try {
+			const response = await callApi('PUT', '/business/members/bulk-update', { ids: employeeIds, updates: updates }, null, true)
+			return response
+		} catch (error) {
+			handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
+			throw error
+		}
+	}
+
+	
 
 	return {
-		/**
-		 * Get list of employees with optional filters
-		 * @param {Object} queryParams - Query parameters (page, per_page, search, department, role, status, sort_by)
-		 * @returns {Promise}
-		 */
-		get_employee_list(queryParams = {}) {
-			return apiCall('GET', '/business/employees', { params: queryParams })
-		},
-
-		/**
-		 * Get single employee by ID
-		 * @param {String|Number} employeeId - Employee ID
-		 * @returns {Promise} Employee details
-		 */
-		get_employee(employeeId) {
-			return apiCall('GET', `/business/employees/${employeeId}`)
-		},
-
-		/**
-		 * Create new employee
-		 * @param {Object} payload - Employee data
-		 * @returns {Promise} Created employee
-		 */
-		create_employee(payload) {
-			return apiCall('POST', '/business/employees', { data: payload })
-		},
-
-		/**
-		 * Update existing employee
-		 * @param {String|Number} employeeId - Employee ID
-		 * @param {Object} payload - Updated employee data
-		 * @returns {Promise} Updated employee
-		 */
-		update_employee(employeeId, payload) {
-			return apiCall('PUT', `/business/employees/${employeeId}`, { data: payload })
-		},
-
-		/**
-		 * Delete employee
-		 * @param {String|Number} employeeId - Employee ID
-		 * @returns {Promise} Deletion confirmation
-		 */
-		delete_employee(employeeId) {
-			return apiCall('DELETE', `/business/employees/${employeeId}`)
-		},
-
-		/**
-		 * Bulk delete employees
-		 * @param {Array} employeeIds - Array of employee IDs
-		 * @returns {Promise} Bulk deletion confirmation
-		 */
-		bulk_delete_employees(employeeIds) {
-			return apiCall('POST', '/business/employees/bulk-delete', {
-				data: { employee_ids: employeeIds }
-			})
-		},
-
-		/**
-		 * Bulk update employees
-		 * @param {Array} employeeIds - Array of employee IDs
-		 * @param {Object} updates - Fields to update
-		 * @returns {Promise} Bulk update confirmation
-		 */
-		bulk_update_employees(employeeIds, updates) {
-			return apiCall('POST', '/business/employees/bulk-update', {
-				data: {
-					employee_ids: employeeIds,
-					updates
-				}
-			})
-		},
-
-		/**
-		 * Upload employee profile image
-		 * @param {String|Number} employeeId - Employee ID
-		 * @param {File} file - Image file
-		 * @returns {Promise} Upload confirmation with image URL
-		 */
-		upload_employee_image(employeeId, file) {
-			const formData = new FormData()
-			formData.append('image', file)
-
-			return apiCall('POST', `/business/employees/${employeeId}/image`, {
-				data: formData,
-				headers: {
-					'Content-Type': 'multipart/form-data'
-				}
-			})
-		},
-
-		/**
-		 * Delete employee profile image
-		 * @param {String|Number} employeeId - Employee ID
-		 * @returns {Promise} Deletion confirmation
-		 */
-		delete_employee_image(employeeId) {
-			return apiCall('DELETE', `/business/employees/${employeeId}/image`)
-		},
-
-		/**
-		 * Get employee statistics
-		 * @returns {Promise} Employee stats (total, by department, by role, etc.)
-		 */
-		get_employee_stats() {
-			return apiCall('GET', '/business/employees/stats')
-		},
-
-		/**
-		 * Export employees to Excel
-		 * @param {Object} filters - Export filters
-		 * @returns {Promise} File download
-		 */
-		export_employees(filters = {}) {
-			return apiCall('GET', '/business/employees/export', {
-				params: filters,
-				responseType: 'blob'
-			})
-		}
+		get_employee_list,
+		get_employe_details,
+		create_employee,
+		edit_employee,
+		delete_employee,
+		bulk_delete_employees,
+		bulk_update_employees,
 	}
 }
