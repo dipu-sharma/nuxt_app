@@ -1,7 +1,8 @@
 <template>
 	<v-app-bar
 		style="background-color: rgb(var(--color-sidebar)); color: rgb(var(--color-sidebar-text)); border-bottom: 1px solid rgb(var(--color-border))"
-		class="z-10 py-4 shadow-md"
+		class="z-10 shadow-md"
+		height="70"
 	>
 		<div
 			class="container flex items-center justify-between h-full px-2"
@@ -82,68 +83,35 @@
 					</button>
 				</li>
 				<!-- Notifications menu -->
-				<li class="relative">
-					<button
-						class="relative align-middle rounded-md focus:outline-none focus:shadow-outline-purple"
-						@click="toggleNotificationsMenu"
-						@keydown.escape="closeNotificationsMenu"
-						aria-label="Notifications"
-						aria-haspopup="true"
-					>
-						<svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-							<path
-								d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
-							></path>
-						</svg>
-						<!-- Notification badge -->
-						<span
-							aria-hidden="true"
-							class="absolute top-0 right-0 inline-block w-3 h-3 transform translate-x-1 -translate-y-1 bg-accent border-2 border-background rounded-full"
-						></span>
-					</button>
-					<template v-if="isNotificationsMenuOpen">
-						<ul
-							@click.away="closeNotificationsMenu"
-							@keydown.escape="closeNotificationsMenu"
-							class="absolute right-0 z-10 w-56 p-2 mt-2 space-y-2 text-text bg-card border border-border rounded-md shadow-md"
-						>
-							<li class="flex">
-								<a
-									class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-background hover:text-text"
-									href="#"
-								>
-									<span>Messages</span>
-									<span
-										class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full"
-									>
-										13
-									</span>
-								</a>
-							</li>
-							<li class="flex">
-								<a
-									class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-background hover:text-text"
-									href="#"
-								>
-									<span>Sales</span>
-									<span
-										class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full"
-									>
-										2
-									</span>
-								</a>
-							</li>
-							<li class="flex">
-								<a
-									class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-background hover:text-text"
-									href="#"
-								>
-									<span>Alerts</span>
-								</a>
-							</li>
-						</ul>
+				<v-menu offset-y>
+					<template v-slot:activator="{ props }">
+						<v-btn icon v-bind="props">
+							<svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+								<path
+									d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+								></path>
+							</svg>
+							<!-- Notification badge -->
+							<span
+								aria-hidden="true"
+								class="absolute top-0 right-0 inline-block w-3 h-3 transform translate-x-1 -translate-y-1 bg-accent border-2 border-background rounded-full"
+							></span>
+						</v-btn>
 					</template>
-				</li>
+					<v-list>
+						<v-list-item>
+							<v-list-item-title>Messages</v-list-item-title>
+							<v-list-item-title class="ml-auto">13</v-list-item-title>
+						</v-list-item>
+						<v-list-item>
+							<v-list-item-title>Sales</v-list-item-title>
+							<v-list-item-title class="ml-auto">2</v-list-item-title>
+						</v-list-item>
+						<v-list-item>
+							<v-list-item-title>Alerts</v-list-item-title>
+						</v-list-item>
+					</v-list>
+				</v-menu>
 				<!-- Profile menu -->
 				<v-menu offset-y>
 					<template v-slot:activator="{ props }">
@@ -182,8 +150,6 @@ const authStore = useAuthStore()
 const navStore = useNavStore()
 const themeStore = useThemeStore()
 
-const isNotificationsMenuOpen = ref(false)
-
 const toggleMenu = () => {
 	navStore.toggleMobileSideMenu()
 }
@@ -192,15 +158,6 @@ const getNextThemeName = () => {
 	const currentIndex = themeStore.themes.indexOf(themeStore.currentTheme)
 	const nextIndex = (currentIndex + 1) % themeStore.themes.length
 	return themeStore.themes[nextIndex]
-}
-
-// Notifications menu functions
-const toggleNotificationsMenu = () => {
-	isNotificationsMenuOpen.value = !isNotificationsMenuOpen.value
-}
-
-const closeNotificationsMenu = () => {
-	isNotificationsMenuOpen.value = false
 }
 
 const logout = () => {

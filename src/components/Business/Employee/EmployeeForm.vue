@@ -149,40 +149,46 @@
 			<!-- Address Information -->
 			<div class="form-section full-width">
 				<h4 class="section-title">Address Information</h4>
-				<FormField
-					v-model="formData.address"
-					type="textarea"
-					label="Street Address"
-					placeholder="Enter street address"
-					:rows="3"
-				/>
-
-				<div class="form-row">
+				<label>
+					<input type="checkbox" v-model="updateAddress" />
+					Update Address
+				</label>
+				<div v-if="updateAddress">
 					<FormField
-						v-model="formData.city"
-						label="City"
-						placeholder="Enter city"
+						v-model="formData.address"
+						type="textarea"
+						label="Street Address"
+						placeholder="Enter street address"
+						:rows="3"
 					/>
 
-					<FormField
-						v-model="formData.state"
-						label="State/Province"
-						placeholder="Enter state"
-					/>
-				</div>
+					<div class="form-row">
+						<FormField
+							v-model="formData.city"
+							label="City"
+							placeholder="Enter city"
+						/>
 
-				<div class="form-row">
-					<FormField
-						v-model="formData.postal_code"
-						label="Postal Code"
-						placeholder="Enter postal code"
-					/>
+						<FormField
+							v-model="formData.state"
+							label="State/Province"
+							placeholder="Enter state"
+						/>
+					</div>
 
-					<FormField
-						v-model="formData.country"
-						label="Country"
-						placeholder="Enter country"
-					/>
+					<div class="form-row">
+						<FormField
+							v-model="formData.postal_code"
+							label="Postal Code"
+							placeholder="Enter postal code"
+						/>
+
+						<FormField
+							v-model="formData.country"
+							label="Country"
+							placeholder="Enter country"
+						/>
+					</div>
 				</div>
 			</div>
 
@@ -222,7 +228,6 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
 import FormField from '@/components/Shared/FormField.vue'
 import ImageUploader from '@/components/Shared/ImageUploader.vue'
 import employeeApi from '@/api/employeeApi'
@@ -240,6 +245,7 @@ const api = employeeApi()
 
 const saving = ref(false)
 const editMode = ref(false)
+const updateAddress = ref(false)
 
 // Form data
 const formData = ref({
@@ -321,6 +327,14 @@ const handleSubmit = async () => {
 	try {
 		const payload = { ...formData.value }
 
+		if (!updateAddress.value) {
+			delete payload.address
+			delete payload.city
+			delete payload.state
+			delete payload.postal_code
+			delete payload.country
+		}
+
 		// Remove null/undefined values
 		Object.keys(payload).forEach(key => {
 			if (payload[key] === null || payload[key] === undefined || payload[key] === '') {
@@ -328,7 +342,7 @@ const handleSubmit = async () => {
 			}
 		})
 
-        let employeeId = editMode.value ? props.employee.id : null;
+        let employeeId = editMode.value ? props.employee.employee_id : null;
 
 		if (editMode.value) {
 			await api.edit_employee(payload, employeeId)
@@ -350,7 +364,6 @@ const handleSubmit = async () => {
 		emit('submit')
 	} catch (error) {
 		console.error('Error saving employee:', error)
-        toast.error(error.response?.data?.message || 'Failed to save employee.')
 	} finally {
 		saving.value = false
 	}
@@ -359,6 +372,7 @@ const handleSubmit = async () => {
 const loadEmployeeData = () => {
 	if (props.employee) {
 		editMode.value = true
+		updateAddress.value = false // Reset checkbox
 		Object.keys(formData.value).forEach(key => {
 			if (props.employee[key] !== undefined) {
 				formData.value[key] = props.employee[key]
@@ -370,6 +384,7 @@ const loadEmployeeData = () => {
 		}
 	} else {
         editMode.value = false
+		updateAddress.value = true // Enable for new employees
         Object.keys(formData.value).forEach(key => {
             formData.value[key] = ''
         })

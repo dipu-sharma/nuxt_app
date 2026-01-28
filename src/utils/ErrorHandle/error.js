@@ -3,8 +3,6 @@ export const handleAxiosError = (status_code, error_message, toast) => {
 	const authStore = useAuthStore()
 	let errorMessage = error_message
 	let errorStatus = 'UNKNOWN_ERROR'
-	console.log('Error message _______________________________', error_message)
-	console.log('Error file _______________________________', status_code)
 
 	if (status_code) {
 		const statusCode = status_code

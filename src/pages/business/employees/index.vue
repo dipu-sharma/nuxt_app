@@ -81,7 +81,7 @@
 			:show-button="false"
 		>
 			<template #content>
-				<BusinessEmployeeForm :employee="editingEmployee" @submit="handleFormSubmit" @cancel="closeFormDialog" />
+				<BusinessEmployeeForm v-if="showFormDialog" :employee="editingEmployee" @submit="handleFormSubmit" @cancel="closeFormDialog" />
 			</template>
 		</Dialog>
 
@@ -105,7 +105,7 @@
 							</h3>
 							<p>{{ viewingEmployee.designation || viewingEmployee.role }}</p>
 							<SharedStatusBadge
-								:status="viewingEmployee.status.toLowerCase()"
+								:status="viewingEmployee.status?.toLowerCase() || ''"
 								:label="viewingEmployee.status"
 							/>
 						</div>
@@ -194,11 +194,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
-import employeeApi from '@/api/employeeApi'
 import { useFilterStore } from '~/stores/filterStore'
+import { toast } from 'vue3-toastify'
+import { handleAxiosError } from '~/utils/ErrorHandle/error'
 
-const filterStore = useFilterStore();
+const filterStore = useFilterStore()
 
 definePageMeta({
 	middleware: 'auth-role',
@@ -310,9 +310,13 @@ const loadData = async () => {
 	try {
 		const response = await api.get_employee_list(queryParams.value)
 		employees.value = response?.data?.items?.map((emp) => ({
-			...emp.user,
 			...emp,
-			
+			...emp.user,
+			id: emp.id,
+			employee_id: emp.user.user_id,
+			phone: emp.user.mobile_number,
+			status: emp.user.is_active ? 'Active' : 'Inactive',
+			full_name: `${emp.user.first_name || ''} ${emp.user.last_name || ''}`.trim(),
 		}))
 		pagination.value.total = response.data?.total
 		pagination.value.total_pages = response?.data?.total_pages
@@ -323,15 +327,19 @@ const loadData = async () => {
 
 		console.log('Employees loaded:', employees.value)
 	} catch (error) {
-		console.error('Failed to load employees:', error)
+		const { data } = error.response
+		handleAxiosError(data.status_code, data.message, toast)
 	} finally {
 		loading.value = false
 	}
 }
 
-watch(() => [filterStore.startDate, filterStore.endDate], () => {
-    loadData();
-});
+watch(
+	() => [filterStore.startDate, filterStore.endDate],
+	() => {
+		loadData()
+	}
+)
 
 const openAddDialog = () => {
 	editingEmployee.value = null
@@ -372,6 +380,8 @@ const confirmDelete = async () => {
 			deletingEmployee.value = null
 			await loadData()
 		} catch (error) {
+			const { data } = error.response
+			handleAxiosError(data.status_code, data.message, toast)
 		}
 	}
 }
@@ -384,18 +394,21 @@ const handleBulkDelete = async (emps) => {
 			toast.success(`${employeeIds.length} employees deleted`)
 			await loadData()
 		} catch (error) {
-			toast.error(error.response?.data?.message || 'Failed to delete employees')
+			const { data } = error.response
+			handleAxiosError(data.status_code, data.message, toast)
 		}
 	}
 }
 
 const handleBulkUpdate = async ({ employeeIds, updates }) => {
 	try {
-		await api.bulk_update_employees(employeeIds, updates)
-		toast.success(`${employeeIds.length} employees updated`)
-		await loadData()
+		console.log("Update__________", update)
+		// await api.bulk_update_employees(employeeIds, updates)
+		// toast.success(`${employeeIds.length} employees updated`)
+		// await loadData()
 	} catch (error) {
-		toast.error(error.response?.data?.message || 'Failed to update employees')
+		const { data } = error.response
+		handleAxiosError(data.status_code, data.message, toast)
 	}
 }
 

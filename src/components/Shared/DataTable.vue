@@ -172,7 +172,6 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
 import { useThemeIntegration } from '@/composables/useThemeIntegration'
 import GlassCard from './GlassCard.vue'
 

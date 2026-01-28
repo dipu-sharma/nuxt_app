@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+
 import { useThemeIntegration } from '@/composables/useThemeIntegration'
 
 const props = defineProps({

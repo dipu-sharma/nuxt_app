@@ -1,5 +1,5 @@
 <template>
-	<DataTable
+	<SharedDataTable
 		:headers="headers"
 		:items="employees"
 		:item-key="'id'"
@@ -42,7 +42,7 @@
 				<Icon name="mdi:delete" />
 				<span>Delete</span>
 			</button>
-			<ExportButton
+			<SharedExportButton
 				:data="selected"
 				:headers="headers"
 				filename="selected_employees"
@@ -72,7 +72,7 @@
 		</template>
 
 		<template #item.role="{ value }">
-			<StatusBadge :status="getRoleBadgeStatus(value)" :label="value" size="small" />
+			<SharedStatusBadge :status="getRoleBadgeStatus(value)" :label="value" size="small" />
 		</template>
 
 		<template #item.department="{ value }">
@@ -80,7 +80,7 @@
 		</template>
 
 		<template #item.status="{ value }">
-			<StatusBadge
+			<SharedStatusBadge
 				:status="value === 'Active' ? 'active' : value === 'Inactive' ? 'inactive' : 'pending'"
 				:label="value"
 				size="small"
@@ -103,21 +103,21 @@
 		<template #item.actions="{ item }">
 			<div class="action-buttons">
 				<button
-					@click="handleView(item)"
+					@click.stop="handleView(item)"
 					class="btn-action btn-info"
 					title="View Details"
 				>
 					<Icon name="mdi:eye" />
 				</button>
 				<button
-					@click="handleEdit(item)"
+					@click.stop="handleEdit(item)"
 					class="btn-action btn-primary"
 					title="Edit"
 				>
 					<Icon name="mdi:pencil" />
 				</button>
 				<button
-					@click="handleDelete(item)"
+					@click.stop="handleDelete(item)"
 					class="btn-action btn-danger"
 					title="Delete"
 				>
@@ -137,14 +137,10 @@
 				</button>
 			</div>
 		</template>
-	</DataTable>
+	</SharedDataTable>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import DataTable from '@/components/Shared/DataTable.vue'
-import StatusBadge from '@/components/Shared/StatusBadge.vue'
-import ExportButton from '@/components/Shared/ExportButton.vue'
 
 const emit = defineEmits([
 	'add-employee',

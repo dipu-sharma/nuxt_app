@@ -75,20 +75,22 @@
 	</Dialog>
 </template>
 <script setup>
-import { ref } from 'vue';
-import purchaseOrderApi from '~/api/purchaseOrderApi';
-import { useFilterStore } from '~/stores/filterStore';
+import { ref } from 'vue'
+import purchaseOrderApi from '~/api/purchaseOrderApi'
+import { useFilterStore } from '~/stores/filterStore'
+import { toast } from 'vue3-toastify'
+import { handleAxiosError } from '~/utils/ErrorHandle/error'
 
-const { createPurchaseOrder } = purchaseOrderApi();
-const filterStore = useFilterStore();
+const { createPurchaseOrder } = purchaseOrderApi()
+const filterStore = useFilterStore()
 
 definePageMeta({
 	middleware: 'auth-role',
 	layout: 'admin',
 })
 
-const selectedTab = ref('stock');
-const formComponent = ref(null);
+const selectedTab = ref('stock')
+const formComponent = ref(null)
 
 const stock_table = ref({
 	items: [],
@@ -111,7 +113,7 @@ const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const is_modal_visible = ref(false)
 const isLoading = ref(false)
-const isEdit = ref(false);
+const isEdit = ref(false)
 
 const handlePageChange = (page) => {
 	currentPage.value = page
@@ -124,7 +126,7 @@ const handleItemsPerPageChange = (items) => {
 
 const openAddItemModal = () => {
 	is_modal_visible.value = true
-	isEdit.value = false;
+	isEdit.value = false
 }
 
 const exportToExcel = () => {
@@ -132,8 +134,8 @@ const exportToExcel = () => {
 }
 
 const handleEdit = (item) => {
-	is_modal_visible.value = true;
-	isEdit.value = true;
+	is_modal_visible.value = true
+	isEdit.value = true
 	console.log('handleEdit function is not yet defined', item)
 }
 
@@ -147,20 +149,23 @@ const handleDelete = (item) => {
 
 const handleSaveItem = async () => {
 	if (formComponent.value) {
-		const formData = await formComponent.value.submit();
+		const formData = await formComponent.value.submit()
 		if (formData) {
-			isLoading.value = true;
+			isLoading.value = true
 			try {
 				if (selectedTab.value === 'purchase-orders') {
-					await createPurchaseOrder(formData);
+					await createPurchaseOrder(formData)
+					toast.success('Purchase order created successfully')
 				} else {
-					console.log('handleSaveStockItem function is not yet defined');
+					console.log('handleSaveStockItem function is not yet defined')
+					toast.info('Stock item functionality is not yet implemented')
 				}
-				is_modal_visible.value = false;
+				is_modal_visible.value = false
 			} catch (error) {
-				console.error('Failed to save item:', error);
+				const { data } = error.response
+				handleAxiosError(data.status_code, data.message, toast)
 			} finally {
-				isLoading.value = false;
+				isLoading.value = false
 			}
 		}
 	}

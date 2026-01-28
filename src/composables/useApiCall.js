@@ -1,8 +1,5 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
-import { toast } from 'vue3-toastify'
-import { handleAxiosError } from '@/utils/ErrorHandle/error' // Import handleAxiosError
-
 export default function useApiCall() {
 	const config = useRuntimeConfig()
 	const BASE_URL = config.public.API_BASE_URL

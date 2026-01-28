@@ -137,6 +137,8 @@
 <script setup>
 import { useThemeStore } from '~/stores/themeStore'
 import { useSSO } from '~/composables/useSSO'
+import authApi from '~/api/authApi'
+import { handleAxiosError } from '~/utils/ErrorHandle/error'
 definePageMeta({
 	title: 'Login',
 	description: 'Learn more about our company',
@@ -179,27 +181,21 @@ const togglePasswordVisibility = () => {
 }
 
 const handleLogin = async () => {
-	const { login_user, get_current_user } = authApi()
-	const response = await login_user(loginform.value)
-	authStore.setLoginData(response)
-	const response_user = await get_current_user()
-
-	authStore.addUser(response_user.data)
-
-	if (response?.data?.access_token) {
+	try {
+		const { login_user, get_current_user } = authApi()
+		const response = await login_user(loginform.value)
+		authStore.setLoginData(response)
+		const response_user = await get_current_user()
+		authStore.addUser(response_user.data)
 		toast.success('Logged in Successfully', {
 			position: 'top-right',
 			autoClose: 3000,
 			limit: 1,
 		})
 		redirectToRole(response?.data?.role)
-		// redirectToRole('Admin')
-	} else {
-		toast.error('Invalid Credentials', {
-			position: 'top-right',
-			autoClose: 3000,
-			limit: 1,
-		})
+	} catch (error) {
+		const { data } = error.response
+		handleAxiosError(data.status_code, data.message, toast)
 	}
 }
 onMounted(() => {
