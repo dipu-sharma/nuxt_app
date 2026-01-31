@@ -1,6 +1,8 @@
 <template>
   <div style="background-color: rgb(var(--color-background)); min-height: 100vh">
-    <Navbar />
+    <header>
+      <Navbar />
+    </header>
     <main :class="{ 'pt-20': !isLoginPage }">
       <slot />
     </main>

@@ -1,30 +1,36 @@
 <template>
-	<v-navigation-drawer
-		v-model="isSidebarOpen"
-		:permanent="isDesktop"
-		:temporary="!isDesktop"
-		class="z-20 flex-shrink-0 w-64 overflow-y-auto bg-gray-800 md:block shadow-md"
-		style="background-color: rgb(var(--color-sidebar)); color: rgb(var(--color-sidebar-text))"
-	>
-		<div class="py-4">
-			<div class="py-2 px-8">
-				<h1 class="items-center text-xl text-bold justify-center" style="color: rgb(var(--color-sidebar-text))">{{ role }}</h1>
+	<client-only>
+		<v-navigation-drawer
+			v-model="isSidebarOpen"
+			:permanent="isDesktop"
+			:temporary="!isDesktop"
+			class="z-20 flex-shrink-0 w-64 overflow-y-auto bg-gray-800 md:block shadow-md"
+			style="background-color: rgb(var(--color-sidebar)); color: rgb(var(--color-sidebar-text))"
+		>
+			<div class="py-4">
+				<div class="py-2 px-8">
+					<h1 class="items-center text-xl text-bold justify-center" style="color: rgb(var(--color-sidebar-text))">{{ role }}</h1>
+				</div>
+				<v-list nav>
+					<v-list-item
+						v-for="(item, index) in filteredSidebarItems"
+						:key="index"
+						:to="item.path"
+						:prepend-icon="item.icon"
+						:title="item.label"
+						class="button"
+						:class="{
+							'v-list-item--active': isActive(item.path),
+						}"
+					>
+					</v-list-item>
+				</v-list>
 			</div>
-			<v-list nav>
-				<v-list-item
-					v-for="(item, index) in filteredSidebarItems"
-					:key="index"
-					:to="item.path"
-					:prepend-icon="item.icon"
-					:title="item.label"
-					:class="{
-						'v-list-item--active': isActive(item.path),
-					}"
-				>
-				</v-list-item>
-			</v-list>
-		</div>
-	</v-navigation-drawer>
+		</v-navigation-drawer>
+		<template #placeholder>
+			<div class="w-64"></div>
+		</template>
+	</client-only>
 </template>
 
 <script setup>
