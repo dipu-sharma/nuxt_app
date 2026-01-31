@@ -153,7 +153,7 @@ import { onMounted } from 'vue'
 const authStore = useAuthStore()
 
 const loginform = ref({
-	username: 'admin@yopmail.com',
+	username: 'alpna@yopmail.com',
 	password: 'Dipu1234@',
 })
 const UserType = {

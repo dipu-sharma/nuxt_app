@@ -31,12 +31,12 @@ export default defineNuxtConfig({
   devServer: {
     port: 5000,
   },
-  ssr: true,                    // keep SSR unless you specifically want SPA
-  compatibilityDate: '2025-01-01', // keep it modern
+  ssr: true, 
+  compatibilityDate: '2025-01-01',
 
   // === DevTools - Most important for your 8GB RAM ===
   devtools: {
-    enabled: false,             // ← Strongly recommended to disable in dev
+    enabled: false,
     // timeline: { enabled: false } // optional extra strict mode
   },
 
@@ -89,36 +89,28 @@ export default defineNuxtConfig({
 
   // === Vuetify Module Settings ===
   vuetify: {
-    // If you're using official @nuxtjs/vuetify module → add here
-    // Otherwise this can be removed if using manual plugin
     moduleOptions: {},
     vuetifyOptions: {
       labComponents: true,
     },
   },
 
-  // === Vite Configuration (memory + HMR optimization) ===
   vite: {
-    // Very important for Windows/WSL performance & memory
     server: {
       watch: {
-        // usePolling: true,        // ← Comment out / remove unless you really need it
         ignored: [
           '**/node_modules/**',
           '**/dist/**',
-          '**/venv/**',           // exclude FastAPI venv if in same drive
+          '**/venv/**',
           '**/.git/**',
         ],
       },
       hmr: {
-        // protocol: 'ws',       // sometimes more stable on Windows
-        overlay: true,           // keep error overlay
+        overlay: true,
       },
     },
-
-    // Reduce initial memory pressure
     optimizeDeps: {
-      // disabled: false       // default is usually fine
+      // disabled: false
     },
 
     vue: {
@@ -134,20 +126,16 @@ export default defineNuxtConfig({
 
   // === Nitro / Server Settings ===
   nitro: {
-    compressPublicAssets: true,   // smaller bundles, tiny memory help
-    // minify: false,             // keep false during dev for better errors
+    compressPublicAssets: true,
+    // minify: false,
   },
 
-  // === Runtime Config (public env variables) ===
   runtimeConfig: {
     public: {
       API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:8001',
-      // Add other public env vars you need
-      // RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY,
     },
   },
 
-  // Optional experimental features (only if needed)
   experimental: {
     // payloadExtraction: false,   // sometimes helps memory
     // renderJsonPayloads: true,

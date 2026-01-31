@@ -47,9 +47,13 @@ const fetchPurchaseOrders = async () => {
             page: currentPage.value,
             limit: itemsPerPage.value,
             search: search.value,
-            startDate: filterStore.startDate,
-            endDate: filterStore.endDate,
         };
+        if (filterStore.startDate) {
+            params.startDate = filterStore.startDate.toISOString();
+        }
+        if (filterStore.endDate) {
+            params.endDate = filterStore.endDate.toISOString();
+        }
         const response = await getPurchaseOrders(params);
         items.value = response.data.items.map((item, index) => ({ ...item, index: (currentPage.value - 1) * itemsPerPage.value + index + 1 }));
         totalItems.value = response.data.total_items;

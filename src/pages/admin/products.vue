@@ -94,12 +94,16 @@ const fetchData = async () => {
 			page: page.value,
 			per_page: itemsPerPage.value,
             is_paginate: true,
-			startDate: filterStore.startDate,
-			endDate: filterStore.endDate,
         }
         if(search.value) {
             params.search = search.value
         }
+		if (filterStore.startDate) {
+			params.startDate = filterStore.startDate.toISOString()
+		}
+		if (filterStore.endDate) {
+			params.endDate = filterStore.endDate.toISOString()
+		}
 		const response = await api.get_business_product_list(params)
 		products.value = response.data.items
 		totalItems.value = response.data.total

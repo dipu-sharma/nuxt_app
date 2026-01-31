@@ -35,13 +35,13 @@
 
 		<TablesTable2
 			:headers="data_table?.headers"
-			:items="data_table?.items"
+			:items="items"
 			:page="currentPage"
 			:itemsPerPage="itemsPerPage"
-			:item_total="data_table.total_data"
+			:item_total="total_data"
 			:loading="isLoading"
 			@update="handleEdit"
-			@search="handleSearchProduct"
+			@search="handleSearch"
 			@delete="handleDelete"
 			@page_change="handlePageChange"
 			@item_per_page="handleItemsPerPageChange"
@@ -64,13 +64,14 @@
 
 <script setup>
 import { useProjectStore } from '~/stores/projects'
-import { useAuthStore } from '~/stores/auth'
 import { useFilterStore } from '~/stores/filterStore'
-import { ref, onMounted, watch } from 'vue'
-
-const AuthStore = useAuthStore()
-const filterStore = useFilterStore();
+import { ref, watch } from 'vue'
 import { toast } from 'vue3-toastify'
+import { useDataTable } from '~/composables/useDataTable'
+import productApi from '~/api/productApi'
+
+const filterStore = useFilterStore();
+const { get_business_product_list } = productApi()
 
 // Page metadata
 definePageMeta({
@@ -81,6 +82,21 @@ definePageMeta({
 	role: ['BUSINESS_OWNER', 'BUSINESS_MEMBER'],
 })
 
+const {
+    items,
+    isLoading,
+    currentPage,
+    itemsPerPage,
+    total_data,
+    fetchData,
+    handlePageChange,
+    handleItemsPerPageChange,
+    handleSearch,
+} = useDataTable({
+    apiFetchFunction: get_business_product_list,
+});
+
+
 // Constants
 const FILE_TYPE_SPECS = {
 	excel: { extensions: ['xls', 'xlsx'], maxSizeMB: 5 },
@@ -90,16 +106,9 @@ const FILE_TYPE_SPECS = {
 
 // Refs
 const isAddProductDialogVisible = ref(false)
-const isLoading = ref(false)
-const search = ref('')
-const currentPage = ref(1)
-const itemsPerPage = ref(10)
 const projectStore = useProjectStore()
 const isEdit = ref(false)
 const data_table = ref({
-	items: [],
-	total_data: 0,
-	total_pages: 0,
 	headers: [
 		{ title: 'Sr No.', value: 'index', sortable: false, align: 'left' },
 		{ title: 'Product Name', value: 'product_name', sortable: false, align: 'left' },
@@ -224,49 +233,6 @@ const exportToExcel = () => {
 	)
 }
 
-const fetchData = async () => {
-	isLoading.value = true
-	const { get_business_product_list } = productApi()
-	const filters = {
-		page: 1,
-		sort_by: '-created_at',
-		per_page: 10,
-		is_paginate: true,
-		search: search.value,
-		startDate: filterStore.startDate,
-		endDate: filterStore.endDate,
-	}
-	try {
-		const respnse = await get_business_product_list(filters)
-		if (respnse?.data?.detail?.status_code === 401) {
-			AuthStore.doLogout()
-			navigateTo('/login')
-		}
-		if (respnse?.data?.detail?.status_code === 400) {
-			toast.error('Data not found')
-		}
-
-		if (respnse?.status_code === 200) {
-			data_table.value.items = (respnse?.data?.items || []).map((item, i) => ({
-				...item,
-				index: i + 1,
-			}))
-		}
-		data_table.value.total_data = respnse?.data?.total ?? 0
-	} finally {
-		isLoading.value = false
-	}
-}
-
-watch(() => [filterStore.startDate, filterStore.endDate], () => {
-    fetchData();
-});
-
-const handlePageChange = (newPage) => {
-	currentPage.value = newPage
-	fetchData()
-}
-
 const handleAddProduct = () => {
 	isEdit.value = false
 	isAddProductDialogVisible.value = true
@@ -308,19 +274,10 @@ const handleEdit = (item) => {
 	payload.value.product_unit = item.product_unit || 'PCS'
 }
 
-const handleSearchProduct = async (search_keyword) => {
-	search.value = search_keyword
-	fetchData()
-}
-
 const handleDelete = (item) => {
 	console.log('Delete in parent____________________', item)
 }
 
-const handleItemsPerPageChange = (newItemsPerPage) => {
-	itemsPerPage.value = newItemsPerPage
-	fetchData()
-}
 
 // Watch for changes in store
 watch(
@@ -329,16 +286,4 @@ watch(
 		console.log('Save for Planning changed from', oldVal, 'to', newVal)
 	},
 )
-
-onMounted(async () => {
-	isLoading.value = true
-	await fetchData()
-	isLoading.value = false
-})
-
-onServerPrefetch(async () => {
-	isLoading.value = true
-	await fetchData()
-	isLoading.value = false
-})
 </script>

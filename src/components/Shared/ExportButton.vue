@@ -7,7 +7,7 @@
 	>
 		<Icon v-if="isExporting" name="mdi:loading" class="icon spin" />
 		<Icon v-else :name="icon" class="icon" />
-		<span>{{ isExporting ? exportingText : buttonText }}</span>
+		<!-- <span>{{ isExporting ? exportingText : buttonText }}</span> -->
 	</button>
 </template>
 

@@ -249,7 +249,14 @@ const users = [
 ]
 
 const fetchData = () => {
-	console.log('fetchData called with date range:', filterStore.startDate, filterStore.endDate);
+	const params = {};
+	if (filterStore.startDate) {
+		params.startDate = filterStore.startDate.toISOString();
+	}
+	if (filterStore.endDate) {
+		params.endDate = filterStore.endDate.toISOString();
+	}
+	console.log('fetchData called with params:', params);
 }
 
 watch(() => [filterStore.startDate, filterStore.endDate], () => {

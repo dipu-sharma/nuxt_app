@@ -8,7 +8,7 @@
 	>
 		<div class="py-4">
 			<div class="py-2 px-8">
-				<h1 class="items-center text-xl text-bold justify-center" style="color: rgb(var(--color-sidebar-text))">{{ role }} Dashboard</h1>
+				<h1 class="items-center text-xl text-bold justify-center" style="color: rgb(var(--color-sidebar-text))">{{ role }}</h1>
 			</div>
 			<v-list nav>
 				<v-list-item

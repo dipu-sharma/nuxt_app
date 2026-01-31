@@ -1,31 +1,37 @@
 import { defineStore } from 'pinia'
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
 
 export const useThemeStore = defineStore('theme', () => {
 	// Available themes
 	const themes = ['light', 'dark', 'sepia', 'blue', 'green', 'coolBlue', 'glassmorphism']
 
-	// Use ref instead of useStorage to avoid SSR issues
-	const currentTheme = ref('light')
-
-	// Initialize theme from localStorage on client-side only
-	if (process.client) {
-		const savedTheme = localStorage.getItem('theme')
-		if (savedTheme && themes.includes(savedTheme)) {
-			currentTheme.value = savedTheme
-		}
-	}
+	const currentTheme = ref('light') // Default theme
 
 	function setTheme(theme) {
 		if (themes.includes(theme)) {
 			currentTheme.value = theme
 			if (process.client) {
 				localStorage.setItem('theme', theme)
-				// Apply theme to document
+				const themeCookie = useCookie('theme', { maxAge: 60 * 60 * 24 * 365 })
+				themeCookie.value = theme
 				document.documentElement.setAttribute('data-theme', theme)
 			}
 		}
 	}
+
+	function initializeTheme() {
+		let theme = 'light';
+		if (process.client) {
+			const themeCookie = useCookie('theme');
+			theme = themeCookie.value || localStorage.getItem('theme') || 'light';
+		} else {
+			const themeCookie = useCookie('theme');
+			theme = themeCookie.value || 'light';
+		}
+		setTheme(theme);
+	}
+	
+	initializeTheme();
 
 	function toggleTheme() {
 		const currentIndex = themes.indexOf(currentTheme.value)
@@ -88,12 +94,11 @@ export const useThemeStore = defineStore('theme', () => {
 	return themeColors[currentTheme.value] || themeColors.light
 	}
 
-	// Initialize theme on client-side
-	if (process.client) {
-		nextTick(() => {
+	onMounted(() => {
+		if (process.client) {
 			document.documentElement.setAttribute('data-theme', currentTheme.value)
-		})
-	}
+		}
+	})
 
 	return {
 		themes,

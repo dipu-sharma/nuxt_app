@@ -9,12 +9,11 @@
 			<div class="header-actions">
 				<button @click="filterStore.toggleFilterSidebar()" class="btn btn-secondary">
 					<Icon name="mdi:filter" />
-					<span>Filter</span>
 				</button>
-				<SharedExportButton :data="employees" :headers="tableHeaders" filename="all_employees" format="excel" />
+				<SharedExportButton :data="items" :headers="tableHeaders" filename="all_employees" format="excel" />
 				<button @click="openAddDialog" class="btn btn-primary">
 					<Icon name="mdi:plus" />
-					<span>Add Employee</span>
+					<!-- <span>Add Employee</span> -->
 				</button>
 			</div>
 		</div>
@@ -23,7 +22,7 @@
 		<div class="stats-grid">
 			<SharedStatsCard
 				title="Total Employees"
-				:value="pagination.total || 0"
+				:value="stats.total || 0"
 				icon="mdi:account-group"
 				icon-color="#3B82F6"
 				:trend="12"
@@ -57,10 +56,10 @@
 
 		<!-- Employee Table -->
 		<BusinessEmployeeTable
-			:employees="employees"
-			:loading="loading"
-			:total-items="pagination.total"
-			:per-page="pagination.per_page"
+			:employees="items"
+			:loading="isLoading"
+			:total-items="total_data"
+			:per-page="itemsPerPage"
 			@add-employee="openAddDialog"
 			@edit-employee="openEditDialog"
 			@view-employee="openViewDialog"
@@ -68,7 +67,7 @@
 			@bulk-delete="handleBulkDelete"
 			@bulk-update="handleBulkUpdate"
 			@page-change="handlePageChange"
-			@page-size-change="handlePageSizeChange"
+			@page-size-change="handleItemsPerPageChange"
 			@sort="handleSort"
 			@search="handleSearch"
 		/>
@@ -197,6 +196,8 @@
 import { useFilterStore } from '~/stores/filterStore'
 import { toast } from 'vue3-toastify'
 import { handleAxiosError } from '~/utils/ErrorHandle/error'
+import { useDataTable } from '~/composables/useDataTable'
+import employeeApi from '~/api/employeeApi'
 
 const filterStore = useFilterStore()
 
@@ -207,16 +208,34 @@ definePageMeta({
 
 const api = employeeApi()
 
-// State
-const employees = ref([])
-const stats = ref({
-	total: 0,
-	active: 0,
-	inactive: 0,
-	new_this_month: 0,
-})
-const loading = ref(false)
+const {
+    items,
+    isLoading,
+    total_data,
+    itemsPerPage,
+    currentPage,
+    stats,
+    fetchData,
+    handlePageChange,
+    handleItemsPerPageChange,
+    handleSearch,
+} = useDataTable({
+    apiFetchFunction: api.get_employee_list,
+    responseDataTransformer: (items) => {
+        return items.map((emp) => ({
+			...emp,
+			...emp.user,
+			id: emp.id,
+			employee_id: emp.user.user_id,
+			email: emp.user.username,
+			phone: emp.user.mobile_number,
+			status: emp.user.is_active ? 'Active' : 'Inactive',
+			full_name: `${emp.user.first_name || ''} ${emp.user.last_name || ''}`.trim(),
+		}))
+    }
+});
 
+// State
 const showFormDialog = ref(false)
 const showViewDialog = ref(false)
 const showDeleteDialog = ref(false)
@@ -224,39 +243,10 @@ const editingEmployee = ref(null)
 const viewingEmployee = ref(null)
 const deletingEmployee = ref(null)
 
-const filters = ref({
-	department: '',
-	role: '',
-	status: '',
-	search: '',
-})
-
-const pagination = ref({
-	page: 1,
-	per_page: 10,
-	total: 0,
-	total_pages: 1,
-})
-
 const sort = ref({
 	key: 'created_at',
 	order: 'desc',
 })
-
-// Query Params
-const queryParams = computed(() => ({
-	page: pagination.value.page,
-	per_page: pagination.value.per_page,
-	search: filters.value.search,
-	department: filters.value.department,
-	role: filters.value.role,
-	status: filters.value.status,
-	sort_by: sort.value.key,
-	sort_order: sort.value.order,
-	is_paginate: true,
-	startDate: filterStore.startDate,
-	endDate: filterStore.endDate,
-}))
 
 // Headers
 const tableHeaders = [
@@ -271,76 +261,7 @@ const tableHeaders = [
 	{ key: 'status', label: 'Status' },
 ]
 
-// Options
-const departmentOptions = [
-	{ value: '', label: 'All Departments' },
-	{ value: 'Sales', label: 'Sales' },
-	{ value: 'Marketing', label: 'Marketing' },
-	{ value: 'Engineering', label: 'Engineering' },
-	{ value: 'Design', label: 'Design' },
-	{ value: 'Product', label: 'Product' },
-	{ value: 'HR', label: 'Human Resources' },
-	{ value: 'Finance', label: 'Finance' },
-	{ value: 'Operations', label: 'Operations' },
-	{ value: 'Customer Support', label: 'Customer Support' },
-	{ value: 'IT', label: 'Information Technology' },
-]
-
-const roleOptions = [
-	{ value: '', label: 'All Roles' },
-	{ value: 'Manager', label: 'Manager' },
-	{ value: 'Team Lead', label: 'Team Lead' },
-	{ value: 'Senior Employee', label: 'Senior Employee' },
-	{ value: 'Employee', label: 'Employee' },
-	{ value: 'Intern', label: 'Intern' },
-	{ value: 'Contractor', label: 'Contractor' },
-]
-
-const statusOptions = [
-	{ value: '', label: 'All Statuses' },
-	{ value: 'Active', label: 'Active' },
-	{ value: 'Inactive', label: 'Inactive' },
-	{ value: 'On Leave', label: 'On Leave' },
-	{ value: 'Terminated', label: 'Terminated' },
-]
-
 // Methods
-const loadData = async () => {
-	loading.value = true
-	try {
-		const response = await api.get_employee_list(queryParams.value)
-		employees.value = response?.data?.items?.map((emp) => ({
-			...emp,
-			...emp.user,
-			id: emp.id,
-			employee_id: emp.user.user_id,
-			phone: emp.user.mobile_number,
-			status: emp.user.is_active ? 'Active' : 'Inactive',
-			full_name: `${emp.user.first_name || ''} ${emp.user.last_name || ''}`.trim(),
-		}))
-		pagination.value.total = response.data?.total
-		pagination.value.total_pages = response?.data?.total_pages
-		stats.value.total = response.data?.stats?.total
-		stats.value.active = response.data?.stats?.active
-		stats.value.inactive = response.data?.stats?.inactive
-		stats.value.new_this_month = response.data?.stats?.new_this_month
-
-		console.log('Employees loaded:', employees.value)
-	} catch (error) {
-		const { data } = error.response
-		handleAxiosError(data.status_code, data.message, toast)
-	} finally {
-		loading.value = false
-	}
-}
-
-watch(
-	() => [filterStore.startDate, filterStore.endDate],
-	() => {
-		loadData()
-	}
-)
-
 const openAddDialog = () => {
 	editingEmployee.value = null
 	showFormDialog.value = true
@@ -363,7 +284,7 @@ const closeFormDialog = () => {
 
 const handleFormSubmit = async () => {
 	closeFormDialog()
-	await loadData()
+	await fetchData()
 }
 
 const handleDelete = (employee) => {
@@ -378,7 +299,7 @@ const confirmDelete = async () => {
 			showDeleteDialog.value = false
 			showViewDialog.value = false
 			deletingEmployee.value = null
-			await loadData()
+			await fetchData()
 		} catch (error) {
 			const { data } = error.response
 			handleAxiosError(data.status_code, data.message, toast)
@@ -392,7 +313,7 @@ const handleBulkDelete = async (emps) => {
 		try {
 			await api.bulk_delete_employees(employeeIds)
 			toast.success(`${employeeIds.length} employees deleted`)
-			await loadData()
+			await fetchData()
 		} catch (error) {
 			const { data } = error.response
 			handleAxiosError(data.status_code, data.message, toast)
@@ -405,7 +326,7 @@ const handleBulkUpdate = async ({ employeeIds, updates }) => {
 		console.log("Update__________", update)
 		// await api.bulk_update_employees(employeeIds, updates)
 		// toast.success(`${employeeIds.length} employees updated`)
-		// await loadData()
+		// await fetchData()
 	} catch (error) {
 		const { data } = error.response
 		handleAxiosError(data.status_code, data.message, toast)
@@ -418,44 +339,11 @@ const editFromView = () => {
 	showFormDialog.value = true
 }
 
-const applyFilters = () => {
-	pagination.value.page = 1
-	loadData()
-}
-
-const clearFilters = () => {
-	filters.value = {
-		department: '',
-		role: '',
-		status: '',
-		search: '',
-	}
-	pagination.value.page = 1
-	loadData()
-}
-
 // Table event handlers
-const handlePageChange = (page) => {
-	pagination.value.page = page
-	loadData()
-}
-
-const handlePageSizeChange = (size) => {
-	pagination.value.per_page = size
-	pagination.value.page = 1
-	loadData()
-}
-
 const handleSort = ({ key, order }) => {
 	sort.value.key = key
 	sort.value.order = order
-	loadData()
-}
-
-const handleSearch = (query) => {
-	filters.value.search = query
-	pagination.value.page = 1
-	loadData()
+	fetchData()
 }
 
 // Utility functions
@@ -482,11 +370,6 @@ const formatNumber = (value) => {
 		maximumFractionDigits: 2,
 	}).format(value)
 }
-
-// Lifecycle
-onMounted(() => {
-	loadData()
-})
 </script>
 
 <style scoped>

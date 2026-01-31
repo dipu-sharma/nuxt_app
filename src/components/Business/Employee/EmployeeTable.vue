@@ -177,7 +177,7 @@ defineProps({
 
 // Table headers
 const headers = [
-	{ key: 'employee_id', label: 'Employee ID', sortable: true },
+	//{ key: 'employee_id', label: 'Employee ID', sortable: true },
 	{ key: 'full_name', label: 'Name', sortable: true },
 	{ key: 'role', label: 'Role', sortable: true },
 	{ key: 'department', label: 'Department', sortable: true },
@@ -252,12 +252,14 @@ const getInitials = (firstName, lastName) => {
 
 const getRoleBadgeStatus = (role) => {
 	const roleMap = {
-		'Manager': 'success',
-		'Team Lead': 'info',
-		'Senior Employee': 'default',
-		'Employee': 'default',
-		'Intern': 'warning',
-		'Contractor': 'default'
+		'BUSINESS_OWNER': 'success',
+		'BUSINESS_MEMBER': 'default',
+		'BUSINESS_MANAGER': 'success',
+		'TEAM_LEADE': 'info',
+		'SENIOR_EMPLOYEE': 'warning',
+		'EMPLOYEE':'default',
+		'INTERN': 'warning',
+		'CONTRACTOR': 'default'
 	}
 	return roleMap[role] || 'default'
 }

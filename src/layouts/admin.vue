@@ -4,9 +4,9 @@
 		<div class="flex flex-col flex-1 w-full">
 			<Topbar />
 			<v-main>
-				<main class="h-full pb-16 overflow-y-auto" style="color: rgb(var(--color-text))">
+				<div class="h-full pb-16 overflow-y-auto" style="color: rgb(var(--color-text))">
 					<slot />
-				</main>
+				</div>
 			</v-main>
 			<AutoLogOut />
 			<FiltersRightSidebarFilter />
@@ -16,11 +16,8 @@
 <script setup>
 import { useAuthStore } from '~/stores/auth'
 import { useAutoLogout } from '~/composables/autoLogout'
-import { useThemeStore } from '~/stores/themeStore'
 
-const themeStore = useThemeStore()
 const authStore = useAuthStore()
-const is_theme = ref('')
 const { startTimer, stopTimer } = useAutoLogout()
 
 const isDesktop = ref(false)

@@ -65,24 +65,6 @@
 			<!-- Employment Details -->
 			<div class="form-section full-width">
 				<h4 class="section-title">Employment Details</h4>
-				<div class="form-row">
-					<FormField
-						v-model="formData.employee_id"
-						label="Employee ID"
-						placeholder="EMP001"
-						:required="true"
-						:rules="[rules.required]"
-						helper-text="Unique employee identifier"
-					/>
-
-					<FormField
-						v-model="formData.join_date"
-						type="date"
-						label="Join Date"
-						:required="true"
-						:rules="[rules.required]"
-					/>
-				</div>
 
 				<div class="form-row">
 					<FormField
@@ -230,7 +212,6 @@
 <script setup>
 import FormField from '@/components/Shared/FormField.vue'
 import ImageUploader from '@/components/Shared/ImageUploader.vue'
-import employeeApi from '@/api/employeeApi'
 import { toast } from 'vue3-toastify'
 
 const props = defineProps({
@@ -249,13 +230,11 @@ const updateAddress = ref(false)
 
 // Form data
 const formData = ref({
-	employee_id: '',
 	first_name: '',
 	last_name: '',
 	email: '',
 	phone: '',
 	date_of_birth: '',
-	join_date: '',
 	role: '',
 	department: '',
 	designation: '',
@@ -273,16 +252,18 @@ const formData = ref({
 
 // Options
 const roleOptions = [
-	{ value: 'Manager', label: 'Manager' },
-	{ value: 'Team Lead', label: 'Team Lead' },
-	{ value: 'Senior Employee', label: 'Senior Employee' },
-	{ value: 'Employee', label: 'Employee' },
-	{ value: 'Intern', label: 'Intern' },
-	{ value: 'Contractor', label: 'Contractor' }
+     {value: 'BUSINESS_MEMBER', label: 'Member'},
+	{ value: 'MANAGER', label: 'Manager' },
+	{ value: 'TEAM_LEAD', label: 'Team Lead' },
+	{ value: 'SENIOR_EMPLOYEE', label: 'Senior Employee' },
+	{ value: 'EMPLOYEE', label: 'Employee' },
+	{ value: 'INTERN', label: 'Intern' },
+	{ value: 'CONTRACTOR', label: 'Contractor' }
 ]
 
 const departmentOptions = [
 	{ value: 'Sales', label: 'Sales' },
+	{ value: 'E-Commerce', label: 'E-Commerce' },
 	{ value: 'Marketing', label: 'Marketing' },
 	{ value: 'Engineering', label: 'Engineering' },
 	{ value: 'Design', label: 'Design' },

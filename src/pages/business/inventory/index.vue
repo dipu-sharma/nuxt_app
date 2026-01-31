@@ -42,13 +42,13 @@
 			<v-window-item value="stock">
 				<TablesTable2
 					:headers="stock_table?.headers"
-					:items="stock_table?.items"
+					:items="items"
 					:page="currentPage"
 					:itemsPerPage="itemsPerPage"
-					:item_total="stock_table.total_data"
+					:item_total="total_data"
 					:loading="isLoading"
 					@update="handleEdit"
-					@search="handleSearchInventory"
+					@search="handleSearch"
 					@delete="handleDelete"
 					@page_change="handlePageChange"
 					@item_per_page="handleItemsPerPageChange"
@@ -80,8 +80,11 @@ import purchaseOrderApi from '~/api/purchaseOrderApi'
 import { useFilterStore } from '~/stores/filterStore'
 import { toast } from 'vue3-toastify'
 import { handleAxiosError } from '~/utils/ErrorHandle/error'
+import { useDataTable } from '~/composables/useDataTable'
+import productApi from '~/api/productApi'
 
 const { createPurchaseOrder } = purchaseOrderApi()
+const { get_business_product_list } = productApi()
 const filterStore = useFilterStore()
 
 definePageMeta({
@@ -89,40 +92,38 @@ definePageMeta({
 	layout: 'admin',
 })
 
+const {
+    items,
+    isLoading,
+    currentPage,
+    itemsPerPage,
+    total_data,
+    handlePageChange,
+    handleItemsPerPageChange,
+    handleSearch,
+} = useDataTable({
+    apiFetchFunction: get_business_product_list,
+});
+
 const selectedTab = ref('stock')
 const formComponent = ref(null)
 
 const stock_table = ref({
-	items: [],
-	total_data: 0,
-	total_pages: 0,
 	headers: [
 		{ title: 'Sr No.', value: 'index', sortable: false, align: 'left' },
-		{ title: 'Item Name', value: 'item_name' },
+		{ title: 'Item Name', value: 'product_name' },
 		{ title: 'Batch No', value: 'batch_no' },
 		{ title: 'Supplier Name', value: 'supplier_name' },
-		{ title: 'Quantity', value: 'quantity' },
-		{ title: 'Expiry Date', value: 'expiry_date' },
-		{ title: 'Unit Price', value: 'unit_price' },
+		{ title: 'Quantity', value: 'product_qty' },
+		{ title: 'Expiry Date', value: 'exp_date' },
+		{ title: 'Unit Price', value: 'selling_price' },
 		{ title: 'Net Rate', value: 'net_rate' },
 		{ title: 'Actions', value: 'actions', sortable: false },
 	],
 })
 
-const currentPage = ref(1)
-const itemsPerPage = ref(10)
 const is_modal_visible = ref(false)
-const isLoading = ref(false)
 const isEdit = ref(false)
-
-const handlePageChange = (page) => {
-	currentPage.value = page
-}
-
-const handleItemsPerPageChange = (items) => {
-	itemsPerPage.value = items
-	currentPage.value = 1
-}
 
 const openAddItemModal = () => {
 	is_modal_visible.value = true
@@ -137,10 +138,6 @@ const handleEdit = (item) => {
 	is_modal_visible.value = true
 	isEdit.value = true
 	console.log('handleEdit function is not yet defined', item)
-}
-
-const handleSearchInventory = (query) => {
-	console.log('handleSearchInventory function is not yet defined', query)
 }
 
 const handleDelete = (item) => {

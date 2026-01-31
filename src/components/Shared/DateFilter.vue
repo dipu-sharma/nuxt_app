@@ -1,7 +1,6 @@
 <template>
     <div class="date-filter-container">
-      <v-row>
-        <v-col cols="12" md="4">
+      <div class="filter-item">
             <v-select
                 v-model="selectedRange"
                 :items="dateRanges"
@@ -10,8 +9,8 @@
                 color="blue"
                 @update:modelValue="onRangeChange"
             ></v-select>
-        </v-col>
-        <v-col cols="12" md="4">
+        </div>
+        <div class="filter-item">
           <v-date-input
             clearable
             v-model="startDate"
@@ -22,8 +21,8 @@
             @update:modelValue="updateFilter"
             :disabled="selectedRange !== 'custom'"
           />
-        </v-col>
-        <v-col cols="12" md="4">
+        </div>
+        <div class="filter-item">
           <v-date-input
             clearable
             v-model="endDate"
@@ -34,13 +33,11 @@
             @update:modelValue="updateFilter"
             :disabled="selectedRange !== 'custom'"
           />
-        </v-col>
-      </v-row>
+        </div>
     </div>
   </template>
   
   <script setup>
-  import { ref, watch } from 'vue';
   
   const props = defineProps({
     initialStartDate: {
@@ -70,33 +67,47 @@
   ];
   
   const onRangeChange = (range) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
+    const now = new Date(); // Get current time for consistency
+    const startOfDay = (date) => {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    };
+    const endOfDay = (date) => {
+        const d = new Date(date);
+        d.setHours(23, 59, 59, 999);
+        return d;
+    };
+
     switch (range) {
         case 'today':
-            startDate.value = today;
-            endDate.value = new Date();
+            startDate.value = startOfDay(now);
+            endDate.value = endOfDay(now);
             break;
         case 'yesterday':
-            startDate.value = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-            endDate.value = new Date(today.getTime() - 1);
+            const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            startDate.value = startOfDay(yesterday);
+            endDate.value = endOfDay(yesterday);
             break;
         case 'last7':
-            startDate.value = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
-            endDate.value = new Date();
+            const sevenDaysAgo = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
+            startDate.value = startOfDay(sevenDaysAgo);
+            endDate.value = endOfDay(now); // End of today
             break;
         case 'last30':
-            startDate.value = new Date(today.getTime() - 29 * 24 * 60 * 60 * 1000);
-            endDate.value = new Date();
+            const thirtyDaysAgo = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000);
+            startDate.value = startOfDay(thirtyDaysAgo);
+            endDate.value = endOfDay(now); // End of today
             break;
         case 'thisMonth':
-            startDate.value = new Date(today.getFullYear(), today.getMonth(), 1);
-            endDate.value = new Date();
+            startDate.value = startOfDay(new Date(now.getFullYear(), now.getMonth(), 1));
+            endDate.value = endOfDay(now); // End of today
             break;
         case 'lastMonth':
-            startDate.value = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-            endDate.value = new Date(today.getFullYear(), today.getMonth(), 0);
+            const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            const lastDayOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+            startDate.value = startOfDay(firstDayOfLastMonth);
+            endDate.value = endOfDay(lastDayOfLastMonth);
             break;
         case 'custom':
             startDate.value = null;
@@ -104,7 +115,7 @@
             break;
     }
     updateFilter();
-  };
+};
 
   const updateFilter = () => {
     emit('update:filter', {
