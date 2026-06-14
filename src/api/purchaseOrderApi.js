@@ -8,7 +8,7 @@ export default function () {
 		try {
 			const response = await callApi(
 				'POST',
-				'/business/inventory/purchase-order',
+				'/api/business/inventory/purchase-order',
 				payload,
 				null,
 				true,
@@ -24,7 +24,7 @@ export default function () {
         try {
             const response = await callApi(
                 'GET',
-                '/business/inventory/purchase-order',
+                '/api/business/inventory/purchase-order',
                 null,
                 queryParams,
                 true,

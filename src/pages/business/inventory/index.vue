@@ -80,10 +80,10 @@ import { useFilterStore } from '~/stores/filterStore'
 import { toast } from 'vue3-toastify'
 import { handleAxiosError } from '~/utils/ErrorHandle/error'
 import { useDataTable } from '~/composables/useDataTable'
-import productApi from '~/api/productApi'
+import { useProducts } from '~/composables/useProducts'
 
 const { createPurchaseOrder } = purchaseOrderApi()
-const { get_business_product_list } = productApi()
+const { fetchBusinessProducts } = useProducts()
 const filterStore = useFilterStore()
 
 definePageMeta({
@@ -102,7 +102,7 @@ const {
     handleItemsPerPageChange,
     handleSearch,
 } = useDataTable({
-    apiFetchFunction: get_business_product_list,
+    apiFetchFunction: fetchBusinessProducts,
 });
 
 const selectedTab = ref('stock')

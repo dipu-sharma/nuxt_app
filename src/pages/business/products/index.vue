@@ -65,15 +65,13 @@
 import { useProjectStore } from '~/stores/projects'
 import { useAuthStore } from '~/stores/auth'
 import { useProducts } from '~/composables/useProducts'
+import { toast } from 'vue3-toastify'
+import { useDataTable } from '~/composables/useDataTable'
 
 const AuthStore = useAuthStore()
 const { fetchBusinessProducts, createProduct, updateProduct, deleteProduct } = useProducts()
-import { toast } from 'vue3-toastify'
-import { useDataTable } from '~/composables/useDataTable'
-import productApi from '~/api/productApi'
 
 const filterStore = useFilterStore();
-const { get_business_product_list } = productApi()
 
 // Page metadata
 definePageMeta({
@@ -95,7 +93,7 @@ const {
     handleItemsPerPageChange,
     handleSearch,
 } = useDataTable({
-    apiFetchFunction: get_business_product_list,
+    apiFetchFunction: fetchBusinessProducts,
 });
 
 
@@ -165,13 +163,14 @@ const showAddProductDialog = () => {
 const handleSaveProduct = async () => {
 	isLoading.value = true
 	try {
+		let response;
 		if (isEdit.value) {
-			const response = await updateProduct(payload.value?.product_id, payload.value)
+			response = await updateProduct(payload.value?.product_id, payload.value)
 			if (response.status_code === 200) {
 				toast.success(response?.message || 'Product updated successfully')
 			}
 		} else {
-			const response = await createProduct(payload.value)
+			response = await createProduct(payload.value)
 			if (response.status_code === 200) {
 				toast.success(response?.message || 'Product created successfully')
 			}
@@ -232,39 +231,6 @@ const exportToExcel = () => {
 		false,
 		'product_data.xlsx',
 	)
-}
-
-const fetchData = async () => {
-	isLoading.value = true
-	const filters = {
-		page: currentPage.value,
-		sort_by: '-created_at',
-		per_page: itemsPerPage.value,
-		is_paginate: true,
-		search: search.value,
-	}
-	try {
-		const response = await fetchBusinessProducts(filters)
-		if (response?.status_code === 200) {
-			data_table.value.items = (response?.data?.items || []).map((item, i) => ({
-				...item,
-				index: (currentPage.value - 1) * itemsPerPage.value + i + 1,
-			}))
-			data_table.value.total_data = response?.data?.total ?? 0
-		}
-	} catch (error: any) {
-		if (error.response?.status === 401) {
-			AuthStore.doLogout()
-			navigateTo('/login')
-		}
-	} finally {
-		isLoading.value = false
-	}
-}
-
-const handlePageChange = (newPage) => {
-	currentPage.value = newPage
-	fetchData()
 }
 
 const handleAddProduct = () => {
