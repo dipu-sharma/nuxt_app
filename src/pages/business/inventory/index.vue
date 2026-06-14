@@ -1,7 +1,6 @@
 <template>
 	<div class="p-6">
-		<section class="mb-4 flex gap-4 justify-between items-center">
-			<h1 class="text-2xl font-bold">Inventory Management</h1>
+		<section class="mb-4 flex gap-4 justify-end items-center">
 			<div class="flex gap-4 items-center">
 				<button
 					type="button"
@@ -54,6 +53,7 @@
 </template>
 <script setup>
 definePageMeta({
+	title: 'Inventory',
 	middleware: 'auth-role',
 	layout: 'admin',
 })

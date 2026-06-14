@@ -1,50 +1,27 @@
 // nuxt.config.ts
 import { defineNuxtConfig } from 'nuxt/config'
-import * as dotenv from 'dotenv'
-import { join } from 'path'
-import { transformAssetUrls } from 'vite-plugin-vuetify'
-
-/**
- * Load environment variables based on NUXT_ENV or fallback to NODE_ENV
- */
-const env = process.env.NUXT_ENV ?? process.env.NODE_ENV ?? 'dev'
-
-// Primary loading (most common way)
-dotenv.config({ path: `.env.${env}` })
-
-// Fallback explicit loading (useful in some CI/CD or Windows edge cases)
-if (!process.env.API_BASE_URL) {
-  if (env === 'dev') {
-    dotenv.config({ path: join(__dirname, '.env.dev') })
-  } else if (env === 'uat') {
-    dotenv.config({ path: join(__dirname, '.env.uat') })
-  } else if (env === 'prod') {
-    dotenv.config({ path: join(__dirname, '.env.prod') })
-  } else {
-    dotenv.config({ path: join(__dirname, '.env') })
-  }
-}
 
 export default defineNuxtConfig({
   // === Basic Configuration ===
   srcDir: 'src',
+  future: {
+    compatibilityVersion: 4,
+  },
   devServer: {
     port: 5000,
   },
-  ssr: true,                    // keep SSR unless you specifically want SPA
-  compatibilityDate: '2025-01-01', // keep it modern
+  ssr: true,
+  compatibilityDate: '2025-01-01',
 
-  // === DevTools - Most important for your 8GB RAM ===
+  // === DevTools ===
   devtools: {
-    enabled: false,             // ← Strongly recommended to disable in dev
-    // timeline: { enabled: false } // optional extra strict mode
+    enabled: false,
   },
 
   // === CSS & Styling ===
   css: [
     '~/assets/css/tailwind.css',
     '@mdi/font/css/materialdesignicons.min.css',
-    'vuetify/styles',
   ],
 
   postcss: {
@@ -57,76 +34,159 @@ export default defineNuxtConfig({
   // === Modules ===
   modules: [
     '@nuxt/icon',
-    // '@pinia/nuxt' → not needed anymore if you use autoImports below
+    '@pinia/nuxt',
+    'vuetify-nuxt-module',
   ],
 
-  // === Pinia Auto-imports ===
-  imports: {
-    dirs: ['api'], // your custom api composables folder
-  },
-
-  // Pinia configuration
+  // === Pinia configuration ===
   pinia: {
-    autoImports: [
-      'defineStore',
-      'acceptHMRUpdate',
-    ],
+    storesDirs: ['./src/stores/**'],
   },
 
-  // === Plugins ===
-  plugins: [
-    '~/plugins/pinia.js',              // probably not needed anymore with autoImports
-    '~/plugins/auth.js',
-    '~/plugins/vue3-toastify.js',
-    '~/plugins/vuetify.ts',
-    { src: '~/plugins/recaptcha-v3.js', mode: 'client' },
-  ],
-
-  // === Build / Transpile ===
-  build: {
-    transpile: ['vuetify'],
+  // === Auto-imports ===
+  imports: {
+    dirs: ['api'],
   },
 
   // === Vuetify Module Settings ===
   vuetify: {
-    // If you're using official @nuxtjs/vuetify module → add here
-    // Otherwise this can be removed if using manual plugin
-    moduleOptions: {},
+    moduleOptions: {
+      /* module specific options */
+    },
     vuetifyOptions: {
       labComponents: true,
+      date: {
+        adapter: 'vuetify',
+      },
+      defaults: {
+        VDatePicker: {
+          color: 'primary',
+        },
+      },
+      theme: {
+        defaultTheme: 'light',
+        themes: {
+          light: {
+            dark: false,
+            colors: {
+              primary: "#3B82F6",
+              secondary: "#F3F4F6",
+              accent: "#EF4444",
+              error: "#DC2626",
+              info: "#3B82F6",
+              success: "#10B981",
+              warning: "#F59E0B",
+              background: "#FFFFFF",
+              surface: "#FFFFFF",
+            },
+          },
+          dark: {
+            dark: true,
+            colors: {
+              primary: "#60A5FA",
+              secondary: "#1F2937",
+              accent: "#F87171",
+              error: "#EF4444",
+              info: "#60A5FA",
+              success: "#34D399",
+              warning: "#FBBF24",
+              background: "#111827",
+              surface: "#1F2937",
+            },
+          },
+          sepia: {
+            dark: false,
+            colors: {
+              primary: "#F59E0B",
+              secondary: "#FEF9C3",
+              accent: "#EA580C",
+              error: "#DC2626",
+              info: "#F59E0B",
+              success: "#10B981",
+              warning: "#F59E0B",
+              background: "#FEF3C7",
+              surface: "#FEF3C7",
+            },
+          },
+          blue: {
+            dark: false,
+            colors: {
+              primary: "#2563EB",
+              secondary: "#DBEAFE",
+              accent: "#6366F1",
+              error: "#DC2626",
+              info: "#2563EB",
+              success: "#10B981",
+              warning: "#F59E0B",
+              background: "#EFF6FF",
+              surface: "#EFF6FF",
+            },
+          },
+          green: {
+            dark: false,
+            colors: {
+              primary: "#22C55E",
+              secondary: "#DCFCE7",
+              accent: "#10B981",
+              error: "#DC2626",
+              info: "#3B82F6",
+              success: "#22C55E",
+              warning: "#F59E0B",
+              background: "#ECFDF5",
+              surface: "#ECFDF5",
+            },
+          },
+          coolBlue: {
+            dark: true,
+            colors: {
+              primary: "#06B6D4",
+              secondary: "#1E293B",
+              accent: "#14B8A6",
+              error: "#EF4444",
+              info: "#06B6D4",
+              success: "#10B981",
+              warning: "#F59E0B",
+              background: "#0F172A",
+              surface: "#1E293B",
+            },
+          },
+          glassmorphism: {
+            dark: false,
+            colors: {
+              primary: "#667EEA",
+              secondary: "#764BA2",
+              accent: "#F5576C",
+              error: "#DC2626",
+              info: "#4FACFE",
+              success: "#00F2FE",
+              warning: "#FEE140",
+              background: "#F0F4FF",
+              surface: "rgba(255, 255, 255, 0.1)",
+            },
+          },
+        },
+      }
     },
   },
 
-  // === Vite Configuration (memory + HMR optimization) ===
+  // === Plugins ===
+  plugins: [
+    '~/plugins/auth.js',
+    '~/plugins/vue3-toastify.js',
+    { src: '~/plugins/recaptcha-v3.js', mode: 'client' },
+  ],
+
+  // === Vite Configuration ===
   vite: {
-    // Very important for Windows/WSL performance & memory
     server: {
       watch: {
-        // usePolling: true,        // ← Comment out / remove unless you really need it
         ignored: [
           '**/node_modules/**',
           '**/dist/**',
-          '**/venv/**',           // exclude FastAPI venv if in same drive
           '**/.git/**',
         ],
       },
-      hmr: {
-        // protocol: 'ws',       // sometimes more stable on Windows
-        overlay: true,           // keep error overlay
-      },
     },
-
-    // Reduce initial memory pressure
-    optimizeDeps: {
-      // disabled: false       // default is usually fine
-    },
-
-    vue: {
-      template: {
-        transformAssetUrls,
-      },
-    },
-
     ssr: {
       noExternal: ['vuetify'],
     },
@@ -134,22 +194,13 @@ export default defineNuxtConfig({
 
   // === Nitro / Server Settings ===
   nitro: {
-    compressPublicAssets: true,   // smaller bundles, tiny memory help
-    // minify: false,             // keep false during dev for better errors
+    compressPublicAssets: true,
   },
 
-  // === Runtime Config (public env variables) ===
+  // === Runtime Config ===
   runtimeConfig: {
     public: {
-      API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:8001',
-      // Add other public env vars you need
-      // RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY,
+      API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:8001/api',
     },
-  },
-
-  // Optional experimental features (only if needed)
-  experimental: {
-    // payloadExtraction: false,   // sometimes helps memory
-    // renderJsonPayloads: true,
   },
 })

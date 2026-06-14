@@ -4,26 +4,28 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 import { toast } from 'vue3-toastify'
 
+import { useAuth } from '~/composables/useAuth'
+
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const { ssoLogin, getMe } = useAuth()
 
 onMounted(async () => {
 	const { code, state } = route.query
-	const provider = route.params.provider
+	const provider = route.params.provider as string
 
 	if (code && provider) {
-		const { sso_login, get_current_user } = authApi()
 		try {
-			const response = await sso_login(provider, code, state)
+			const response = await ssoLogin(provider, code as string, state as string)
 			authStore.setLoginData(response)
-			const response_user = await get_current_user()
+			const response_user = await getMe()
 			authStore.addUser(response_user.data)
 			if (response?.data?.access_token) {
 				toast.success('Logged in Successfully', {

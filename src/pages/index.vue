@@ -43,8 +43,8 @@
 </template>
 
 <script setup>
-import productApi from '~/api/productApi.js'
-import authApi from '~/api/authApi.js'
+import { useProducts } from '~/composables/useProducts'
+import { useAuth } from '~/composables/useAuth'
 
 definePageMeta({
 	title: 'Home',
@@ -52,13 +52,10 @@ definePageMeta({
 	layout: 'default',
 })
 
-const { get_home_product_list } = productApi()
-const { data: productResponse } = await useAsyncData('homeProducts', () => get_home_product_list({
-    sort_by: '-created_at',
-    page: 1,
-    per_page: 50,
-    paginate: 1
-}))
+const { fetchPublic } = useProducts()
+const { setCookie, getCookie } = useAuth()
+
+const { data: productResponse } = await useAsyncData('homeProducts', () => fetchPublic())
 
 const products = computed(() => productResponse.value?.data?.items || []);
 
@@ -71,13 +68,11 @@ const items = ref([
 ])
 
 const handleCookieSet = async () => {
-	const { set_cookie } = authApi()
-	const res = set_cookie()
+	await setCookie()
 }
 
 const handleCookieGet = async () => {
-	const { get_cookie } = authApi()
-	const res = await get_cookie()
+	const res = await getCookie()
 	console.log('Response___________________________', res)
 }
 </script>

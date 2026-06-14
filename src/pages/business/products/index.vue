@@ -1,7 +1,6 @@
 <template>
 	<div class="p-6">
-		<section class="mb-4 flex gap-4 justify-between items-center">
-			<h1 class="text-2xl font-bold">Products</h1>
+		<section class="mb-4 flex gap-4 justify-end items-center">
 			<div class="flex gap-4 items-center">
 				<button
 					type="button"
@@ -53,16 +52,18 @@
 	</Dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useProjectStore } from '~/stores/projects'
 import { useAuthStore } from '~/stores/auth'
+import { useProducts } from '~/composables/useProducts'
 
 const AuthStore = useAuthStore()
+const { fetchBusinessProducts, createProduct, updateProduct, deleteProduct } = useProducts()
 import { toast } from 'vue3-toastify'
 
 // Page metadata
 definePageMeta({
-	title: 'Admin',
+	title: 'Products',
 	description: 'Learn more about our company',
 	layout: 'admin',
 	middleware: ['auth-role'],
@@ -142,14 +143,13 @@ const showAddProductDialog = () => {
 const handleSaveProduct = async () => {
 	isLoading.value = true
 	try {
-		const { create_product, edit_product } = productApi()
 		if (isEdit.value) {
-			const response = await edit_product(payload.value, payload.value?.product_id)
+			const response = await updateProduct(payload.value?.product_id, payload.value)
 			if (response.status_code === 200) {
 				toast.success(response?.message || 'Product updated successfully')
 			}
 		} else {
-			const response = await create_product(payload.value)
+			const response = await createProduct(payload.value)
 			if (response.status_code === 200) {
 				toast.success(response?.message || 'Product created successfully')
 			}
@@ -214,31 +214,27 @@ const exportToExcel = () => {
 
 const fetchData = async () => {
 	isLoading.value = true
-	const { get_business_product_list } = productApi()
 	const filters = {
-		page: 1,
+		page: currentPage.value,
 		sort_by: '-created_at',
-		per_page: 10,
+		per_page: itemsPerPage.value,
 		is_paginate: true,
 		search: search.value,
 	}
 	try {
-		const respnse = await get_business_product_list(filters)
-		if (respnse?.data?.detail?.status_code === 401) {
+		const response = await fetchBusinessProducts(filters)
+		if (response?.status_code === 200) {
+			data_table.value.items = (response?.data?.items || []).map((item, i) => ({
+				...item,
+				index: (currentPage.value - 1) * itemsPerPage.value + i + 1,
+			}))
+			data_table.value.total_data = response?.data?.total ?? 0
+		}
+	} catch (error: any) {
+		if (error.response?.status === 401) {
 			AuthStore.doLogout()
 			navigateTo('/login')
 		}
-		if (respnse?.data?.detail?.status_code === 400) {
-			toast.error('Data not found')
-		}
-
-		if (respnse?.status_code === 200) {
-			data_table.value.items = (respnse?.data?.items || []).map((item, i) => ({
-				...item,
-				index: i + 1,
-			}))
-		}
-		data_table.value.total_data = respnse?.data?.total ?? 0
 	} finally {
 		isLoading.value = false
 	}

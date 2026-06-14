@@ -19,6 +19,14 @@
 						></path>
 					</svg>
 				</button>
+
+				<!-- Page Title (Left Side) -->
+				<div class="hidden md:block">
+					<h2 class="text-lg font-bold truncate max-w-[200px] lg:max-w-md">
+						{{ displayTitle }}
+					</h2>
+				</div>
+
 				<!-- Search input -->
 				<div class="flex justify-center flex-1 lg:mr-32">
 					<div class="relative w-full max-w-xl mr-7 focus-within:text-primary"></div>
@@ -196,12 +204,34 @@ import { useNavStore } from '~/stores/navStore'
 import { useAuthStore } from '~/stores/auth'
 import { useThemeStore } from '~/stores/themeStore'
 
+const route = useRoute()
 const authStore = useAuthStore()
 const navStore = useNavStore()
 const themeStore = useThemeStore()
 
 const isNotificationsMenuOpen = ref(false)
 const isProfileMenuOpen = ref(false)
+
+const displayTitle = computed(() => {
+	const role = authStore.role || ''
+	const title = route.meta.title || 'Dashboard'
+
+	// Format role: ADMIN -> Admin, BUSINESS_OWNER -> Business Owner
+	const formattedRole = role
+		.toLowerCase()
+		.split('_')
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ')
+
+	if (!formattedRole) return title
+
+	// If title already starts with the role, don't duplicate
+	if (title.toLowerCase().startsWith(formattedRole.toLowerCase())) {
+		return title
+	}
+
+	return `${formattedRole} ${title}`
+})
 
 const toggleMenu = () => {
 	navStore.toggleSideMenu()

@@ -7,6 +7,8 @@
 </template>
 
 <script setup>
+import { useAuth } from '~/composables/useAuth'
+
 definePageMeta({
 	title: 'Orders',
 	description: 'List of orders',
@@ -15,14 +17,14 @@ definePageMeta({
 	layout: 'admin',
 })
 
+const { setCookie, getCookie } = useAuth()
+
 const handleCookieSet = async () => {
-	const { set_cookie } = authApi()
-	const res = set_cookie()
+	await setCookie()
 }
 
 const handleCookieGet = async () => {
-	const { get_cookie } = authApi()
-	const res = await get_cookie()
+	const res = await getCookie()
 	console.log('Response___________________________', res)
 }
 </script>

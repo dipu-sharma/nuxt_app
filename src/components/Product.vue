@@ -106,9 +106,9 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue'
+import { useCart } from '~/composables/useCart'
 const router = useRouter()
-const { add_to_cart } = cartApi()
+const { syncCart } = useCart()
 
 const props = defineProps({
 	products: {
@@ -121,7 +121,7 @@ const props = defineProps({
 const handleAddToCart = async (product_id) => {
 	try {
 		const items = [{ product_id: product_id, quantity: 1 }]
-		await add_to_cart(items)
+		await syncCart(items)
 	} catch (error) {
 		console.error('Failed to add product to cart:', error)
 	}

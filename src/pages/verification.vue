@@ -23,10 +23,13 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { useAuth } from '~/composables/useAuth'
+
 const route = useRoute()
 const router = useRouter()
-const verificationToken = route.query.token
+const verificationToken = route.query.token as string
+const { verifyEmail } = useAuth()
 
 // State
 const isLoading = ref(true)
@@ -39,20 +42,13 @@ const verifyToken = async () => {
 		isLoading.value = true
 
 		// Call your verification API
-		const { data, error } = await useFetch('/api/verify', {
-			method: 'POST',
-			body: { token: verificationToken },
-		})
-
-		if (error.value) {
-			throw new Error(error.value.data?.message || 'Verification failed')
-		}
+		await verifyEmail(verificationToken)
 
 		isVerified.value = true
 		errorMessage.value = ''
-	} catch (err) {
+	} catch (err: any) {
 		isVerified.value = false
-		errorMessage.value = err.message
+		errorMessage.value = err.message || 'Verification failed'
 	} finally {
 		isLoading.value = false
 	}

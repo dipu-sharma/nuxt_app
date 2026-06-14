@@ -1,70 +1,76 @@
+// src/stores/auth.ts
 import { defineStore } from 'pinia'
 
 interface AuthState {
-	token: string
-	role: string
-	user: object
+	token: string | null
+	role: string | null
+	user: any
 }
 
 export const useAuthStore = defineStore('auth', {
 	state: (): AuthState => ({
-		token: '',
-		role: '',
-		user: {},
+		token: null,
+		role: null,
+		user: null,
 	}),
 	actions: {
 		addRole(payload: string) {
 			this.role = payload
-			if (process.client) {
-				const roleCookie = useCookie('role')
-				roleCookie.value = payload
-				localStorage.setItem('role', payload)
-			}
+			const roleCookie = useCookie('role')
+			roleCookie.value = payload
 		},
 		doLogout() {
-			this.token = ''
-			this.role = ''
-			this.user = {}
+			this.token = null
+			this.role = null
+			this.user = null
+			
+			const tokenCookie = useCookie('auth_token')
+			tokenCookie.value = null
+			const roleCookie = useCookie('role')
+			roleCookie.value = null
+			
 			if (process.client) {
-				const tokenCookie = useCookie('token')
-				tokenCookie.value = null
-				const roleCookie = useCookie('role')
-				roleCookie.value = null
-				localStorage.removeItem('token')
 				localStorage.removeItem('user')
-				localStorage.removeItem('role')
 			}
+			
 			navigateTo('/login')
 		},
 		checkAuth() {
-			const tokenCookie = useCookie('token')
+			const tokenCookie = useCookie('auth_token')
 			const roleCookie = useCookie('role')
-			this.token = tokenCookie.value || ''
-			this.role = roleCookie.value || ''
+			
+			this.token = tokenCookie.value || null
+			this.role = roleCookie.value || null
+			
 			if (process.client) {
-				this.token = this.token || localStorage.getItem('token') || ''
-				this.user = JSON.parse(localStorage.getItem('user') || '{}')
-				this.role = this.role || localStorage.getItem('role') || ''
+				const savedUser = localStorage.getItem('user')
+				if (savedUser) {
+					try {
+						this.user = JSON.parse(savedUser)
+					} catch (e) {
+						this.user = null
+					}
+				}
 			}
 		},
 		addToken(payload: string) {
 			this.token = payload
-			if (process.client) {
-				const tokenCookie = useCookie('token')
-				tokenCookie.value = payload
-				localStorage.setItem('token', payload)
-			}
+			const tokenCookie = useCookie('auth_token')
+			tokenCookie.value = payload
 		},
-		addUser(payload: object) {
+		addUser(payload: any) {
 			this.user = payload
 			if (process.client) {
 				localStorage.setItem('user', JSON.stringify(payload))
 			}
 		},
 		setLoginData(loginResponse: any) {
-			const { access_token, role } = loginResponse.data
+			const { access_token, role, user } = loginResponse.data || loginResponse
 			this.addToken(access_token)
 			this.addRole(role)
+			if (user) {
+				this.addUser(user)
+			}
 		},
 	},
 	getters: {

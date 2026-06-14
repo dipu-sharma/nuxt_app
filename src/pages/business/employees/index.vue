@@ -3,7 +3,6 @@
 		<!-- Page Header -->
 		<div class="page-header">
 			<div class="header-content">
-				<h1 class="page-title">Employee Management</h1>
 				<p class="page-subtitle">Manage your team and track employee information</p>
 			</div>
 			<div class="header-actions">
@@ -191,14 +190,15 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import employeeApi from '@/api/employeeApi'
+import { useEmployees } from '~/composables/useEmployees'
 
 definePageMeta({
+	title: 'Employees',
 	middleware: 'auth-role',
 	layout: 'admin',
 })
 
-const api = employeeApi()
+const { fetchEmployees, createEmployee, updateEmployee, deleteEmployee, bulkDelete, bulkUpdate } = useEmployees()
 
 // State
 const employees = ref([])
@@ -299,7 +299,7 @@ const statusOptions = [
 const loadData = async () => {
 	loading.value = true
 	try {
-		const response = await api.get_employee_list(queryParams.value)
+		const response = await fetchEmployees(queryParams.value)
 		employees.value = response?.data?.items?.map((emp) => ({
 			...emp.user,
 			...emp,
@@ -311,8 +311,6 @@ const loadData = async () => {
 		stats.value.active = response.data?.stats?.active
 		stats.value.inactive = response.data?.stats?.inactive
 		stats.value.new_this_month = response.data?.stats?.new_this_month
-
-		console.log('Employees loaded:', employees.value)
 	} catch (error) {
 		console.error('Failed to load employees:', error)
 	} finally {
@@ -352,7 +350,7 @@ const handleDelete = (employee) => {
 const confirmDelete = async () => {
 	if (deletingEmployee.value) {
 		try {
-			await api.delete_employee(deletingEmployee.value.id)
+			await deleteEmployee(deletingEmployee.value.id)
 			showDeleteDialog.value = false
 			showViewDialog.value = false
 			deletingEmployee.value = null
@@ -366,22 +364,22 @@ const handleBulkDelete = async (emps) => {
 	if (confirm(`Delete ${emps.length} employees?`)) {
 		const employeeIds = emps.map((emp) => emp.id)
 		try {
-			await api.bulk_delete_employees(employeeIds)
+			await bulkDelete(employeeIds)
 			toast.success(`${employeeIds.length} employees deleted`)
 			await loadData()
 		} catch (error) {
-			toast.error(error.response?.data?.message || 'Failed to delete employees')
+			toast.error('Failed to delete employees')
 		}
 	}
 }
 
 const handleBulkUpdate = async ({ employeeIds, updates }) => {
 	try {
-		await api.bulk_update_employees(employeeIds, updates)
+		await bulkUpdate(employeeIds, updates)
 		toast.success(`${employeeIds.length} employees updated`)
 		await loadData()
 	} catch (error) {
-		toast.error(error.response?.data?.message || 'Failed to update employees')
+		toast.error('Failed to update employees')
 	}
 }
 

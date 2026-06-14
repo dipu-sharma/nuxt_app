@@ -1,7 +1,6 @@
 <template>
 	<div class="p-6">
-		<div class="flex justify-between items-center mb-6">
-			<h1 class="text-2xl font-bold">Manage Products</h1>
+		<div class="flex justify-end items-center mb-6">
 			<button @click="openCreateDialog" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200">
 				Create Product
 			</button>
@@ -43,17 +42,17 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import productApi from '~/api/productApi'
+import { useProducts } from '~/composables/useProducts'
 import { toast } from 'vue3-toastify'
 import Dialog from '~/components/Dialog/Dialog.vue'
 
 definePageMeta({
-	title: 'Admin Products',
+	title: 'Products',
 	layout: 'admin',
 	middleware: ['auth-role'],
 })
 
-const api = productApi()
+const { fetchBusinessProducts, createProduct, updateProduct, deleteProduct } = useProducts()
 
 const products = ref([])
 const loading = ref(false)
@@ -90,11 +89,11 @@ const fetchData = async () => {
         if(search.value) {
             params.search = search.value
         }
-		const response = await api.get_business_product_list(params)
-		products.value = response.data.items
-		totalItems.value = response.data.total
-        page.value = response.data.page
-        itemsPerPage.value = response.data.per_page
+		const response = await fetchBusinessProducts(params)
+		products.value = response?.data?.items || []
+		totalItems.value = response?.data?.total || 0
+		page.value = response?.data?.page || 1
+		itemsPerPage.value = response?.data?.per_page || 10
 
 	} catch (error) {
 		toast.error('Failed to fetch products')
@@ -127,10 +126,10 @@ const saveProduct = async () => {
 
 	try {
 		if (editingProduct.value) {
-			await api.edit_product(productData.value, editingProduct.value.id)
+			await updateProduct(editingProduct.value.id, productData.value)
 			toast.success('Product updated')
 		} else {
-			await api.create_product(productData.value)
+			await createProduct(productData.value)
 			toast.success('Product created')
 		}
 		closeModal()
@@ -143,7 +142,7 @@ const saveProduct = async () => {
 const confirmDeleteProduct = async (item) => {
     if(!confirm(`Are you sure you want to delete ${item.name}?`)) return
     try {
-        await api.delete_product(item.id)
+        await deleteProduct(item.id)
         toast.success('Product deleted')
         fetchData()
     } catch (error) {
