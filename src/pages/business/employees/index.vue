@@ -3,7 +3,6 @@
 		<!-- Page Header -->
 		<div class="page-header">
 			<div class="header-content">
-				<h1 class="page-title">Employee Management</h1>
 				<p class="page-subtitle">Manage your team and track employee information</p>
 			</div>
 			<div class="header-actions">
@@ -193,47 +192,16 @@
 </template>
 
 <script setup>
-import { useFilterStore } from '~/stores/filterStore'
-import { toast } from 'vue3-toastify'
-import { handleAxiosError } from '~/utils/ErrorHandle/error'
-import { useDataTable } from '~/composables/useDataTable'
-import employeeApi from '~/api/employeeApi'
-
-const filterStore = useFilterStore()
+import { ref, onMounted, computed } from 'vue'
+import { useEmployees } from '~/composables/useEmployees'
 
 definePageMeta({
+	title: 'Employees',
 	middleware: 'auth-role',
 	layout: 'admin',
 })
 
-const api = employeeApi()
-
-const {
-    items,
-    isLoading,
-    total_data,
-    itemsPerPage,
-    currentPage,
-    stats,
-    fetchData,
-    handlePageChange,
-    handleItemsPerPageChange,
-    handleSearch,
-} = useDataTable({
-    apiFetchFunction: api.get_employee_list,
-    responseDataTransformer: (items) => {
-        return items.map((emp) => ({
-			...emp,
-			...emp.user,
-			id: emp.id,
-			employee_id: emp.user.user_id,
-			email: emp.user.username,
-			phone: emp.user.mobile_number,
-			status: emp.user.is_active ? 'Active' : 'Inactive',
-			full_name: `${emp.user.first_name || ''} ${emp.user.last_name || ''}`.trim(),
-		}))
-    }
-});
+const { fetchEmployees, createEmployee, updateEmployee, deleteEmployee, bulkDelete, bulkUpdate } = useEmployees()
 
 // State
 const showFormDialog = ref(false)
@@ -262,6 +230,27 @@ const tableHeaders = [
 ]
 
 // Methods
+const loadData = async () => {
+	loading.value = true
+	try {
+		const response = await fetchEmployees(queryParams.value)
+		employees.value = response?.data?.items?.map((emp) => ({
+			...emp.user,
+			...emp,
+			
+		}))
+		pagination.value.total = response.data?.total
+		pagination.value.total_pages = response?.data?.total_pages
+		stats.value.total = response.data?.stats?.total
+		stats.value.active = response.data?.stats?.active
+		stats.value.inactive = response.data?.stats?.inactive
+		stats.value.new_this_month = response.data?.stats?.new_this_month
+	} catch (error) {
+		console.error('Failed to load employees:', error)
+	} finally {
+		loading.value = false
+	}
+}
 const openAddDialog = () => {
 	editingEmployee.value = null
 	showFormDialog.value = true
@@ -295,7 +284,7 @@ const handleDelete = (employee) => {
 const confirmDelete = async () => {
 	if (deletingEmployee.value) {
 		try {
-			await api.delete_employee(deletingEmployee.value.id)
+			await deleteEmployee(deletingEmployee.value.id)
 			showDeleteDialog.value = false
 			showViewDialog.value = false
 			deletingEmployee.value = null
@@ -311,25 +300,22 @@ const handleBulkDelete = async (emps) => {
 	if (confirm(`Delete ${emps.length} employees?`)) {
 		const employeeIds = emps.map((emp) => emp.id)
 		try {
-			await api.bulk_delete_employees(employeeIds)
+			await bulkDelete(employeeIds)
 			toast.success(`${employeeIds.length} employees deleted`)
 			await fetchData()
 		} catch (error) {
-			const { data } = error.response
-			handleAxiosError(data.status_code, data.message, toast)
+			toast.error('Failed to delete employees')
 		}
 	}
 }
 
 const handleBulkUpdate = async ({ employeeIds, updates }) => {
 	try {
-		console.log("Update__________", update)
-		// await api.bulk_update_employees(employeeIds, updates)
-		// toast.success(`${employeeIds.length} employees updated`)
-		// await fetchData()
+		await bulkUpdate(employeeIds, updates)
+		toast.success(`${employeeIds.length} employees updated`)
+		await loadData()
 	} catch (error) {
-		const { data } = error.response
-		handleAxiosError(data.status_code, data.message, toast)
+		toast.error('Failed to update employees')
 	}
 }
 

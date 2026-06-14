@@ -1,6 +1,9 @@
+// src/composables/useThemeIntegration.ts
 import { computed, watch, onMounted } from 'vue'
 import { useThemeStore } from '@/stores/themeStore'
 import { useTheme } from 'vuetify'
+
+type ThemeName = 'light' | 'dark' | 'sepia' | 'blue' | 'green' | 'coolBlue' | 'glassmorphism'
 
 /**
  * Composable for integrating theme system with Vuetify and providing theme utilities
@@ -11,7 +14,7 @@ export const useThemeIntegration = () => {
 	const vuetifyTheme = useTheme()
 
 	// Theme to Vuetify mapping
-	const themeMapping = {
+	const themeMapping: Record<ThemeName, string> = {
 		light: 'light',
 		dark: 'dark',
 		sepia: 'light',
@@ -23,7 +26,7 @@ export const useThemeIntegration = () => {
 
 	// Sync theme store with Vuetify
 	const syncVuetifyTheme = () => {
-		const currentTheme = themeStore.currentTheme
+		const currentTheme = themeStore.currentTheme as ThemeName
 		const vuetifyThemeName = themeMapping[currentTheme] || 'light'
 
 		if (vuetifyTheme && vuetifyTheme.global) {
@@ -67,7 +70,7 @@ export const useThemeIntegration = () => {
 	})
 
 	// Get CSS variable value
-	const getCSSVariable = (variableName) => {
+	const getCSSVariable = (variableName: string): string => {
 		if (process.client) {
 			return getComputedStyle(document.documentElement)
 				.getPropertyValue(`--${variableName}`)
@@ -77,13 +80,13 @@ export const useThemeIntegration = () => {
 	}
 
 	// Get RGB color from CSS variable
-	const getRGBColor = (variableName) => {
+	const getRGBColor = (variableName: string): string => {
 		const rgb = getCSSVariable(`color-${variableName}`)
 		return rgb ? `rgb(${rgb})` : ''
 	}
 
 	// Get RGBA color from CSS variable with custom opacity
-	const getRGBAColor = (variableName, opacity = 1) => {
+	const getRGBAColor = (variableName: string, opacity: number | string = 1): string => {
 		const rgb = getCSSVariable(`color-${variableName}`)
 		return rgb ? `rgba(${rgb} / ${opacity})` : ''
 	}
@@ -129,7 +132,7 @@ export const useThemeIntegration = () => {
 	}
 
 	// Get theme-aware button style
-	const getButtonStyle = (variant = 'primary') => {
+	const getButtonStyle = (variant: string = 'primary') => {
 		if (isGlassmorphism.value) {
 			return {
 				background: 'rgba(102, 126, 234, 0.2)',
@@ -145,8 +148,8 @@ export const useThemeIntegration = () => {
 	}
 
 	// Get Vuetify color based on current theme
-	const getVuetifyColor = (colorType = 'primary') => {
-		const colorMap = {
+	const getVuetifyColor = (colorType: string = 'primary'): string => {
+		const colorMap: Record<string, string> = {
 			primary: 'primary',
 			secondary: 'secondary',
 			accent: 'accent',

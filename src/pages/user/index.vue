@@ -1,6 +1,5 @@
 <template>
-	<div class="px-5">
-		<h1 class="pt-10">User Page</h1>
+	<div class="p-6">
 		<UploadFileInput @update:inputValue="handleInputValue" @update:file="handleFile" />
 		<!-- <ButtonTimePicker v-model="selectedTime" button-label="Pick a Time" /> -->
 

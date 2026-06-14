@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
 	const res = event.node.res
 
 	const acceptEncoding = req.headers['accept-encoding'] || ''
-	const url = req.url ? url.split('?')[0] : '' // Remove query params
+	const url = req.url ? req.url.split('?')[0] : '' // Remove query params
 
 	// Only process requests for static assets that Nuxt builds, usually under /_nuxt/
 	// You might need to adjust this condition based on where your compressed assets are located

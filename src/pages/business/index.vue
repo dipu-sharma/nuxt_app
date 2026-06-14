@@ -2,7 +2,6 @@
 	<div class="p-6" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text)); min-height: 100vh">
 		<!-- Header Section -->
 		<div class="mb-8">
-			<h1 class="text-3xl font-bold mb-2" style="color: rgb(var(--color-text))">Business Dashboard</h1>
 			<p class="text-lg" style="color: rgb(var(--color-text))">Welcome back! Here's what's happening with your business today.</p>
 		</div>
 
@@ -204,7 +203,7 @@
 
 <script setup>
 definePageMeta({
-	title: 'Business Dashboard',
+	title: 'Dashboard',
 	description: 'Business owner dashboard',
 	middleware: ['auth-role'],
 	layout: 'admin',

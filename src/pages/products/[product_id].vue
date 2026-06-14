@@ -147,14 +147,14 @@
 	</div>
 </template>
 
-<script setup>
-import cartApi from '~/api/cartApi'
-import productApi from '~/api/productApi'
+<script setup lang="ts">
+import { useCart } from '~/composables/useCart'
+import { useProducts } from '~/composables/useProducts'
 
 const route = useRoute()
 const router = useRouter()
 
-const productId = route.params.product_id
+const productId = route.params.product_id as string
 
 const product = ref(null)
 const loading = ref(true)
@@ -163,8 +163,8 @@ const addingToCart = ref(false)
 const isFavorite = ref(false)
 const selectedImageIndex = ref(0)
 
-const { add_to_cart } = cartApi()
-const { get_home_product_details } = productApi()
+const { syncCart } = useCart()
+const { fetchProductDetails } = useProducts()
 
 const mainImage = computed(() => {
 	if (!product.value?.images?.length) return null
@@ -176,9 +176,9 @@ const fetchProduct = async () => {
 	error.value = null
 
 	try {
-		const response = await get_home_product_details(productId)
+		const response = await fetchProductDetails(productId)
 		product.value = response.data || response
-	} catch (err) {
+	} catch (err: any) {
 		console.error('Failed to load product:', err)
 		error.value = err.status === 404 ? 'Product not found' : 'Failed to load product details'
 	} finally {
@@ -204,7 +204,7 @@ const addToCart = async () => {
 
 	addingToCart.value = true
 	try {
-		await add_to_cart([{ product_id: productId, quantity: 1 }])
+		await syncCart([{ product_id: productId, quantity: 1 }])
 	} catch (err) {
 		console.error('Add to cart failed:', err)
 	} finally {

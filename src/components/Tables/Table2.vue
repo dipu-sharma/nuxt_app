@@ -17,9 +17,9 @@
 			item-key="index"
 			:headers="headers"
 			:items="items"
-			:page.sync="internalPage"
-			:items-per-page.sync="internalItemsPerPage"
-			:server-items-length="item_total"
+			v-model:page="internalPage"
+			v-model:items-per-page="internalItemsPerPage"
+			:items-length="item_total"
 			item-value="id"
 			:loading="loading"
 			class="!rounded-lg"
@@ -69,21 +69,34 @@
 </template>
 
 <script setup>
+import { ref, watch, computed, onMounted } from 'vue'
 import { useThemeStore } from '~/stores/themeStore'
+
 const themeStore = useThemeStore()
+
 const props = defineProps({
 	headers: { type: Array, required: true },
 	items: { type: Array, required: true },
-	page: { type: Number, required: true },
-	itemsPerPage: { type: Number, required: true },
-	item_total: { type: Number, required: true },
+	page: { type: Number, default: 1 },
+	itemsPerPage: { type: Number, default: 10 },
+	item_total: { type: Number, default: 0 },
 	loading: { type: Boolean, default: false },
 })
-const emit = defineEmits(['page_change', 'item_per_page', 'reload:table', 'update', 'delete', 'search'])
-const internalPage = ref(props.page)
-const internalItemsPerPage = ref(props.itemsPerPage)
 
+const emit = defineEmits(['page_change', 'item_per_page', 'reload:table', 'update', 'delete', 'search'])
+
+const internalPage = ref(props.page || 1)
+const internalItemsPerPage = ref(props.itemsPerPage || 10)
 const search = ref('')
+
+// Sync internal state with props
+watch(() => props.page, (newVal) => {
+	if (newVal !== undefined) internalPage.value = newVal
+})
+
+watch(() => props.itemsPerPage, (newVal) => {
+	if (newVal !== undefined) internalItemsPerPage.value = newVal
+})
 
 const debounce = (func, delay) => {
 	let timeout
@@ -119,7 +132,11 @@ const deleteItem = (item) => {
 	emit('delete', item)
 }
 
-const totalPages = computed(() => Math.ceil(props.item_total / internalItemsPerPage.value))
+const totalPages = computed(() => {
+	const total = props.item_total || 0
+	const perPage = internalItemsPerPage.value || 10
+	return Math.ceil(total / perPage)
+})
 </script>
 
 <style scoped></style>

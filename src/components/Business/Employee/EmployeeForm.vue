@@ -212,6 +212,7 @@
 <script setup>
 import FormField from '@/components/Shared/FormField.vue'
 import ImageUploader from '@/components/Shared/ImageUploader.vue'
+import { useEmployees } from '~/composables/useEmployees'
 import { toast } from 'vue3-toastify'
 
 const props = defineProps({
@@ -222,7 +223,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['submit', 'cancel'])
-const api = employeeApi()
+const { createEmployee, updateEmployee } = useEmployees()
 
 const saving = ref(false)
 const editMode = ref(false)
@@ -323,13 +324,13 @@ const handleSubmit = async () => {
 			}
 		})
 
-        let employeeId = editMode.value ? props.employee.employee_id : null;
+		let employeeId = editMode.value ? props.employee.id : null;
 
 		if (editMode.value) {
-			await api.edit_employee(payload, employeeId)
+			await updateEmployee(employeeId, payload)
             toast.success('Employee updated successfully.')
 		} else {
-			const response = await api.create_employee(payload)
+			const response = await createEmployee(payload)
             if(response.data){
                 employeeId = response.data.id
             }
