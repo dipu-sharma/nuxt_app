@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "nuxt dev --dotenv .env.dev",
 		"uat": "nuxt dev --dotenv .env.uat",
-		"prod": "nuxt dev --dotenv .env.prod",
+		"prod": "nuxt preview --dotenv .env.prod",
 		"dev:build": "nuxt build --dotenv .env.dev",
 		"uat:build": "nuxt build --dotenv .env.uat",
 		"prod:build": "nuxt build --dotenv .env.prod",

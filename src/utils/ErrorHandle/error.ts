@@ -6,8 +6,6 @@ export const handleAxiosError = (status_code: number | undefined, error_message:
 	let errorMessage = error_message || 'An error occurred.'
 	let errorStatus: string | number = 'UNKNOWN_ERROR'
 
-	console.error('API Error:', { status_code, error_message })
-
 	if (status_code) {
 		const statusCode = status_code
 		switch (statusCode) {
@@ -28,8 +26,8 @@ export const handleAxiosError = (status_code: number | undefined, error_message:
 				errorMessage = error_message || 'Already Exists'
 				break
 			case 500:
-				errorMessage = error_message || 'Internal server error.'
-				authStore.doLogout()
+				// Server errors should NOT log the user out — it may be a temporary outage
+				errorMessage = error_message || 'Internal server error. Please try again later.'
 				break
 			default:
 				errorMessage = error_message || 'An error occurred.'

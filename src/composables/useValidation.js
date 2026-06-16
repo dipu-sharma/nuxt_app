@@ -25,9 +25,10 @@ export const useValidation = () => {
 		return value.trim().length > 0 || 'Input cannot be empty or only spaces'
 	}
 	const mobileNumber = (value) => /^\d{10}$/.test(value) || 'Mobile number must be exactly 10 digits'
+	// Single, strong email validator — exposed as both 'validEmail' and 'email' for compatibility
 	const validEmail = (value) =>
-		/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(value) || 'Enter a valid email address'
-	const email = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Email must be valid'
+		/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value) || 'Enter a valid email address'
+	const email = validEmail
 	const phoneNumber = (v) => /^\d{10}$/.test(v) || 'Phone number must be 10 digits'
 	const pincode = (v) => /^\d{6}$/.test(v) || 'Invalid pincode'
 	const name = (v) => /^[a-zA-Z\s'-]+$/.test(v) || 'Enter valid Name'
@@ -62,9 +63,10 @@ export const useValidation = () => {
 		if (Array.isArray(obj)) {
 			return obj.map((item) => filterNullValues(item))
 		}
+		// Only strip null and undefined — empty strings ('') are intentional values
 		return Object.fromEntries(
 			Object.entries(obj)
-				.filter(([_, v]) => v !== null && v !== undefined && v !== '')
+				.filter(([_, v]) => v !== null && v !== undefined)
 				?.map(([k, v]) => [k, filterNullValues(v)]),
 		)
 	}

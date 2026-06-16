@@ -1,9 +1,9 @@
 <template>
-	<div style="background-color: rgb(var(--color-sidebar)); color: rgb(var(--color-sidebar-text))">
-		<header class="z-10 py-4 shadow-md" style="background-color: rgb(var(--color-sidebar)); border-bottom: 1px solid rgb(var(--color-border))">
-			<div
-				class="container flex items-center justify-between h-full px-6 mx-auto text-primary"
-			>
+	<v-app-bar
+		flat
+		style="background-color: rgb(var(--color-sidebar)); color: rgb(var(--color-sidebar-text)); border-bottom: 1px solid rgb(var(--color-border))"
+	>
+		<div class="flex items-center justify-between h-full px-6 w-full text-primary">
 				<!-- Mobile hamburger -->
 				<button
 					type="button"
@@ -73,59 +73,81 @@
 						</button>
 					</li>
 					<!-- Notifications menu -->
-					<li class="relative">
-						<button
-							class="relative align-middle rounded-md focus:outline-none focus:shadow-outline-purple"
-							@click="toggleNotificationsMenu"
-							@keydown.escape="closeNotificationsMenu"
-							aria-label="Notifications"
-							aria-haspopup="true"
-						>
-							<svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
-								></path>
-							</svg>
-							<!-- Notification badge -->
-							<span
-								aria-hidden="true"
-								class="absolute top-0 right-0 inline-block w-3 h-3 transform translate-x-1 -translate-y-1 bg-accent border-2 border-background rounded-full"
-							></span>
-						</v-btn>
-					</template>
-					<v-list>
-						<v-list-item>
-							<v-list-item-title>Messages</v-list-item-title>
-							<v-list-item-title class="ml-auto">13</v-list-item-title>
-						</v-list-item>
-						<v-list-item>
-							<v-list-item-title>Sales</v-list-item-title>
-							<v-list-item-title class="ml-auto">2</v-list-item-title>
-						</v-list-item>
-						<v-list-item>
-							<v-list-item-title>Alerts</v-list-item-title>
-						</v-list-item>
-					</v-list>
-				</v-menu>
+				<li class="relative">
+					<v-menu offset-y max-width="340" @update:model-value="onNotifMenuOpen">
+						<template v-slot:activator="{ props }">
+							<v-btn icon v-bind="props" aria-label="Notifications">
+								<svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+									<path
+										d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+									></path>
+								</svg>
+								<!-- Unread badge -->
+								<span v-if="unreadCount > 0" aria-hidden="true"
+									class="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 border border-white rounded-full"
+									style="transform: translate(30%, -30%)">
+									{{ unreadCount > 9 ? '9+' : unreadCount }}
+								</span>
+							</v-btn>
+						</template>
+						<v-list min-width="300" max-height="400" class="overflow-y-auto">
+							<div class="flex items-center justify-between px-3 py-2 border-b">
+								<span class="font-semibold text-sm">Notifications</span>
+								<v-btn v-if="unreadCount > 0" size="x-small" variant="text" color="primary"
+									@click="markAllRead">Mark all read</v-btn>
+							</div>
+							<div v-if="loadingNotifs" class="py-6 flex justify-center">
+								<v-progress-circular size="24" indeterminate color="primary" />
+							</div>
+							<template v-else-if="notifications.length">
+								<v-list-item v-for="notif in notifications" :key="notif.id"
+									:class="notif.is_read ? 'opacity-60' : 'bg-indigo-50'"
+									@click="readNotif(notif)">
+									<template v-slot:prepend>
+										<div class="w-2 h-2 rounded-full mr-2 flex-shrink-0"
+											:class="notif.is_read ? 'bg-transparent' : 'bg-indigo-500'" />
+									</template>
+									<v-list-item-title class="text-sm font-medium">{{ notif.title }}</v-list-item-title>
+									<v-list-item-subtitle class="text-xs">{{ notif.message }}</v-list-item-subtitle>
+								</v-list-item>
+							</template>
+							<div v-else class="py-6 text-center text-slate-400 text-sm">No notifications</div>
+						</v-list>
+					</v-menu>
+				</li>
 				<!-- Profile menu -->
 				<v-menu offset-y>
 					<template v-slot:activator="{ props }">
 						<v-btn icon v-bind="props">
-							<v-avatar size="32">
-								<img
+							<v-avatar size="32" color="primary">
+								<img v-if="authStore.user?.avatar_url"
 									class="object-cover w-8 h-8 rounded-full"
-									src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=128&h=128&q=80"
-									alt=""
-									aria-hidden="true"
+									:src="authStore.user.avatar_url"
+									alt="User profile photo"
 								/>
+								<span v-else class="text-white text-sm font-bold">
+									{{ userInitial }}
+								</span>
 							</v-avatar>
 						</v-btn>
 					</template>
 					<v-list>
-						<v-list-item to="/admin/profile">
+						<v-list-item class="py-2 px-3">
+							<v-list-item-title class="font-semibold">{{ authStore.user?.username || authStore.user?.email }}</v-list-item-title>
+							<v-list-item-subtitle class="text-xs">{{ authStore.role }}</v-list-item-subtitle>
+						</v-list-item>
+						<v-divider />
+						<v-list-item to="/user/profile" prepend-icon="mdi-account-outline">
 							<v-list-item-title>Profile</v-list-item-title>
 						</v-list-item>
-						<v-list-item @click="logout">
+						<v-list-item to="/user/wishlist" prepend-icon="mdi-heart-outline">
+							<v-list-item-title>Wishlist</v-list-item-title>
+						</v-list-item>
+						<v-list-item to="/user/order" prepend-icon="mdi-package-variant-outline">
+							<v-list-item-title>My Orders</v-list-item-title>
+						</v-list-item>
+						<v-divider />
+						<v-list-item @click="logout" prepend-icon="mdi-logout" color="error">
 							<v-list-item-title>Log out</v-list-item-title>
 						</v-list-item>
 					</v-list>
@@ -139,16 +161,65 @@ import { toast } from 'vue3-toastify'
 import { useNavStore } from '~/stores/navStore'
 import { useAuthStore } from '~/stores/auth'
 import { useThemeStore } from '~/stores/themeStore'
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
 const navStore = useNavStore()
 const themeStore = useThemeStore()
 
-const isNotificationsMenuOpen = ref(false)
-const isProfileMenuOpen = ref(false)
+// ── Notifications ─────────────────────────────────
+const notifications = ref([])
+const unreadCount = ref(0)
+const loadingNotifs = ref(false)
 
+const userInitial = computed(() => {
+	const u = authStore.user
+	if (!u) return 'U'
+	return (u.first_name?.[0] || u.username?.[0] || u.email?.[0] || 'U').toUpperCase()
+})
+
+const onNotifMenuOpen = async (open) => {
+	if (!open) return
+	loadingNotifs.value = true
+	try {
+		const { getNotifications } = useNotifications()
+		const res = await getNotifications({ per_page: 20 })
+		notifications.value = res?.data?.items || res?.data || []
+		unreadCount.value = notifications.value.filter(n => !n.is_read).length
+	} catch { /* silently fail */ }
+	finally { loadingNotifs.value = false }
+}
+
+const readNotif = async (notif) => {
+	if (notif.is_read) return
+	try {
+		const { markAsRead } = useNotifications()
+		await markAsRead(notif.id)
+		notif.is_read = true
+		unreadCount.value = Math.max(0, unreadCount.value - 1)
+	} catch { /* silently fail */ }
+}
+
+const markAllRead = async () => {
+	try {
+		const { markAllRead: doMarkAll } = useNotifications()
+		await doMarkAll()
+		notifications.value.forEach(n => n.is_read = true)
+		unreadCount.value = 0
+	} catch { /* silently fail */ }
+}
+
+// Load unread count on mount
+onMounted(async () => {
+	try {
+		const { getUnreadCount } = useNotifications()
+		const res = await getUnreadCount()
+		unreadCount.value = res?.data?.count || 0
+	} catch { /* silently fail */ }
+})
+
+// ── Display Title ─────────────────────────────────
 const displayTitle = computed(() => {
 	const role = authStore.role || ''
 	const title = route.meta.title || 'Dashboard'

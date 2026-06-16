@@ -1,35 +1,38 @@
 import { useAuthStore } from "~/stores/auth";
 
 const LOGOUT_TIME = 30 * 60 * 1000; // 30 minutes
-const MODAL_TIME = 1 * 60 * 1000; // 1 minute
+const MODAL_TIME = 1 * 60 * 1000;   // Show warning 1 minute before logout
+
+// User activity events that reset the timer
+const ACTIVITY_EVENTS = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
 
 export function useAutoLogout() {
   const authStore = useAuthStore();
   const modalTimer = ref(null);
   const countdownTimer = ref(null);
-  const remainingTime = ref(LOGOUT_TIME / 1000); 
+  const remainingTime = ref(LOGOUT_TIME / 1000);
   const isModalVisible = ref(false);
 
   // Reset Timer Function
   const resetTimer = () => {
-    // Clear existing timers
     remainingTime.value = LOGOUT_TIME / 1000;
     isModalVisible.value = false;
     if (modalTimer.value) clearTimeout(modalTimer.value);
     if (countdownTimer.value) clearInterval(countdownTimer.value);
 
-    if (import.meta.client) {
-        countdownTimer.value = setInterval(() => {
-            remainingTime.value -= 1;
-            if (remainingTime.value <= 0) {
-                clearInterval(countdownTimer.value);
-                authStore.doLogout();
-                navigateTo("/login");
-            }
-        }, 1000);
-    }
+    if (!import.meta.client) return;
 
-    // Set modal timer
+    // Countdown every second
+    countdownTimer.value = setInterval(() => {
+      remainingTime.value -= 1;
+      if (remainingTime.value <= 0) {
+        clearInterval(countdownTimer.value);
+        authStore.doLogout();
+        navigateTo("/login");
+      }
+    }, 1000);
+
+    // Show warning modal before logout
     modalTimer.value = setTimeout(() => {
       isModalVisible.value = true;
     }, LOGOUT_TIME - MODAL_TIME);
@@ -38,6 +41,11 @@ export function useAutoLogout() {
   // Start Listening for User Activity
   const startTimer = () => {
     resetTimer();
+    if (!import.meta.client) return;
+    // Listen to user activity events and reset the timer on each
+    ACTIVITY_EVENTS.forEach((event) => {
+      window.addEventListener(event, resetTimer, { passive: true });
+    });
   };
 
   // Stop Listening and Clear Timers
@@ -46,6 +54,11 @@ export function useAutoLogout() {
     if (countdownTimer.value) clearInterval(countdownTimer.value);
     remainingTime.value = LOGOUT_TIME / 1000;
     isModalVisible.value = false;
+    if (!import.meta.client) return;
+    // Remove all activity listeners
+    ACTIVITY_EVENTS.forEach((event) => {
+      window.removeEventListener(event, resetTimer);
+    });
   };
 
   return { startTimer, stopTimer, remainingTime, isModalVisible, resetTimer };

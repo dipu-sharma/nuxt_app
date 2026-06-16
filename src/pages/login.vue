@@ -161,8 +161,8 @@ const useTheme = useThemeStore()
 const authStore = useAuthStore()
 
 const loginform = ref({
-	username: 'alpna@yopmail.com',
-	password: 'Dipu1234@',
+	username: '',
+	password: '',
 })
 
 const UserType = {

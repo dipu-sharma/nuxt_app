@@ -13,10 +13,6 @@ export default defineNuxtConfig({
   ssr: true,
   compatibilityDate: '2025-01-01',
 
-  // === DevTools ===
-  devtools: {
-    enabled: false,
-  },
 
   // === CSS & Styling ===
   css: [
@@ -199,8 +195,33 @@ export default defineNuxtConfig({
 
   // === Runtime Config ===
   runtimeConfig: {
+    // Private keys — only available server-side
+    NUXT_SECRET_KEY: process.env.NUXT_SECRET_KEY || 'supersecret',
+
+    // Public keys — exposed to client-side (accessible via useRuntimeConfig().public)
     public: {
-      API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:8001',
+      API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:8001/api',
+      NUXT_API_URL: process.env.NUXT_API_URL || 'http://localhost:8001',
+      APP_URL: process.env.APP_URL || 'http://localhost:5000',
+
+      // Google OAuth (SSO)
+      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
+
+      // Facebook OAuth (SSO)
+      FACEBOOK_CLIENT_ID: process.env.FACEBOOK_CLIENT_ID || '',
+
+      // Microsoft OAuth
+      MICROSOFT_CLIENT_ID: process.env.MICROSOFT_CLIENT_ID || '',
+      MICROSOFT_DIRECTORY_ID: process.env.MICROSOFT_DIRECTORY_ID || '',
+
+      // reCAPTCHA
+      RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY || '',
+      CAPTCHA_Site_Key: process.env.CAPTCHA_Site_Key || '',
     },
   },
-})
+
+  // === DevTools (only in development) ===
+  devtools: {
+    enabled: process.env.NODE_ENV === 'development',
+  },
+})

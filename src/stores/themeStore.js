@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, nextTick, onMounted } from 'vue'
+import { ref } from 'vue'
 
 export const useThemeStore = defineStore('theme', () => {
 	// Available themes
@@ -93,12 +93,6 @@ export const useThemeStore = defineStore('theme', () => {
 	}
 	return themeColors[currentTheme.value] || themeColors.light
 	}
-
-	onMounted(() => {
-		if (process.client) {
-			document.documentElement.setAttribute('data-theme', currentTheme.value)
-		}
-	})
 
 	return {
 		themes,

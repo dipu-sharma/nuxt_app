@@ -7,7 +7,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 	const { token, user, role } = storeToRefs(authStore)
 
 	// Sync state from cookies (SSR-safe)
-	const cookieToken = useCookie('token').value
+	const cookieToken = useCookie('auth_token').value
 	if (cookieToken) {
 		token.value = cookieToken
 	}
