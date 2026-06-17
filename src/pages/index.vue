@@ -4,12 +4,6 @@
 		<div class="lg:col-span-2 md:col-span-3 sm:col-span-6 px-4 py-4 text-center">
 			<h1 class="text-lg font-semibold">All Category</h1>
 			<hr class="my-2" />
-			<div>
-				<button type="button" @click="handleCookieSet" class="bg-black rounded-lg p-4">Set Cookie</button>
-				<button type="button" @click="handleCookieGet" class="bg-blue-400 rounded-lg p-4">
-					Get Cookie
-				</button>
-			</div>
 
 			<!-- Category Dropdown -->
 			<div class="py-2 px-6 w-full">
@@ -44,7 +38,6 @@
 
 <script setup>
 import { useProducts } from '~/composables/useProducts'
-import { useAuth } from '~/composables/useAuth'
 
 definePageMeta({
 	title: 'Home',
@@ -53,8 +46,6 @@ definePageMeta({
 })
 
 const { fetchPublic } = useProducts()
-const { setCookie, getCookie } = useAuth()
-
 const { data: productResponse } = await useAsyncData('homeProducts', () => fetchPublic())
 
 const products = computed(() => productResponse.value?.data?.items || []);
@@ -67,14 +58,6 @@ const items = ref([
 	{ name: 'Category 4', id: '4' },
 ])
 
-const handleCookieSet = async () => {
-	await setCookie()
-}
-
-const handleCookieGet = async () => {
-	const res = await getCookie()
-	console.log('Response___________________________', res)
-}
 </script>
 
 <style scoped></style>

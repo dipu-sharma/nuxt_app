@@ -200,7 +200,7 @@ export default defineNuxtConfig({
 
     // Public keys — exposed to client-side (accessible via useRuntimeConfig().public)
     public: {
-      API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:8001/api',
+      API_BASE_URL: process.env.API_BASE_URL || 'http://192.168.157.128:8001',
       NUXT_API_URL: process.env.NUXT_API_URL || 'http://localhost:8001',
       APP_URL: process.env.APP_URL || 'http://localhost:5000',
 

@@ -110,8 +110,8 @@
 								v-model="payload.user_type"
 							>
 								<option value="" disabled>Select User Type</option>
-								<option v-for="userType in user_type_list" :key="userType" :value="userType">
-									{{ userType }}
+								<option v-for="userType in user_type_list" :key="userType.value" :value="userType.value">
+									{{ userType.label }}
 								</option>
 							</select>
 							<div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
@@ -126,10 +126,15 @@
 
 						<button
 							type="submit"
-							class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-lg shadow-indigo-200 transform hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-2 mt-4"
+							:disabled="loading"
+							class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-lg shadow-indigo-200 transform hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-2 mt-4"
 						>
-							<span>Sign Up</span>
-							<Icon name="mdi:account-plus-outline" class="w-5 h-5" />
+							<svg v-if="loading" class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+							</svg>
+							<span>{{ loading ? 'Creating Account...' : 'Sign Up' }}</span>
+							<Icon v-if="!loading" name="mdi:account-plus-outline" class="w-5 h-5" />
 						</button>
 
 						<p class="text-center text-slate-600 mt-8">
@@ -147,6 +152,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { toast } from 'vue3-toastify'
 
 definePageMeta({
 	title: 'Register',
@@ -154,7 +160,12 @@ definePageMeta({
 	layout: 'login',
 })
 
-const user_type_list = ref(['Admin', 'User', 'Business'])
+// Backend expects these exact values — confirmed via Swagger
+const user_type_list = ref([
+	{ label: 'Customer / User', value: 'USER' },
+	{ label: 'Business Owner', value: 'BUSINESS_OWNER' },
+	{ label: 'Admin', value: 'ADMIN' },
+])
 
 const payload = ref({
 	email_id: '',
@@ -166,6 +177,7 @@ const payload = ref({
 
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
+const loading = ref(false)
 
 const togglePasswordVisibility = () => {
 	showPassword.value = !showPassword.value
@@ -175,9 +187,41 @@ const toggleConfirmPasswordVisibility = () => {
 	showConfirmPassword.value = !showConfirmPassword.value
 }
 
-const handleRegister = () => {
-	// Handle form submission logic here
-	console.log('Registering with payload:', payload.value)
+const handleRegister = async () => {
+	// — Client-side validation —
+	if (!payload.value.email_id) {
+		return toast.error('Email is required')
+	}
+	if (!payload.value.mobile_no) {
+		return toast.error('Mobile number is required')
+	}
+	if (!payload.value.password) {
+		return toast.error('Password is required')
+	}
+	if (payload.value.password !== payload.value.confirm_password) {
+		return toast.error('Passwords do not match')
+	}
+	if (!payload.value.user_type) {
+		return toast.error('Please select a user type')
+	}
+
+	loading.value = true
+	try {
+		const { register } = useAuth()
+		await register(payload.value)
+		toast.success('Account created! Please check your email to verify your account.')
+		// Redirect to verification page or login
+		navigateTo('/login')
+	} catch (err) {
+		const msg =
+			err?.data?.message ||
+			err?.data?.detail ||
+			err?.message ||
+			'Registration failed. Please try again.'
+		toast.error(msg)
+	} finally {
+		loading.value = false
+	}
 }
 </script>
 

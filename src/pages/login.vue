@@ -182,11 +182,19 @@ const handleLogin = async () => {
 	try {
 		const { login, getMe } = useAuth()
 		const response = await login(loginform.value)
-		
+
 		if (response?.data?.access_token) {
+			// 1. Save token + role to cookie FIRST so getMe() picks it up
 			authStore.setLoginData(response)
-			const response_user = await getMe()
-			authStore.addUser(response_user.data)
+
+			// 2. Now fetch the full user profile (token is in cookie now)
+			try {
+				const userResponse = await getMe()
+				// API wraps response: { data: { ... }, success: true }
+				authStore.addUser(userResponse?.data || userResponse)
+			} catch {
+				// Non-critical — user info can be loaded later
+			}
 
 			toast.success('Logged in Successfully', {
 				position: 'top-right',

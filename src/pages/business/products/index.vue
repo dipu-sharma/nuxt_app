@@ -1,289 +1,239 @@
 <template>
-	<div class="p-6">
-		<section class="mb-4 flex gap-4 justify-end items-center">
-			<div class="flex gap-4 items-center">
-				<button
-					type="button"
-					@click="filterStore.toggleFilterSidebar()"
-					class="light:text-black text-center rounded-lg transition"
-					alt="Filter"
-					title="Filter"
-				>
-					<Icon name="mdi:filter" class="" width="50" height="50" />
+	<div class="p-6" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text)); min-height: 100vh">
+		<div class="flex items-center justify-between mb-6">
+			<div>
+				<h1 class="text-2xl font-bold">My Products</h1>
+				<p class="text-sm opacity-60 mt-1">Manage your product catalogue</p>
+			</div>
+			<div class="flex gap-3">
+				<button @click="exportCsv" class="px-4 py-2 rounded-lg text-sm font-medium border"
+					style="border-color: rgb(var(--color-border)); color: rgb(var(--color-text))">
+					↓ Export CSV
 				</button>
-				<button
-					type="button"
-					@click="handleAddProduct"
-					class="light:text-black text-center rounded-lg transition"
-					alt="Add Product"
-					title="Add Product"
-				>
-					<Icon name="mdi-plus" class="" width="50" height="50" />
-				</button>
-				<button
-					type="button"
-					@click="exportToExcel"
-					class="light:text-black text-center rounded-lg transition"
-					alt="Export to Excel"
-					title="Export to Excel"
-				>
-					<Icon name="mdi-cloud-download" width="50" height="50" />
+				<button @click="openCreate" class="px-4 py-2 rounded-lg text-sm font-medium text-white"
+					style="background-color: rgb(var(--color-primary))">
+					+ Add Product
 				</button>
 			</div>
-		</section>
+		</div>
 
-		<TablesTable2
-			:headers="data_table?.headers"
-			:items="items"
-			:page="currentPage"
-			:itemsPerPage="itemsPerPage"
-			:item_total="total_data"
-			:loading="isLoading"
-			@update="handleEdit"
-			@search="handleSearch"
-			@delete="handleDelete"
-			@page_change="handlePageChange"
-			@item_per_page="handleItemsPerPageChange"
-		/>
+		<!-- Search -->
+		<div class="rounded-xl p-4 mb-6 flex gap-3"
+			style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
+			<input v-model="search" @keyup.enter="loadProducts" placeholder="Search products..."
+				class="flex-1 px-4 py-2 rounded-lg text-sm"
+				style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
+			<button @click="loadProducts" class="px-4 py-2 rounded-lg text-sm font-medium text-white"
+				style="background-color: rgb(var(--color-primary))">Search</button>
+		</div>
+
+		<!-- Table -->
+		<div class="rounded-xl shadow overflow-hidden" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
+			<div v-if="loading" class="p-8 text-center opacity-60">Loading products...</div>
+			<div v-else-if="products.length === 0" class="p-12 text-center">
+				<div class="text-5xl mb-4">📦</div>
+				<p class="opacity-60 mb-4">No products yet</p>
+				<button @click="openCreate" class="px-6 py-2 rounded-lg text-sm font-medium text-white"
+					style="background-color: rgb(var(--color-primary))">Add First Product</button>
+			</div>
+			<table v-else class="w-full text-sm">
+				<thead style="background-color: rgb(var(--color-background))">
+					<tr>
+						<th class="px-4 py-3 text-left font-semibold opacity-70">Product</th>
+						<th class="px-4 py-3 text-left font-semibold opacity-70">Category</th>
+						<th class="px-4 py-3 text-left font-semibold opacity-70">Price</th>
+						<th class="px-4 py-3 text-left font-semibold opacity-70">Stock</th>
+						<th class="px-4 py-3 text-left font-semibold opacity-70">Status</th>
+						<th class="px-4 py-3 text-left font-semibold opacity-70">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="product in products" :key="product.id"
+						class="border-t hover:opacity-90 transition-opacity"
+						style="border-color: rgb(var(--color-border))">
+						<td class="px-4 py-3">
+							<div class="flex items-center gap-3">
+								<img v-if="product.images?.[0]?.url" :src="product.images[0].url"
+									class="w-10 h-10 rounded-lg object-cover" />
+								<div v-else class="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+									style="background-color: rgb(var(--color-background))">📦</div>
+								<div>
+									<p class="font-medium">{{ product.name }}</p>
+									<p class="text-xs opacity-60">ID: {{ product.id }}</p>
+								</div>
+							</div>
+						</td>
+						<td class="px-4 py-3 opacity-70">{{ product.category?.name || product.category_name || '—' }}</td>
+						<td class="px-4 py-3 font-semibold" style="color: rgb(var(--color-primary))">${{ product.price }}</td>
+						<td class="px-4 py-3">
+							<span :class="product.stock_quantity > 0 ? 'text-green-600' : 'text-red-600'">
+								{{ product.stock_quantity ?? '—' }}
+							</span>
+						</td>
+						<td class="px-4 py-3">
+							<span class="px-2 py-1 text-xs rounded-full"
+								:class="product.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
+								{{ product.is_active ? 'Active' : 'Inactive' }}
+							</span>
+						</td>
+						<td class="px-4 py-3">
+							<div class="flex gap-2">
+								<button @click="openEdit(product)" class="px-2 py-1 text-xs rounded border"
+									style="border-color: rgb(var(--color-primary)); color: rgb(var(--color-primary))">Edit</button>
+								<button @click="deleteProduct(product)" class="px-2 py-1 text-xs rounded border border-red-300 text-red-600">Delete</button>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<!-- Product Modal -->
+		<div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+			<div class="rounded-xl p-6 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto"
+				style="background-color: rgb(var(--color-card))">
+				<h2 class="text-lg font-bold mb-4">{{ editingProduct ? 'Edit Product' : 'Add New Product' }}</h2>
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<div class="sm:col-span-2">
+						<label class="text-xs opacity-70 mb-1 block">Product Name *</label>
+						<input v-model="form.name" placeholder="Product Name"
+							class="w-full px-4 py-2 rounded-lg text-sm"
+							style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
+					</div>
+					<div class="sm:col-span-2">
+						<label class="text-xs opacity-70 mb-1 block">Description</label>
+						<textarea v-model="form.description" rows="3" placeholder="Product Description"
+							class="w-full px-4 py-2 rounded-lg text-sm resize-none"
+							style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))"></textarea>
+					</div>
+					<div>
+						<label class="text-xs opacity-70 mb-1 block">Price *</label>
+						<input v-model="form.price" type="number" step="0.01" placeholder="0.00"
+							class="w-full px-4 py-2 rounded-lg text-sm"
+							style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
+					</div>
+					<div>
+						<label class="text-xs opacity-70 mb-1 block">Stock Quantity</label>
+						<input v-model="form.stock_quantity" type="number" placeholder="0"
+							class="w-full px-4 py-2 rounded-lg text-sm"
+							style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
+					</div>
+					<div>
+						<label class="text-xs opacity-70 mb-1 block">SKU</label>
+						<input v-model="form.sku" placeholder="SKU-001"
+							class="w-full px-4 py-2 rounded-lg text-sm"
+							style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
+					</div>
+					<div>
+						<label class="text-xs opacity-70 mb-1 block">Category</label>
+						<input v-model="form.category_name" placeholder="Category Name"
+							class="w-full px-4 py-2 rounded-lg text-sm"
+							style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
+					</div>
+					<div class="sm:col-span-2 flex items-center gap-3">
+						<input type="checkbox" v-model="form.is_active" id="is_active" class="w-4 h-4" />
+						<label for="is_active" class="text-sm">Active (visible to customers)</label>
+					</div>
+				</div>
+				<div class="flex gap-3 mt-6">
+					<button @click="showModal = false" class="flex-1 py-2 rounded-lg text-sm border"
+						style="border-color: rgb(var(--color-border))">Cancel</button>
+					<button @click="saveProduct" :disabled="saving"
+						class="flex-1 py-2 rounded-lg text-sm font-medium text-white"
+						style="background-color: rgb(var(--color-primary))">
+						{{ saving ? 'Saving...' : (editingProduct ? 'Update' : 'Create') }}
+					</button>
+				</div>
+			</div>
+		</div>
 	</div>
-
-	<Dialog
-		v-model="isAddProductDialogVisible"
-		:loading="isLoading"
-		title="Add Product"
-		:button-text="isEdit ? 'Update' : 'Save'"
-		max-width="1000px"
-		@confirm="handleSaveProduct"
-	>
-		<template #content>
-			<FormsProduct :modelValue="payload" />
-		</template>
-	</Dialog>
 </template>
 
-<script setup lang="ts">
-import { useProjectStore } from '~/stores/projects'
-import { useAuthStore } from '~/stores/auth'
-import { useProducts } from '~/composables/useProducts'
+<script setup>
 import { toast } from 'vue3-toastify'
-import { useDataTable } from '~/composables/useDataTable'
 
-const AuthStore = useAuthStore()
-const { fetchBusinessProducts, createProduct, updateProduct, deleteProduct } = useProducts()
-
-const filterStore = useFilterStore();
-
-// Page metadata
 definePageMeta({
 	title: 'Products',
-	description: 'Learn more about our company',
-	layout: 'admin',
 	middleware: ['auth-role'],
+	layout: 'admin',
 	role: ['BUSINESS_OWNER', 'BUSINESS_MEMBER'],
 })
 
-const {
-    items,
-    isLoading,
-    currentPage,
-    itemsPerPage,
-    total_data,
-    fetchData,
-    handlePageChange,
-    handleItemsPerPageChange,
-    handleSearch,
-} = useDataTable({
-    apiFetchFunction: fetchBusinessProducts,
-});
+const loading = ref(false)
+const saving = ref(false)
+const products = ref([])
+const search = ref('')
+const showModal = ref(false)
+const editingProduct = ref(null)
+const form = ref({ name: '', description: '', price: '', stock_quantity: 0, sku: '', category_name: '', is_active: true })
 
-
-// Constants
-const FILE_TYPE_SPECS = {
-	excel: { extensions: ['xls', 'xlsx'], maxSizeMB: 5 },
-	image: { extensions: ['png', 'jpeg', 'jpg'], maxSizeMB: 5 },
-	pdf: { extensions: ['pdf'], maxSizeMB: 5 },
-}
-
-// Refs
-const isAddProductDialogVisible = ref(false)
-const projectStore = useProjectStore()
-const isEdit = ref(false)
-const data_table = ref({
-	headers: [
-		{ title: 'Sr No.', value: 'index', sortable: false, align: 'left' },
-		{ title: 'Product Name', value: 'product_name', sortable: false, align: 'left' },
-		{ title: 'Product Type', value: 'product_type', sortable: false, align: 'left' },
-		{ title: 'Batch No', value: 'batch_no', sortable: false, align: 'left' },
-		{ title: 'Quantity', value: 'product_qty', sortable: false, align: 'left' },
-		{ title: 'Unit', value: 'product_unit', sortable: false, align: 'left' },
-		{ title: 'MRP', value: 'product_mrp', sortable: false, align: 'left' },
-		{ title: 'Selling Price', value: 'selling_price', sortable: false, align: 'center', width: '200px' },
-		{ title: 'Size', value: 'size', sortable: false, align: 'left', width: '120px' },
-		{ title: 'Color', value: 'color', sortable: false, align: 'left', width: '100px' },
-		{ title: 'HSN', value: 'hsn_no', sortable: false, align: 'left' },
-		{ title: 'Discount', value: 'discount_percent', sortable: false, align: 'left' },
-		{ title: 'Packing', value: 'product_packing', sortable: false, align: 'left' },
-		{ title: '', value: 'actions', sortable: false, align: 'left' },
-	],
-})
-
-// Form data
-const payload = ref({
-	product_name: null,
-	brand_name: null,
-	product_tax: 0.0,
-	description: null,
-	product_sku: null,
-	product_cost_price: 0.0,
-	product_mrp: null,
-	selling_price: null,
-	discount_percent: 0.0,
-	product_qty: 0.0,
-	product_packing: null,
-	hsn_no: null,
-	mfg_date: null,
-	exp_date: null,
-	batch_no: null,
-	size: null,
-	color: null,
-	product_unit: 'PCS',
-	product_type: 'FASHION',
-})
-
-// File upload related refs
-const uploadedFiles = ref([])
-const pdfPreviewUrl = ref('')
-const errorMessage = ref('')
-
-// Methods
-const showAddProductDialog = () => {
-	isAddProductDialogVisible.value = true
-}
-
-const handleSaveProduct = async () => {
-	isLoading.value = true
+const loadProducts = async () => {
+	loading.value = true
 	try {
-		let response;
-		if (isEdit.value) {
-			response = await updateProduct(payload.value?.product_id, payload.value)
-			if (response.status_code === 200) {
-				toast.success(response?.message || 'Product updated successfully')
-			}
+		const { getProducts } = useBusinessProducts()
+		const res = await getProducts(search.value ? { search: search.value } : {})
+		products.value = res?.data?.items || res?.data || []
+	} catch {
+		toast.error('Failed to load products')
+	} finally {
+		loading.value = false
+	}
+}
+
+const openCreate = () => {
+	editingProduct.value = null
+	form.value = { name: '', description: '', price: '', stock_quantity: 0, sku: '', category_name: '', is_active: true }
+	showModal.value = true
+}
+
+const openEdit = (product) => {
+	editingProduct.value = product
+	form.value = { ...product }
+	showModal.value = true
+}
+
+const saveProduct = async () => {
+	if (!form.value.name || !form.value.price) return toast.error('Name and price are required')
+	saving.value = true
+	try {
+		const { createProduct, updateProduct } = useBusinessProducts()
+		if (editingProduct.value) {
+			await updateProduct(editingProduct.value.id, form.value)
+			toast.success('Product updated')
 		} else {
-			response = await createProduct(payload.value)
-			if (response.status_code === 200) {
-				toast.success(response?.message || 'Product created successfully')
-			}
+			await createProduct(form.value)
+			toast.success('Product created')
 		}
-		isAddProductDialogVisible.value = false
-		await fetchData()
-	} catch (error) {
+		showModal.value = false
+		loadProducts()
+	} catch {
 		toast.error('Failed to save product')
 	} finally {
-		isLoading.value = false
-		isAddProductDialogVisible.value = false
+		saving.value = false
 	}
 }
 
-const handleFileUpload = (payload) => {
-	if (!payload?.file) {
-		console.error('Invalid file upload payload:', payload)
-		return
-	}
-
-	if (payload.type === 'pdf') {
-		pdfPreviewUrl.value = URL.createObjectURL(payload.file)
-	}
-
-	// Add additional file handling logic here
-}
-
-const handleFilesUpload = (payload) => {
-	uploadedFiles.value = payload.files || []
-	errorMessage.value = uploadedFiles.value.length ? '' : 'No files uploaded'
-}
-
-const removeUploadedFile = (index) => {
-	uploadedFiles.value.splice(index, 1)
-}
-
-const exportToExcel = () => {
-	const { convertToExcel } = useExcel()
-
-	convertToExcel(
-		[
-			{
-				'Sr No.': '',
-				'Product Name': '',
-				'Product Type': '',
-				'Batch No': '',
-				Quantity: '',
-				Unit: '',
-				MRP: '',
-				'Selling Price': '',
-				Size: '',
-				Color: '',
-				HSN: '',
-				Discount: '',
-				Packing: '',
-			},
-		],
-		false,
-		'product_data.xlsx',
-	)
-}
-
-const handleAddProduct = () => {
-	isEdit.value = false
-	isAddProductDialogVisible.value = true
-	payload.value = {
-		product_name: null,
-		brand_name: null,
-		product_tax: 0.0,
-		description: null,
-		product_sku: null,
-		product_cost_price: 0.0,
-		product_mrp: null,
-		selling_price: null,
-		discount_percent: 0.0,
-		product_qty: 0.0,
-		product_packing: null,
-		hsn_no: null,
-		mfg_date: null,
-		exp_date: null,
-		batch_no: null,
-		size: null,
-		color: null,
-		product_unit: 'PCS',
-		product_type: 'FASHION',
+const deleteProduct = async (product) => {
+	if (!confirm(`Delete "${product.name}"?`)) return
+	try {
+		const { deleteProduct: doDelete } = useBusinessProducts()
+		await doDelete(product.id)
+		toast.success('Product deleted')
+		loadProducts()
+	} catch {
+		toast.error('Failed to delete product')
 	}
 }
 
-const handleEdit = (item) => {
-	console.log('Edit in parent____________________', item)
-	isEdit.value = true
-	isAddProductDialogVisible.value = true
-	payload.value = {
-		...item,
-		product_mrp: item.product_mrp || 0.0,
-		selling_price: item.selling_price || 0.0,
-		product_cost_price: item.product_cost_price || 0.0,
-		product_qty: item.product_qty || 0.0,
-		product_tax: item.product_tax || 0.0,
+const exportCsv = async () => {
+	try {
+		const { exportCsv: doExport } = useBusinessProducts()
+		await doExport()
+		toast.success('CSV export initiated')
+	} catch {
+		toast.error('Export failed')
 	}
-	payload.value.product_unit = item.product_unit || 'PCS'
 }
 
-const handleDelete = (item) => {
-	console.log('Delete in parent____________________', item)
-}
-
-
-// Watch for changes in store
-watch(
-	() => projectStore.save_for_planning,
-	(newVal, oldVal) => {
-		console.log('Save for Planning changed from', oldVal, 'to', newVal)
-	},
-)
+onMounted(loadProducts)
 </script>

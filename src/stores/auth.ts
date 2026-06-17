@@ -57,6 +57,10 @@ export const useAuthStore = defineStore('auth', {
 			this.token = payload
 			const tokenCookie = useCookie('auth_token')
 			tokenCookie.value = payload
+			// Also set directly on document.cookie so getRawCookie() in useApi picks it up immediately
+			if (process.client) {
+				document.cookie = `auth_token=${encodeURIComponent(payload)}; path=/; max-age=86400; SameSite=Lax`
+			}
 		},
 		addUser(payload: any) {
 			this.user = payload

@@ -64,6 +64,16 @@ const allSidebarItems = {
 			icon: 'mdi-view-dashboard',
 		},
 		{
+			label: 'Users',
+			path: '/admin/users',
+			icon: 'mdi-account-group-outline',
+		},
+		{
+			label: 'Businesses',
+			path: '/admin/businesses',
+			icon: 'mdi-store-outline',
+		},
+		{
 			label: 'Products',
 			path: '/admin/products',
 			icon: 'mdi-package-variant-closed',
@@ -74,14 +84,24 @@ const allSidebarItems = {
 			icon: 'mdi-cart-outline',
 		},
 		{
+			label: 'Categories',
+			path: '/admin/categories',
+			icon: 'mdi-tag-multiple-outline',
+		},
+		{
+			label: 'Coupons',
+			path: '/admin/coupons',
+			icon: 'mdi-ticket-percent-outline',
+		},
+		{
+			label: 'Reviews',
+			path: '/admin/reviews',
+			icon: 'mdi-star-outline',
+		},
+		{
 			label: 'Settings',
 			path: '/admin/settings',
 			icon: 'mdi-cog-outline',
-		},
-		{
-			label: 'Cards',
-			path: '/admin/cards',
-			icon: 'mdi-card-bulleted-outline',
 		},
 	],
 	BUSINESS_OWNER: [
