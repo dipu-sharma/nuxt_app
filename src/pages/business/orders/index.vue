@@ -58,7 +58,10 @@
 </template>
 
 <script setup>
-import { useAuth } from '~/composables/useAuth'
+import { ref, computed, watch, onMounted } from 'vue'
+import { toast } from 'vue3-toastify'
+import { useFilterStore } from '~/stores/filterStore'
+import Dialog from '~/components/Dialog/Dialog.vue'
 
 definePageMeta({
 	title: 'Sales Orders',
@@ -66,19 +69,130 @@ definePageMeta({
 	layout: 'admin',
 	middleware: ['auth-role'],
 	role: ['BUSINESS_OWNER', 'BUSINESS_MEMBER'],
-	layout: 'admin',
 })
 
-const { setCookie, getCookie } = useAuth()
+const filterStore = useFilterStore()
 
-const handleCookieSet = async () => {
-	await setCookie()
+const currentPage = ref(1)
+const itemsPerPage = ref(10)
+const isLoading = ref(false)
+const isChangeStatusDialogVisible = ref(false)
+const selectedStatus = ref('Pending')
+const selectedOrder = ref(null)
+const searchQuery = ref('')
+
+const data_table = ref({
+	headers: [
+		{ title: 'Order ID', value: 'id' },
+		{ title: 'Customer', value: 'customer' },
+		{ title: 'Amount', value: 'amount' },
+		{ title: 'Status', value: 'status' },
+		{ title: 'Date', value: 'date' },
+		{ title: 'Actions', value: 'actions', sortable: false }
+	],
+	items: [],
+	total_data: 0
+})
+
+const mockOrders = ref([
+	{ id: 1001, customer: 'John Doe', email: 'john@example.com', amount: '₹1,250.00', status: 'Pending', date: '2026-06-15' },
+	{ id: 1002, customer: 'Alice Smith', email: 'alice@example.com', amount: '₹3,400.00', status: 'Shipped', date: '2026-06-16' },
+	{ id: 1003, customer: 'Bob Johnson', email: 'bob@example.com', amount: '₹850.00', status: 'Delivered', date: '2026-06-16' },
+	{ id: 1004, customer: 'Eva Green', email: 'eva@example.com', amount: '₹2,100.00', status: 'Cancelled', date: '2026-06-17' },
+	{ id: 1005, customer: 'Michael Brown', email: 'michael@example.com', amount: '₹1,500.00', status: 'Pending', date: '2026-06-17' }
+])
+
+const loadOrders = () => {
+	isLoading.value = true
+	try {
+		let filtered = [...mockOrders.value]
+
+		// Filter by search
+		if (searchQuery.value) {
+			const query = searchQuery.value.toLowerCase()
+			filtered = filtered.filter(o => 
+				o.customer.toLowerCase().includes(query) || 
+				o.id.toString().includes(query)
+			)
+		}
+
+		// Filter by date range from store
+		if (filterStore.startDate) {
+			filtered = filtered.filter(o => new Date(o.date) >= filterStore.startDate)
+		}
+		if (filterStore.endDate) {
+			filtered = filtered.filter(o => new Date(o.date) <= filterStore.endDate)
+		}
+
+		data_table.value.total_data = filtered.length
+
+		// Paginate
+		const start = (currentPage.value - 1) * itemsPerPage.value
+		const end = start + itemsPerPage.value
+		data_table.value.items = filtered.slice(start, end)
+	} catch {
+		toast.error('Failed to load orders')
+	} finally {
+		isLoading.value = false
+	}
 }
 
-const handleCookieGet = async () => {
-	const res = await getCookie()
-	console.log('Response___________________________', res)
+const handlePageChange = (newPage) => {
+	currentPage.value = newPage
+	loadOrders()
 }
+
+const handleItemsPerPageChange = (newItemsPerPage) => {
+	itemsPerPage.value = newItemsPerPage
+	currentPage.value = 1
+	loadOrders()
+}
+
+const handleSearch = (query) => {
+	searchQuery.value = query
+	currentPage.value = 1
+	loadOrders()
+}
+
+const handleChangeStatus = (order) => {
+	selectedOrder.value = order
+	selectedStatus.value = order.status
+	isChangeStatusDialogVisible.value = true
+}
+
+const updateOrderStatus = () => {
+	if (!selectedOrder.value) return
+	isLoading.value = true
+	try {
+		const order = mockOrders.value.find(o => o.id === selectedOrder.value.id)
+		if (order) {
+			order.status = selectedStatus.value
+			toast.success(`Order #${order.id} status updated to ${selectedStatus.value}`)
+		}
+		isChangeStatusDialogVisible.value = false
+		loadOrders()
+	} catch {
+		toast.error('Failed to update status')
+	} finally {
+		isLoading.value = false
+	}
+}
+
+const handleViewDetails = (order) => {
+	toast.info(`Viewing details for Order #${order.id}`)
+}
+
+const exportToExcel = () => {
+	toast.success('Orders list exported successfully')
+}
+
+// Watch for date range changes in filter store
+watch(() => [filterStore.startDate, filterStore.endDate], () => {
+	currentPage.value = 1
+	loadOrders()
+})
+
+onMounted(loadOrders)
 </script>
 <style>
 .v-data-table-header__content {

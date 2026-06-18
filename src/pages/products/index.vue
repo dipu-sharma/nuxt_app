@@ -126,6 +126,14 @@
 							</div>
 						</NuxtLink>
 					</div>
+					<!-- Load More -->
+					<div v-if="hasMore" class="mt-8 text-center">
+						<button @click="loadMore" :disabled="isLoadMoreLoading"
+							class="px-6 py-2.5 rounded-xl text-sm font-medium text-white transition-opacity disabled:opacity-50"
+							style="background-color: rgb(var(--color-primary))">
+							{{ isLoadMoreLoading ? 'Loading...' : 'Load More' }}
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -145,43 +153,97 @@ const products = ref([])
 const suggestions = ref([])
 const trending = ref([])
 const categories = ref([])
+const cursor = ref(null)
+const hasMore = ref(false)
+const isLoadMoreLoading = ref(false)
 let autocompleteTimer = null
 
 const doSearch = async () => {
-	if (!query.value && !selectedCategory.value) {
-		const { getPopular } = useSearch()
-		loading.value = true
-		try {
-			const res = await getPopular()
-			products.value = res?.data?.items || res?.data || []
-		} finally { loading.value = false }
-		return
-	}
 	loading.value = true
 	hasSearched.value = true
 	suggestions.value = []
+	cursor.value = null
+	hasMore.value = false
 	try {
+		if (!query.value && !selectedCategory.value && !minPrice.value && !maxPrice.value) {
+			const { getPopular } = useSearch()
+			try {
+				const res = await getPopular()
+				products.value = res?.data?.products || res?.data?.items || res?.data || []
+				cursor.value = res?.data?.next_cursor || null
+				hasMore.value = !!res?.data?.has_more
+			} catch {
+				products.value = []
+			}
+			return
+		}
+
 		const { searchProducts } = useSearch()
-		const params = {}
+		const params = { limit: 20 }
 		if (query.value) params.q = query.value
 		if (selectedCategory.value) params.category = selectedCategory.value
 		if (minPrice.value) params.min_price = minPrice.value
 		if (maxPrice.value) params.max_price = maxPrice.value
-		const res = await searchProducts(params)
-		products.value = res?.data?.items || res?.data || []
-	} finally { loading.value = false }
+
+		try {
+			const res = await searchProducts(params)
+			products.value = res?.data?.products || res?.data?.items || res?.data || []
+			cursor.value = res?.data?.next_cursor || null
+			hasMore.value = !!res?.data?.has_more
+		} catch {
+			products.value = []
+		}
+	} finally {
+		loading.value = false
+	}
 }
 
+const loadMore = async () => {
+	if (isLoadMoreLoading.value || !hasMore.value) return
+	isLoadMoreLoading.value = true
+	try {
+		const { searchProducts } = useSearch()
+		const params = {
+			limit: 20,
+			cursor: cursor.value
+		}
+		if (query.value) params.q = query.value
+		if (selectedCategory.value) params.category = selectedCategory.value
+		if (minPrice.value) params.min_price = minPrice.value
+		if (maxPrice.value) params.max_price = maxPrice.value
+
+		const res = await searchProducts(params)
+		const list = res?.data?.products || res?.data?.items || []
+		products.value.push(...list)
+		cursor.value = res?.data?.next_cursor || null
+		hasMore.value = !!res?.data?.has_more
+	} catch (err) {
+		console.error('Failed to load more products:', err)
+	} finally {
+		isLoadMoreLoading.value = false
+	}
+}
+
+let debounceTimer = null
 const onSearchInput = () => {
 	clearTimeout(autocompleteTimer)
-	if (query.value.length < 2) { suggestions.value = []; return }
-	autocompleteTimer = setTimeout(async () => {
-		try {
-			const { autocomplete } = useSearch()
-			const res = await autocomplete(query.value)
-			suggestions.value = res?.data?.suggestions || res?.data || []
-		} catch { suggestions.value = [] }
-	}, 300)
+	clearTimeout(debounceTimer)
+	
+	if (query.value.length < 2) {
+		suggestions.value = []
+	} else {
+		autocompleteTimer = setTimeout(async () => {
+			try {
+				const { autocomplete } = useSearch()
+				const res = await autocomplete(query.value)
+				suggestions.value = res?.data?.suggestions || res?.data || []
+			} catch {
+				suggestions.value = []
+			}
+		}, 300)
+	}
+
+	debounceTimer = setTimeout(doSearch, 600)
 }
 
 const clearFilters = () => {
@@ -191,14 +253,44 @@ const clearFilters = () => {
 	selectedCategory.value = ''
 	hasSearched.value = false
 	products.value = []
+	cursor.value = null
+	hasMore.value = false
 }
 
-onMounted(async () => {
-	const { getTrending, getPublicCategories, getPopular } = useSearch()
-	const [trendRes, catRes, popRes] = await Promise.allSettled([getTrending(), getPublicCategories(), getPopular()])
-	trending.value = trendRes.value?.data || []
-	categories.value = catRes.value?.data?.items || catRes.value?.data || []
-	products.value = popRes.value?.data?.items || popRes.value?.data || []
+// SSR Data Initialization using useAsyncData
+const { getTrending, getPublicCategories, getPopular } = useSearch()
+const { data: initialSearchData } = await useAsyncData('initial-search-data', async () => {
+	const [trendRes, catRes, popRes] = await Promise.allSettled([
+		getTrending(),
+		getPublicCategories(),
+		getPopular()
+	])
+	
+	const trend = trendRes.status === 'fulfilled' && trendRes.value?.data?.length
+		? trendRes.value.data
+		: []
+		
+	const cats = catRes.status === 'fulfilled'
+		? (catRes.value.value?.data?.items || catRes.value.value?.data || [])
+		: []
+		
+	const pop = popRes.status === 'fulfilled'
+		? popRes.value.value?.data || {}
+		: null
+		
+	return { trend, cats, pop }
+})
+
+// Set layout references from SSR fetched data
+trending.value = initialSearchData.value?.trend || []
+categories.value = initialSearchData.value?.cats || []
+
+const initialProductsList = initialSearchData.value?.pop?.products || initialSearchData.value?.pop?.items || initialSearchData.value?.pop || []
+products.value = initialProductsList
+cursor.value = initialSearchData.value?.pop?.next_cursor || null
+hasMore.value = !!initialSearchData.value?.pop?.has_more
+
+onMounted(() => {
 	if (query.value) doSearch()
 })
 </script>

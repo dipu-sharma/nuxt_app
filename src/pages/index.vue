@@ -46,9 +46,11 @@ definePageMeta({
 })
 
 const { fetchPublic } = useProducts()
-const { data: productResponse } = await useAsyncData('homeProducts', () => fetchPublic())
+const { data: productResponse } = await useAsyncData('homeProducts', () => fetchPublic().catch(() => null))
 
-const products = computed(() => productResponse.value?.data?.items || []);
+const products = computed(() => {
+	return productResponse.value?.data?.items || productResponse.value?.data || []
+})
 
 const amount_range = ref([10, 500])
 const items = ref([

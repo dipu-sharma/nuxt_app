@@ -12,7 +12,7 @@
 					:key="product.id"
 				>
 					<img
-						:src="product.images && product.images.length > 0 ? product.images[0].image_url : 'https://via.placeholder.com/300x200?text=No+Image'"
+						:src="product.images && product.images.length > 0 ? (product.images[0].image_url || product.images[0].url) : 'https://via.placeholder.com/300x200?text=No+Image'"
 						:alt="product.product_name"
 						class="h-80 w-full object-cover transition-transform duration-300 group-hover:scale-110"
 					/>
@@ -54,11 +54,11 @@
 					</div>
 				</div>
 			</section>
-
+ 
 			<hr class="my-8" />
-
+ 
 			<h2 class="text-2xl font-bold text-center my-8">Original Product Card Design</h2>
-
+ 
 			<section
 				class="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-6 mt-10 mb-5"
 			>
@@ -69,7 +69,7 @@
 					:key="product.id"
 				>
 					<div @click="getDetails(product.product_id)" class="text-center items-center mx-12">
-						<img :src="product.images && product.images.length > 0 ? product.images[0].image_url : 'https://via.placeholder.com/300x200?text=No+Image'" alt="Product" class="w-full h-72 object-cover rounded-t-xl" />
+						<img :src="product.images && product.images.length > 0 ? (product.images[0].image_url || product.images[0].url) : 'https://via.placeholder.com/300x200?text=No+Image'" alt="Product" class="w-full h-72 object-cover rounded-t-xl" />
 						<div class="p-4">
 							<span class="text-gray-400 uppercase text-xs">{{ product.brand_name }}</span>
 							<p class="text-lg font-bold text-black truncate capitalize">{{ product.product_name }}</p>
@@ -104,12 +104,12 @@
 		</div>
 	</div>
 </template>
-
+ 
 <script setup>
 import { useCart } from '~/composables/useCart'
 const router = useRouter()
 const { syncCart } = useCart()
-
+ 
 const props = defineProps({
 	products: {
 		type: Array,
@@ -117,7 +117,7 @@ const props = defineProps({
 		default: () => [],
 	},
 })
-
+ 
 const handleAddToCart = async (product_id) => {
 	try {
 		const items = [{ product_id: product_id, quantity: 1 }]
@@ -126,10 +126,10 @@ const handleAddToCart = async (product_id) => {
 		console.error('Failed to add product to cart:', error)
 	}
 }
-
+ 
 const getDetails = (product_id) => {
 	console.log('Navigate to product details page', product_id)
-	router.push(`/products/${product_id}`)
+	router.push(`/product/${product_id}`)
 }
 </script>
 

@@ -14,10 +14,19 @@
           variant="outlined" rounded="lg" density="compact" hide-details class="max-w-xs"
           @update:model-value="debouncedFetch" />
       </div>
-      <v-data-table :headers="headers" :items="categories" :loading="loading" items-per-page="10"
+      <v-data-table :headers="headers" :items="visibleCategories" :loading="loading" items-per-page="10"
         class="rounded-xl" hover>
         <template #item.name="{ item }">
-          <span class="font-semibold">{{ item.name }}</span>
+          <div :style="{ paddingLeft: `${(item.level || 0) * 24}px` }" class="flex items-center gap-1">
+            <!-- Expand/Collapse Button -->
+            <v-btn v-if="item.children?.length" icon size="24" variant="text" @click.stop="toggleExpand(item.id)">
+              <Icon :name="expandedIds.has(item.id) ? 'mdi:chevron-down' : 'mdi:chevron-right'" class="text-slate-600" />
+            </v-btn>
+            <div v-else class="w-6"></div> <!-- Alignment spacer -->
+            
+            <Icon :name="item.children?.length ? 'mdi:folder-outline' : 'mdi:subdirectory-arrow-right'" class="text-slate-400 opacity-70" />
+            <span class="font-semibold ml-1">{{ item.name }}</span>
+          </div>
         </template>
         <template #item.is_active="{ item }">
           <v-chip :color="item.is_active ? 'success' : 'default'" size="small" variant="flat">
@@ -39,11 +48,13 @@
     <v-dialog v-model="dialog" max-width="500">
       <v-card rounded="xl" class="pa-6">
         <h2 class="text-xl font-bold mb-4">{{ editing ? 'Edit' : 'Create' }} Category</h2>
-        <v-form ref="form" @submit.prevent="save">
+        <v-form ref="formRef" @submit.prevent="save">
           <v-text-field v-model="form.name" label="Category Name" variant="outlined" rounded="lg"
             :rules="[v => !!v || 'Required']" class="mb-3" />
           <v-text-field v-model="form.slug" label="Slug" variant="outlined" rounded="lg" class="mb-3"
             hint="Auto-generated from name" />
+          <v-autocomplete v-model="form.parent_id" :items="categories" item-title="displayName" item-value="id"
+            label="Parent Category (Optional)" variant="outlined" rounded="lg" clearable class="mb-3" />
           <v-textarea v-model="form.description" label="Description" variant="outlined" rounded="lg" rows="3" class="mb-3" />
           <v-switch v-model="form.is_active" label="Active" color="primary" class="mb-4" />
           <div class="flex gap-3 justify-end">
@@ -71,6 +82,7 @@
 
 <script setup>
 import { toast } from 'vue3-toastify'
+import { CategoryPayloadSchema } from '@/utils/schemas'
 
 definePageMeta({ title: 'Category Management', middleware: ['auth-role'], layout: 'admin' })
 
@@ -84,13 +96,46 @@ const deletingItem = ref(null)
 const categories = ref([])
 const total = ref(0)
 const search = ref('')
-const form = ref({ name: '', slug: '', description: '', is_active: true })
+const form = ref({ name: '', slug: '', description: '', is_active: true, parent_id: null })
+const formRef = ref(null)
+
+const expandedIds = ref(new Set())
+
+const toggleExpand = (id) => {
+  const newSet = new Set(expandedIds.value)
+  if (newSet.has(id)) newSet.delete(id)
+  else newSet.add(id)
+  expandedIds.value = newSet
+}
+
+const visibleCategories = computed(() => {
+  const visible = []
+  const hiddenAncestors = new Set()
+  
+  for (const cat of categories.value) {
+    if (cat.parent_id === null) {
+      visible.push(cat)
+      if (!expandedIds.value.has(cat.id)) {
+        hiddenAncestors.add(cat.id)
+      }
+    } else {
+      if (hiddenAncestors.has(cat.parent_id)) {
+        hiddenAncestors.add(cat.id)
+      } else {
+        visible.push(cat)
+        if (!expandedIds.value.has(cat.id)) {
+          hiddenAncestors.add(cat.id)
+        }
+      }
+    }
+  }
+  return visible
+})
 
 const headers = [
   { title: '#', key: 'index', width: 60 },
   { title: 'Name', key: 'name' },
   { title: 'Slug', key: 'slug' },
-  { title: 'Products', key: 'product_count' },
   { title: 'Status', key: 'is_active' },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]
@@ -98,12 +143,32 @@ const headers = [
 let debounceTimer = null
 const debouncedFetch = () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(fetch, 400) }
 
+const flattenCategories = (items) => {
+  let flat = []
+  for (const item of items) {
+    flat.push(item)
+    if (item.children && item.children.length > 0) {
+      flat = flat.concat(flattenCategories(item.children))
+    }
+  }
+  return flat
+}
+
 const fetch = async () => {
   loading.value = true
   try {
     const { getAdminCategories } = useCategories()
     const res = await getAdminCategories({ search: search.value })
-    categories.value = (res?.data?.items || res?.data || []).map((c, i) => ({ ...c, index: i + 1 }))
+    const rawItems = res?.data?.items || res?.data || []
+    
+    // Flatten the tree into a 1D array for data-table
+    const flatItems = flattenCategories(rawItems)
+    categories.value = flatItems.map((c, i) => ({ 
+      ...c, 
+      index: i + 1,
+      displayName: c.level > 0 ? `${'— '.repeat(c.level)}${c.name}` : c.name
+    }))
+    
     total.value = res?.data?.total || categories.value.length
   } catch { toast.error('Failed to load categories') }
   finally { loading.value = false }
@@ -111,34 +176,51 @@ const fetch = async () => {
 
 const openCreate = () => {
   editing.value = null
-  form.value = { name: '', slug: '', description: '', is_active: true }
+  form.value = { name: '', slug: '', description: '', is_active: true, parent_id: null }
   dialog.value = true
 }
 
 const openEdit = (item) => {
   editing.value = item
-  form.value = { name: item.name, slug: item.slug, description: item.description, is_active: item.is_active }
+  form.value = { name: item.name, slug: item.slug, description: item.description, is_active: item.is_active, parent_id: item.parent_id || null }
   dialog.value = true
 }
 
-watch(() => form.value.name, (val) => {
-  if (!editing.value) form.value.slug = val.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+watch(() => form.value?.name, (val) => {
+  if (!editing.value && val) form.value.slug = val.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
 })
 
 const save = async () => {
   saving.value = true
   try {
+    const payload = {
+      name: form.value?.name || '',
+      description: form.value?.description || '',
+      parent_id: form.value?.parent_id || null
+    }
+    
+    // Zod validation
+    const parsed = CategoryPayloadSchema.safeParse(payload)
+    if (!parsed.success) {
+      toast.error(parsed.error.errors[0].message)
+      saving.value = false
+      return
+    }
+
     const { createCategory, updateCategory } = useCategories()
     if (editing.value) {
-      await updateCategory(editing.value.id, form.value)
+      await updateCategory(editing.value.id, { ...parsed.data, is_active: form.value.is_active, slug: form.value.slug })
       toast.success('Category updated!')
     } else {
-      await createCategory(form.value)
+      await createCategory({ ...parsed.data, is_active: form.value.is_active, slug: form.value.slug })
       toast.success('Category created!')
     }
     dialog.value = false
     fetch()
-  } catch { toast.error('Failed to save category') }
+  } catch (err) { 
+    console.error(err)
+    toast.error('Failed to save category') 
+  }
   finally { saving.value = false }
 }
 

@@ -218,12 +218,27 @@ onMounted(async () => {
 		const { getProductDetail } = useSearch()
 		const res = await getProductDetail(productId)
 		product.value = res?.data || res
+		if (!product.value || !product.value.name) {
+			throw new Error('Empty product details')
+		}
+	} catch {
+		product.value = null
+	} finally {
 		if (product.value?.images?.[0]?.url) {
 			selectedImage.value = product.value.images[0].url
+		} else if (product.value?.images?.[0]?.image_url) {
+			selectedImage.value = product.value.images[0].image_url
 		}
 		useHead({ title: product.value?.name || 'Product' })
-	} catch { product.value = null }
-	finally { loading.value = false }
+		loading.value = false
+	}
 	loadReviews()
+
+	// Check if in wishlist (only if user is authenticated)
+	try {
+		const { checkWishlist } = useWishlist()
+		const checkRes = await checkWishlist(productId)
+		inWishlist.value = !!(checkRes?.data?.in_wishlist || checkRes?.in_wishlist || checkRes?.data || checkRes)
+	} catch {}
 })
 </script>

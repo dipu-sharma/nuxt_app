@@ -130,6 +130,16 @@ const allSidebarItems = {
 			path: '/business/employees',
 			icon: 'mdi-account-group-outline',
 		},
+		{
+			label: 'Shipping Zones',
+			path: '/business/shipping',
+			icon: 'mdi-truck-fast-outline',
+		},
+		{
+			label: 'Tax Config',
+			path: '/business/tax',
+			icon: 'mdi-percent-outline',
+		},
 	],
 	BUSINESS_MEMBER: [
 		{

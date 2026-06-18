@@ -11,13 +11,13 @@ export const useNotifications = () => {
     },
 
     /** Mark a single notification as read */
-    async markAsRead(id: string) {
-      return await api(`/api/notifications/${id}/read`, { method: 'PUT' })
+    async markAsRead(id: string | number) {
+      return await api(`/api/notifications/${id}/read`, { method: 'POST' })
     },
 
     /** Mark all notifications as read */
     async markAllRead() {
-      return await api('/api/notifications/read-all', { method: 'PUT' })
+      return await api('/api/notifications/mark-all-read', { method: 'POST' })
     },
 
     /** Get unread notification count */

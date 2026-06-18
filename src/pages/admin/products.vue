@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useProducts } from '~/composables/useProducts'
 import { toast } from 'vue3-toastify'
 import Dialog from '~/components/Dialog/Dialog.vue'
@@ -87,19 +87,25 @@ const fetchData = async () => {
 		const params = {
 			page: page.value,
 			per_page: itemsPerPage.value,
-            is_paginate: true,
-        }
-        if(search.value) {
-            params.search = search.value
-        }
+			is_paginate: true,
+		}
+		if(search.value) {
+			params.search = search.value
+		}
 		const response = await fetchBusinessProducts(params)
-		products.value = response?.data?.items || []
-		totalItems.value = response?.data?.total || 0
+		const list = response?.data?.items || response?.data || []
+		products.value = list.map(p => ({
+			...p,
+			quantity: p.quantity !== undefined ? p.quantity : (p.stock_quantity ?? p.stock ?? 0)
+		}))
+		totalItems.value = response?.data?.total || list.length
 		page.value = response?.data?.page || 1
 		itemsPerPage.value = response?.data?.per_page || 10
-
 	} catch (error) {
+		console.error(error)
 		toast.error('Failed to fetch products')
+		products.value = []
+		totalItems.value = 0
 	} finally {
 		loading.value = false
 	}
@@ -117,7 +123,11 @@ const openCreateDialog = () => {
 
 const openEditDialog = (product) => {
 	editingProduct.value = { ...product }
-	productData.value = { ...product }
+	productData.value = { 
+		name: product.name || product.product_name || '',
+		price: product.price || product.selling_price || '',
+		quantity: product.quantity !== undefined ? product.quantity : (product.stock_quantity ?? product.stock ?? 0)
+	}
 	showEditProductDialog.value = true
 }
 
@@ -126,22 +136,33 @@ const closeModal = () => {
 }
 
 const saveProduct = async () => {
-	if (!productData.value.name || !productData.value.price || !productData.value.quantity) {
+	if (!productData.value.name || !productData.value.price || productData.value.quantity === undefined) {
 		toast.error("Please fill all fields")
 		return
 	}
 
 	try {
 		if (editingProduct.value) {
-			await updateProduct(editingProduct.value.id, productData.value)
-			toast.success('Product updated')
+			await updateProduct(editingProduct.value.id, {
+				product_name: productData.value.name,
+				selling_price: Number(productData.value.price),
+				product_mrp: Number(productData.value.price),
+				low_stock_threshold: 10
+			})
+			toast.success('Product updated successfully')
 		} else {
-			await createProduct(productData.value)
-			toast.success('Product created')
+			await createProduct({
+				product_name: productData.value.name,
+				selling_price: Number(productData.value.price),
+				product_mrp: Number(productData.value.price),
+				low_stock_threshold: 10
+			})
+			toast.success('Product created successfully')
 		}
 		closeModal()
 		fetchData()
 	} catch (error) {
+		console.error(error)
 		toast.error('Failed to save product')
 	}
 }
@@ -149,14 +170,14 @@ const saveProduct = async () => {
 const confirmDeleteProduct = async (item) => {
     if(!confirm(`Are you sure you want to delete ${item.name}?`)) return
     try {
-        await deleteProduct(item.id)
-        toast.success('Product deleted')
+		await deleteProduct(item.id)
+		toast.success('Product deleted successfully')
         fetchData()
     } catch (error) {
+		console.error(error)
         toast.error('Failed to delete product')
     }
 }
-
 
 const updatePage = (newPage) => {
 	page.value = newPage

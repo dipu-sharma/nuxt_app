@@ -6,16 +6,16 @@ export const useBranches = () => {
 
   return {
     async getBranches(params: Record<string, any> = {}) {
-      return await api('/api/business/branches/', { method: 'GET', query: params })
+      return await api('/api/branches/', { method: 'GET', query: params })
     },
     async createBranch(payload: any) {
-      return await api('/api/business/branches/', { method: 'POST', body: payload })
+      return await api('/api/branches/', { method: 'POST', body: payload })
     },
-    async updateBranch(id: string, payload: any) {
-      return await api(`/api/business/branches/${id}`, { method: 'PUT', body: payload })
+    async updateBranch(id: string | number, payload: any) {
+      return await api(`/api/branches/${id}`, { method: 'PUT', body: payload })
     },
-    async deleteBranch(id: string) {
-      return await api(`/api/business/branches/${id}`, { method: 'DELETE' })
+    async deleteBranch(id: string | number) {
+      return await api(`/api/branches/${id}`, { method: 'DELETE' })
     },
   }
 }

@@ -39,7 +39,7 @@
     <v-dialog v-model="dialog" max-width="540">
       <v-card rounded="xl" class="pa-6">
         <h2 class="text-xl font-bold mb-4">{{ editing ? 'Edit' : 'Create' }} Coupon</h2>
-        <v-form ref="form" @submit.prevent="save">
+        <v-form ref="formRef" @submit.prevent="save">
           <v-row>
             <v-col cols="12">
               <v-text-field v-model="form.code" label="Coupon Code" variant="outlined" rounded="lg"
@@ -126,6 +126,7 @@ const defaultForm = () => ({
   min_order_amount: 0, max_uses: null, expires_at: '', is_active: true
 })
 const form = ref(defaultForm())
+const formRef = ref(null)
 
 const formatDate = (d) => dayjs(d).format('DD MMM YYYY')
 const isExpired = (d) => d && dayjs(d).isBefore(dayjs())

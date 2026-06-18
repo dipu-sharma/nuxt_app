@@ -11,7 +11,7 @@
 		<!-- Filters -->
 		<div class="rounded-xl p-4 mb-6 flex flex-wrap gap-3 items-center"
 			style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
-			<input v-model="search" @keyup.enter="loadUsers" type="text" placeholder="Search by email..."
+			<input v-model="search" @input="debouncedSearch" @keyup.enter="loadUsers" type="text" placeholder="Search by email..."
 				class="flex-1 min-w-48 px-4 py-2 rounded-lg text-sm focus:outline-none focus:ring-2"
 				style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
 			<select v-model="filterRole" @change="loadUsers"
@@ -150,6 +150,12 @@ const roleClass = (role) => {
 }
 
 const formatDate = (d) => d ? new Date(d).toLocaleDateString() : '—'
+
+let debounceTimer = null
+const debouncedSearch = () => {
+	clearTimeout(debounceTimer)
+	debounceTimer = setTimeout(loadUsers, 400)
+}
 
 const loadUsers = async () => {
 	loading.value = true

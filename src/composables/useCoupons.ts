@@ -35,7 +35,7 @@ export const useCoupons = () => {
 
     /** User: Validate a coupon code */
     async validateCoupon(code: string, order_amount?: number) {
-      return await api('/api/user/coupons/validate', {
+      return await api('/api/coupons/validate', {
         method: 'POST',
         body: { code, order_amount },
       })

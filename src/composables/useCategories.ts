@@ -7,7 +7,17 @@ export const useCategories = () => {
   return {
     /** Get all categories (public) */
     async getCategories(params: Record<string, any> = {}) {
-      return await api('/api/home/categories/', { method: 'GET', query: params })
+      return await api('/api/categories', { method: 'GET', query: params })
+    },
+
+    /** Get Category Tree (SSR friendly) */
+    async getCategoryTree() {
+      return await api('/api/categories/tree', { method: 'GET' })
+    },
+
+    /** Get Breadcrumbs */
+    async getCategoryBreadcrumb(categoryId: string | number) {
+      return await api(`/api/categories/${categoryId}/breadcrumb`, { method: 'GET' })
     },
 
     /** Admin: Get all categories */

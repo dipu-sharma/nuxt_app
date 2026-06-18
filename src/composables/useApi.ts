@@ -25,12 +25,20 @@ export const useApi = () => {
       // Priority: Nuxt cookie ref → document.cookie (raw, always fresh) → nothing
       const token = tokenCookie.value || getRawCookie('auth_token')
 
-      options.headers = {
+      const headers = {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
         ...(options.headers as Record<string, string> || {}),
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       }
+
+      if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json'
+      }
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
+      options.headers = headers
     },
     async onResponseError({ response }) {
       const message =

@@ -5,17 +5,14 @@ export const useShipping = () => {
   const api = useApi()
 
   return {
-    async getShippingMethods(params: Record<string, any> = {}) {
-      return await api('/api/business/shipping/', { method: 'GET', query: params })
+    async getShippingZones(params: Record<string, any> = {}) {
+      return await api('/api/shipping/zones', { method: 'GET', query: params })
     },
-    async createShippingMethod(payload: any) {
-      return await api('/api/business/shipping/', { method: 'POST', body: payload })
+    async createShippingZone(payload: any) {
+      return await api('/api/shipping/zones', { method: 'POST', body: payload })
     },
-    async updateShippingMethod(id: string, payload: any) {
-      return await api(`/api/business/shipping/${id}`, { method: 'PUT', body: payload })
-    },
-    async deleteShippingMethod(id: string) {
-      return await api(`/api/business/shipping/${id}`, { method: 'DELETE' })
+    async deleteShippingZone(id: string | number) {
+      return await api(`/api/shipping/zones/${id}`, { method: 'DELETE' })
     },
   }
 }
