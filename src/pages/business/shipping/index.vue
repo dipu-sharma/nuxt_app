@@ -121,7 +121,7 @@ import { ref, onMounted } from 'vue'
 import { toast } from 'vue3-toastify'
 import { useShipping } from '~/composables/useShipping'
 
-definePageMeta({ title: 'Shipping Zones', middleware: ['auth-role'], layout: 'admin' })
+definePageMeta({ title: 'Shipping Zones', middleware: ['auth-role'], layout: 'admin', role: ['BUSINESS_OWNER'] })
 
 const loading = ref(false)
 const saving = ref(false)

@@ -70,7 +70,7 @@ import { ref, onMounted } from 'vue'
 import { toast } from 'vue3-toastify'
 import { useTax } from '~/composables/useTax'
 
-definePageMeta({ title: 'Tax Configuration', middleware: ['auth-role'], layout: 'admin' })
+definePageMeta({ title: 'Tax Configuration', middleware: ['auth-role'], layout: 'admin', role: ['BUSINESS_OWNER'] })
 
 const loading = ref(false)
 const saving = ref(false)

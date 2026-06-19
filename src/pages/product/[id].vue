@@ -1,150 +1,220 @@
 <template>
-	<div class="min-h-screen" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text))">
-		<!-- Loading -->
-		<div v-if="loading" class="max-w-5xl mx-auto p-6">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-				<div class="rounded-2xl h-96 animate-pulse" style="background-color: rgb(var(--color-card))" />
-				<div class="space-y-4 pt-4">
-					<div class="h-6 rounded animate-pulse" style="background-color: rgb(var(--color-card))" />
-					<div class="h-4 w-3/4 rounded animate-pulse" style="background-color: rgb(var(--color-card))" />
-					<div class="h-10 w-32 rounded animate-pulse" style="background-color: rgb(var(--color-card))" />
-				</div>
-			</div>
-		</div>
+  <div class="min-h-screen bg-background text-text py-12 px-4 sm:px-6 font-sans">
+    
+    <!-- Loading State -->
+    <div v-if="loading" class="max-w-5xl mx-auto flex flex-col items-center justify-center py-32">
+      <v-progress-circular indeterminate color="primary" :size="50" :width="2" class="opacity-50" />
+    </div>
 
-		<!-- Product Detail -->
-		<div v-else-if="product" class="max-w-5xl mx-auto p-6">
-			<!-- Breadcrumb -->
-			<nav class="flex items-center gap-2 text-sm opacity-60 mb-6">
-				<NuxtLink to="/">Home</NuxtLink>
-				<span>/</span>
-				<NuxtLink to="/products">Products</NuxtLink>
-				<span>/</span>
-				<span>{{ product.name }}</span>
-			</nav>
+    <!-- Product Detail Page -->
+    <div v-else-if="product" class="max-w-5xl mx-auto">
+      
+      <!-- Minimal Breadcrumb -->
+      <nav class="flex items-center gap-2 text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-10">
+        <NuxtLink to="/" class="hover:opacity-80">Home</NuxtLink>
+        <span class="opacity-40">/</span>
+        <NuxtLink to="/products" class="hover:opacity-80">Products</NuxtLink>
+        <span class="opacity-40">/</span>
+        <span class="text-text opacity-70 truncate max-w-[150px] sm:max-w-xs">{{ product.name }}</span>
+      </nav>
 
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-				<!-- Images -->
-				<div>
-					<div class="rounded-2xl overflow-hidden mb-3 h-96"
-						style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
-						<img v-if="selectedImage" :src="selectedImage" :alt="product.name" class="w-full h-full object-cover" />
-						<div v-else class="w-full h-full flex items-center justify-center text-8xl opacity-30">🛍️</div>
-					</div>
-					<div class="flex gap-2">
-						<button v-for="(img, i) in product.images" :key="i" @click="selectedImage = img.url"
-							class="w-16 h-16 rounded-lg overflow-hidden border-2 transition-all"
-							:style="selectedImage === img.url ? 'border-color: rgb(var(--color-primary))' : 'border-color: transparent'">
-							<img :src="img.url" class="w-full h-full object-cover" />
-						</button>
-					</div>
-				</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 items-start">
+        
+        <!-- Left Side: Product Images -->
+        <div>
+          <!-- Large Preview Image -->
+          <div class="rounded-[2.5rem] overflow-hidden bg-card border border-border shadow-sm flex items-center justify-center aspect-[4/3] relative p-6">
+            <img v-if="selectedImage" :src="selectedImage" :alt="product.name" class="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal" />
+            <div v-else class="w-full h-full flex items-center justify-center text-7xl opacity-20">🛍️</div>
+          </div>
+          
+          <!-- Thumbnail Selector -->
+          <div v-if="product.images?.length > 1" class="flex flex-wrap gap-3 mt-4">
+            <button v-for="(img, i) in product.images" :key="i" @click="selectedImage = img.url"
+              class="w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all p-1 bg-card"
+              :class="selectedImage === img.url ? 'border-primary' : 'border-transparent hover:border-border'">
+              <img :src="img.url" class="w-full h-full object-cover rounded-xl mix-blend-multiply dark:mix-blend-normal" />
+            </button>
+          </div>
+        </div>
 
-				<!-- Info -->
-				<div class="flex flex-col">
-					<h1 class="text-2xl font-bold mb-2">{{ product.name }}</h1>
-					<div class="flex items-center gap-3 mb-4">
-						<div v-if="product.rating" class="flex items-center gap-1 text-yellow-500 text-sm">
-							⭐ {{ product.rating }} ({{ product.review_count || 0 }} reviews)
-						</div>
-						<span class="px-2 py-0.5 text-xs rounded-full"
-							:class="product.stock_quantity > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
-							{{ product.stock_quantity > 0 ? 'In Stock' : 'Out of Stock' }}
-						</span>
-					</div>
-					<p class="text-3xl font-bold mb-4" style="color: rgb(var(--color-primary))">${{ product.price }}</p>
-					<p class="text-sm opacity-70 leading-relaxed mb-6">{{ product.description }}</p>
+        <!-- Right Side: Info & Actions -->
+        <div class="flex flex-col">
+          <!-- Brand / Tag -->
+          <span class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">
+            {{ product.brand_name || product.category?.name || 'Curated Collection' }}
+          </span>
 
-					<div class="flex items-center gap-3 mb-4">
-						<label class="text-sm font-medium">Qty:</label>
-						<div class="flex items-center gap-2">
-							<button @click="qty = Math.max(1, qty - 1)" class="w-8 h-8 rounded-lg border flex items-center justify-center"
-								style="border-color: rgb(var(--color-border))">−</button>
-							<span class="w-8 text-center font-medium">{{ qty }}</span>
-							<button @click="qty++" class="w-8 h-8 rounded-lg border flex items-center justify-center"
-								style="border-color: rgb(var(--color-border))">+</button>
-						</div>
-					</div>
+          <!-- Product Name -->
+          <h1 class="text-3xl sm:text-4xl font-light tracking-tight text-text mb-4">
+            {{ product.name }}
+          </h1>
 
-					<div class="flex gap-3 mt-auto">
-						<button @click="addToCart" :disabled="addingCart || product.stock_quantity === 0"
-							class="flex-1 py-3 rounded-xl font-medium text-white transition-opacity disabled:opacity-50"
-							style="background-color: rgb(var(--color-primary))">
-							{{ addingCart ? 'Adding...' : '🛒 Add to Cart' }}
-						</button>
-						<button @click="addToWishlist"
-							class="px-4 py-3 rounded-xl border transition-colors"
-							style="border-color: rgb(var(--color-border))">
-							{{ inWishlist ? '❤️' : '🤍' }}
-						</button>
-					</div>
+          <!-- Badges & Ratings -->
+          <div class="flex flex-wrap items-center gap-4 mb-6">
+            <div v-if="product.rating" class="flex items-center gap-1 text-yellow-500 text-sm font-semibold">
+              ⭐ <span class="text-text">{{ product.rating }}</span>
+              <span class="text-xs text-text opacity-50 font-normal">({{ product.review_count || 0 }} reviews)</span>
+            </div>
+            
+            <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
+              :class="product.stock_quantity > 0 
+                ? 'bg-primary/10 text-primary' 
+                : 'bg-red-500/10 text-red-550'">
+              {{ product.stock_quantity > 0 ? 'In Stock' : 'Out of Stock' }}
+            </span>
+          </div>
 
-					<!-- Meta -->
-					<div class="mt-6 pt-4 border-t text-sm opacity-60 space-y-1"
-						style="border-color: rgb(var(--color-border))">
-						<p v-if="product.sku">SKU: {{ product.sku }}</p>
-						<p v-if="product.category?.name">Category: {{ product.category.name }}</p>
-					</div>
-				</div>
-			</div>
+          <!-- Price Display -->
+          <p class="text-4xl font-light text-text tracking-tight mb-6">
+            ₹{{ product.price?.toLocaleString('en-IN') }}
+          </p>
 
-			<!-- Reviews Section -->
-			<div class="rounded-2xl p-6" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
-				<div class="flex items-center justify-between mb-6">
-					<h2 class="text-xl font-bold">Reviews ({{ reviews.length }})</h2>
-					<button @click="showReviewForm = !showReviewForm" class="px-4 py-2 rounded-lg text-sm font-medium text-white"
-						style="background-color: rgb(var(--color-primary))">
-						Write Review
-					</button>
-				</div>
+          <!-- Description -->
+          <p class="text-sm text-text opacity-70 font-medium leading-relaxed mb-8">
+            {{ product.description }}
+          </p>
 
-				<!-- Review Form -->
-				<div v-if="showReviewForm" class="rounded-xl p-4 mb-6"
-					style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border))">
-					<div class="flex items-center gap-2 mb-3">
-						<span class="text-sm font-medium">Rating:</span>
-						<div class="flex gap-1">
-							<button v-for="s in 5" :key="s" @click="reviewForm.rating = s"
-								class="text-xl transition-transform hover:scale-110"
-								:class="s <= reviewForm.rating ? 'text-yellow-400' : 'text-gray-300'">★</button>
-						</div>
-					</div>
-					<input v-model="reviewForm.title" placeholder="Review title"
-						class="w-full px-4 py-2 rounded-lg text-sm mb-2"
-						style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
-					<textarea v-model="reviewForm.content" placeholder="Share your experience..." rows="3"
-						class="w-full px-4 py-2 rounded-lg text-sm resize-none mb-3"
-						style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))"></textarea>
-					<button @click="submitReview" :disabled="submittingReview"
-						class="px-5 py-2 rounded-lg text-sm font-medium text-white"
-						style="background-color: rgb(var(--color-primary))">
-						{{ submittingReview ? 'Submitting...' : 'Submit Review' }}
-					</button>
-				</div>
+          <!-- Add to Cart Block -->
+          <div class="space-y-6 pt-6 border-t border-border">
+            <!-- Quantity Selector -->
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-widest text-text opacity-50">Select Quantity</span>
+              <div class="flex items-center bg-card border border-border rounded-full px-2 py-1 shadow-sm">
+                <button @click="qty = Math.max(1, qty - 1)" 
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-text opacity-70 hover:bg-secondary transition-colors text-lg font-light">
+                  −
+                </button>
+                <span class="w-12 text-center text-sm font-semibold text-text">
+                  {{ qty }}
+                </span>
+                <button @click="qty++" 
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-text opacity-70 hover:bg-secondary transition-colors text-lg font-light">
+                  +
+                </button>
+              </div>
+            </div>
 
-				<div v-if="reviews.length === 0" class="text-center py-8 opacity-50">No reviews yet. Be the first!</div>
-				<div v-else class="space-y-4">
-					<div v-for="review in reviews" :key="review.id"
-						class="p-4 rounded-xl" style="background-color: rgb(var(--color-background))">
-						<div class="flex items-center justify-between mb-2">
-							<span class="font-medium text-sm">{{ review.user?.username || 'Customer' }}</span>
-							<span class="text-yellow-400 text-sm">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</span>
-						</div>
-						<p v-if="review.title" class="font-medium text-sm mb-1">{{ review.title }}</p>
-						<p class="text-sm opacity-70">{{ review.content || review.comment }}</p>
-						<p class="text-xs opacity-40 mt-2">{{ new Date(review.created_at).toLocaleDateString() }}</p>
-					</div>
-				</div>
-			</div>
-		</div>
+            <!-- Main CTA Actions -->
+            <div class="flex gap-4">
+              <v-btn color="primary" variant="flat" rounded="pill" size="x-large" :disabled="addingCart || product.stock_quantity === 0"
+                class="flex-1 text-none tracking-widest font-medium text-white shadow-md" elevation="0"
+                @click="addToCart">
+                <template #prepend>
+                  <Icon name="mdi:cart-outline" class="w-5 h-5 mr-1" />
+                </template>
+                {{ addingCart ? 'ADDING...' : 'ADD TO CART' }}
+              </v-btn>
 
-		<!-- Not Found -->
-		<div v-else class="text-center py-24 opacity-50">
-			<div class="text-6xl mb-4">🔍</div>
-			<p>Product not found</p>
-			<NuxtLink to="/products" class="mt-4 inline-block text-sm underline">Browse Products</NuxtLink>
-		</div>
-	</div>
+              <button @click="addToWishlist"
+                class="w-14 h-14 rounded-full border border-border flex items-center justify-center hover:bg-card text-text opacity-50 hover:text-red-500 transition-all duration-300 shadow-sm flex-shrink-0">
+                <Icon :name="inWishlist ? 'mdi:heart' : 'mdi:heart-outline'" class="w-6 h-6" :class="{'text-red-500': inWishlist}" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Metadata Tags -->
+          <div class="mt-8 pt-6 border-t border-border text-[10px] text-text opacity-50 font-bold uppercase tracking-widest space-y-2">
+            <p v-if="product.sku">SKU: <span class="text-text opacity-80 font-semibold">{{ product.sku }}</span></p>
+            <p v-if="product.category?.name">Category: <span class="text-text opacity-80 font-semibold">{{ product.category.name }}</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews & Community section -->
+      <section class="bg-card rounded-[2.5rem] p-8 sm:p-10 border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)] mt-16">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div>
+            <h2 class="text-2xl font-light tracking-tight text-text">Customer Reviews</h2>
+            <p class="text-text opacity-50 text-xs font-semibold tracking-wide mt-1">Read honest feedback from verified buyers.</p>
+          </div>
+          <v-btn color="primary" variant="outlined" rounded="pill" @click="showReviewForm = !showReviewForm" class="text-none tracking-widest font-semibold">
+            {{ showReviewForm ? 'Cancel Review' : 'Write a Review' }}
+          </v-btn>
+        </div>
+
+        <!-- Write Review Form Container -->
+        <div v-if="showReviewForm" class="bg-secondary/40 rounded-[2rem] p-6 sm:p-8 border border-border mb-8">
+          <h3 class="text-lg font-light text-text mb-4 tracking-tight">Share your experience</h3>
+          
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-xs font-bold uppercase tracking-widest text-text opacity-50">Rating:</span>
+            <div class="flex gap-1.5">
+              <button v-for="s in 5" :key="s" @click="reviewForm.rating = s"
+                class="text-2xl transition-transform hover:scale-125 focus:outline-none"
+                :class="s <= reviewForm.rating ? 'text-yellow-400' : 'text-text opacity-30'">★</button>
+            </div>
+          </div>
+
+          <div class="space-y-4 mb-6">
+            <input v-model="reviewForm.title" placeholder="Summary title"
+              class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:border-primary text-text shadow-sm" />
+            
+            <textarea v-model="reviewForm.content" placeholder="What did you like or dislike?" rows="4"
+              class="w-full px-5 py-3.5 bg-card border border-border rounded-[1.5rem] text-sm resize-none focus:outline-none focus:border-primary text-text shadow-sm"></textarea>
+          </div>
+
+          <v-btn color="primary" variant="flat" rounded="pill" size="large" :disabled="submittingReview" @click="submitReview"
+            class="px-8 text-none tracking-widest font-medium text-white shadow-sm" elevation="0">
+            {{ submittingReview ? 'SUBMITTING...' : 'SUBMIT REVIEW' }}
+          </v-btn>
+        </div>
+
+        <!-- Reviews List -->
+        <div v-if="reviews.length === 0" class="text-center py-12">
+          <div class="w-16 h-16 mx-auto mb-4 bg-secondary rounded-full flex items-center justify-center">
+            <Icon name="mdi:message-draw" class="w-6 h-6 text-text opacity-30" />
+          </div>
+          <p class="text-text opacity-50 text-sm font-medium">No reviews yet. Be the first to share your thoughts!</p>
+        </div>
+
+        <div v-else class="space-y-6">
+          <div v-for="review in reviews" :key="review.id"
+            class="bg-secondary/20 rounded-[2rem] p-6 sm:p-8 border border-border/45 relative flex flex-col sm:flex-row gap-6">
+            
+            <!-- Review Details Left -->
+            <div class="flex-shrink-0 sm:w-40">
+              <p class="font-semibold text-text truncate text-sm mb-1">
+                {{ review.user?.username || 'Verified Buyer' }}
+              </p>
+              <p class="text-[10px] text-text opacity-40 font-bold uppercase tracking-widest mb-3">
+                {{ new Date(review.created_at).toLocaleDateString() }}
+              </p>
+              <!-- Star rating badges -->
+              <div class="text-yellow-400 text-sm">
+                {{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}
+              </div>
+            </div>
+
+            <!-- Review Message Right -->
+            <div class="flex-1">
+              <h4 v-if="review.title" class="font-bold text-text text-base mb-2">
+                {{ review.title }}
+              </h4>
+              <p class="text-text opacity-80 text-sm leading-relaxed font-medium">
+                {{ review.content || review.comment }}
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- Product Not Found -->
+    <div v-else class="text-center py-32 px-4 max-w-sm mx-auto">
+      <div class="w-20 h-20 mx-auto mb-6 bg-secondary rounded-full flex items-center justify-center">
+        <Icon name="mdi:alert-circle-outline" class="w-8 h-8 text-text opacity-40" />
+      </div>
+      <h3 class="text-xl font-light text-text mb-2">Product Not Found</h3>
+      <p class="text-text opacity-60 text-sm mb-8 leading-relaxed">The product you are looking for does not exist or has been removed.</p>
+      <v-btn color="primary" variant="flat" rounded="pill" to="/products" class="px-8 text-none tracking-widest font-medium text-white shadow-sm" elevation="0">
+        RETURN TO SHOP
+      </v-btn>
+    </div>
+
+  </div>
 </template>
 
 <script setup>
@@ -167,78 +237,90 @@ const submittingReview = ref(false)
 const reviewForm = ref({ rating: 5, title: '', content: '' })
 
 const addToCart = async () => {
-	addingCart.value = true
-	try {
-		const { addToCart: doAdd } = useCart()
-		await doAdd(String(productId), qty.value)
-		toast.success('Added to cart!')
-	} catch { toast.error('Failed to add to cart') }
-	finally { addingCart.value = false }
+  addingCart.value = true
+  try {
+    const { addToCart: doAdd } = useCart()
+    await doAdd(String(productId), qty.value)
+    toast.success('Added to cart successfully!')
+  } catch {
+    toast.error('Failed to add to cart')
+  } finally {
+    addingCart.value = false
+  }
 }
 
 const addToWishlist = async () => {
-	try {
-		const { addToWishlist: doAdd, removeFromWishlist } = useWishlist()
-		if (inWishlist.value) {
-			await removeFromWishlist(String(productId))
-			inWishlist.value = false
-			toast.success('Removed from wishlist')
-		} else {
-			await doAdd(String(productId))
-			inWishlist.value = true
-			toast.success('Added to wishlist ❤️')
-		}
-	} catch { toast.error('Failed to update wishlist') }
+  try {
+    const { addToWishlist: doAdd, removeFromWishlist } = useWishlist()
+    if (inWishlist.value) {
+      await removeFromWishlist(String(productId))
+      inWishlist.value = false
+      toast.success('Removed from wishlist')
+    } else {
+      await doAdd(String(productId))
+      inWishlist.value = true
+      toast.success('Added to wishlist ❤️')
+    }
+  } catch {
+    toast.error('Failed to update wishlist')
+  }
 }
 
 const submitReview = async () => {
-	if (!reviewForm.value.content) return toast.error('Please write a review')
-	submittingReview.value = true
-	try {
-		const { submitReview: doSubmit } = useReviews()
-		await doSubmit({ product_id: String(productId), rating: reviewForm.value.rating, comment: reviewForm.value.content })
-		toast.success('Review submitted!')
-		showReviewForm.value = false
-		reviewForm.value = { rating: 5, title: '', content: '' }
-		loadReviews()
-	} catch { toast.error('Failed to submit review') }
-	finally { submittingReview.value = false }
+  if (!reviewForm.value.content) return toast.error('Please write a review comment')
+  submittingReview.value = true
+  try {
+    const { submitReview: doSubmit } = useReviews()
+    await doSubmit({ product_id: String(productId), rating: reviewForm.value.rating, comment: reviewForm.value.content })
+    toast.success('Review submitted successfully!')
+    showReviewForm.value = false
+    reviewForm.value = { rating: 5, title: '', content: '' }
+    loadReviews()
+  } catch {
+    toast.error('Failed to submit review')
+  } finally {
+    submittingReview.value = false
+  }
 }
 
 const loadReviews = async () => {
-	try {
-		const { getProductReviews } = useReviews()
-		const res = await getProductReviews(String(productId))
-		reviews.value = res?.data?.items || res?.data || []
-	} catch { reviews.value = [] }
+  try {
+    const { getProductReviews } = useReviews()
+    const res = await getProductReviews(String(productId))
+    reviews.value = res?.data?.items || res?.data || []
+  } catch {
+    reviews.value = []
+  }
 }
 
 onMounted(async () => {
-	try {
-		const { getProductDetail } = useSearch()
-		const res = await getProductDetail(productId)
-		product.value = res?.data || res
-		if (!product.value || !product.value.name) {
-			throw new Error('Empty product details')
-		}
-	} catch {
-		product.value = null
-	} finally {
-		if (product.value?.images?.[0]?.url) {
-			selectedImage.value = product.value.images[0].url
-		} else if (product.value?.images?.[0]?.image_url) {
-			selectedImage.value = product.value.images[0].image_url
-		}
-		useHead({ title: product.value?.name || 'Product' })
-		loading.value = false
-	}
-	loadReviews()
+  try {
+    const { getProductDetail } = useSearch()
+    const res = await getProductDetail(productId)
+    product.value = res?.data || res
+    if (!product.value || !product.value.name) {
+      throw new Error('Empty product details')
+    }
+  } catch {
+    product.value = null
+  } finally {
+    if (product.value?.images?.[0]?.url) {
+      selectedImage.value = product.value.images[0].url
+    } else if (product.value?.images?.[0]?.image_url) {
+      selectedImage.value = product.value.images[0].image_url
+    }
+    useHead({ title: product.value?.name || 'Product' })
+    loading.value = false
+  }
+  loadReviews()
 
-	// Check if in wishlist (only if user is authenticated)
-	try {
-		const { checkWishlist } = useWishlist()
-		const checkRes = await checkWishlist(productId)
-		inWishlist.value = !!(checkRes?.data?.in_wishlist || checkRes?.in_wishlist || checkRes?.data || checkRes)
-	} catch {}
+  try {
+    const { checkWishlist } = useWishlist()
+    const checkRes = await checkWishlist(productId)
+    inWishlist.value = !!(checkRes?.data?.in_wishlist || checkRes?.in_wishlist || checkRes?.data || checkRes)
+  } catch {}
 })
 </script>
+
+<style scoped>
+</style>

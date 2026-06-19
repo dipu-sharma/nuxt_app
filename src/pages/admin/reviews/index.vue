@@ -63,7 +63,7 @@
 import { toast } from 'vue3-toastify'
 import dayjs from 'dayjs'
 
-definePageMeta({ title: 'Review Moderation', middleware: ['auth-role'], layout: 'admin' })
+definePageMeta({ title: 'Review Moderation', middleware: ['auth-role'], layout: 'admin', role: ['ADMIN'] })
 
 const loading = ref(false)
 const approving = ref(null)

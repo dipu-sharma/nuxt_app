@@ -71,7 +71,7 @@
 
 <script setup>
 import { toast } from 'vue3-toastify'
-definePageMeta({ title: 'Branch Management', middleware: ['auth-role'], layout: 'admin' })
+definePageMeta({ title: 'Branch Management', middleware: ['auth-role'], layout: 'admin', role: ['BUSINESS_OWNER'] })
 
 const loading = ref(false)
 const saving = ref(false)

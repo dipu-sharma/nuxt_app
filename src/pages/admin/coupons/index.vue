@@ -99,7 +99,7 @@
 import { toast } from 'vue3-toastify'
 import dayjs from 'dayjs'
 
-definePageMeta({ title: 'Coupon Management', middleware: ['auth-role'], layout: 'admin' })
+definePageMeta({ title: 'Coupon Management', middleware: ['auth-role'], layout: 'admin', role: ['ADMIN'] })
 
 const loading = ref(false)
 const saving = ref(false)

@@ -64,8 +64,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
 	}
 
 	// Explicit meta roles check
-	if (to.meta.roles && Array.isArray(to.meta.roles) && role.value && !to.meta.roles.includes(role.value)) {
-		return navigateTo('/403')
+	const rawRouteRoles = to.meta.roles || to.meta.role
+	if (rawRouteRoles && role.value) {
+		const routeRoles = Array.isArray(rawRouteRoles) ? rawRouteRoles : [rawRouteRoles]
+		const hasAccess = routeRoles.some((r) => typeof r === 'string' && r.toUpperCase() === role.value.toUpperCase())
+		if (!hasAccess) {
+			return navigateTo('/403')
+		}
 	}
 })
 

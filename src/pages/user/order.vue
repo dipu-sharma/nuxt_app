@@ -1,112 +1,175 @@
 <template>
-  <div class="p-6" style="color: rgb(var(--color-text))">
+  <div class="min-h-screen bg-background text-text py-12 px-4 sm:px-6 font-sans">
     <div class="max-w-5xl mx-auto">
-      <h1 class="text-2xl font-bold mb-6">My Orders</h1>
-
-      <!-- Filters -->
-      <div class="flex gap-3 mb-6 flex-wrap">
-        <v-select v-model="statusFilter" :items="statusOptions" label="Filter by Status" variant="outlined"
-          rounded="lg" density="compact" hide-details style="max-width:200px" clearable />
-        <v-text-field v-model="search" label="Search orders..." prepend-inner-icon="mdi:magnify"
-          variant="outlined" rounded="lg" density="compact" hide-details style="max-width:260px"
-          @update:model-value="debouncedFetch" />
+      
+      <!-- Elegant Header -->
+      <div class="mb-12 border-b border-border pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h1 class="text-4xl sm:text-5xl font-light tracking-tight text-text mb-3">
+            Purchase History
+          </h1>
+          <p class="text-text opacity-70 font-medium tracking-wide">Review and track your recent orders in one place.</p>
+        </div>
+        
+        <!-- Minimalist Filter -->
+        <div class="flex items-center gap-4">
+           <div class="relative w-full md:w-64">
+             <Icon name="mdi:magnify" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+             <input v-model="search" @input="debouncedFetch" type="text" placeholder="Search orders..." 
+              class="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
+           </div>
+        </div>
       </div>
 
-      <v-progress-circular v-if="loading" indeterminate color="primary" class="d-flex mx-auto my-16" />
+      <!-- Organic Status Pills -->
+      <div class="flex gap-2 overflow-x-auto pb-4 mb-8 hide-scrollbar">
+        <button v-for="status in ['All', ...statusOptions]" :key="status"
+          @click="statusFilter = status === 'All' ? null : status"
+          class="px-6 py-2.5 rounded-full text-sm tracking-wide transition-all duration-300 whitespace-nowrap border"
+          :class="statusFilter === status || (status === 'All' && !statusFilter) 
+            ? 'bg-primary border-primary text-white shadow-md' 
+            : 'bg-transparent border-border text-text opacity-80 hover:bg-secondary'">
+          <span class="capitalize font-medium">{{ status }}</span>
+        </button>
+      </div>
 
-      <!-- Empty -->
-      <div v-else-if="!orders.length" class="text-center py-20">
-        <Icon name="mdi:package-variant-closed" class="w-20 h-20 text-slate-300 mx-auto mb-4" />
-        <h2 class="text-xl font-semibold text-slate-600 mb-2">No orders yet</h2>
-        <p class="text-slate-400 mb-6">Start shopping to see your orders here</p>
-        <v-btn color="primary" rounded="lg" size="large" to="/products">Shop Now</v-btn>
+      <!-- Loading State -->
+      <div v-if="loading" class="flex flex-col items-center justify-center py-32">
+        <v-progress-circular indeterminate color="primary" :size="50" :width="2" class="mb-6 opacity-50" />
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="!orders.length" class="text-center py-32 px-4 bg-card rounded-[3rem] border border-border shadow-sm">
+        <div class="w-24 h-24 mx-auto mb-8 bg-secondary rounded-full flex items-center justify-center">
+          <Icon name="mdi:leaf-outline" class="w-10 h-10 text-primary opacity-70" />
+        </div>
+        <h2 class="text-2xl font-light text-text mb-4 tracking-tight">Your history is empty</h2>
+        <p class="text-text opacity-60 max-w-sm mx-auto mb-10 font-medium leading-relaxed">You haven't made any purchases yet. Discover our curated collection.</p>
+        <v-btn color="primary" rounded="pill" size="x-large" to="/products" class="px-12 text-none tracking-widest font-medium text-white shadow-lg hover:-translate-y-1 transition-transform duration-300" elevation="0">
+          EXPLORE SHOP
+        </v-btn>
       </div>
 
       <!-- Orders List -->
-      <div v-else class="space-y-4">
-        <v-card v-for="order in orders" :key="order.id" rounded="xl" class="pa-5 cursor-pointer hover:shadow-md transition-shadow"
+      <div v-else class="space-y-6">
+        <div v-for="(order, index) in orders" :key="order.id" 
+          class="group bg-card rounded-[2rem] p-6 sm:p-8 cursor-pointer border border-border hover:border-primary/60 transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] relative"
           @click="viewOrder(order)">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div class="flex items-center gap-3 mb-1">
-                <span class="font-bold text-base">#{{ order.order_number || order.id }}</span>
-                <v-chip :color="statusColor(order.status)" size="small" variant="flat">{{ order.status }}</v-chip>
+          
+          <div class="flex flex-col md:flex-row gap-8 justify-between items-start md:items-center">
+            
+            <div class="flex items-center gap-6 w-full md:w-auto">
+              <div class="w-16 h-16 flex-shrink-0 rounded-full bg-secondary flex items-center justify-center border border-border group-hover:bg-primary/10 transition-colors duration-500">
+                <Icon name="mdi:shopping-outline" class="w-6 h-6 text-text opacity-50 group-hover:text-primary transition-colors" />
               </div>
-              <p class="text-slate-500 text-sm">{{ formatDate(order.created_at) }}</p>
-              <p class="text-sm mt-1">{{ order.items?.length || 0 }} item(s)</p>
+              <div class="flex-1">
+                <div class="flex flex-wrap items-center gap-4 mb-2">
+                  <span class="text-xl font-medium tracking-tight text-text">#{{ order.order_number || order.id }}</span>
+                  <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest" :class="statusBadgeClass(order.status)">
+                    {{ order.status }}
+                  </span>
+                </div>
+                <p class="text-sm text-text opacity-70 font-medium tracking-wide">{{ formatDate(order.created_at) }} <span class="mx-2 opacity-30">|</span> {{ order.items?.length || 0 }} Items</p>
+              </div>
             </div>
-            <div class="text-right">
-              <p class="text-xl font-bold text-indigo-600">₹{{ order.total_amount?.toLocaleString('en-IN') }}</p>
-              <p class="text-xs text-slate-400">{{ order.payment_method?.toUpperCase() }}</p>
+
+            <div class="flex items-center gap-8 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 border-border pt-6 md:pt-0 mt-2 md:mt-0">
+              <div class="text-left md:text-right">
+                <p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-1">Total</p>
+                <p class="text-2xl font-light text-text tracking-tight">₹{{ order.total_amount?.toLocaleString('en-IN') }}</p>
+              </div>
+              <div class="w-12 h-12 rounded-full border border-border flex items-center justify-center group-hover:border-primary group-hover:bg-primary group-hover:text-white text-text opacity-50 transition-all duration-300">
+                <Icon name="mdi:arrow-right" class="w-5 h-5" />
+              </div>
             </div>
           </div>
-        </v-card>
+        </div>
 
         <!-- Pagination -->
-        <div class="flex justify-center mt-6">
-          <v-pagination v-model="page" :length="totalPages" rounded @update:model-value="fetchOrders" />
+        <div class="flex justify-center mt-12 mb-8">
+          <v-pagination v-model="page" :length="totalPages" rounded="circle" active-color="primary" @update:model-value="fetchOrders" />
         </div>
       </div>
     </div>
 
     <!-- Order Detail Dialog -->
-    <v-dialog v-model="detailDialog" max-width="640">
-      <v-card v-if="selectedOrder" rounded="xl" class="pa-6">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h2 class="text-xl font-bold">#{{ selectedOrder.order_number || selectedOrder.id }}</h2>
-            <p class="text-slate-500 text-sm">{{ formatDate(selectedOrder.created_at) }}</p>
-          </div>
-          <v-chip :color="statusColor(selectedOrder.status)" variant="flat">{{ selectedOrder.status }}</v-chip>
-        </div>
-
-        <!-- Order Items -->
-        <div class="space-y-3 mb-6">
-          <div v-for="item in selectedOrder.items" :key="item.id" class="flex gap-3 items-center">
-            <img :src="item.image_url || '/placeholder-product.png'" :alt="item.name"
-              class="w-12 h-12 object-cover rounded-lg bg-slate-100" />
-            <div class="flex-1">
-              <p class="font-medium text-sm">{{ item.name }}</p>
-              <p class="text-slate-500 text-xs">Qty: {{ item.quantity }}</p>
+    <v-dialog v-model="detailDialog" max-width="720" transition="dialog-bottom-transition">
+      <v-card v-if="selectedOrder" class="rounded-[2.5rem] overflow-hidden border-0 shadow-2xl bg-background">
+        
+        <div class="px-8 py-8 md:px-12 md:py-10">
+          <div class="flex justify-between items-start mb-10">
+            <div>
+              <p class="text-text opacity-50 font-medium mb-2 tracking-widest uppercase text-[10px]">Order Details</p>
+              <h2 class="text-3xl font-light tracking-tight text-text mb-2">#{{ selectedOrder.order_number || selectedOrder.id }}</h2>
+              <p class="text-text opacity-70 font-medium tracking-wide text-sm">{{ formatDate(selectedOrder.created_at) }}</p>
             </div>
-            <p class="font-semibold text-sm">₹{{ (item.price * item.quantity).toLocaleString('en-IN') }}</p>
+            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest" :class="statusBadgeClass(selectedOrder.status)">
+              {{ selectedOrder.status }}
+            </span>
           </div>
-        </div>
 
-        <v-divider class="mb-4" />
-
-        <!-- Totals -->
-        <div class="space-y-2 text-sm mb-6">
-          <div class="flex justify-between"><span class="text-slate-500">Subtotal</span><span>₹{{ selectedOrder.subtotal?.toLocaleString('en-IN') }}</span></div>
-          <div v-if="selectedOrder.discount" class="flex justify-between text-green-600">
-            <span>Discount</span><span>-₹{{ selectedOrder.discount?.toLocaleString('en-IN') }}</span>
+          <!-- Order Items -->
+          <div class="space-y-4 mb-10">
+            <div v-for="item in selectedOrder.items" :key="item.id" class="flex gap-6 items-center p-4 rounded-2xl hover:bg-card transition-colors">
+              <div class="w-20 h-20 rounded-xl bg-secondary overflow-hidden flex-shrink-0">
+                <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                <Icon v-else name="mdi:image-outline" class="w-8 h-8 absolute inset-0 m-auto text-text opacity-30" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-text truncate text-lg">{{ item.name }}</p>
+                <p class="text-text opacity-70 text-sm font-medium tracking-wide mt-1">Qty: {{ item.quantity }} <span class="mx-2 opacity-30">×</span> ₹{{ item.price?.toLocaleString('en-IN') }}</p>
+              </div>
+              <p class="font-light text-xl text-text whitespace-nowrap pl-4">₹{{ (item.price * item.quantity).toLocaleString('en-IN') }}</p>
+            </div>
           </div>
-          <div class="flex justify-between font-bold text-base">
-            <span>Total</span><span class="text-indigo-600">₹{{ selectedOrder.total_amount?.toLocaleString('en-IN') }}</span>
+
+          <v-divider class="my-8 opacity-50 dark:opacity-20 border-border" />
+
+          <!-- Totals -->
+          <div class="mb-10 pl-4 pr-4 md:pl-28">
+            <div class="space-y-4 text-sm font-medium tracking-wide text-text opacity-80">
+              <div class="flex justify-between items-center">
+                <span>Subtotal</span>
+                <span class="text-text">₹{{ selectedOrder.subtotal?.toLocaleString('en-IN') }}</span>
+              </div>
+              <div v-if="selectedOrder.discount" class="flex justify-between items-center text-primary">
+                <span>Discount</span>
+                <span>-₹{{ selectedOrder.discount?.toLocaleString('en-IN') }}</span>
+              </div>
+              <div class="flex justify-between items-end pt-4 border-t border-border mt-4">
+                <span class="font-bold uppercase tracking-widest text-[10px] text-text opacity-50">Total</span>
+                <span class="text-3xl font-light text-text tracking-tight">₹{{ selectedOrder.total_amount?.toLocaleString('en-IN') }}</span>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- Tracking -->
-        <div v-if="tracking" class="bg-slate-50 rounded-xl p-4 mb-4">
-          <h3 class="font-semibold mb-2 flex items-center gap-2">
-            <Icon name="mdi:truck-outline" /> Tracking
-          </h3>
-          <p class="text-sm text-slate-600">{{ tracking.status }} — {{ tracking.location }}</p>
-          <p class="text-xs text-slate-400 mt-1">{{ tracking.updated_at }}</p>
-        </div>
+          <!-- Tracking Timeline -->
+          <div v-if="tracking" class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
+            <div class="flex gap-4">
+              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Icon name="mdi:check" class="text-primary" />
+              </div>
+              <div>
+                <p class="font-medium text-lg text-text mb-1">{{ tracking.status }}</p>
+                <p class="text-text opacity-70 font-medium tracking-wide">{{ tracking.location }}</p>
+                <p class="text-xs text-text opacity-50 mt-3 tracking-widest uppercase">{{ formatDate(tracking.updated_at) }}</p>
+              </div>
+            </div>
+          </div>
 
-        <!-- Actions -->
-        <div class="flex gap-3">
-          <v-btn v-if="['pending','processing'].includes(selectedOrder.status?.toLowerCase())"
-            color="error" variant="outlined" rounded="lg" :loading="cancelling" @click="cancelOrder(selectedOrder.id)">
-            Cancel Order
-          </v-btn>
-          <v-btn color="primary" variant="outlined" rounded="lg" :loading="loadingTracking"
-            @click="loadTracking(selectedOrder.id)">
-            <Icon name="mdi:map-marker-outline" class="mr-1" /> Track Order
-          </v-btn>
-          <v-spacer />
-          <v-btn variant="text" @click="detailDialog = false">Close</v-btn>
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border">
+            <v-btn variant="text" size="x-large" class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full" @click="detailDialog = false">
+              Close
+            </v-btn>
+            <v-btn v-if="['pending','processing'].includes(selectedOrder.status?.toLowerCase())"
+              color="error" variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium" :loading="cancelling" @click="cancelOrder(selectedOrder.id)">
+              Cancel Order
+            </v-btn>
+            <v-btn color="primary" variant="flat" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium text-white" :loading="loadingTracking" @click="loadTracking(selectedOrder.id)">
+              Track Package
+            </v-btn>
+          </div>
         </div>
       </v-card>
     </v-dialog>
@@ -116,6 +179,7 @@
 <script setup>
 import { toast } from 'vue3-toastify'
 import dayjs from 'dayjs'
+import { useDebounceFn } from '@vueuse/core'
 
 definePageMeta({ title: 'My Orders', middleware: ['auth-role'], layout: 'default' })
 
@@ -133,18 +197,20 @@ const loadingTracking = ref(false)
 
 const statusOptions = ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
 
-const statusColor = (s) => ({
-  pending: 'warning', processing: 'info', shipped: 'primary',
-  delivered: 'success', cancelled: 'error'
-}[s?.toLowerCase()] || 'default')
-
-const formatDate = (d) => dayjs(d).format('DD MMM YYYY, hh:mm A')
-
-let debounceTimer = null
-const debouncedFetch = () => {
-  clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(fetchOrders, 400)
+const statusBadgeClass = (s) => {
+  const map = {
+    pending: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 border border-amber-200/50',
+    processing: 'bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400 border border-sky-200/50',
+    shipped: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border border-indigo-200/50',
+    delivered: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-200/50',
+    cancelled: 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400 border border-rose-200/50'
+  }
+  return map[s?.toLowerCase()] || 'bg-secondary text-text opacity-80 border border-border'
 }
+
+const formatDate = (d) => dayjs(d).format('MMM DD, YYYY')
+
+const debouncedFetch = useDebounceFn(() => { fetchOrders() }, 400)
 
 const fetchOrders = async () => {
   loading.value = true
@@ -188,3 +254,6 @@ const cancelOrder = async (order_id) => {
 watch(statusFilter, fetchOrders)
 onMounted(fetchOrders)
 </script>
+
+<style scoped>
+</style>
