@@ -74,6 +74,11 @@ const allSidebarItems = {
 			icon: 'mdi-store-outline',
 		},
 		{
+			label: 'Inventory',
+			path: '/admin/inventory',
+			icon: 'mdi-clipboard-text-play-outline',
+		},
+		{
 			label: 'Products',
 			path: '/admin/products',
 			icon: 'mdi-package-variant-closed',

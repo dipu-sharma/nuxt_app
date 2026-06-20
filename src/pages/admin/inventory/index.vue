@@ -8,7 +8,7 @@
 					Inventory Management
 				</h1>
 				<p class="text-text opacity-70 text-sm font-medium tracking-wide">
-					Manage suppliers, track purchase orders, and perform manual stock adjustments.
+					Manage global suppliers, track purchase orders, and perform manual stock adjustments.
 				</p>
 			</div>
 		</div>
@@ -80,7 +80,7 @@
 		<!-- PURCHASE ORDERS TAB -->
 		<div v-if="activeTab === 'orders'" class="space-y-6">
 			<div class="flex justify-between items-center mb-2">
-				<h2 class="text-xl font-light tracking-tight">Purchase Orders</h2>
+				<h2 class="text-xl font-light tracking-tight">Global Purchase Orders</h2>
 				<v-btn color="primary" variant="flat" rounded="pill" size="large" @click="openPOModal"
 					class="px-8 text-none tracking-widest font-medium text-white shadow-sm" elevation="0">
 					<template #prepend>
@@ -183,7 +183,7 @@
 							
 							<div class="text-right">
 								<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-									:class="(prod.stock_quantity ?? prod.low_stock_threshold ?? 0) > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-755'">
+									:class="(prod.stock_quantity ?? prod.low_stock_threshold ?? 0) > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-750'">
 									{{ prod.stock_quantity ?? prod.low_stock_threshold ?? 0 }} units
 								</span>
 							</div>
@@ -461,7 +461,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useInventory } from '~/composables/useInventory'
-import { useBusinessProducts } from '~/composables/useBusinessProducts'
+import { useAdminUsers } from '~/composables/useAdminUsers'
 import { useBranches } from '~/composables/useBranches'
 import { useAuthStore } from '~/stores/auth'
 import { toast } from 'vue3-toastify'
@@ -471,7 +471,7 @@ definePageMeta({
 	title: 'Inventory',
 	middleware: ['auth-role'],
 	layout: 'admin',
-	role: ['BUSINESS_OWNER', 'BUSINESS_MEMBER'],
+	role: ['ADMIN'],
 })
 
 const tabs = [
@@ -546,13 +546,24 @@ const loadBranches = async () => {
 		const { getBranches } = useBranches()
 		const authStore = useAuthStore()
 		const params = {}
-		const businessId = authStore.user?.business_id || authStore.user?.business?.id
-		if (businessId) {
+		
+		if (authStore.role === 'ADMIN') {
+			const { getBusinesses } = useAdminUsers()
+			const bizRes = await getBusinesses({ limit: 1 })
+			const firstBiz = bizRes?.data?.items?.[0] || bizRes?.data?.[0]
+			const businessId = firstBiz?.id || firstBiz?.business_id || 1
 			params.business_id = businessId
+		} else {
+			const businessId = authStore.user?.business_id || authStore.user?.business?.id
+			if (businessId) {
+				params.business_id = businessId
+			}
 		}
+		
 		const res = await getBranches(params)
 		const resData = res?.data?.data || res?.data?.items || res?.data || []
 		branchesList.value = Array.isArray(resData) ? resData : (Array.isArray(res?.data) ? res.data : [])
+		
 		if (branchesList.value.length === 0) {
 			branchesList.value = [{ id: 1, name: 'Main Branch' }]
 		}
@@ -564,8 +575,8 @@ const loadBranches = async () => {
 
 const loadAllProducts = async () => {
 	try {
-		const { getProducts } = useBusinessProducts()
-		const res = await getProducts({ limit: 100 })
+		const { getAllProducts } = useAdminUsers()
+		const res = await getAllProducts({ limit: 100 })
 		allProductsList.value = res?.data?.items || res?.data || []
 	} catch (e) {
 		console.error(e)
@@ -682,8 +693,8 @@ const debouncedProductSearch = useDebounceFn(async () => {
 	}
 	searchingProducts.value = true
 	try {
-		const { getProducts } = useBusinessProducts()
-		const res = await getProducts({ search: productSearch.value, limit: 15 })
+		const { getAllProducts } = useAdminUsers()
+		const res = await getAllProducts({ search: productSearch.value, limit: 15 })
 		const itemsList = res?.data?.items || res?.data || []
 		foundProducts.value = Array.isArray(itemsList) ? itemsList : []
 	} catch (error) {
