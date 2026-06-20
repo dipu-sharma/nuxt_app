@@ -25,7 +25,7 @@ const fetchProduct = async () => {
 		products.value = response.data || response
 	} catch (err: any) {
 		console.error('Failed to load product:', err)
-		error.value = err.status === 404 ? 'Product not found' : 'Failed to load product details'
+		error.value = err.status === 404 ? 'Product not found' : 'No Product'
 	} finally {
 		loading.value = false
 	}

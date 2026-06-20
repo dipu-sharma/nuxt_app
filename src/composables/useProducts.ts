@@ -1,8 +1,14 @@
 // src/composables/useProducts.ts
 import { useApi } from './useApi'
+import { useAuthStore } from '~/stores/auth'
 
 export const useProducts = () => {
   const api = useApi()
+  const authStore = useAuthStore()
+
+  const getBusinessId = () => {
+    return authStore.user?.business_id || authStore.user?.business?.id || authStore.user?.id || ''
+  }
 
   return {
     /**
@@ -65,12 +71,33 @@ export const useProducts = () => {
     },
 
     /**
+     * Business/Vendor: Partially Update product
+     */
+    async patchProduct(id: string | number, payload: any) {
+      return await api(`/api/business/products/${id}`, {
+        method: 'PATCH',
+        body: payload
+      })
+    },
+
+    /**
      * Business/Vendor: Delete product
      */
     async deleteProduct(id: string | number) {
       return await api(`/api/business/products/${id}`, {
         method: 'DELETE'
       })
+    },
+
+    /**
+     * Admin: View business-wise products
+     */
+    async getAdminBusinessProducts(businessId: string, params: any = {}) {
+      return await api(`/api/admin/businesses/${businessId}/products`, {
+        method: 'GET',
+        query: params
+      })
     }
   }
 }
+

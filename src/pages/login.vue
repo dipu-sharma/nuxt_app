@@ -190,8 +190,21 @@ const handleLogin = async () => {
 			// 2. Now fetch the full user profile (token is in cookie now)
 			try {
 				const userResponse = await getMe()
-				// API wraps response: { data: { ... }, success: true }
-				authStore.addUser(userResponse?.data || userResponse)
+				const userData = userResponse?.data || userResponse
+
+				if (['BUSINESS_OWNER', 'BUSINESS_MEMBER'].includes(response?.data?.role)) {
+					try {
+						const { getProfile } = useBusinessProfile()
+						const bizResponse = await getProfile()
+						if (bizResponse?.data?.business_id) {
+							userData.business_id = bizResponse.data.business_id
+						}
+					} catch (e) {
+						console.error('Failed to load business profile during login:', e)
+					}
+				}
+
+				authStore.addUser(userData)
 			} catch {
 				// Non-critical — user info can be loaded later
 			}

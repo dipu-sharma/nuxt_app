@@ -120,14 +120,19 @@
 					<template v-slot:activator="{ props }">
 						<v-btn icon v-bind="props">
 							<v-avatar size="32" color="primary">
-								<img v-if="authStore.user?.avatar_url"
-									class="object-cover w-8 h-8 rounded-full"
-									:src="authStore.user.avatar_url"
-									alt="User profile photo"
-								/>
-								<span v-else class="text-white text-sm font-bold">
-									{{ userInitial }}
-								</span>
+								<ClientOnly>
+									<img v-if="authStore.user?.avatar_url"
+										class="object-cover w-8 h-8 rounded-full"
+										:src="authStore.user.avatar_url"
+										alt="User profile photo"
+									/>
+									<span v-else class="text-white text-sm font-bold">
+										{{ userInitial }}
+									</span>
+									<template #fallback>
+										<span class="text-white text-sm font-bold">U</span>
+									</template>
+								</ClientOnly>
 							</v-avatar>
 						</v-btn>
 					</template>

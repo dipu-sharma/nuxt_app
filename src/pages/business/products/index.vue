@@ -70,7 +70,7 @@
                 <Icon v-else name="mdi:package-variant-closed" class="w-6 h-6 text-text opacity-30" />
               </div>
               <div>
-                <p class="font-semibold text-text leading-snug">{{ item.name }}</p>
+                <p class="font-semibold text-text leading-snug">{{ item.product_name || item.name }}</p>
                 <p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mt-0.5">ID: {{ item.id }}</p>
               </div>
             </div>
@@ -81,15 +81,15 @@
           </template>
 
           <template #item.price="{ item }">
-            <span class="font-semibold text-sm text-text">₹{{ item.price?.toLocaleString('en-IN') }}</span>
+            <span class="font-semibold text-sm text-text">₹{{ (item.selling_price || item.product_mrp || item.price)?.toLocaleString('en-IN') }}</span>
           </template>
 
           <template #item.stock="{ item }">
             <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-              :class="item.stock_quantity > 0 
+              :class="(item.low_stock_threshold !== undefined ? item.low_stock_threshold : (item.stock_quantity ?? 0)) > 0 
                 ? 'bg-primary/10 text-primary' 
                 : 'bg-red-500/10 text-red-550'">
-              {{ item.stock_quantity ?? '0' }} units
+              {{ item.low_stock_threshold !== undefined ? item.low_stock_threshold : (item.stock_quantity ?? '0') }} units
             </span>
           </template>
 
@@ -104,6 +104,9 @@
 
           <template #item.actions="{ item }">
             <div class="flex justify-end gap-1">
+              <v-btn icon size="small" variant="text" class="hover:text-primary text-text opacity-70" @click="openDetailsDialog(item)">
+                <Icon name="mdi:eye-outline" class="w-4 h-4" />
+              </v-btn>
               <v-btn icon size="small" variant="text" class="hover:text-primary text-text opacity-70" @click="openEdit(item)">
                 <Icon name="mdi:pencil-outline" class="w-4 h-4" />
               </v-btn>
@@ -130,157 +133,454 @@
 
     </div>
 
-    <!-- Product Modal overlay -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div class="bg-background rounded-[2.5rem] border-0 shadow-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col justify-between">
-        
-        <div>
-          <h2 class="text-3xl font-light tracking-tight text-text mb-6 pb-2 border-b border-border">
+    <!-- Product Modal overlay using v-dialog -->
+    <v-dialog v-model="showModal" max-width="680" transition="dialog-bottom-transition">
+      <v-card class="rounded-[2.5rem] bg-card border-0 shadow-2xl overflow-hidden" style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
+        <div class="px-8 py-8 md:px-10 md:py-10">
+          <h2 class="text-3xl font-light tracking-tight text-text mb-6 pb-2 border-b border-border" style="border-color: rgb(var(--color-border))">
             {{ editingProduct ? 'Edit Catalog Product' : 'Add Catalog Product' }}
           </h2>
           
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
-            <div class="sm:col-span-2">
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Product Name *</label>
-              <input v-model="form.name" placeholder="Enter Product Name" required
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div class="sm:col-span-2">
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Description</label>
-              <textarea v-model="form.description" rows="3" placeholder="Detailed product specifications..."
-                class="w-full px-5 py-3.5 bg-card border border-border rounded-[1.5rem] text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm"></textarea>
-            </div>
-
-            <div class="sm:col-span-2">
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Short Description</label>
-              <input v-model="form.short_description" placeholder="Brief subtitle summary"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Brand Name</label>
-              <input v-model="form.brand_name" placeholder="Brand Name"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Category Name</label>
-              <input v-model="form.category_name" placeholder="Electronics, Clothing, etc."
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Regular Selling Price *</label>
-              <input v-model="form.price" type="number" step="0.01" placeholder="0.00" required
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Discount Percent (%)</label>
-              <input v-model="form.discount_percent" type="number" step="0.1" placeholder="0"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Cost Price</label>
-              <input v-model="form.cost_price" type="number" step="0.01" placeholder="0.00"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Tax Percent (%)</label>
-              <input v-model="form.product_tax" type="number" step="0.1" placeholder="0"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Inventory Stock Quantity</label>
-              <input v-model="form.stock_quantity" type="number" placeholder="10"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">SKU Code</label>
-              <input v-model="form.sku" placeholder="SKU-Code"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">HSN No</label>
-              <input v-model="form.hsn_no" placeholder="HSN No"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Batch No</label>
-              <input v-model="form.batch_no" placeholder="Batch No"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Size dimensions</label>
-              <input v-model="form.size" placeholder="S, M, L, XL"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Color attributes</label>
-              <input v-model="form.color" placeholder="Color spec"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Product Catalog Type</label>
-              <input v-model="form.product_type" placeholder="Type spec"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div>
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Product Unit type</label>
-              <input v-model="form.product_unit" placeholder="Pcs, Box, Kg"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <div class="sm:col-span-2">
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Packing Details</label>
-              <input v-model="form.product_packing" placeholder="Packing container info"
-                class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
-            </div>
-
-            <!-- Checks -->
-            <div class="sm:col-span-2 flex flex-wrap items-center gap-6 py-2 border-t border-border mt-2">
-              <div class="flex items-center gap-2">
-                <input type="checkbox" v-model="form.is_active" id="is_active" class="w-4 h-4 rounded accent-primary focus:ring-primary" />
-                <label for="is_active" class="text-sm font-semibold">Active Status</label>
+          <form @submit.prevent="saveProduct">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2 mb-6 text-sm">
+              <div class="md:col-span-2">
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Product Name *</label>
+                <input v-model="form.name" placeholder="Enter Product Name" required
+                  class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
               </div>
-              <div class="flex items-center gap-2">
-                <input type="checkbox" v-model="form.is_featured" id="is_featured" class="w-4 h-4 rounded accent-primary focus:ring-primary" />
-                <label for="is_featured" class="text-sm font-semibold">Featured showcase</label>
+
+              <div class="md:col-span-2">
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Description</label>
+                <textarea v-model="form.description" rows="3" placeholder="Detailed product specifications..."
+                  class="w-full px-5 py-3.5 bg-background border border-border rounded-[1.5rem] text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm"></textarea>
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Short Description</label>
+                <input v-model="form.short_description" placeholder="Brief subtitle summary"
+                  class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Brand Name</label>
+                <input v-model="form.brand_name" placeholder="Brand Name"
+                  class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Category Name *</label>
+                <div class="relative">
+                  <select v-model="form.category_id" required
+                    class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm appearance-none cursor-pointer">
+                    <option value="" disabled>Select Category</option>
+                    <option v-for="cat in categoriesList" :key="cat.id" :value="cat.category_id">
+                      {{ cat.name }}
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text opacity-40">
+                    <Icon name="mdi:chevron-down" class="w-5 h-5" />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Regular Selling Price *</label>
+                <input v-model="form.price" type="number" step="0.01" placeholder="0.00" required
+                  class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Discount Percent (%)</label>
+                <input v-model="form.discount_percent" type="number" step="0.1" placeholder="0"
+                  class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Cost Price</label>
+                <input v-model="form.cost_price" type="number" step="0.01" placeholder="0.00"
+                  class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Tax Percent (%)</label>
+                <input v-model="form.product_tax" type="number" step="0.1" placeholder="0"
+                  class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Inventory Stock Quantity *</label>
+                <input v-model="form.stock_quantity" type="number" placeholder="10" required
+                  class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">SKU Code</label>
+                <input v-model="form.sku" placeholder="SKU-Code"
+                  class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">HSN No</label>
+                <input v-model="form.hsn_no" placeholder="HSN No"
+                  class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Batch No</label>
+                <input v-model="form.batch_no" placeholder="Batch No"
+                  class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+              </div>
+
+              <!-- Size Select -->
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Size dimensions</label>
+                <div class="relative">
+                  <select v-model="form.size" 
+                    class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm appearance-none cursor-pointer">
+                    <option value="">Select Size</option>
+                    <option v-for="opt in sizeOptions" :key="opt" :value="opt">
+                      {{ opt }}
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text opacity-40">
+                    <Icon name="mdi:chevron-down" class="w-5 h-5" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Color Select -->
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Color attributes</label>
+                <div class="relative">
+                  <select v-model="form.color" 
+                    class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm appearance-none cursor-pointer">
+                    <option value="">Select Color</option>
+                    <option v-for="opt in colorOptions" :key="opt" :value="opt">
+                      {{ opt }}
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text opacity-40">
+                    <Icon name="mdi:chevron-down" class="w-5 h-5" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Catalog Type Select -->
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Product Catalog Type</label>
+                <div class="relative">
+                  <select v-model="form.product_type" 
+                    class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm appearance-none cursor-pointer">
+                    <option value="">Select Catalog Type</option>
+                    <option v-for="opt in typeOptions" :key="opt.value" :value="opt.value">
+                      {{ opt.title }}
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text opacity-40">
+                    <Icon name="mdi:chevron-down" class="w-5 h-5" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Unit Type Select -->
+              <div>
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Product Unit type</label>
+                <div class="relative">
+                  <select v-model="form.product_unit" 
+                    class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm appearance-none cursor-pointer">
+                    <option value="">Select Unit Type</option>
+                    <option v-for="opt in unitOptions" :key="opt" :value="opt">
+                      {{ opt }}
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text opacity-40">
+                    <Icon name="mdi:chevron-down" class="w-5 h-5" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Packing Details Select -->
+              <div class="md:col-span-2">
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Packing Details</label>
+                <div class="relative">
+                  <select v-model="form.product_packing" 
+                    class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm appearance-none cursor-pointer">
+                    <option value="">Select Packing Details</option>
+                    <option v-for="opt in packingOptions" :key="opt" :value="opt">
+                      {{ opt }}
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text opacity-40">
+                    <Icon name="mdi:chevron-down" class="w-5 h-5" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Checks -->
+              <div class="md:col-span-2 flex flex-wrap items-center gap-6 py-2 border-t border-border mt-2" style="border-color: rgb(var(--color-border))">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" v-model="form.is_active" id="is_active" class="w-4 h-4 rounded accent-primary focus:ring-primary" />
+                  <label for="is_active" class="text-sm font-semibold">Active Status</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" v-model="form.is_featured" id="is_featured" class="w-4 h-4 rounded accent-primary focus:ring-primary" />
+                  <label for="is_featured" class="text-sm font-semibold">Featured Showcase</label>
+                </div>
               </div>
             </div>
+
+            <!-- Image Upload Block if editing -->
+            <div v-if="editingProduct" class="mb-6 p-6 bg-card border border-border rounded-[2rem] shadow-inner" style="border-color: rgb(var(--color-border))">
+              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-4">Upload Catalog Images</label>
+              <ProductImageUpload :productId="editingProduct.id" @uploaded="onImageUploaded" />
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex gap-4 pt-6 border-t border-border" style="border-color: rgb(var(--color-border))">
+              <v-btn variant="text" size="large" class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full" @click="showModal = false">
+                Cancel
+              </v-btn>
+              <v-btn color="primary" variant="flat" rounded="pill" size="large" class="flex-1 text-none tracking-widest font-medium text-white shadow-sm" :disabled="saving" type="submit">
+                {{ saving ? 'SAVING...' : (editingProduct ? 'SAVE CHANGES' : 'CREATE PRODUCT') }}
+              </v-btn>
+            </div>
+          </form>
+        </div>
+      </v-card>
+    </v-dialog>
+
+    <!-- Product Details Dialog -->
+    <v-dialog v-model="showDetailsDialog" max-width="720" transition="dialog-bottom-transition">
+      <v-card class="rounded-[2.5rem] bg-card border-0 shadow-2xl overflow-hidden" style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
+        <div class="px-8 py-8 md:px-10 md:py-10">
+          
+          <div class="flex justify-between items-start mb-6 pb-2 border-b border-border" style="border-color: rgb(var(--color-border))">
+            <div>
+              <span class="text-[10px] text-primary font-bold uppercase tracking-widest bg-primary/10 px-2.5 py-1 rounded-full">
+                Product Details
+              </span>
+              <h2 class="text-3xl font-light tracking-tight text-text mt-2">
+                {{ selectedProduct?.name || selectedProduct?.product_name }}
+              </h2>
+            </div>
+            <v-btn icon variant="text" class="text-text opacity-70 hover:opacity-100" @click="showDetailsDialog = false">
+              <Icon name="mdi:close" class="w-5 h-5" />
+            </v-btn>
           </div>
 
-          <!-- Image Upload Block if editing -->
-          <div v-if="editingProduct" class="mb-6 p-6 bg-card border border-border rounded-[2rem] shadow-inner">
-            <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-4">Upload Catalog Images</label>
-            <ProductImageUpload :productId="editingProduct.id" @uploaded="onImageUploaded" />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2 mb-6 text-sm">
+            
+            <!-- General Section -->
+            <div class="space-y-4 md:col-span-2">
+              <h3 class="font-bold text-xs uppercase tracking-widest text-primary border-b border-border/50 pb-1">
+                General Information
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <span class="text-[10px] text-text opacity-50 uppercase font-bold tracking-wider block">Slug</span>
+                  <span class="font-semibold text-text">{{ selectedProduct?.slug || '—' }}</span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-text opacity-50 uppercase font-bold tracking-wider block">Brand Name</span>
+                  <span class="font-semibold text-text">{{ selectedProduct?.brand_name || '—' }}</span>
+                </div>
+                <div class="sm:col-span-2">
+                  <span class="text-[10px] text-text opacity-50 uppercase font-bold tracking-wider block">Short Description</span>
+                  <span class="text-text">{{ selectedProduct?.short_description || '—' }}</span>
+                </div>
+                <div class="sm:col-span-2">
+                  <span class="text-[10px] text-text opacity-50 uppercase font-bold tracking-wider block">Description</span>
+                  <span class="text-text whitespace-pre-line">{{ selectedProduct?.description || '—' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pricing Section -->
+            <div class="space-y-4">
+              <h3 class="font-bold text-xs uppercase tracking-widest text-primary border-b border-border/50 pb-1">
+                Pricing & Taxes
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">MRP Price</span>
+                  <span class="font-semibold text-text">₹{{ selectedProduct?.product_mrp?.toLocaleString('en-IN') || '0.00' }}</span>
+                </div>
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Cost Price</span>
+                  <span class="font-semibold text-text">₹{{ selectedProduct?.product_cost_price?.toLocaleString('en-IN') || '—' }}</span>
+                </div>
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Discount Percent</span>
+                  <span class="font-semibold text-text">{{ selectedProduct?.discount_percent ? `${selectedProduct.discount_percent}%` : '—' }}</span>
+                </div>
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Selling Price</span>
+                  <span class="font-semibold text-primary">₹{{ selectedProduct?.selling_price?.toLocaleString('en-IN') || '0.00' }}</span>
+                </div>
+                <div class="flex justify-between pb-1" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Product Tax</span>
+                  <span class="font-semibold text-text">{{ selectedProduct?.product_tax ? `${selectedProduct.product_tax}%` : '0%' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inventory & Attributes Section -->
+            <div class="space-y-4">
+              <h3 class="font-bold text-xs uppercase tracking-widest text-primary border-b border-border/50 pb-1">
+                Inventory & Specifications
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">SKU Code</span>
+                  <span class="font-semibold text-text">{{ selectedProduct?.product_sku || '—' }}</span>
+                </div>
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">HSN Code</span>
+                  <span class="font-semibold text-text">{{ selectedProduct?.hsn_no || '—' }}</span>
+                </div>
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Batch Number</span>
+                  <span class="font-semibold text-text">{{ selectedProduct?.batch_no || '—' }}</span>
+                </div>
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Size / Color</span>
+                  <span class="font-semibold text-text">
+                    {{ selectedProduct?.size || '—' }} / {{ selectedProduct?.color || '—' }}
+                  </span>
+                </div>
+                <div class="flex justify-between pb-1" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Packing / Unit</span>
+                  <span class="font-semibold text-text">
+                    {{ selectedProduct?.product_packing || '—' }} / {{ selectedProduct?.product_unit || '—' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lifecycle & Dates Section -->
+            <div class="space-y-4">
+              <h3 class="font-bold text-xs uppercase tracking-widest text-primary border-b border-border/50 pb-1">
+                Lifecycle & Dates
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Manufacturing Date</span>
+                  <span class="font-semibold text-text">
+                    {{ selectedProduct?.mfg_date ? new Date(selectedProduct.mfg_date).toLocaleDateString() : '—' }}
+                  </span>
+                </div>
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Expiry Date</span>
+                  <span class="font-semibold text-text">
+                    {{ selectedProduct?.exp_date ? new Date(selectedProduct.exp_date).toLocaleDateString() : '—' }}
+                  </span>
+                </div>
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Low Stock Limit</span>
+                  <span class="font-semibold text-text">
+                    {{ selectedProduct?.low_stock_threshold !== undefined ? selectedProduct.low_stock_threshold : '10' }} units
+                  </span>
+                </div>
+                <div class="flex justify-between pb-1" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Catalog Type</span>
+                  <span class="font-semibold text-text">{{ selectedProduct?.product_type || '—' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ratings & Reviews Section -->
+            <div class="space-y-4">
+              <h3 class="font-bold text-xs uppercase tracking-widest text-primary border-b border-border/50 pb-1">
+                Ratings & Reviews
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between border-b border-border/30 pb-1.5" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Average Rating</span>
+                  <span class="font-semibold text-text flex items-center gap-1">
+                    <Icon name="mdi:star" class="w-4 h-4 text-amber-500" />
+                    {{ selectedProduct?.average_rating !== undefined && selectedProduct?.average_rating !== null ? Number(selectedProduct.average_rating).toFixed(1) : '0.0' }} / 5.0
+                  </span>
+                </div>
+                <div class="flex justify-between pb-1" style="border-color: rgb(var(--color-border))">
+                  <span class="text-text opacity-60">Total Reviews</span>
+                  <span class="font-semibold text-text">
+                    {{ selectedProduct?.reviews_count !== undefined && selectedProduct?.reviews_count !== null ? selectedProduct.reviews_count : '0' }} reviews
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Extra attributes and dates -->
+            <div class="space-y-4 md:col-span-2">
+              <h3 class="font-bold text-xs uppercase tracking-widest text-primary border-b border-border/50 pb-1">
+                System Details
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <span class="text-[10px] text-text opacity-50 uppercase font-bold tracking-wider block">Product ID</span>
+                  <span class="font-semibold text-text">{{ selectedProduct?.product_id || '—' }}</span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-text opacity-50 uppercase font-bold tracking-wider block">Business ID</span>
+                  <span class="font-semibold text-text">{{ selectedProduct?.business_id || '—' }}</span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-text opacity-50 uppercase font-bold tracking-wider block">Active Status</span>
+                  <span class="font-semibold text-text" :class="selectedProduct?.is_active ? 'text-green-600 dark:text-green-400' : 'text-text opacity-60'">
+                    {{ selectedProduct?.is_active ? 'Active (Visible in Catalog)' : 'Inactive (Hidden)' }}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-text opacity-50 uppercase font-bold tracking-wider block">Featured Showcase</span>
+                  <span class="font-semibold text-text" :class="selectedProduct?.is_featured ? 'text-primary' : 'text-text opacity-60'">
+                    {{ selectedProduct?.is_featured ? 'Featured on Showcase' : 'Standard catalog item' }}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-text opacity-50 uppercase font-bold tracking-wider block">Created At</span>
+                  <span class="font-semibold text-text">
+                    {{ selectedProduct?.created_at ? new Date(selectedProduct.created_at).toLocaleString() : '—' }}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-text opacity-50 uppercase font-bold tracking-wider block">Last Updated At</span>
+                  <span class="font-semibold text-text">
+                    {{ selectedProduct?.updated_at ? new Date(selectedProduct.updated_at).toLocaleString() : '—' }}
+                  </span>
+                </div>
+                <div v-if="selectedProduct?.deleted_at">
+                  <span class="text-[10px] text-text opacity-50 uppercase font-bold tracking-wider block">Deleted At</span>
+                  <span class="font-semibold text-red-500">
+                    {{ new Date(selectedProduct.deleted_at).toLocaleString() }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Image Gallery Section -->
+            <div v-if="selectedProduct?.images && selectedProduct.images.length > 0" class="space-y-4 md:col-span-2">
+              <h3 class="font-bold text-xs uppercase tracking-widest text-primary border-b border-border/50 pb-1">
+                Product Images Gallery
+              </h3>
+              <div class="flex flex-wrap gap-3">
+                <div v-for="(img, idx) in selectedProduct.images" :key="idx" 
+                  class="w-24 h-24 rounded-xl border border-border bg-secondary flex items-center justify-center p-1 overflow-hidden shadow-sm hover:scale-105 transition-transform cursor-pointer">
+                  <img :src="img.image_url || img.url || img.file_url" class="w-full h-full object-cover rounded-lg" />
+                </div>
+              </div>
+            </div>
+
           </div>
+
+          <div class="flex justify-end pt-4 border-t border-border" style="border-color: rgb(var(--color-border))">
+            <v-btn color="primary" rounded="pill" size="large" class="px-8 text-none tracking-widest font-medium text-white shadow-sm" @click="showDetailsDialog = false">
+              Close
+            </v-btn>
+          </div>
+
         </div>
-
-        <!-- Footer Actions -->
-        <div class="flex gap-4 pt-6 border-t border-border flex-shrink-0">
-          <v-btn variant="text" size="large" class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full" @click="showModal = false">
-            Cancel
-          </v-btn>
-          <v-btn color="primary" variant="flat" rounded="pill" size="large" class="flex-1 text-none tracking-widest font-medium text-white shadow-sm" :disabled="saving" @click="saveProduct">
-            {{ saving ? 'SAVING...' : (editingProduct ? 'SAVE CHANGES' : 'CREATE PRODUCT') }}
-          </v-btn>
-        </div>
-
-      </div>
-    </div>
-
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -307,12 +607,68 @@ const hasMore = ref(false)
 const showModal = ref(false)
 const editingProduct = ref(null)
 
+const showDetailsDialog = ref(false)
+const selectedProduct = ref(null)
+
+const openDetailsDialog = (product) => {
+  selectedProduct.value = { ...product }
+  showDetailsDialog.value = true
+}
+
+const packingOptions = ref([
+  'Box',
+  'Packet',
+  'Bottle',
+  'Can',
+  'Carton',
+  'Strip',
+  'Tube',
+  'Pcs',
+  'Jar',
+  'Bag',
+  'Roll',
+  'Drum'
+])
+
+const unitOptions = ref([
+  'PCS',
+  'KG',
+  'GM',
+  'LTR',
+  'ML',
+  'BOX',
+  'PACKET',
+  'DOZEN',
+  'MTR',
+  'FT'
+])
+
+const sizeOptions = ref([
+  'S', 'M', 'L', 'XL', 'XXL', '3XL', 'Free Size',
+  '4', '5', '6', '7', '8', '9', '10', '11', '12'
+])
+
+const colorOptions = ref([
+  'Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 
+  'Gray', 'Orange', 'Purple', 'Pink', 'Brown', 'Navy', 
+  'Beige', 'Multicolor'
+])
+
+const typeOptions = ref([
+  { title: 'Fashion', value: 'FASHION' },
+  { title: 'Electronics', value: 'ELECTRONICS' },
+  { title: 'Grocery', value: 'GROCERY' },
+  { title: 'Home', value: 'HOME' },
+  { title: 'Beauty', value: 'BEAUTY' },
+  { title: 'Other', value: 'OTHER' }
+])
+
 const defaultForm = { 
   name: '', description: '', short_description: '', brand_name: '',
   price: '', cost_price: '', discount_percent: '', 
   stock_quantity: 0, sku: '', hsn_no: '', size: '', color: '', batch_no: '', 
   product_tax: '', product_packing: '', product_type: '', product_unit: '',
-  category_name: '', is_active: true, is_featured: false 
+  category_id: '', is_active: true, is_featured: false 
 }
 const form = ref({ ...defaultForm })
 
@@ -393,7 +749,7 @@ const openEdit = (product) => {
     product_packing: product.product_packing || '',
     product_type: product.product_type || '',
     product_unit: product.product_unit || '',
-    category_name: product.category?.name || product.category_name || '',
+    category_id: product.category?.category_id || product.category_id || '',
     is_active: product.is_active !== undefined ? product.is_active : true,
     is_featured: product.is_featured || false
   }
@@ -407,27 +763,33 @@ const onImageUploaded = () => {
 const saveProduct = async () => {
   saving.value = true
   try {
+    const slug = form.value.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '')
+
     const payload = {
       product_name: form.value.name,
-      description: form.value.description || '',
-      short_description: form.value.short_description || undefined,
-      brand_name: form.value.brand_name || undefined,
+      slug: slug,
+      brand_name: form.value.brand_name || null,
+      description: form.value.description || null,
+      short_description: form.value.short_description || null,
+      product_cost_price: form.value.cost_price ? Number(form.value.cost_price) : null,
       product_mrp: Number(form.value.price),
-      selling_price: Number(form.value.price),
-      product_cost_price: form.value.cost_price ? Number(form.value.cost_price) : undefined,
-      discount_percent: form.value.discount_percent ? Number(form.value.discount_percent) : undefined,
-      product_sku: form.value.sku || undefined,
-      hsn_no: form.value.hsn_no || undefined,
-      size: form.value.size || undefined,
-      color: form.value.color || undefined,
-      batch_no: form.value.batch_no || undefined,
-      product_tax: form.value.product_tax ? Number(form.value.product_tax) : undefined,
-      product_packing: form.value.product_packing || undefined,
-      product_type: form.value.product_type || undefined,
-      product_unit: form.value.product_unit || undefined,
+      discount_percent: form.value.discount_percent ? Number(form.value.discount_percent) : null,
+      product_sku: form.value.sku || null,
+      hsn_no: form.value.hsn_no || null,
+      size: form.value.size || null,
+      color: form.value.color || null,
+      batch_no: form.value.batch_no || null,
+      product_tax: form.value.product_tax ? Number(form.value.product_tax) : 0,
+      product_packing: form.value.product_packing || null,
+      product_type: form.value.product_type || null,
+      product_unit: form.value.product_unit || null,
+      category_id: form.value.category_id,
       is_active: form.value.is_active,
       is_featured: form.value.is_featured,
-      low_stock_threshold: Number(form.value.stock_quantity) || 10
+      low_stock_threshold: form.value.stock_quantity ? Number(form.value.stock_quantity) : 10,
     }
     
     const parsed = ProductPayloadSchema.safeParse(payload)
@@ -440,7 +802,7 @@ const saveProduct = async () => {
     const { createProduct, updateProduct } = useBusinessProducts()
     
     if (editingProduct.value) {
-      await updateProduct(editingProduct.value.id, parsed.data)
+      await updateProduct(editingProduct.value.product_id || editingProduct.value.id, parsed.data)
       toast.success('Product updated successfully!')
     } else {
       await createProduct(parsed.data)
@@ -460,7 +822,7 @@ const deleteProduct = async (product) => {
   if (!confirm(`Are you sure you want to delete "${product.name || product.product_name}"?`)) return
   try {
     const { deleteProduct: doDelete } = useBusinessProducts()
-    await doDelete(product.id)
+    await doDelete(product.product_id || product.id)
     toast.success('Product deleted successfully!')
     loadProducts()
   } catch (error) {
@@ -479,7 +841,22 @@ const exportCsv = async () => {
   }
 }
 
-onMounted(loadProducts)
+const categoriesList = ref([])
+
+const loadCategories = async () => {
+  try {
+    const { getCategories } = useCategories()
+    const res = await getCategories({ limit: 100 })
+    categoriesList.value = res?.data?.items || res?.data || []
+  } catch (error) {
+    console.error('Failed to load categories:', error)
+  }
+}
+
+onMounted(() => {
+  loadProducts()
+  loadCategories()
+})
 </script>
 
 <style scoped>

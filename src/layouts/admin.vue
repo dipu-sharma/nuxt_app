@@ -37,9 +37,22 @@ watch(
 	},
 )
 
-onMounted(() => {
+onMounted(async () => {
 	updateIsDesktop()
 	window.addEventListener('resize', updateIsDesktop)
+
+	if (['BUSINESS_OWNER', 'BUSINESS_MEMBER'].includes(authStore.role) && !authStore.user?.business_id) {
+		try {
+			const { getProfile } = useBusinessProfile()
+			const res = await getProfile()
+			if (res?.data?.business_id) {
+				const userObj = { ...authStore.user, business_id: res.data.business_id }
+				authStore.addUser(userObj)
+			}
+		} catch (e) {
+			console.error('Failed to prefetch business profile in layout:', e)
+		}
+	}
 })
 
 onUnmounted(() => {
