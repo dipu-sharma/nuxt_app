@@ -48,10 +48,15 @@
 					<div class="group relative rounded-[2.5rem] overflow-hidden bg-secondary border border-border shadow-inner aspect-[4/5] flex items-center justify-center">
 						<div class="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 						<img
-							:src="mainImage || 'https://via.placeholder.com/800x800?text=No+Image+Available'"
+							v-if="mainImage"
+							:src="mainImage"
 							:alt="product.name || 'Product image'"
 							class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
 						/>
+						<div v-else class="w-full h-full flex flex-col items-center justify-center bg-gray-50/50">
+							<Icon name="mdi:image-outline" class="w-24 h-24 text-gray-300 mb-4" />
+							<span class="text-sm font-medium text-gray-400">No Image Available</span>
+						</div>
 						<div
 							v-if="!product.in_stock"
 							class="absolute top-6 right-6 bg-red-500/90 backdrop-blur-md text-white px-5 py-2.5 rounded-full font-bold text-xs tracking-widest uppercase shadow-lg shadow-red-500/30 border border-white/20"
@@ -220,10 +225,10 @@ useSeoMeta({
 	ogTitle: computed(() => product.value ? `${product.value.product_name || product.value.name} | D-Shop` : 'Product Details | D-Shop'),
 	ogDescription: computed(() => product.value?.description || 'View details for this premium handcrafted product at D-Shop.'),
 	ogImage: computed(() => {
-		if (product.value?.images?.length > 0) {
-			return product.value.images[0].image_url || product.value.images[0].url
+		if (product.value?.images && product.value.images.length > 0) {
+			return product.value.images[0].url || product.value.images[0].image_url
 		}
-		return 'https://via.placeholder.com/1200x630.png?text=D-Shop+Product'
+		return ''
 	}),
 	twitterCard: 'summary_large_image',
 })

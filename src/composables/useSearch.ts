@@ -6,10 +6,10 @@ export const useSearch = () => {
 
   return {
     async searchProducts(params: any = {}) {
-      return await api('/api/home/search/products', { method: 'GET', params })
+      return await api('/api/home/search/products', { method: 'GET', query: params })
     },
     async autocomplete(q: string) {
-      return await api('/api/home/search/autocomplete', { method: 'GET', params: { q } })
+      return await api('/api/home/search/autocomplete', { method: 'GET', query: { q } })
     },
     async getFilters() {
       return await api('/api/home/search/filters', { method: 'GET' })
@@ -27,7 +27,7 @@ export const useSearch = () => {
       return await api(`/api/home/products/${productId}`, { method: 'GET' })
     },
     async getProductsByCategory(categoryName: string, params: any = {}) {
-      return await api(`/api/home/products/category/${categoryName}`, { method: 'GET', params })
+      return await api(`/api/home/products/category/${categoryName}`, { method: 'GET', query: params })
     },
   }
 }

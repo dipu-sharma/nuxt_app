@@ -1,73 +1,67 @@
 <template>
-  <div class="px-4 sm:px-6 md:px-8">
-    <div class="max-w-7xl mx-auto">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+  <div class="w-full pb-12">
+    <div class="w-full">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-8 gap-y-12 pt-12">
+        
         <div v-for="product in products" :key="product.id"
-          @click="getDetails(product.product_id || product.id)"
-          class="group relative bg-card/60 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 hover:border-indigo-500/30 transition-all duration-500 hover:shadow-[0_20px_60px_-15px_rgba(79,70,229,0.15)] cursor-pointer flex flex-col overflow-hidden h-full hover:-translate-y-1">
+          @click="getDetails(String(product.product_id || product.id))"
+          class="group custom-card-hover relative bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] hover:shadow-2xl hover:shadow-purple-700/40 transition-all duration-500 hover:bg-purple-700 cursor-pointer flex flex-col pt-16 px-4 pb-5 text-center h-full">
           
-          <!-- Background Glow Effect on Hover -->
-          <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-
-          <!-- Product Image Wrapper -->
-          <div class="relative overflow-hidden aspect-[4/3] bg-gradient-to-tr from-secondary/50 to-background flex items-center justify-center p-6 border-b border-white/10">
-            <!-- Decorative blur behind image -->
-            <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl rounded-full scale-150 pointer-events-none"></div>
-            
+          <!-- Image Popping Out of Top -->
+          <div class="absolute -top-8 left-1/2 -translate-x-1/2 w-24 h-24 z-10 transition-transform duration-500 group-hover:-translate-y-2">
             <img v-if="product.images && product.images.length > 0"
               :src="product.images[0].image_url || product.images[0].url"
               :alt="product.product_name || product.name"
-              class="relative z-10 w-full h-full object-contain transition-all duration-700 group-hover:scale-110 drop-shadow-xl" />
+              class="w-full h-full object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.15)] group-hover:drop-shadow-[0_20px_20px_rgba(0,0,0,0.25)] transition-all duration-500" />
             
-            <!-- Fallback Icon Placeholder -->
-            <div v-else class="relative z-10 w-full h-full flex items-center justify-center">
-              <div class="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md shadow-inner">
-                <Icon name="mdi:shopping-outline" class="w-10 h-10 text-text opacity-40" />
-              </div>
+            <div v-else class="w-full h-full flex items-center justify-center bg-gray-50 rounded-2xl shadow-md border border-gray-100">
+              <Icon name="mdi:image-outline" class="w-10 h-10 text-gray-300" />
             </div>
 
             <!-- Discount Badge -->
             <div v-if="getDiscountPercent(product)" 
-              class="absolute top-4 left-4 z-20 bg-gradient-to-r from-pink-500 to-orange-400 text-white text-[10px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-pink-500/30 transform -rotate-2 group-hover:rotate-0 transition-transform">
-              {{ getDiscountPercent(product) }}% OFF
+              class="absolute top-2 -right-3 z-20 bg-red-500 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-sm shadow-md">
+              -{{ getDiscountPercent(product) }}%
             </div>
           </div>
 
           <!-- Product Details Body -->
-          <div class="p-6 md:p-8 flex-1 flex flex-col justify-between relative z-10 bg-gradient-to-b from-transparent to-background/40">
+          <div class="flex-1 flex flex-col justify-between relative z-10">
             <div>
-              <!-- Brand/Category -->
-              <span class="text-[10px] font-extrabold uppercase tracking-widest block mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500">
-                {{ product.brand_name || product.category_name || product.category?.name || 'Curated' }}
-              </span>
-
               <!-- Product Title -->
-              <h3 class="text-xl font-bold tracking-tight text-text line-clamp-2 mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-400 group-hover:to-cyan-400 transition-all duration-300">
+              <h3 class="text-lg font-bold text-gray-900 group-hover:text-white transition-colors duration-300 line-clamp-1">
                 {{ product.product_name || product.name }}
               </h3>
 
-              <!-- Price Tag -->
-              <div class="flex items-baseline gap-3 mb-6">
-                <span class="text-3xl font-extrabold text-text tracking-tighter">
+              <!-- Description -->
+              <p class="text-[11px] text-gray-500 group-hover:text-purple-200 mt-2 line-clamp-2 transition-colors duration-300 leading-relaxed">
+                {{ product.description || 'Premium quality handcrafted product designed to elevate your everyday lifestyle with perfect functionality.' }}
+              </p>
+
+              <!-- Price & Swatches -->
+              <div class="flex items-center justify-between mt-4 mb-5">
+                <!-- Color Swatches (Decorative) -->
+                <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <div class="w-2.5 h-2.5 bg-sky-500 rounded-[2px] shadow-sm"></div>
+                  <div class="w-2.5 h-2.5 bg-orange-500 rounded-[2px] shadow-sm"></div>
+                  <div class="w-2.5 h-2.5 bg-emerald-500 rounded-[2px] shadow-sm"></div>
+                  <div class="w-2.5 h-2.5 bg-purple-500 rounded-[2px] shadow-sm"></div>
+                </div>
+
+                <!-- Price -->
+                <div class="text-base font-bold text-gray-900 group-hover:text-white transition-colors duration-300">
                   ₹{{ (product.selling_price || product.price)?.toLocaleString('en-IN') }}
-                </span>
-                <span v-if="product.product_mrp && product.product_mrp > (product.selling_price || product.price)"
-                  class="text-sm text-text opacity-40 line-through font-medium">
-                  ₹{{ product.product_mrp?.toLocaleString('en-IN') }}
-                </span>
+                </div>
               </div>
             </div>
 
             <!-- Add to Cart Button -->
-            <button @click.stop="handleAddToCart(product.product_id || product.id)"
-              class="relative overflow-hidden w-full rounded-2xl font-bold text-sm tracking-widest uppercase text-text/80 bg-secondary/50 hover:text-white transition-all duration-300 h-14 flex items-center justify-center group/btn shadow-sm border border-border/50 hover:border-transparent">
-              <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-              <div class="relative z-10 flex items-center justify-center gap-2">
-                <Icon name="mdi:cart-outline" class="w-5 h-5 transition-transform group-hover/btn:-translate-y-0.5 group-hover/btn:scale-110" />
-                <span>ADD TO CART</span>
-              </div>
+            <button @click.stop="handleAddToCart(String(product.product_id || product.id))"
+              class="mx-auto w-[140px] bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-3 rounded-full uppercase tracking-wider transition-all duration-300 shadow-md hover:shadow-xl hover:shadow-orange-500/40 hover:-translate-y-0.5">
+              ADD TO CART
             </button>
           </div>
+
         </div>
       </div>
     </div>
@@ -118,4 +112,7 @@ const getDetails = (product_id) => {
 </script>
 
 <style scoped>
+.custom-card-hover:hover {
+  background-color: #7922a6 !important;
+}
 </style>
