@@ -1,146 +1,163 @@
 <template>
-	<div class="px-8 lg:px-6 md:px-6 sm:px-8">
-		<!-- Back Button -->
-		<button
-			@click="goBack"
-			class="mb-8 mt-4 flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors group font-medium"
-		>
-			<svg
-				class="w-6 h-6 transform group-hover:-translate-x-1 transition-transform"
-				fill="none"
-				stroke="currentColor"
-				viewBox="0 0 24 24"
-				xmlns="http://www.w3.org/2000/svg"
-			>
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-			</svg>
-			Back to Products
-		</button>
+	<div class="min-h-screen relative overflow-hidden bg-background text-text selection:bg-primary/30">
+		<!-- Abstract Cool Color Gradient Blobs -->
+		<div class="absolute top-0 left-0 w-[500px] h-[500px] bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-transparent rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+		<div class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-tl from-cyan-500/20 via-blue-500/20 to-transparent rounded-full blur-[120px] translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
 
-		<!-- Loading -->
-		<div v-if="loading" class="flex flex-col items-center justify-center py-32">
-			<div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
-			<p class="mt-6 text-lg text-gray-600 font-medium">Loading product details...</p>
-		</div>
-
-		<!-- Error -->
-		<div v-else-if="error" class="text-center py-32">
-			<h2 class="text-3xl font-bold text-red-600 mb-4">Something went wrong</h2>
-			<p class="text-lg text-gray-700 mb-8">{{ error }}</p>
+		<div class="relative z-10 max-w-7xl mx-auto px-6 py-8 md:px-12 md:py-12">
+			<!-- Back Button -->
 			<button
-				@click="fetchProduct"
-				class="px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition shadow-md"
+				@click="goBack"
+				class="mb-10 flex items-center gap-3 text-sm font-bold tracking-widest uppercase text-text opacity-70 hover:opacity-100 hover:text-primary transition-all group"
 			>
-				Try Again
+				<div class="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all shadow-sm">
+					<Icon name="mdi:arrow-left" class="w-5 h-5 transform group-hover:-translate-x-0.5 transition-transform" />
+				</div>
+				Back to Collection
 			</button>
-		</div>
 
-		<!-- Product Content -->
-		<div v-else-if="product" class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-			<!-- Images Section -->
-			<div class="space-y-6">
-				<div class="overflow-hidden rounded-2xl shadow-2xl bg-gray-100 relative">
-					<img
-						:src="mainImage || 'https://via.placeholder.com/800x800?text=No+Image+Available'"
-						:alt="product.name || 'Product image'"
-						class="w-full h-auto object-cover transition-transform duration-500 hover:scale-105"
-					/>
-					<div
-						v-if="!product.in_stock"
-						class="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg"
-					>
-						Out of Stock
-					</div>
+			<!-- Loading -->
+			<div v-if="loading" class="flex flex-col items-center justify-center py-40">
+				<div class="relative">
+					<div class="w-20 h-20 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
+					<div class="absolute inset-0 bg-gradient-to-tr from-cyan-400 to-purple-500 rounded-full blur-xl opacity-30 animate-pulse"></div>
 				</div>
-
-				<!-- Thumbnails -->
-				<div v-if="product.images?.length > 1" class="grid grid-cols-5 sm:grid-cols-6 gap-3">
-					<div
-						v-for="(img, index) in product.images"
-						:key="index"
-						class="cursor-pointer rounded-lg overflow-hidden border-2 transition-all"
-						:class="{
-							'border-blue-600 ring-2 ring-blue-200': selectedImageIndex === index,
-							'border-gray-200 hover:border-gray-400': selectedImageIndex !== index,
-						}"
-						@click="selectedImageIndex = index"
-					>
-						<img
-							:src="img"
-							:alt="`${product.name} view ${index + 1}`"
-							class="w-full h-20 object-cover"
-						/>
-					</div>
-				</div>
+				<p class="mt-8 text-lg text-text font-medium opacity-70 tracking-widest uppercase text-sm">Discovering Details...</p>
 			</div>
 
-			<!-- Info Section -->
-			<div class="space-y-8 mx-4">
-				<div>
-					<span
-						class="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium uppercase rounded-full tracking-wide"
-					>
-						{{ product.category || 'Uncategorized' }}
-					</span>
-					<h1 class="text-3xl md:text-4xl font-bold mt-3 leading-tight">
-						{{ product.name }}
-					</h1>
+			<!-- Error -->
+			<div v-else-if="error" class="text-center py-40 max-w-lg mx-auto">
+				<div class="w-24 h-24 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-red-500/10">
+					<Icon name="mdi:alert-circle-outline" class="w-12 h-12 text-red-500" />
 				</div>
+				<h2 class="text-3xl font-bold text-text mb-4">Something went wrong</h2>
+				<p class="text-text opacity-60 mb-8">{{ error }}</p>
+				<button
+					@click="fetchProduct"
+					class="px-10 py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold rounded-full hover:shadow-lg hover:shadow-red-500/30 hover:-translate-y-0.5 transition-all"
+				>
+					Try Again
+				</button>
+			</div>
 
-				<div class="flex items-end gap-4">
-					<span class="text-5xl font-extrabold text-blue-700">
-						₹{{ product.price?.toFixed(2) || '0.00' }}
-					</span>
-				</div>
-
-				<!-- Stock & SKU -->
-				<div class="flex flex-wrap gap-6 text-gray-700">
-					<div>
-						<span class="font-semibold">Availability:</span>
-						<span
-							:class="product.in_stock ? 'text-green-600' : 'text-red-600'"
-							class="ml-2 font-medium"
+			<!-- Product Content -->
+			<div v-else-if="product" class="bg-card/60 backdrop-blur-2xl border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] rounded-[3rem] p-6 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+				
+				<!-- Images Section -->
+				<div class="lg:col-span-6 space-y-6">
+					<div class="group relative rounded-[2.5rem] overflow-hidden bg-secondary border border-border shadow-inner aspect-[4/5] flex items-center justify-center">
+						<div class="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+						<img
+							:src="mainImage || 'https://via.placeholder.com/800x800?text=No+Image+Available'"
+							:alt="product.name || 'Product image'"
+							class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+						/>
+						<div
+							v-if="!product.in_stock"
+							class="absolute top-6 right-6 bg-red-500/90 backdrop-blur-md text-white px-5 py-2.5 rounded-full font-bold text-xs tracking-widest uppercase shadow-lg shadow-red-500/30 border border-white/20"
 						>
-							{{ product.in_stock ? 'In Stock' : 'Out of Stock' }}
-						</span>
+							Out of Stock
+						</div>
 					</div>
-					<div v-if="product.sku">
-						<span class="font-semibold">SKU:</span>
-						<span class="ml-2">{{ product.sku }}</span>
+
+					<!-- Thumbnails -->
+					<div v-if="product.images?.length > 1" class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+						<button
+							v-for="(img, index) in product.images"
+							:key="index"
+							@click="selectedImageIndex = index"
+							class="relative flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-2 transition-all duration-300 bg-secondary"
+							:class="selectedImageIndex === index ? 'border-primary ring-4 ring-primary/20 scale-105' : 'border-border/50 hover:border-primary/50 opacity-70 hover:opacity-100'"
+						>
+							<img :src="img" :alt="`${product.name} view ${index + 1}`" class="w-full h-full object-cover" />
+						</button>
 					</div>
 				</div>
 
-				<!-- Actions -->
-				<div class="flex flex-col sm:flex-row gap-4 pt-6">
-					<button
-						@click="handleAddToCart"
-						:disabled="addingToCart || !product.in_stock"
-						class="flex-1 bg-blue-600 text-white py-4 px-8 rounded-xl font-bold text-lg hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-400 shadow-md"
-					>
-						{{ addingToCart ? 'Adding...' : product.in_stock ? 'Add to Cart' : 'Out of Stock' }}
-					</button>
+				<!-- Info Section -->
+				<div class="lg:col-span-6 flex flex-col justify-center h-full space-y-10">
+					<div>
+						<div class="flex items-center gap-3 mb-4">
+							<span class="px-4 py-1.5 bg-primary/10 text-primary text-xs font-bold uppercase rounded-full tracking-widest border border-primary/20">
+								{{ product.category || 'Uncategorized' }}
+							</span>
+							<span v-if="product.sku" class="text-text opacity-40 text-sm font-medium">
+								SKU: {{ product.sku }}
+							</span>
+						</div>
+						
+						<h1 class="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-text to-text/60 leading-tight mb-6">
+							{{ product.name }}
+						</h1>
 
-					<button
-						@click="toggleFavorite"
-						class="p-4 rounded-xl border border-gray-300 hover:bg-gray-50 transition"
-						:class="{ 'text-red-500 bg-red-50 border-red-200': isFavorite }"
-					>
-						<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-							<path
-								fill-rule="evenodd"
-								d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-					</button>
-				</div>
+						<div class="flex items-end gap-6">
+							<span class="text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 drop-shadow-sm">
+								₹{{ product.price?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00' }}
+							</span>
+							<span v-if="product.product_mrp > product.price" class="text-2xl text-text opacity-30 line-through mb-2 font-bold">
+								₹{{ product.product_mrp.toLocaleString('en-IN') }}
+							</span>
+						</div>
+					</div>
 
-				<!-- Description -->
-				<div class="pt-8 border-t border-gray-200">
-					<h3 class="text-xl font-semibold mb-4">Product Description</h3>
-					<p class="text-gray-700 leading-relaxed whitespace-pre-line">
-						{{ product.description || 'No description available for this product.' }}
-					</p>
+					<div class="w-full h-px bg-gradient-to-r from-border via-border/50 to-transparent"></div>
+
+					<!-- Description -->
+					<div>
+						<h3 class="text-sm font-bold uppercase tracking-widest text-text opacity-50 mb-4">The Details</h3>
+						<p class="text-text/80 leading-relaxed text-lg font-light">
+							{{ product.description || 'Experience the perfect blend of quality and style with this premium product.' }}
+						</p>
+					</div>
+
+					<!-- Actions -->
+					<div class="flex flex-col sm:flex-row gap-5 pt-4">
+						<button
+							@click="handleAddToCart"
+							:disabled="addingToCart || !product.in_stock"
+							class="relative flex-1 group overflow-hidden rounded-[2rem] font-bold text-lg text-white shadow-xl disabled:opacity-60 disabled:cursor-not-allowed transition-all hover:-translate-y-1 hover:shadow-2xl h-16"
+							:class="product.in_stock ? 'shadow-indigo-500/25 hover:shadow-purple-500/40' : 'shadow-none'"
+						>
+							<div class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 transition-transform duration-500 group-hover:scale-110"></div>
+							<div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+							<div class="relative flex items-center justify-center gap-3 h-full">
+								<Icon v-if="addingToCart" name="mdi:loading" class="w-6 h-6 animate-spin" />
+								<Icon v-else-if="product.in_stock" name="mdi:cart-plus" class="w-6 h-6" />
+								{{ addingToCart ? 'Adding to Cart...' : product.in_stock ? 'Add to Cart' : 'Out of Stock' }}
+							</div>
+						</button>
+
+						<button
+							@click="toggleFavorite"
+							class="w-16 h-16 rounded-[2rem] border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0"
+							:class="isFavorite ? 'border-red-500 bg-red-500/10 text-red-500 shadow-lg shadow-red-500/20' : 'border-border text-text opacity-50 hover:opacity-100 hover:border-text'"
+						>
+							<Icon :name="isFavorite ? 'mdi:heart' : 'mdi:heart-outline'" class="w-7 h-7 transition-transform duration-300" :class="isFavorite ? 'scale-110' : ''" />
+						</button>
+					</div>
+
+					<!-- Trust Badges -->
+					<div class="grid grid-cols-3 gap-4 pt-6 border-t border-border/50">
+						<div class="flex flex-col items-center justify-center text-center gap-2">
+							<div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+								<Icon name="mdi:truck-fast" class="w-5 h-5" />
+							</div>
+							<span class="text-[10px] font-bold uppercase tracking-widest text-text opacity-50">Fast Delivery</span>
+						</div>
+						<div class="flex flex-col items-center justify-center text-center gap-2">
+							<div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600">
+								<Icon name="mdi:shield-check" class="w-5 h-5" />
+							</div>
+							<span class="text-[10px] font-bold uppercase tracking-widest text-text opacity-50">Secure Pay</span>
+						</div>
+						<div class="flex flex-col items-center justify-center text-center gap-2">
+							<div class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600">
+								<Icon name="mdi:refresh" class="w-5 h-5" />
+							</div>
+							<span class="text-[10px] font-bold uppercase tracking-widest text-text opacity-50">Easy Returns</span>
+						</div>
+					</div>
+
 				</div>
 			</div>
 		</div>

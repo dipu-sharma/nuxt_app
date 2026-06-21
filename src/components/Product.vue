@@ -106,7 +106,7 @@ const handleAddToCart = async (product_id) => {
 }
 
 const getDetails = (product_id) => {
-  router.push(`/product/${product_id}`)
+  router.push(`/products/${product_id}`)
 }
 </script>
 
