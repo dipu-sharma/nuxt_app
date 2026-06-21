@@ -69,8 +69,11 @@
 
 <script setup>
 import { useCart } from '~/composables/useCart'
+import { useAuthStore } from '~/stores/auth'
+
 const router = useRouter()
-const { syncCart } = useCart()
+const { addToCart } = useCart()
+const authStore = useAuthStore()
 
 const props = defineProps({
   products: {
@@ -90,9 +93,13 @@ const getDiscountPercent = (product) => {
 }
 
 const handleAddToCart = async (product_id) => {
+  if (!authStore.isAuthenticated) {
+    router.push('/login')
+    return
+  }
+
   try {
-    const items = [{ product_id: product_id, quantity: 1 }]
-    await syncCart(items)
+    await addToCart(product_id, 1)
   } catch (error) {
     console.error('Failed to add product to cart:', error)
   }

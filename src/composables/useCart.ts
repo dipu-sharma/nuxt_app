@@ -12,14 +12,18 @@ export const useCart = () => {
 
     /** Sync cart (add/update items) */
     async syncCart(items: { product_id: string; quantity: number }[]) {
-      return await api('/api/user/cart/', { method: 'POST', body: { items } })
+      let lastRes = null;
+      for (const item of items) {
+        lastRes = await api('/api/user/cart/', { method: 'POST', body: item });
+      }
+      return lastRes;
     },
 
     /** Add single item to cart */
     async addToCart(product_id: string, quantity: number = 1) {
       return await api('/api/user/cart/', {
         method: 'POST',
-        body: { items: [{ product_id, quantity }] },
+        body: { product_id, quantity },
       })
     },
 

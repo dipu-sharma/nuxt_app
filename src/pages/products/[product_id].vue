@@ -113,7 +113,7 @@
 				<!-- Actions -->
 				<div class="flex flex-col sm:flex-row gap-4 pt-6">
 					<button
-						@click="addToCart"
+						@click="handleAddToCart"
 						:disabled="addingToCart || !product.in_stock"
 						class="flex-1 bg-blue-600 text-white py-4 px-8 rounded-xl font-bold text-lg hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-400 shadow-md"
 					>
@@ -150,6 +150,7 @@
 <script setup lang="ts">
 import { useCart } from '~/composables/useCart'
 import { useProducts } from '~/composables/useProducts'
+import { useAuthStore } from '~/stores/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -163,8 +164,9 @@ const addingToCart = ref(false)
 const isFavorite = ref(false)
 const selectedImageIndex = ref(0)
 
-const { syncCart } = useCart()
+const { addToCart } = useCart()
 const { fetchProductDetails } = useProducts()
+const authStore = useAuthStore()
 
 const mainImage = computed(() => {
 	if (!product.value?.images?.length) return null
@@ -199,12 +201,17 @@ const goBack = () => {
 	router.back() 
 }
 
-const addToCart = async () => {
+const handleAddToCart = async () => {
 	if (!product.value || !product.value.in_stock) return
+
+	if (!authStore.isAuthenticated) {
+		router.push('/login')
+		return
+	}
 
 	addingToCart.value = true
 	try {
-		await syncCart([{ product_id: productId, quantity: 1 }])
+		await addToCart(productId, 1)
 	} catch (err) {
 		console.error('Add to cart failed:', err)
 	} finally {

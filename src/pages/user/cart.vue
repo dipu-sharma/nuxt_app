@@ -149,7 +149,15 @@ const loadCart = async () => {
   try {
     const { getCart } = useCart()
     const res = await getCart()
-    cartItems.value = res?.data?.items || []
+    const rawItems = res?.data?.items || []
+    cartItems.value = rawItems.map(item => ({
+      product_id: item.product?.product_id,
+      name: item.product?.product_name || item.product?.name,
+      price: item.product?.selling_price || item.product?.price || 0,
+      image_url: item.product?.images?.[0]?.url || item.product?.images?.[0]?.image_url || '',
+      quantity: item.quantity,
+      id: item.id
+    }))
   } catch { toast.error('Failed to load cart') }
   finally { loading.value = false }
 }
