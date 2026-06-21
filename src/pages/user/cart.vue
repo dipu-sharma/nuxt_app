@@ -68,7 +68,7 @@
                   <h3 class="font-bold text-xl text-text line-clamp-2 leading-tight mb-1">{{ item.name }}</h3>
                   <p class="text-text opacity-50 text-sm font-medium">{{ item.variant || '' }}</p>
                 </div>
-                <button @click="removeItem(item.product_id)"
+                <button @click="removeItem(item.id)"
                   class="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors flex-shrink-0">
                   <Icon name="mdi:close" class="w-4 h-4" />
                 </button>
@@ -259,11 +259,14 @@ const placingOrder = ref(false)
 const subtotal = computed(() => cartItems.value.reduce((s, i) => s + i.price * i.quantity, 0))
 const total = computed(() => Math.max(0, subtotal.value - discount.value))
 
+const cartId = ref('')
+
 const loadCart = async () => {
   loading.value = true
   try {
     const { getCart } = useCart()
     const res = await getCart()
+    cartId.value = res?.data?.cart_id || ''
     const rawItems = res?.data?.items || []
     cartItems.value = rawItems.map(item => ({
       product_id: item.product?.product_id,
@@ -286,11 +289,11 @@ const loadAddresses = async () => {
   } catch { }
 }
 
-const removeItem = async (product_id) => {
+const removeItem = async (item_id) => {
   try {
     const { removeFromCart } = useCart()
-    await removeFromCart(product_id)
-    cartItems.value = cartItems.value.filter(i => i.product_id !== product_id)
+    await removeFromCart(item_id)
+    cartItems.value = cartItems.value.filter(i => i.id !== item_id)
     toast.success('Item removed')
   } catch { toast.error('Failed to remove item') }
 }
@@ -298,16 +301,21 @@ const removeItem = async (product_id) => {
 const updateQty = async (item, qty) => {
   if (qty < 1) return
   try {
-    const { syncCart } = useCart()
+    const { updateCart } = useCart()
+    const itemsPayload = cartItems.value.map(i => ({
+      product_id: i.product_id,
+      quantity: i.product_id === item.product_id ? qty : i.quantity
+    }))
+    await updateCart(cartId.value, itemsPayload)
     item.quantity = qty
-    await syncCart(cartItems.value.map(i => ({ product_id: i.product_id, quantity: i.quantity })))
   } catch { toast.error('Failed to update quantity') }
 }
 
 const confirmClear = async () => {
+  if (!cartId.value) return
   try {
     const { clearCart } = useCart()
-    await clearCart()
+    await clearCart(cartId.value)
     cartItems.value = []
     toast.success('Cart cleared')
   } catch { toast.error('Failed to clear cart') }

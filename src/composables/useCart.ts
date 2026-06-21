@@ -10,16 +10,7 @@ export const useCart = () => {
       return await api('/api/user/cart/', { method: 'GET' })
     },
 
-    /** Sync cart (add/update items) */
-    async syncCart(items: { product_id: string; quantity: number }[]) {
-      let lastRes = null;
-      for (const item of items) {
-        lastRes = await api('/api/user/cart/', { method: 'POST', body: item });
-      }
-      return lastRes;
-    },
-
-    /** Add single item to cart */
+    /** Relative Quantity Change (Add to Cart / Increment / Decrement) */
     async addToCart(product_id: string, quantity: number = 1) {
       return await api('/api/user/cart/', {
         method: 'POST',
@@ -27,14 +18,22 @@ export const useCart = () => {
       })
     },
 
-    /** Remove a single item from cart */
-    async removeFromCart(product_id: string) {
-      return await api(`/api/user/cart/${product_id}`, { method: 'DELETE' })
+    /** Update Cart (Set Absolute Quantities) */
+    async updateCart(cartId: string, items: { product_id: string; quantity: number }[]) {
+      return await api(`/api/user/cart/${cartId}`, {
+        method: 'PUT',
+        body: { items }
+      })
     },
 
-    /** Clear entire cart */
-    async clearCart() {
-      return await api('/api/user/cart/', { method: 'DELETE' })
+    /** Remove a single item from cart using item_id */
+    async removeFromCart(itemId: string | number) {
+      return await api(`/api/user/cart/items/${itemId}`, { method: 'DELETE' })
+    },
+
+    /** Clear entire cart using cart_id */
+    async clearCart(cartId: string) {
+      return await api(`/api/user/cart/${cartId}`, { method: 'DELETE' })
     },
   }
 }

@@ -189,6 +189,16 @@ definePageMeta({ title: 'Products', layout: 'default' })
 
 const query = ref(useRoute().query.query || useRoute().query.q || '')
 const selectedCategory = ref(useRoute().query.category_id || useRoute().query.category || '')
+const amount_range = ref([10, 100000])
+const loading = ref(false)
+const hasSearched = ref(false)
+const products = ref([])
+const suggestions = ref([])
+const trending = ref([])
+const categories = ref([])
+const cursor = ref(null)
+const hasMore = ref(false)
+const isLoadMoreLoading = ref(false)
 
 useSeoMeta({
   title: computed(() => {
@@ -211,17 +221,6 @@ useSeoMeta({
   ogDescription: 'Browse our complete catalog of premium products. Find exactly what you are looking for at D-Shop.',
   twitterCard: 'summary_large_image',
 })
-
-const amount_range = ref([10, 100000])
-const loading = ref(false)
-const hasSearched = ref(false)
-const products = ref([])
-const suggestions = ref([])
-const trending = ref([])
-const categories = ref([])
-const cursor = ref(null)
-const hasMore = ref(false)
-const isLoadMoreLoading = ref(false)
 
 const extractArray = (res) => {
   if (!res) return []

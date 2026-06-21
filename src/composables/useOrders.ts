@@ -8,11 +8,14 @@ export const useOrders = () => {
     /** Place a new order */
     async createOrder(payload: {
       address_id: string
-      payment_method: string
+      payment_method?: string
       coupon_code?: string
       notes?: string
     }) {
-      return await api('/api/user/orders/create', { method: 'POST', body: payload })
+      return await api('/api/user/orders/create', {
+        method: 'POST',
+        query: { address_id: payload.address_id }
+      })
     },
 
     /** Get all user orders (paginated) */
