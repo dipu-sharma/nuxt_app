@@ -39,14 +39,14 @@
         <h2 class="text-xl font-bold mb-4">{{ editing ? 'Edit' : 'Add' }} Branch</h2>
         <v-form @submit.prevent="save">
           <v-row>
-            <v-col cols="12"><v-text-field v-model="form.name" label="Branch Name" variant="outlined" rounded="lg" :rules="[v => !!v || 'Required']" /></v-col>
-            <v-col cols="6"><v-text-field v-model="form.branch_code" label="Branch Code" variant="outlined" rounded="lg" /></v-col>
-            <v-col cols="6"><v-text-field v-model="form.postal_code" label="Postal Code" variant="outlined" rounded="lg" /></v-col>
-            <v-col cols="12"><v-text-field v-model="form.address" label="Address" variant="outlined" rounded="lg" /></v-col>
-            <v-col cols="6"><v-text-field v-model="form.city" label="City" variant="outlined" rounded="lg" /></v-col>
-            <v-col cols="6"><v-text-field v-model="form.state" label="State" variant="outlined" rounded="lg" /></v-col>
-            <v-col cols="6"><v-text-field v-model="form.phone" label="Phone" variant="outlined" rounded="lg" /></v-col>
-            <v-col cols="6"><v-text-field v-model="form.email" label="Email" variant="outlined" rounded="lg" /></v-col>
+            <v-col cols="12"><v-text-field v-model="form.name" label="Branch Name" variant="outlined" rounded="lg" :rules="[isRequired, noLeadingSpace]" maxlength="100" counter="100" /></v-col>
+            <v-col cols="6"><v-text-field v-model="form.branch_code" label="Branch Code" variant="outlined" rounded="lg" :rules="[noLeadingSpace]" maxlength="20" counter="20" /></v-col>
+            <v-col cols="6"><v-text-field v-model="form.postal_code" label="Postal Code" variant="outlined" rounded="lg" :rules="[isPincode]" maxlength="6" counter="6" @input="form.postal_code = filterDigits(form.postal_code, 6)" /></v-col>
+            <v-col cols="12"><v-text-field v-model="form.address" label="Address" variant="outlined" rounded="lg" :rules="[noLeadingSpace]" maxlength="255" counter="255" /></v-col>
+            <v-col cols="6"><v-text-field v-model="form.city" label="City" variant="outlined" rounded="lg" :rules="[noLeadingSpace]" maxlength="100" /></v-col>
+            <v-col cols="6"><v-text-field v-model="form.state" label="State" variant="outlined" rounded="lg" :rules="[noLeadingSpace]" maxlength="100" /></v-col>
+            <v-col cols="6"><v-text-field v-model="form.phone" label="Phone" variant="outlined" rounded="lg" :rules="[isPhone]" maxlength="10" counter="10" @input="form.phone = filterDigits(form.phone, 10)" /></v-col>
+            <v-col cols="6"><v-text-field v-model="form.email" label="Email" variant="outlined" rounded="lg" :rules="[isValidEmail, noLeadingSpace]" maxlength="100" /></v-col>
             <v-col cols="12"><v-switch v-model="form.is_active" label="Active" color="primary" /></v-col>
           </v-row>
           <div class="flex gap-3 justify-end">

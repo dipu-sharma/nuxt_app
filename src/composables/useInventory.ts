@@ -51,12 +51,37 @@ export const useInventory = () => {
         headers: context.headers
       })
     },
+    async getPurchaseOrder(id: string | number, params: any = {}) {
+      const context = getBusinessContext(params.business_id)
+      return await api(`/api/inventory/purchase-orders/${id}`, {
+        method: 'GET',
+        query: { ...context.query, ...params },
+        headers: context.headers
+      })
+    },
     async createPurchaseOrder(payload: any) {
       const context = getBusinessContext(payload.business_id)
       return await api('/api/inventory/purchase-orders', {
         method: 'POST',
         body: payload,
         query: context.query,
+        headers: context.headers
+      })
+    },
+    async updatePurchaseOrder(id: string, payload: any) {
+      const context = getBusinessContext(payload.business_id)
+      return await api(`/api/inventory/purchase-orders/${id}`, {
+        method: 'PUT',
+        body: payload,
+        query: context.query,
+        headers: context.headers
+      })
+    },
+    async deletePurchaseOrder(id: string, params: any = {}) {
+      const context = getBusinessContext(params.business_id)
+      return await api(`/api/inventory/purchase-orders/${id}`, {
+        method: 'DELETE',
+        query: { ...context.query, ...params },
         headers: context.headers
       })
     },

@@ -43,11 +43,11 @@
           <v-row>
             <v-col cols="12" sm="6">
               <v-text-field v-model="form.title" label="Invoice Title" variant="outlined" rounded="lg"
-                :rules="[v => !!v || 'Required']" />
+                :rules="[isRequired]" />
             </v-col>
             <v-col cols="12" sm="6">
               <v-text-field v-model.number="form.amount" label="Amount (₹)" type="number"
-                variant="outlined" rounded="lg" prefix="₹" :rules="[v => v > 0 || 'Must be > 0']" />
+                variant="outlined" rounded="lg" prefix="₹" :rules="[isPositive]" />
             </v-col>
             <v-col cols="12">
               <v-select v-model="form.status" :items="['draft','sent','paid','overdue','cancelled']"

@@ -47,10 +47,10 @@
           <h2 class="text-xl font-bold mb-4">Add Tax Rate</h2>
           <v-form @submit.prevent="save">
             <v-text-field v-model="form.name" label="Tax Name (e.g. GST, VAT)" variant="outlined" rounded="lg" class="mb-3"
-              :rules="[v => !!v || 'Required']" />
+              :rules="[isRequired]" />
             
             <v-text-field v-model.number="form.rate" label="Rate (%)" type="number" step="0.01" variant="outlined" rounded="lg" suffix="%" class="mb-3"
-              :rules="[v => v >= 0 || 'Cannot be negative']" />
+              :rules="[isNonNegative]" />
 
             <v-switch v-model="form.is_default" label="Set as Default Tax Rate" color="primary" class="mb-4" />
 

@@ -67,7 +67,7 @@
           <h2 class="text-xl font-bold mb-4">Add Shipping Zone</h2>
           <v-form @submit.prevent="save">
             <v-text-field v-model="form.name" label="Zone Name (e.g. Domestic)" variant="outlined" rounded="lg" class="mb-3"
-              :rules="[v => !!v || 'Required']" />
+              :rules="[isRequired]" />
             
             <v-text-field v-model="form.countries" label="Countries (comma separated, e.g. IN, US)" variant="outlined" rounded="lg" class="mb-3"
               hint="Leave empty for rest of the world" persistent-hint />

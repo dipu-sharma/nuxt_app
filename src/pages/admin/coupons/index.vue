@@ -43,18 +43,18 @@
           <v-row>
             <v-col cols="12">
               <v-text-field v-model="form.code" label="Coupon Code" variant="outlined" rounded="lg"
-                :rules="[v => !!v || 'Required']" hint="E.g. SAVE20, FESTIVE50"
+                :rules="[isRequired]" hint="E.g. SAVE20, FESTIVE50"
                 @input="form.code = form.code.toUpperCase()" />
             </v-col>
             <v-col cols="12" sm="6">
               <v-select v-model="form.discount_type" :items="['percentage', 'fixed']" label="Discount Type"
-                variant="outlined" rounded="lg" :rules="[v => !!v || 'Required']" />
+                variant="outlined" rounded="lg" :rules="[isRequired]" />
             </v-col>
             <v-col cols="12" sm="6">
               <v-text-field v-model.number="form.discount_value" label="Discount Value" type="number"
                 variant="outlined" rounded="lg" :prefix="form.discount_type === 'fixed' ? '₹' : ''"
                 :suffix="form.discount_type === 'percentage' ? '%' : ''"
-                :rules="[v => v > 0 || 'Must be greater than 0']" />
+                :rules="[isPositive]" />
             </v-col>
             <v-col cols="12" sm="6">
               <v-text-field v-model.number="form.min_order_amount" label="Min Order Amount (₹)" type="number"

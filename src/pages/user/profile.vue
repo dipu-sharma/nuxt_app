@@ -34,24 +34,25 @@
                 <v-col cols="12" sm="6">
                   <v-text-field v-model="profileData.first_name" label="First Name"
                     prepend-inner-icon="mdi:account-outline" variant="outlined" rounded="lg"
-                    :rules="[rules.required]" />
+                    :rules="[rules.required, noLeadingSpace]" maxlength="50" />
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field v-model="profileData.last_name" label="Last Name"
                     prepend-inner-icon="mdi:account-outline" variant="outlined" rounded="lg"
-                    :rules="[rules.required]" />
+                    :rules="[rules.required, noLeadingSpace]" maxlength="50" />
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field v-model="profileData.phone" label="Phone Number"
-                    prepend-inner-icon="mdi:phone-outline" variant="outlined" rounded="lg" />
+                    prepend-inner-icon="mdi:phone-outline" variant="outlined" rounded="lg"
+                    :rules="[isPhone]" maxlength="10" @input="profileData.phone = filterDigits(profileData.phone, 10)" />
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field v-model="profileData.email" label="Email" type="email"
                     prepend-inner-icon="mdi:email-outline" variant="outlined" rounded="lg"
-                    :rules="[rules.required, rules.validEmail]" />
+                    :rules="[rules.required, rules.validEmail, noLeadingSpace]" maxlength="100" />
                 </v-col>
                 <v-col cols="12">
-                  <v-textarea v-model="profileData.bio" label="Bio" variant="outlined" rounded="lg" rows="3" />
+                  <v-textarea v-model="profileData.bio" label="Bio" variant="outlined" rounded="lg" rows="3" :rules="[noLeadingSpace]" maxlength="500" />
                 </v-col>
               </v-row>
               <div class="flex justify-end mt-4">
@@ -104,13 +105,13 @@
             <v-card rounded="xl" class="pa-6">
               <h3 class="text-lg font-bold mb-4">{{ editingAddress ? 'Edit' : 'Add' }} Address</h3>
               <v-form @submit.prevent="saveAddress">
-                <v-text-field v-model="addressForm.address_line1" label="Address Line 1" variant="outlined" rounded="lg" class="mb-3" :rules="[rules.required]" />
-                <v-text-field v-model="addressForm.address_line2" label="Address Line 2 (optional)" variant="outlined" rounded="lg" class="mb-3" />
+                <v-text-field v-model="addressForm.address_line1" label="Address Line 1" variant="outlined" rounded="lg" class="mb-3" :rules="[rules.required, noLeadingSpace]" maxlength="255" />
+                <v-text-field v-model="addressForm.address_line2" label="Address Line 2 (optional)" variant="outlined" rounded="lg" class="mb-3" :rules="[noLeadingSpace]" maxlength="255" />
                 <v-row>
-                  <v-col cols="6"><v-text-field v-model="addressForm.city" label="City" variant="outlined" rounded="lg" :rules="[rules.required]" /></v-col>
-                  <v-col cols="6"><v-text-field v-model="addressForm.state" label="State" variant="outlined" rounded="lg" :rules="[rules.required]" /></v-col>
-                  <v-col cols="6"><v-text-field v-model="addressForm.country" label="Country" variant="outlined" rounded="lg" :rules="[rules.required]" /></v-col>
-                  <v-col cols="6"><v-text-field v-model="addressForm.pincode" label="Pincode" variant="outlined" rounded="lg" :rules="[rules.required]" /></v-col>
+                  <v-col cols="6"><v-text-field v-model="addressForm.city" label="City" variant="outlined" rounded="lg" :rules="[rules.required, noLeadingSpace]" maxlength="100" /></v-col>
+                  <v-col cols="6"><v-text-field v-model="addressForm.state" label="State" variant="outlined" rounded="lg" :rules="[rules.required, noLeadingSpace]" maxlength="100" /></v-col>
+                  <v-col cols="6"><v-text-field v-model="addressForm.country" label="Country" variant="outlined" rounded="lg" :rules="[rules.required, noLeadingSpace]" maxlength="100" /></v-col>
+                  <v-col cols="6"><v-text-field v-model="addressForm.pincode" label="Pincode" variant="outlined" rounded="lg" :rules="[rules.required, isPincode]" maxlength="6" @input="addressForm.pincode = filterDigits(addressForm.pincode, 6)" /></v-col>
                 </v-row>
                 <v-checkbox v-model="addressForm.is_default" label="Set as default address" color="primary" />
                 <div class="flex gap-3 justify-end mt-2">

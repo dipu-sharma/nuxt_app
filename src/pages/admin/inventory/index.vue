@@ -107,18 +107,19 @@
 					<table class="w-full text-sm">
 						<thead style="background-color: rgb(var(--color-background))">
 							<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60">
-								<th class="px-6 py-4 text-left">PO #</th>
+								<th class="px-6 py-4 text-left">PO Code</th>
 								<th class="px-6 py-4 text-left">Supplier</th>
 								<th class="px-6 py-4 text-left">Branch ID</th>
 								<th class="px-6 py-4 text-left">Total Value</th>
 								<th class="px-6 py-4 text-left">Status</th>
 								<th class="px-6 py-4 text-left">Order Date</th>
+								<th class="px-6 py-4 text-right">Actions</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr v-for="po in purchaseOrders" :key="po.id" class="border-t hover:bg-secondary/20 transition-colors"
 								style="border-color: rgb(var(--color-border))">
-								<td class="px-6 py-4 font-mono font-bold text-xs opacity-75">#{{ po.id }}</td>
+								<td class="px-6 py-4 font-mono font-bold text-xs opacity-75">#{{ po.po_id || po.id }}</td>
 								<td class="px-6 py-4 text-text opacity-85 font-medium">{{ po.supplier?.name || `Supplier #${po.supplier_id}` }}</td>
 								<td class="px-6 py-4 text-text opacity-75 font-semibold">Branch #{{ po.branch_id || '—' }}</td>
 								<td class="px-6 py-4 font-semibold text-primary">₹{{ po.total_amount?.toLocaleString('en-IN') || '—' }}</td>
@@ -128,6 +129,11 @@
 									</span>
 								</td>
 								<td class="px-6 py-4 text-text opacity-70 font-mono text-xs">{{ formatDate(po.created_at || po.order_date) }}</td>
+								<td class="px-6 py-4 text-right">
+									<v-btn size="small" variant="text" color="primary" @click="viewPO(po)" class="mr-1">View</v-btn>
+									<v-btn size="small" variant="text" color="secondary" @click="editPO(po)" class="mr-1">Edit</v-btn>
+									<v-btn size="small" variant="text" color="error" @click="deletePO(po)">Delete</v-btn>
+								</td>
 							</tr>
 						</tbody>
 					</table>
@@ -241,13 +247,13 @@
 
 							<div>
 								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Quantity *</label>
-								<input v-model.number="stockForm.quantity" type="number" placeholder="Enter stock amount" required
+								<input v-model.number="stockForm.quantity" type="number" placeholder="Enter stock amount" required min="1" max="1000000"
 									class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
 							</div>
 
 							<div>
 								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Reason for Adjustment</label>
-								<input v-model="stockForm.reason" placeholder="e.g. Found during warehouse audit"
+								<input v-model="stockForm.reason" placeholder="e.g. Found during warehouse audit" maxlength="255" pattern="[^\s].*" title="Cannot start with a space"
 									class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
 							</div>
 						</div>
@@ -275,31 +281,31 @@
 					<form @submit.prevent="saveSupplier" class="space-y-4">
 						<div>
 							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Supplier Name *</label>
-							<input v-model="supplierForm.name" placeholder="e.g. Supplier ABC Ltd" required
+							<input v-model="supplierForm.name" placeholder="e.g. Supplier ABC Ltd" required maxlength="100" pattern="[^\s].*" title="Cannot start with a space"
 								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
 						</div>
 
 						<div>
 							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Contact Person</label>
-							<input v-model="supplierForm.contact_person" placeholder="e.g. Jane Doe"
+							<input v-model="supplierForm.contact_person" placeholder="e.g. Jane Doe" maxlength="100" pattern="[^\s].*" title="Cannot start with a space"
 								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
 						</div>
 
 						<div>
 							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Email Address</label>
-							<input v-model="supplierForm.email" placeholder="e.g. contact@supplierabc.com" type="email"
+							<input v-model="supplierForm.email" placeholder="e.g. contact@supplierabc.com" type="email" maxlength="100" pattern="[^\s].*" title="Cannot start with a space"
 								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
 						</div>
 
 						<div>
 							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Phone Number</label>
-							<input v-model="supplierForm.phone" placeholder="e.g. +919876543210"
+							<input v-model="supplierForm.phone" placeholder="e.g. 9876543210" maxlength="10" pattern="\d{10}" title="Phone number must be exactly 10 digits" @input="supplierForm.phone = filterDigits(supplierForm.phone, 10)"
 								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
 						</div>
 
 						<div>
 							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Address</label>
-							<input v-model="supplierForm.address" placeholder="e.g. 123 Supplier Street, New Delhi"
+							<input v-model="supplierForm.address" placeholder="e.g. 123 Supplier Street, New Delhi" maxlength="255" pattern="[^\s].*" title="Cannot start with a space"
 								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
 						</div>
 
@@ -321,7 +327,7 @@
 			<v-card class="rounded-[2.5rem] bg-card border-0 shadow-2xl overflow-hidden" style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
 				<div class="px-8 py-8 md:px-10 md:py-10">
 					<h2 class="text-3xl font-light tracking-tight text-text mb-6 pb-2 border-b border-border" style="border-color: rgb(var(--color-border))">
-						Create Purchase Order
+						{{ editingPOId ? 'Edit Purchase Order' : 'Create Purchase Order' }}
 					</h2>
 					
 					<form @submit.prevent="savePurchaseOrder" class="space-y-4 text-sm">
@@ -363,14 +369,14 @@
 							<!-- Order Date -->
 							<div>
 								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Order Date</label>
-								<input v-model="poForm.order_date" type="datetime-local" required
+								<input v-model="poForm.order_date" type="date" required
 									class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
 							</div>
 
 							<!-- Expected Delivery Date -->
 							<div>
 								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Expected Delivery</label>
-								<input v-model="poForm.expected_delivery_date" type="datetime-local" required
+								<input v-model="poForm.expected_delivery_date" type="date" required
 									class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
 							</div>
 
@@ -423,14 +429,14 @@
 									<!-- Quantity -->
 									<div class="w-24">
 										<label class="text-[9px] text-text opacity-50 font-bold uppercase tracking-widest block mb-1">Qty *</label>
-										<input v-model.number="item.quantity" type="number" step="0.1" required placeholder="0"
+										<input v-model.number="item.quantity" type="number" step="0.1" required placeholder="0" min="0.1" max="1000000"
 											class="w-full px-3 py-2 bg-background border border-border rounded-full text-xs focus:outline-none text-text transition-all" />
 									</div>
 
 									<!-- Cost per Unit -->
 									<div class="w-28">
 										<label class="text-[9px] text-text opacity-50 font-bold uppercase tracking-widest block mb-1">Cost Per Unit *</label>
-										<input v-model.number="item.cost_per_unit" type="number" step="0.01" required placeholder="0.00"
+										<input v-model.number="item.cost_per_unit" type="number" step="0.01" required placeholder="0.00" min="0" max="10000000"
 											class="w-full px-3 py-2 bg-background border border-border rounded-full text-xs focus:outline-none text-text transition-all" />
 									</div>
 
@@ -447,10 +453,84 @@
 								Cancel
 							</v-btn>
 							<v-btn color="primary" variant="flat" rounded="pill" size="large" class="flex-1 text-none tracking-widest font-medium text-white shadow-sm" :loading="savingPO" type="submit">
-								CREATE PO
+								{{ editingPOId ? 'UPDATE PO' : 'CREATE PO' }}
 							</v-btn>
 						</div>
 					</form>
+				</div>
+			</v-card>
+		</v-dialog>
+
+		<!-- Purchase Order Details Modal -->
+		<v-dialog v-model="showPODetailsModal" max-width="700" transition="dialog-bottom-transition">
+			<v-card class="rounded-[2.5rem] bg-card border-0 shadow-2xl overflow-hidden" style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
+				<div class="px-8 py-8 md:px-10 md:py-10">
+					<div class="flex justify-between items-start mb-6 pb-2 border-b border-border" style="border-color: rgb(var(--color-border))">
+						<div>
+							<h2 class="text-3xl font-light tracking-tight text-text">
+								Purchase Order <span class="font-bold text-primary">#{{ selectedPO?.po_id || selectedPO?.id }}</span>
+							</h2>
+							<p class="text-text opacity-70 mt-1">Status: <span class="font-bold uppercase">{{ selectedPO?.status }}</span></p>
+						</div>
+						<v-btn icon variant="text" @click="showPODetailsModal = false">
+							<Icon name="mdi:close" class="w-6 h-6" />
+						</v-btn>
+					</div>
+					
+					<div v-if="loadingPODetails" class="p-12 text-center">
+						<v-progress-circular indeterminate color="primary" :size="36" :width="2" class="opacity-50" />
+					</div>
+					<div v-else>
+						<div class="grid grid-cols-2 gap-4 mb-6 text-sm">
+							<div class="p-4 bg-secondary/20 rounded-2xl border border-border/50">
+								<p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-1">Supplier</p>
+								<p class="font-semibold">{{ selectedPO?.supplier?.name || `Supplier #${selectedPO?.supplier_id}` }}</p>
+							</div>
+							<div class="p-4 bg-secondary/20 rounded-2xl border border-border/50">
+								<p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-1">Branch</p>
+								<p class="font-semibold">Branch #{{ selectedPO?.branch_id }}</p>
+							</div>
+							<div class="p-4 bg-secondary/20 rounded-2xl border border-border/50">
+								<p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-1">Order Date</p>
+								<p class="font-semibold">{{ new Date(selectedPO?.order_date || selectedPO?.created_at).toLocaleString() }}</p>
+							</div>
+							<div class="p-4 bg-secondary/20 rounded-2xl border border-border/50">
+								<p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-1">Expected Delivery</p>
+								<p class="font-semibold">{{ selectedPO?.expected_delivery_date ? new Date(selectedPO.expected_delivery_date).toLocaleString() : '—' }}</p>
+							</div>
+						</div>
+
+						<h3 class="font-bold text-xs uppercase tracking-widest text-primary border-b border-border/50 pb-2 mb-4">Order Items</h3>
+						
+						<div v-if="selectedPOItems.length === 0" class="text-center py-6 text-text opacity-50 text-sm">
+							No items found in this order.
+						</div>
+						<div v-else class="overflow-x-auto rounded-[1.5rem] border border-border/50 mb-6">
+							<table class="w-full text-sm">
+								<thead style="background-color: rgb(var(--color-background))">
+									<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60">
+										<th class="px-4 py-3 text-left">Product ID</th>
+										<th class="px-4 py-3 text-left">Quantity</th>
+										<th class="px-4 py-3 text-left">Cost/Unit</th>
+										<th class="px-4 py-3 text-right">Total</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="item in selectedPOItems" :key="item.id" class="border-t hover:bg-secondary/20" style="border-color: rgb(var(--color-border))">
+										<td class="px-4 py-3 font-medium text-text">{{ item.product_name || `Product #${item.product_id}` }}</td>
+										<td class="px-4 py-3 text-text">{{ item.quantity }}</td>
+										<td class="px-4 py-3 text-text">₹{{ item.cost_per_unit?.toLocaleString('en-IN') || '0' }}</td>
+										<td class="px-4 py-3 font-semibold text-right text-primary">₹{{ (item.quantity * item.cost_per_unit).toLocaleString('en-IN') }}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						
+						<div class="flex justify-end pr-4 text-lg">
+							<p class="font-bold text-text opacity-70 mr-4">Total Amount:</p>
+							<p class="font-black text-primary">₹{{ selectedPO?.total_amount?.toLocaleString('en-IN') || '0' }}</p>
+						</div>
+					</div>
 				</div>
 			</v-card>
 		</v-dialog>
@@ -493,6 +573,11 @@ const savingSupplier = ref(false)
 const savingPO = ref(false)
 const showSupplierModal = ref(false)
 const showPOModal = ref(false)
+const editingPOId = ref(null)
+const showPODetailsModal = ref(false)
+const selectedPO = ref(null)
+const selectedPOItems = ref([])
+const loadingPODetails = ref(false)
 
 const supplierForm = ref({ name: '', email: '', phone: '', contact_person: '', address: '' })
 const poForm = ref({
@@ -513,11 +598,30 @@ const selectedProd = ref(null)
 
 const formatDate = (d) => d ? new Date(d).toLocaleDateString() : '—'
 
+const getInventoryParams = async () => {
+	const authStore = useAuthStore()
+	const params = {}
+	
+	if (authStore.role === 'ADMIN') {
+		const { getBusinesses } = useAdminUsers()
+		const bizRes = await getBusinesses({ limit: 1 })
+		const firstBiz = bizRes?.data?.items?.[0] || bizRes?.data?.[0]
+		params.business_id = firstBiz?.id || firstBiz?.business_id || 1
+	} else {
+		const businessId = authStore.user?.business_id || authStore.user?.business?.id
+		if (businessId) {
+			params.business_id = businessId
+		}
+	}
+	return params
+}
+
 const loadSuppliers = async () => {
 	loadingSuppliers.value = true
 	try {
+		const params = await getInventoryParams()
 		const { getSuppliers } = useInventory()
-		const res = await getSuppliers()
+		const res = await getSuppliers(params)
 		suppliers.value = res?.data?.items || res?.data || []
 	} catch (error) {
 		console.error(error)
@@ -530,8 +634,9 @@ const loadSuppliers = async () => {
 const loadPO = async () => {
 	loadingPO.value = true
 	try {
+		const params = await getInventoryParams()
 		const { getPurchaseOrders } = useInventory()
-		const res = await getPurchaseOrders()
+		const res = await getPurchaseOrders(params)
 		purchaseOrders.value = res?.data?.items || res?.data || []
 	} catch (error) {
 		console.error(error)
@@ -544,21 +649,7 @@ const loadPO = async () => {
 const loadBranches = async () => {
 	try {
 		const { getBranches } = useBranches()
-		const authStore = useAuthStore()
-		const params = {}
-		
-		if (authStore.role === 'ADMIN') {
-			const { getBusinesses } = useAdminUsers()
-			const bizRes = await getBusinesses({ limit: 1 })
-			const firstBiz = bizRes?.data?.items?.[0] || bizRes?.data?.[0]
-			const businessId = firstBiz?.id || firstBiz?.business_id || 1
-			params.business_id = businessId
-		} else {
-			const businessId = authStore.user?.business_id || authStore.user?.business?.id
-			if (businessId) {
-				params.business_id = businessId
-			}
-		}
+		const params = await getInventoryParams()
 		
 		const res = await getBranches(params)
 		const resData = res?.data?.data || res?.data?.items || res?.data || []
@@ -612,14 +703,15 @@ const saveSupplier = async () => {
 }
 
 const openPOModal = () => {
+	editingPOId.value = null
 	// Initialize dates
 	const now = new Date()
 	now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
-	const defaultOrderDate = now.toISOString().slice(0, 16)
+	const defaultOrderDate = now.toISOString().slice(0, 10)
 	
 	const deliveryDate = new Date(Date.now() + 5*24*60*60*1000)
 	deliveryDate.setMinutes(deliveryDate.getMinutes() - deliveryDate.getTimezoneOffset())
-	const defaultDeliveryDate = deliveryDate.toISOString().slice(0, 16)
+	const defaultDeliveryDate = deliveryDate.toISOString().slice(0, 10)
 
 	poForm.value = {
 		supplier_id: '',
@@ -632,6 +724,64 @@ const openPOModal = () => {
 	showPOModal.value = true
 }
 
+const editPO = async (po) => {
+	editingPOId.value = po.po_id || po.id
+	
+	// Format dates for date input
+	const formatForInput = (dateString) => {
+		if (!dateString) return ''
+		const d = new Date(dateString)
+		d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
+		return d.toISOString().slice(0, 10)
+	}
+
+	poForm.value = {
+		supplier_id: po.supplier_id,
+		branch_id: po.branch_id || branchesList.value[0]?.id || 1,
+		order_date: formatForInput(po.order_date || po.created_at),
+		expected_delivery_date: formatForInput(po.expected_delivery_date),
+		status: po.status,
+		items: po.items?.length ? po.items.map(i => ({
+			product_id: i.product_id,
+			quantity: i.quantity,
+			cost_per_unit: i.cost_per_unit
+		})) : [{ product_id: '', quantity: '', cost_per_unit: '' }]
+	}
+	
+	showPOModal.value = true
+
+	// If items are missing, fetch them
+	if (!po.items || po.items.length === 0) {
+		try {
+			const { getPurchaseOrder } = useInventory()
+			const res = await getPurchaseOrder(po.po_id || po.id)
+			if (res?.data?.items?.length) {
+				poForm.value.items = res.data.items.map(i => ({
+					product_id: i.product_id,
+					quantity: i.quantity,
+					cost_per_unit: i.cost_per_unit
+				}))
+			}
+		} catch (e) {
+			console.error('Failed to load PO details for editing', e)
+		}
+	}
+}
+
+const deletePO = async (po) => {
+	if (!confirm(`Are you sure you want to delete Purchase Order #${po.po_id || po.id}?`)) return
+	
+	try {
+		const { deletePurchaseOrder } = useInventory()
+		await deletePurchaseOrder(po.po_id || po.id)
+		toast.success('Purchase order deleted!')
+		loadPO()
+	} catch (e) {
+		console.error(e)
+		toast.error('Failed to delete purchase order')
+	}
+}
+
 const addPOItemLine = () => {
 	poForm.value.items.push({ product_id: '', quantity: '', cost_per_unit: '' })
 }
@@ -639,6 +789,28 @@ const addPOItemLine = () => {
 const removePOItemLine = (idx) => {
 	if (poForm.value.items.length > 1) {
 		poForm.value.items.splice(idx, 1)
+	}
+}
+
+const viewPO = async (po) => {
+	selectedPO.value = po
+	selectedPOItems.value = po.items || []
+	showPODetailsModal.value = true
+
+	if (!po.items || po.items.length === 0) {
+		loadingPODetails.value = true
+		try {
+			const { getPurchaseOrder } = useInventory()
+			const res = await getPurchaseOrder(po.po_id || po.id)
+			if (res?.data) {
+				selectedPO.value = res.data
+				selectedPOItems.value = res.data.items || res.data.purchase_order_items || []
+			}
+		} catch (e) {
+			console.error('Failed to load PO details', e)
+		} finally {
+			loadingPODetails.value = false
+		}
 	}
 }
 
@@ -650,7 +822,7 @@ const savePurchaseOrder = async () => {
 	
 	savingPO.value = true
 	try {
-		const { createPurchaseOrder } = useInventory()
+		const { createPurchaseOrder, updatePurchaseOrder } = useInventory()
 		
 		// Format order dates to ISO UTC strings
 		const utcOrderDate = new Date(poForm.value.order_date).toISOString()
@@ -669,13 +841,19 @@ const savePurchaseOrder = async () => {
 			}))
 		}
 		
-		await createPurchaseOrder(payload)
-		toast.success('Purchase Order created and stock updated!')
+		if (editingPOId.value) {
+			await updatePurchaseOrder(editingPOId.value, payload)
+			toast.success('Purchase Order updated successfully!')
+		} else {
+			await createPurchaseOrder(payload)
+			toast.success('Purchase Order created and stock updated!')
+		}
+		
 		showPOModal.value = false
 		loadPO()
 	} catch (e) {
 		console.error(e)
-		toast.error('Failed to create purchase order')
+		toast.error(editingPOId.value ? 'Failed to update purchase order' : 'Failed to create purchase order')
 	} finally {
 		savingPO.value = false
 	}

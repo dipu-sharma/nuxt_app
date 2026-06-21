@@ -78,19 +78,19 @@
 			<div class="rounded-xl p-6 w-full max-w-lg shadow-xl" style="background-color: rgb(var(--color-card))">
 				<h2 class="text-lg font-bold mb-4">Create New Business</h2>
 				<div class="space-y-3">
-					<input v-model="createForm.business_name" placeholder="Business Name *"
+					<input v-model="createForm.business_name" placeholder="Business Name *" maxlength="100" pattern="[^\s].*" title="Cannot start with a space"
 						class="w-full px-4 py-2 rounded-lg text-sm"
 						style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
-					<input v-model="createForm.business_email" placeholder="Business Email *" type="email"
+					<input v-model="createForm.business_email" placeholder="Business Email *" type="email" maxlength="100" pattern="[^\s].*" title="Cannot start with a space"
 						class="w-full px-4 py-2 rounded-lg text-sm"
 						style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
-					<input v-model="createForm.business_phone" placeholder="Phone Number"
+					<input v-model="createForm.business_phone" placeholder="Phone Number (e.g. 9876543210)" maxlength="10" pattern="\d{10}" title="Phone number must be exactly 10 digits" @input="createForm.business_phone = filterDigits(createForm.business_phone, 10)"
 						class="w-full px-4 py-2 rounded-lg text-sm"
 						style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
-					<input v-model="createForm.owner_email" placeholder="Owner Email *"
+					<input v-model="createForm.owner_email" placeholder="Owner Email *" type="email" maxlength="100" pattern="[^\s].*" title="Cannot start with a space"
 						class="w-full px-4 py-2 rounded-lg text-sm"
 						style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
-					<textarea v-model="createForm.description" placeholder="Business Description" rows="3"
+					<textarea v-model="createForm.description" placeholder="Business Description" rows="3" maxlength="255"
 						class="w-full px-4 py-2 rounded-lg text-sm resize-none"
 						style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))"></textarea>
 				</div>

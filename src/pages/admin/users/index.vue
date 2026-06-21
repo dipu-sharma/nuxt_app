@@ -124,19 +124,19 @@
           <div class="space-y-4 mb-8">
             <div>
               <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Business Name *</label>
-              <input v-model="promoteForm.business_name" placeholder="Enter Business Name" required
+              <input v-model="promoteForm.business_name" placeholder="Enter Business Name" required maxlength="100" pattern="[^\s].*" title="Cannot start with a space"
                 class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
             </div>
 
             <div>
               <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Business Email</label>
-              <input v-model="promoteForm.business_email" placeholder="Enter Business Email"
+              <input v-model="promoteForm.business_email" placeholder="Enter Business Email" type="email" maxlength="100" pattern="[^\s].*" title="Cannot start with a space"
                 class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
             </div>
 
             <div>
               <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Business Phone</label>
-              <input v-model="promoteForm.business_phone" placeholder="Enter Business Phone"
+              <input v-model="promoteForm.business_phone" placeholder="Enter Business Phone (e.g. 9876543210)" maxlength="10" pattern="\d{10}" title="Phone number must be exactly 10 digits" @input="promoteForm.business_phone = filterDigits(promoteForm.business_phone, 10)"
                 class="w-full px-5 py-3 bg-card border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
             </div>
           </div>
