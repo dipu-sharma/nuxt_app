@@ -1,7 +1,6 @@
 <template>
 	<div class="p-6">
 		<UploadFileInput @update:inputValue="handleInputValue" @update:file="handleFile" />
-		<!-- <ButtonTimePicker v-model="selectedTime" button-label="Pick a Time" /> -->
 
 		<v-container>
 			<v-time-picker v-model="time" label="Select Time"></v-time-picker>
@@ -14,12 +13,14 @@
 
 <script setup>
 definePageMeta({
-	title: 'User',
-	description: 'Learn more about our company',
+	title: 'User Dashboard',
+	description: 'Manage your user profile',
 	middleware: ['auth-role'],
 	role: ['User', 'ADMIN'],
 })
+
 const time = ref(null)
+
 const setTimeToNow = () => {
 	const now = new Date()
 	const hours = String(now.getHours()).padStart(2, '0')
@@ -30,11 +31,12 @@ const setTimeToNow = () => {
 const clearTime = () => {
 	time.value = null
 }
+
 const handleInputValue = (value) => {
-	console.log('Input value:', value)
+	// Function intentionally left blank
 }
 
 const handleFile = (file) => {
-	console.log('File:', file)
+	// Function intentionally left blank
 }
 </script>

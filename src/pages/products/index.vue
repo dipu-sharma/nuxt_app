@@ -5,8 +5,8 @@
     <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-cyan-500/20 via-blue-500/20 to-transparent rounded-full blur-[120px] -translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
 
     <!-- Sticky Search Header with Glassmorphism -->
-    <div class="sticky top-0 z-20 py-6 px-4 bg-background/80 backdrop-blur-2xl border-b border-border/50 transition-all duration-300">
-      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row gap-4 items-center relative">
+    <div class="sticky top-0 z-20 py-6 px-4 sm:px-8 xl:px-12 bg-background/80 backdrop-blur-2xl border-b border-border/50 transition-all duration-300">
+      <div class="w-full mx-auto flex flex-col sm:flex-row gap-4 items-center relative">
         <div class="relative flex-1 w-full group">
           <Icon name="mdi:magnify" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5 group-focus-within:text-primary group-focus-within:opacity-100 transition-colors" />
           <input v-model="query" @input="onSearchInput" @keyup.enter="doSearch"
@@ -33,12 +33,12 @@
       </div>
     </div>
 
-    <div class="relative z-10 max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="relative z-10 w-full mx-auto px-4 sm:px-8 xl:px-12 py-8">
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
         
         <!-- Filters Sidebar -->
-        <aside class="lg:col-span-3">
-          <div class="bg-card/80 backdrop-blur-2xl border border-white/20 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] rounded-[2.5rem] p-8 sticky top-36 overflow-hidden relative">
+        <aside class="xl:col-span-2 2xl:col-span-2">
+          <div class="bg-card/80 backdrop-blur-2xl border border-white/20 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] rounded-[2.5rem] p-6 sticky top-36 overflow-hidden relative">
             <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
 
             <h3 class="text-xl font-bold text-text tracking-tight mb-6 flex items-center gap-2 relative z-10">
@@ -98,7 +98,7 @@
         </aside>
 
         <!-- Products Area -->
-        <main class="lg:col-span-9">
+        <main class="xl:col-span-10 2xl:col-span-10">
           
           <!-- Search Header States -->
           <div v-if="!query && !hasSearched" class="mb-10">
@@ -174,8 +174,26 @@ import { useDebounceFn } from '@vueuse/core'
 definePageMeta({ title: 'Products', layout: 'default' })
 
 const query = ref(useRoute().query.q || '')
+const selectedCategory = ref(useRoute().query.category || '')
+
+useSeoMeta({
+  title: computed(() => {
+    if (query.value) return `Search results for "${query.value}" | D-Shop`
+    if (selectedCategory.value) return `${selectedCategory.value} Products | D-Shop`
+    return 'Shop All Products | D-Shop'
+  }),
+  description: 'Browse our complete catalog of premium products. Find exactly what you are looking for at D-Shop.',
+  ogTitle: computed(() => {
+    if (query.value) return `Search results for "${query.value}" | D-Shop`
+    if (selectedCategory.value) return `${selectedCategory.value} Products | D-Shop`
+    return 'Shop All Products | D-Shop'
+  }),
+  ogDescription: 'Browse our complete catalog of premium products. Find exactly what you are looking for at D-Shop.',
+  ogImage: 'https://via.placeholder.com/1200x630.png?text=D-Shop+Products',
+  twitterCard: 'summary_large_image',
+})
+
 const amount_range = ref([10, 100000])
-const selectedCategory = ref('')
 const loading = ref(false)
 const hasSearched = ref(false)
 const products = ref([])

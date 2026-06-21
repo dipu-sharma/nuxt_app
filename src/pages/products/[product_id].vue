@@ -61,15 +61,15 @@
 					</div>
 
 					<!-- Thumbnails -->
-					<div v-if="product.images?.length > 1" class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+					<div v-if="product?.images?.length > 1" class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
 						<button
 							v-for="(img, index) in product.images"
 							:key="index"
-							@click="selectedImageIndex = index"
+							@click="selectedImageIndex = Number(index)"
 							class="relative flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-2 transition-all duration-300 bg-secondary"
 							:class="selectedImageIndex === index ? 'border-primary ring-4 ring-primary/20 scale-105' : 'border-border/50 hover:border-primary/50 opacity-70 hover:opacity-100'"
 						>
-							<img :src="img" :alt="`${product.name} view ${index + 1}`" class="w-full h-full object-cover" />
+							<img :src="img.url || img.image_url || img" :alt="`${product.name} view ${Number(index) + 1}`" class="w-full h-full object-cover" />
 						</button>
 					</div>
 				</div>
@@ -174,9 +174,9 @@ const router = useRouter()
 
 const productId = route.params.product_id as string
 
-const product = ref(null)
+const product = ref<any>(null)
 const loading = ref(true)
-const error = ref(null)
+const error = ref<any>(null)
 const addingToCart = ref(false)
 const isFavorite = ref(false)
 const selectedImageIndex = ref(0)
@@ -195,7 +195,7 @@ const fetchProduct = async () => {
 	error.value = null
 
 	try {
-		const response = await fetchProductDetails(productId)
+		const response: any = await fetchProductDetails(productId)
 		product.value = response.data || response
 	} catch (err: any) {
 		console.error('Failed to load product:', err)
@@ -213,6 +213,20 @@ watch(
 	},
 	{ immediate: true },
 )
+
+useSeoMeta({
+	title: computed(() => product.value ? `${product.value.product_name || product.value.name} | D-Shop` : 'Product Details | D-Shop'),
+	description: computed(() => product.value?.description || 'View details for this premium handcrafted product at D-Shop.'),
+	ogTitle: computed(() => product.value ? `${product.value.product_name || product.value.name} | D-Shop` : 'Product Details | D-Shop'),
+	ogDescription: computed(() => product.value?.description || 'View details for this premium handcrafted product at D-Shop.'),
+	ogImage: computed(() => {
+		if (product.value?.images?.length > 0) {
+			return product.value.images[0].image_url || product.value.images[0].url
+		}
+		return 'https://via.placeholder.com/1200x630.png?text=D-Shop+Product'
+	}),
+	twitterCard: 'summary_large_image',
+})
 
 const goBack = () => {
 	router.back() 

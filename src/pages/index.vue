@@ -113,8 +113,16 @@ import { useProducts } from '~/composables/useProducts'
 
 definePageMeta({
   title: 'Home',
-  description: 'Handcrafted products',
   layout: 'default',
+})
+
+useSeoMeta({
+  title: 'D-Shop - Premium Handcrafted Goods',
+  description: 'Welcome to D-Shop. Explore our curated collection of premium, handcrafted products designed to elevate your lifestyle.',
+  ogTitle: 'D-Shop - Premium Handcrafted Goods',
+  ogDescription: 'Explore our curated collection of premium, handcrafted products designed to elevate your lifestyle.',
+  ogImage: 'https://via.placeholder.com/1200x630.png?text=D-Shop+Premium+Store',
+  twitterCard: 'summary_large_image',
 })
 
 const { fetchPublic } = useProducts()

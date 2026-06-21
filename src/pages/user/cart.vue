@@ -182,6 +182,13 @@ import { toast } from 'vue3-toastify'
 
 definePageMeta({ title: 'My Cart', middleware: ['auth-role'], layout: 'default' })
 
+useSeoMeta({
+  title: 'My Shopping Cart | D-Shop',
+  description: 'Review your items and proceed to checkout.',
+  ogTitle: 'My Shopping Cart | D-Shop',
+  robots: 'noindex, nofollow' // We do not want search engines indexing the private cart page
+})
+
 const loading = ref(false)
 const cartItems = ref([])
 const addresses = ref([])

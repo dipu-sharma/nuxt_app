@@ -34,17 +34,17 @@
 						<NuxtLink class="md:p-4 py-2 block hover:text-purple-400" to="/">Home</NuxtLink>
 					</li>
 					<li>
-						<NuxtLink class="md:p-4 py-2 block hover:text-purple-400" to="/product/electronic"
+						<NuxtLink class="md:p-4 py-2 block hover:text-purple-400" to="/products?category=electronic"
 							>Electronic</NuxtLink
 						>
 					</li>
 					<li>
-						<NuxtLink class="md:p-4 py-2 block hover:text-purple-400" to="/product/fashion"
+						<NuxtLink class="md:p-4 py-2 block hover:text-purple-400" to="/products?category=fashion"
 							>Fashion</NuxtLink
 						>
 					</li>
 					<li>
-						<NuxtLink class="md:p-4 py-2 block hover:text-purple-400" to="/product/grocery"
+						<NuxtLink class="md:p-4 py-2 block hover:text-purple-400" to="/products?category=grocery"
 							>Grocery</NuxtLink
 						>
 					</li>
