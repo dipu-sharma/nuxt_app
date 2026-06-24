@@ -37,6 +37,50 @@
 			</div>
 		</div>
 
+		<!-- Analytics: Top Selling Products & Order Status Distribution -->
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+			<!-- Top Selling Products -->
+			<div class="rounded-xl shadow-lg p-6" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
+				<h3 class="text-lg font-semibold mb-4" style="color: rgb(var(--color-text))">Top Selling Products</h3>
+				<div v-if="loading" class="space-y-3">
+					<div v-for="i in 3" :key="i" class="h-10 rounded-lg animate-pulse" style="background-color: rgb(var(--color-border))" />
+				</div>
+				<div v-else-if="!topSellingProducts.length" class="text-center py-8 opacity-50">No sales data available</div>
+				<div v-else class="space-y-3">
+					<div v-for="prod in topSellingProducts" :key="prod.product_id"
+						class="flex items-center justify-between p-3 rounded-lg"
+						style="background-color: rgb(var(--color-background))">
+						<div>
+							<p class="text-sm font-medium" style="color: rgb(var(--color-text))">{{ prod.product_name }}</p>
+							<p class="text-xs opacity-60" style="color: rgb(var(--color-text))">Qty sold: {{ prod.total_quantity_sold }}</p>
+						</div>
+						<div class="text-right">
+							<p class="text-sm font-semibold" style="color: rgb(var(--color-primary))">₹{{ prod.total_revenue?.toLocaleString('en-IN') }}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Order Status Distribution -->
+			<div class="rounded-xl shadow-lg p-6" style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
+				<h3 class="text-lg font-semibold mb-4" style="color: rgb(var(--color-text))">Order Status Distribution</h3>
+				<div v-if="loading" class="space-y-3">
+					<div v-for="i in 3" :key="i" class="h-10 rounded-lg animate-pulse" style="background-color: rgb(var(--color-border))" />
+				</div>
+				<div v-else-if="!Object.keys(orderStatusDistribution).length" class="text-center py-8 opacity-50">No status data available</div>
+				<div v-else class="space-y-3">
+					<div v-for="(count, status) in orderStatusDistribution" :key="status"
+						class="flex items-center justify-between p-3 rounded-lg"
+						style="background-color: rgb(var(--color-background))">
+						<span class="text-xs px-2.5 py-1 rounded-full uppercase font-bold tracking-wider" :class="statusClass(status)">
+							{{ status }}
+						</span>
+						<p class="text-base font-bold" style="color: rgb(var(--color-text))">{{ count }} {{ count === 1 ? 'order' : 'orders' }}</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!-- Recent Orders + Recent Users -->
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 			<!-- Recent Orders -->
@@ -137,6 +181,8 @@ const loading = ref(false)
 const stats = ref({})
 const recentOrders = ref([])
 const recentUsers = ref([])
+const topSellingProducts = ref([])
+const orderStatusDistribution = ref({})
 
 const metricCards = computed(() => [
 	{
@@ -156,7 +202,7 @@ const metricCards = computed(() => [
 	},
 	{
 		label: 'Total Revenue',
-		value: stats.value.total_revenue ? `$${Number(stats.value.total_revenue).toLocaleString()}` : '—',
+		value: stats.value.total_revenue ? `₹${Number(stats.value.total_revenue).toLocaleString('en-IN')}` : '—',
 		icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1',
 	},
 ])
@@ -177,10 +223,34 @@ const loadDashboard = async () => {
 		const { getDashboard } = useAdminDashboard()
 		const res = await getDashboard()
 		const data = res?.data || res || {}
-		stats.value = data.stats || data
-		recentOrders.value = data.recent_orders || []
-		recentUsers.value = data.recent_users || []
-	} catch {
+		
+		// Map the backend metrics supporting both old and new schema
+		stats.value = {
+			total_users: data.customer_analytics?.total_users ?? data.user_stats?.total_users ?? data.stats?.total_users ?? data.total_users ?? 0,
+			total_businesses: data.business_count ?? data.stats?.total_businesses ?? data.total_businesses ?? 0,
+			total_orders: data.revenue_analytics?.total_orders ?? data.sales_stats_last_30_days?.total_orders ?? data.stats?.total_orders ?? data.total_orders ?? 0,
+			total_revenue: data.revenue_analytics?.total_sales ?? data.sales_stats_last_30_days?.total_sales ?? data.stats?.total_revenue ?? data.total_revenue ?? 0
+		}
+		
+		topSellingProducts.value = data.top_selling_products || []
+		orderStatusDistribution.value = data.order_status_distribution || {}
+		
+		// Map recent orders and users to handle property names
+		recentOrders.value = (data.recent_orders || []).map(order => ({
+			...order,
+			id: order.id || order.order_id,
+			order_number: order.order_number || order.order_id,
+			user: order.user || { username: `User #${order.user_id}` }
+		}))
+		
+		recentUsers.value = (data.recent_users || []).map(user => ({
+			...user,
+			username: user.username || user.email || `User #${user.id}`,
+			user_type: user.user_type || 'User',
+			is_active: user.is_active ?? true
+		}))
+	} catch (err) {
+		console.error(err)
 		toast.error('Failed to load dashboard data')
 	} finally {
 		loading.value = false

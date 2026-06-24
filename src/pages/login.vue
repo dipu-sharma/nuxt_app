@@ -106,9 +106,9 @@
 
 						<p class="text-center text-slate-600 mt-8">
 							Don't have an account?
-							<a href="/register" class="text-indigo-600 font-bold hover:underline">
+							<NuxtLink to="/register" class="text-indigo-600 font-bold hover:underline">
 								Create an account
-							</a>
+							</NuxtLink>
 						</p>
 					</form>
 				</div>

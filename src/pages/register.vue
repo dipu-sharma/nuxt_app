@@ -139,9 +139,9 @@
 
 						<p class="text-center text-slate-600 mt-8">
 							Already have an account?
-							<a href="/login" class="text-indigo-600 font-bold hover:underline">
+							<NuxtLink to="/login" class="text-indigo-600 font-bold hover:underline">
 								Sign In
-							</a>
+							</NuxtLink>
 						</p>
 					</form>
 				</div>
@@ -164,7 +164,6 @@ definePageMeta({
 const user_type_list = ref([
 	{ label: 'Customer / User', value: 'USER' },
 	{ label: 'Business Owner', value: 'BUSINESS_OWNER' },
-	{ label: 'Admin', value: 'ADMIN' },
 ])
 
 const payload = ref({
