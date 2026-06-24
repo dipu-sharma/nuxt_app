@@ -65,52 +65,52 @@
           <template #item.product="{ item }">
             <div class="flex items-center gap-3 py-2">
               <div class="w-12 h-12 rounded-xl border overflow-hidden bg-secondary flex-shrink-0 flex items-center justify-center p-0.5 border-border">
-                <img v-if="item.images?.[0]?.url || item.images?.[0]?.image_url" :src="item.images[0].url || item.images[0].image_url"
+                <img v-if="(item.raw || item).images?.[0]?.url || (item.raw || item).images?.[0]?.image_url" :src="(item.raw || item).images[0].url || (item.raw || item).images[0].image_url"
                   class="w-full h-full object-cover rounded-lg mix-blend-multiply dark:mix-blend-normal" />
                 <Icon v-else name="mdi:package-variant-closed" class="w-6 h-6 text-text opacity-30" />
               </div>
               <div>
-                <p class="font-semibold text-text leading-snug">{{ item.product_name || item.name }}</p>
-                <p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mt-0.5">ID: {{ item.id }}</p>
+                <p class="font-semibold text-text leading-snug">{{ (item.raw || item).product_name || (item.raw || item).name }}</p>
+                <p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mt-0.5">ID: {{ (item.raw || item).id }}</p>
               </div>
             </div>
           </template>
 
           <template #item.category="{ item }">
-            <span class="text-text opacity-70 text-sm font-semibold">{{ item.category?.name || item.category_name || '—' }}</span>
+            <span class="text-text opacity-70 text-sm font-semibold">{{ (item.raw || item).category?.name || (item.raw || item).category_name || '—' }}</span>
           </template>
 
           <template #item.price="{ item }">
-            <span class="font-semibold text-sm text-text">₹{{ (item.selling_price || item.product_mrp || item.price)?.toLocaleString('en-IN') }}</span>
+            <span class="font-semibold text-sm text-text">₹{{ ((item.raw || item).selling_price || (item.raw || item).product_mrp || (item.raw || item).price)?.toLocaleString('en-IN') }}</span>
           </template>
 
           <template #item.stock="{ item }">
             <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-              :class="(item.low_stock_threshold !== undefined ? item.low_stock_threshold : (item.stock_quantity ?? 0)) > 0 
+              :class="((item.raw || item).low_stock_threshold !== undefined ? (item.raw || item).low_stock_threshold : ((item.raw || item).stock_quantity ?? 0)) > 0 
                 ? 'bg-primary/10 text-primary' 
                 : 'bg-red-500/10 text-red-550'">
-              {{ item.low_stock_threshold !== undefined ? item.low_stock_threshold : (item.stock_quantity ?? '0') }} units
+              {{ (item.raw || item).low_stock_threshold !== undefined ? (item.raw || item).low_stock_threshold : ((item.raw || item).stock_quantity ?? '0') }} units
             </span>
           </template>
 
           <template #item.is_active="{ item }">
             <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
-              :class="item.is_active 
+              :class="(item.raw || item).is_active 
                 ? 'bg-primary/10 text-primary' 
                 : 'bg-secondary text-text opacity-50'">
-              {{ item.is_active ? 'Active' : 'Inactive' }}
+              {{ (item.raw || item).is_active ? 'Active' : 'Inactive' }}
             </span>
           </template>
 
           <template #item.actions="{ item }">
             <div class="flex justify-end gap-1">
-              <v-btn icon size="small" variant="text" class="hover:text-primary text-text opacity-70" @click="openDetailsDialog(item)">
+              <v-btn icon size="small" variant="text" class="hover:text-primary text-text opacity-70" @click="openDetailsDialog(item.raw || item)">
                 <Icon name="mdi:eye-outline" class="w-4 h-4" />
               </v-btn>
-              <v-btn icon size="small" variant="text" class="hover:text-primary text-text opacity-70" @click="openEdit(item)">
+              <v-btn icon size="small" variant="text" class="hover:text-primary text-text opacity-70" @click="openEdit(item.raw || item)">
                 <Icon name="mdi:pencil-outline" class="w-4 h-4" />
               </v-btn>
-              <v-btn icon size="small" variant="text" color="error" class="hover:text-red-600 text-text opacity-70" @click="deleteProduct(item)">
+              <v-btn icon size="small" variant="text" color="error" class="hover:text-red-600 text-text opacity-70" @click="deleteProduct(item.raw || item)">
                 <Icon name="mdi:trash-can-outline" class="w-4 h-4" />
               </v-btn>
             </div>

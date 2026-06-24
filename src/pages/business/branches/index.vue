@@ -134,29 +134,23 @@ const save = async () => {
     const authStore = useAuthStore()
     const businessId = authStore.user?.business_id || authStore.user?.business?.id
 
-    const payload = {
-      branch_name: form.value.name,
-      branch_code: form.value.branch_code || `BR-${form.value.name.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8)}`,
-      contact_number: form.value.phone || null,
-      address: {
-        address_line1: form.value.address || '',
-        city: form.value.city || '',
-        state: form.value.state || '',
-        country: 'India',
-        postal_code: form.value.postal_code || '277001',
-        address_type: 'OFFICE'
-      }
-    }
+    const locationParts = [
+      form.value.address || '',
+      form.value.city || '',
+      form.value.state || '',
+      form.value.postal_code || ''
+    ].map(s => s.trim()).filter(Boolean)
 
-    if (businessId) {
-      payload.business_id = businessId
+    const payload = {
+      branch_name: form.value.name.trim(),
+      location: locationParts.join(', ') || null
     }
 
     if (editing.value) {
-      await updateBranch(editing.value.id, payload)
+      await updateBranch(editing.value.id, payload, businessId)
       toast.success('Branch updated!')
     } else {
-      await createBranch(payload)
+      await createBranch(payload, businessId)
       toast.success('Branch created!')
     }
     dialog.value = false; fetch()
@@ -173,7 +167,9 @@ const doDelete = async () => {
   deleting.value = true
   try {
     const { deleteBranch } = useBranches()
-    await deleteBranch(deletingItem.value.id)
+    const authStore = useAuthStore()
+    const businessId = authStore.user?.business_id || authStore.user?.business?.id
+    await deleteBranch(deletingItem.value.id, businessId)
     toast.success('Branch deleted!'); deleteDialog.value = false; fetch()
   } catch { toast.error('Failed to delete branch') }
   finally { deleting.value = false }

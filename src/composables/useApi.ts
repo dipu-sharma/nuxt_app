@@ -1,6 +1,7 @@
 // src/composables/useApi.ts
 import { toast } from 'vue3-toastify'
 import { handleAxiosError } from '@/utils/ErrorHandle/error'
+import { useAuthStore } from '~/stores/auth'
 
 /**
  * Read a cookie value directly from document.cookie (always fresh, client-only).
@@ -47,8 +48,8 @@ export const useApi = () => {
         'An error occurred'
 
       if (response.status === 401) {
-        tokenCookie.value = null
-        navigateTo('/login')
+        const authStore = useAuthStore()
+        authStore.doLogout()
         return
       }
 

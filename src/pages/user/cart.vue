@@ -74,6 +74,14 @@
                 </button>
               </div>
 
+              <!-- Stock Warning -->
+              <div v-if="item.quantity > item.total_available_quantity"
+                class="mt-2 text-xs font-bold text-red-500 flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-xl">
+                <Icon name="mdi:alert-circle-outline" class="w-4 h-4 flex-shrink-0" />
+                <span>Only {{ item.total_available_quantity }} units available. Please reduce quantity or remove
+                  item.</span>
+              </div>
+
               <div class="flex flex-wrap items-center justify-between gap-4 mt-auto pt-4">
                 <span
                   class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500">₹{{
@@ -155,8 +163,8 @@
               </div>
             </div>
 
-            <button @click="proceedToCheckout"
-              class="w-full mt-8 relative group overflow-hidden rounded-[1.5rem] font-bold text-lg text-white shadow-xl hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-indigo-500/30 transition-all h-14">
+            <button @click="proceedToCheckout" :disabled="hasOutOfStockItems"
+              class="w-full mt-8 relative group overflow-hidden rounded-[1.5rem] font-bold text-lg text-white shadow-xl hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-indigo-500/30 transition-all h-14 disabled:opacity-50 disabled:pointer-events-none">
               <div
                 class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 transition-transform duration-500 group-hover:scale-105">
               </div>
@@ -258,6 +266,9 @@ const placingOrder = ref(false)
 
 const subtotal = computed(() => cartItems.value.reduce((s, i) => s + i.price * i.quantity, 0))
 const total = computed(() => Math.max(0, subtotal.value - discount.value))
+const hasOutOfStockItems = computed(() => {
+  return cartItems.value.some(item => item.quantity > item.total_available_quantity)
+})
 
 const cartId = ref('')
 
@@ -274,7 +285,8 @@ const loadCart = async () => {
       price: item.product?.selling_price || item.product?.price || 0,
       image_url: item.product?.images?.[0]?.url || item.product?.images?.[0]?.image_url || '',
       quantity: item.quantity,
-      id: item.id
+      id: item.id,
+      total_available_quantity: item.product?.total_available_quantity !== undefined ? item.product.total_available_quantity : 999999
     }))
   } catch { toast.error('Failed to load cart') }
   finally { loading.value = false }
@@ -351,10 +363,11 @@ const placeOrder = async () => {
       coupon_code: couponCode.value || undefined,
       notes: orderNotes.value || undefined,
     })
-    toast.success('Order placed successfully! 🎉')
     checkoutDialog.value = false
     navigateTo('/user/order')
-  } catch { toast.error('Failed to place order. Please try again.') }
+  } catch {
+
+  }
   finally { placingOrder.value = false }
 }
 

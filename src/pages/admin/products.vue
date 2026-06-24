@@ -59,16 +59,16 @@
 					<template #item.product="{ item }">
 						<div class="flex items-center gap-3 py-2">
 							<div class="w-12 h-12 rounded-xl border overflow-hidden bg-secondary flex-shrink-0 flex items-center justify-center p-0.5 border-border" style="background-color: rgb(var(--color-secondary)); border-color: rgb(var(--color-border))">
-								<img v-if="item.images?.[0]?.url || item.images?.[0]?.image_url" :src="item.images[0].url || item.images[0].image_url"
+								<img v-if="(item.raw || item).images?.[0]?.url || (item.raw || item).images?.[0]?.image_url" :src="(item.raw || item).images[0].url || (item.raw || item).images[0].image_url"
 									class="w-full h-full object-cover rounded-lg mix-blend-multiply dark:mix-blend-normal" />
 								<Icon v-else name="mdi:package-variant-closed" class="w-6 h-6 text-text opacity-30" />
 							</div>
 							<div>
-								<p class="font-semibold text-text leading-snug">{{ item.name }}</p>
+								<p class="font-semibold text-text leading-snug">{{ (item.raw || item).name }}</p>
 								<div class="flex items-center gap-2 mt-0.5">
-									<p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">ID: {{ item.id }}</p>
-									<span v-if="item.brand_name" class="text-[10px] bg-secondary text-text opacity-70 px-1.5 py-0.2 rounded font-medium" style="background-color: rgb(var(--color-secondary))">
-										{{ item.brand_name }}
+									<p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">ID: {{ (item.raw || item).id }}</p>
+									<span v-if="(item.raw || item).brand_name" class="text-[10px] bg-secondary text-text opacity-70 px-1.5 py-0.2 rounded font-medium" style="background-color: rgb(var(--color-secondary))">
+										{{ (item.raw || item).brand_name }}
 									</span>
 								</div>
 							</div>
@@ -77,33 +77,63 @@
 
 					<template #item.category="{ item }">
 						<span class="text-text opacity-70 text-sm font-semibold">
-							{{ getCategoryName(item.category_id) }}
+							{{ getCategoryName((item.raw || item).category_id) }}
 						</span>
 					</template>
 
-					<template #item.price="{ item }">
-						<span class="font-semibold text-sm text-text">₹{{ item.price?.toLocaleString('en-IN') }}</span>
+					<template #item.product_mrp="{ item }">
+						<span class="text-text opacity-75 text-sm font-medium">₹{{ (item.raw || item).product_mrp?.toLocaleString('en-IN') || '—' }}</span>
 					</template>
 
-					<template #item.quantity="{ item }">
+					<template #item.selling_price="{ item }">
+						<span class="font-semibold text-sm text-text">₹{{ (item.raw || item).selling_price?.toLocaleString('en-IN') || '—' }}</span>
+					</template>
+
+					<template #item.product_cost_price="{ item }">
+						<span class="text-text opacity-75 text-sm">₹{{ (item.raw || item).product_cost_price?.toLocaleString('en-IN') || '—' }}</span>
+					</template>
+
+					<template #item.total_available_quantity="{ item }">
 						<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold"
-							:class="item.quantity > 5 
+							:class="(item.raw || item).total_available_quantity > ((item.raw || item).low_stock_threshold || 10) 
 								? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400' 
 								: 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'">
-							{{ item.quantity }} units
+							{{ (item.raw || item).total_available_quantity || 0 }} units
+						</span>
+					</template>
+
+					<template #item.low_stock_threshold="{ item }">
+						<span class="text-text opacity-75 text-sm">{{ (item.raw || item).low_stock_threshold !== undefined ? (item.raw || item).low_stock_threshold : 10 }} units</span>
+					</template>
+
+					<template #item.packing_unit="{ item }">
+						<span class="text-text opacity-75 text-sm">
+							{{ (item.raw || item).product_packing || '—' }} / {{ (item.raw || item).product_unit || '—' }}
+						</span>
+					</template>
+
+					<template #item.hsn_batch="{ item }">
+						<span class="text-text opacity-75 text-sm">
+							{{ (item.raw || item).hsn_no || '—' }} / {{ (item.raw || item).batch_no || '—' }}
+						</span>
+					</template>
+
+					<template #item.size_color="{ item }">
+						<span class="text-text opacity-75 text-sm">
+							{{ (item.raw || item).size || '—' }} / {{ (item.raw || item).color || '—' }}
 						</span>
 					</template>
 
 					<template #item.status="{ item }">
 						<div class="flex flex-wrap gap-1">
 							<span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest"
-								:class="item.is_active 
+								:class="(item.raw || item).is_active 
 									? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400' 
 									: 'bg-secondary text-text opacity-50'"
-								:style="!item.is_active ? { backgroundColor: 'rgb(var(--color-secondary))' } : {}">
-								{{ item.is_active ? 'Active' : 'Inactive' }}
+								:style="!(item.raw || item).is_active ? { backgroundColor: 'rgb(var(--color-secondary))' } : {}">
+								{{ (item.raw || item).is_active ? 'Active' : 'Inactive' }}
 							</span>
-							<span v-if="item.is_featured" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-blue-105 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+							<span v-if="(item.raw || item).is_featured" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-blue-105 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
 								Featured
 							</span>
 						</div>
@@ -111,13 +141,13 @@
 
 					<template #item.actions="{ item }">
 						<div class="flex justify-end gap-1">
-							<v-btn icon size="small" variant="text" class="hover:text-primary text-text opacity-70" @click="openDetailsDialog(item)">
+							<v-btn icon size="small" variant="text" class="hover:text-primary text-text opacity-70" @click="openDetailsDialog(item.raw || item)">
 								<Icon name="mdi:eye-outline" class="w-4 h-4" />
 							</v-btn>
-							<v-btn icon size="small" variant="text" class="hover:text-primary text-text opacity-70" @click="openEditDialog(item)">
+							<v-btn icon size="small" variant="text" class="hover:text-primary text-text opacity-70" @click="openEditDialog(item.raw || item)">
 								<Icon name="mdi:pencil-outline" class="w-4 h-4" />
 							</v-btn>
-							<v-btn icon size="small" variant="text" color="error" class="hover:text-red-650 text-text opacity-70" @click="confirmDeleteProduct(item)">
+							<v-btn icon size="small" variant="text" color="error" class="hover:text-red-650 text-text opacity-70" @click="confirmDeleteProduct(item.raw || item)">
 								<Icon name="mdi:trash-can-outline" class="w-4 h-4" />
 							</v-btn>
 						</div>
@@ -730,8 +760,14 @@ const getCategoryName = (categoryId) => {
 const headers = [
 	{ title: 'Product Catalog Item', key: 'product', sortable: true },
 	{ title: 'Category', key: 'category', sortable: true },
-	{ title: 'Price', key: 'price', sortable: true },
-	{ title: 'Low Stock Limit', key: 'quantity', sortable: true },
+	{ title: 'MRP', key: 'product_mrp', sortable: true },
+	{ title: 'Selling Price', key: 'selling_price', sortable: true },
+	{ title: 'Cost Price', key: 'product_cost_price', sortable: true },
+	{ title: 'Available Stock', key: 'total_available_quantity', sortable: true },
+	{ title: 'Low Stock Limit', key: 'low_stock_threshold', sortable: true },
+	{ title: 'Packing / Unit', key: 'packing_unit', sortable: false },
+	{ title: 'HSN / Batch', key: 'hsn_batch', sortable: false },
+	{ title: 'Size / Color', key: 'size_color', sortable: false },
 	{ title: 'Status', key: 'status', sortable: true },
 	{ title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]
@@ -898,8 +934,7 @@ const saveProduct = async () => {
 		closeModal()
 		fetchData()
 	} catch (error) {
-		console.error(error)
-		toast.error('Failed to save product')
+		toast.error(error.response?.data?.message)
 	}
 }
 

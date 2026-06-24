@@ -84,19 +84,19 @@
 					<div>
 						<div class="flex items-center gap-3 mb-4">
 							<span class="px-4 py-1.5 bg-primary/10 text-primary text-xs font-bold uppercase rounded-full tracking-widest border border-primary/20">
-								{{ product.category || 'Uncategorized' }}
+								{{ product.category?.name || product.category || 'Uncategorized' }}
 							</span>
 							<span v-if="product.sku" class="text-text opacity-40 text-sm font-medium">
 								SKU: {{ product.sku }}
 							</span>
 						</div>
 						
-						<h1 class="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-text to-text/60 leading-tight mb-6">
+						<h1 class="text-4xl lg:text-5xl font-extrabold bg-clip-text bg-gradient-to-r from-text to-text/60 leading-tight mb-6">
 							{{ product.name }}
 						</h1>
 
 						<div class="flex items-end gap-6">
-							<span class="text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 drop-shadow-sm">
+							<span class="text-5xl lg:text-6xl font-black bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 drop-shadow-sm">
 								₹{{ product.price?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00' }}
 							</span>
 							<span v-if="product.product_mrp > product.price" class="text-2xl text-text opacity-30 line-through mb-2 font-bold">
@@ -163,6 +163,63 @@
 						</div>
 					</div>
 
+				</div>
+			</div>
+
+			<!-- Feedback & Reviews Section -->
+			<div v-if="product" class="mt-12 bg-card/60 backdrop-blur-2xl border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] rounded-[3rem] p-6 lg:p-12">
+				<h3 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-text to-text/60 tracking-tight mb-6">
+					Customer Feedback & Reviews
+				</h3>
+				<div class="flex items-center gap-4 mb-8">
+					<div class="flex items-center text-amber-500 gap-0.5">
+						<Icon v-for="star in 5" :key="star" :name="star <= (product.average_rating || 0) ? 'mdi:star' : 'mdi:star-outline'" class="w-6 h-6" />
+					</div>
+					<span class="text-lg font-bold text-text">{{ (product.average_rating || 0).toFixed(1) }} out of 5.0</span>
+					<span class="text-text opacity-50 text-sm font-semibold">({{ product.reviews_count || 0 }} reviews)</span>
+				</div>
+
+				<div v-if="!product.reviews || product.reviews.length === 0" class="text-center py-10 bg-secondary/20 rounded-[2rem] border border-border/50">
+					<Icon name="mdi:comment-text-outline" class="w-12 h-12 text-text opacity-30 mb-3" />
+					<p class="text-text opacity-50 text-sm font-semibold">No reviews yet. Be the first to share your thoughts!</p>
+				</div>
+			</div>
+
+			<!-- Related Products Section -->
+			<div v-if="product && product.related_products && product.related_products.length > 0" class="mt-12">
+				<h3 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-text to-text/60 tracking-tight mb-8">
+					Related Products You May Like
+				</h3>
+				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+					<div
+						v-for="rel in product.related_products"
+						:key="rel.id"
+						@click="navigateToProduct(rel.id)"
+						class="group bg-card/60 backdrop-blur-2xl border border-white/20 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] rounded-[2rem] p-5 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+					>
+						<div>
+							<div class="aspect-square w-full bg-secondary/50 rounded-2xl overflow-hidden mb-4 relative flex items-center justify-center border border-border/50">
+								<img
+									v-if="rel.image || rel.image_url"
+									:src="rel.image || rel.image_url"
+									:alt="rel.name"
+									class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+								/>
+								<Icon v-else name="mdi:package-variant-closed" class="w-16 h-16 text-text opacity-25" />
+							</div>
+							<h4 class="font-bold text-lg text-text group-hover:text-primary transition-colors line-clamp-1 leading-snug">
+								{{ rel.name }}
+							</h4>
+						</div>
+						<div class="flex items-center justify-between mt-4 pt-4 border-t border-border/40">
+							<span class="font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500 text-lg">
+								₹{{ rel.price?.toLocaleString('en-IN') }}
+							</span>
+							<span class="text-xs font-bold text-primary flex items-center gap-1">
+								View Details <Icon name="mdi:arrow-right" class="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
+							</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -257,5 +314,9 @@ const handleAddToCart = async () => {
 
 const toggleFavorite = () => {
 	isFavorite.value = !isFavorite.value
+}
+
+const navigateToProduct = (id: string | number) => {
+	router.push(`/products/${id}`)
 }
 </script>

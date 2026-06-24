@@ -14,28 +14,41 @@ export const useBranches = () => {
 
   return {
     async getBranches(params: Record<string, any> = {}) {
+      const { business_id, ...query } = params
       return await api('/api/branches/', {
         method: 'GET',
-        query: params,
-        headers: getHeaders(params.business_id)
+        query: { ...query, business_id },
       })
     },
-    async createBranch(payload: any) {
+    async createBranch(payload: any, businessId?: string | number) {
+      const bizId = businessId || payload.business_id
+      const body = {
+        branch_name: payload.branch_name,
+        location: payload.location
+      }
       return await api('/api/branches/', {
         method: 'POST',
-        body: payload,
-        headers: getHeaders(payload.business_id)
+        body,
+        headers: getHeaders(bizId)
       })
     },
-    async updateBranch(id: string | number, payload: any) {
+    async updateBranch(id: string | number, payload: any, businessId?: string | number) {
+      const bizId = businessId || payload.business_id
+      const body = {
+        branch_name: payload.branch_name,
+        location: payload.location
+      }
       return await api(`/api/branches/${id}`, {
         method: 'PUT',
-        body: payload,
-        headers: getHeaders(payload.business_id)
+        body,
+        headers: getHeaders(bizId)
       })
     },
-    async deleteBranch(id: string | number) {
-      return await api(`/api/branches/${id}`, { method: 'DELETE' })
+    async deleteBranch(id: string | number, businessId?: string | number) {
+      return await api(`/api/branches/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders(businessId)
+      })
     },
   }
 }
