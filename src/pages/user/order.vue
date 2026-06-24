@@ -111,7 +111,7 @@
           <!-- Order Items -->
           <div class="space-y-4 mb-10">
             <div v-for="item in selectedOrder.items" :key="item.id" class="flex gap-6 items-center p-4 rounded-2xl hover:bg-card transition-colors">
-              <div class="w-20 h-20 rounded-xl bg-secondary overflow-hidden flex-shrink-0">
+              <div class="w-20 h-20 rounded-xl bg-secondary overflow-hidden flex-shrink-0 relative">
                 <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
                 <Icon v-else name="mdi:image-outline" class="w-8 h-8 absolute inset-0 m-auto text-text opacity-30" />
               </div>
@@ -208,7 +208,7 @@ const statusBadgeClass = (s) => {
   return map[s?.toLowerCase()] || 'bg-secondary text-text opacity-80 border border-border'
 }
 
-const formatDate = (d) => dayjs(d).format('MMM DD, YYYY')
+const formatDate = (d) => d ? dayjs(d).format('MMM DD, YYYY') : 'N/A'
 
 const debouncedFetch = useDebounceFn(() => { fetchOrders() }, 400)
 
@@ -217,9 +217,47 @@ const fetchOrders = async () => {
   try {
     const { getOrders } = useOrders()
     const res = await getOrders({ page: page.value, per_page: 10, search: search.value, status: statusFilter.value })
-    orders.value = res?.data?.items || []
-    totalPages.value = Math.ceil((res?.data?.total || 0) / 10)
-  } catch { toast.error('Failed to load orders') }
+    
+    const rawOrders = Array.isArray(res?.data) ? res.data : (res?.data?.items || [])
+    orders.value = rawOrders.map(order => {
+      let computedSubtotal = 0
+      let computedDiscount = 0
+      
+      const mappedItems = (order.items || order.order_items || []).map(item => {
+        const finalPrice = item.price || item.price_per_unit || 0
+        const discountPct = item.product?.discount_percentage || 0
+        // Calculate original price before the discount was applied
+        const originalPrice = discountPct > 0 ? (finalPrice / (1 - discountPct / 100)) : finalPrice
+        
+        computedSubtotal += originalPrice * item.quantity
+        computedDiscount += (originalPrice - finalPrice) * item.quantity
+        
+        return {
+          ...item,
+          price: finalPrice,
+          name: item.product_name_snapshot || item.product?.product_name || item.name || `Product #${item.product_id}`,
+          image_url: item.product?.images?.[0]?.url || item.product?.images?.[0]?.image_url || item.product?.images?.[0] || item.image_url || null
+        }
+      })
+
+      const totalAmount = order.total_price || order.total_amount || 0
+
+      return {
+        ...order,
+        order_number: order.order_number || order.order_id || `ord_${order.id}`,
+        items: mappedItems,
+        total_amount: totalAmount,
+        subtotal: computedSubtotal > totalAmount ? computedSubtotal : totalAmount,
+        discount: computedDiscount > 0 ? computedDiscount : (order.discount || 0)
+      }
+    })
+
+    const totalItems = res?.total || res?.data?.total || rawOrders.length
+    totalPages.value = Math.ceil(totalItems / 10) || 1
+  } catch (err) {
+    console.error(err)
+    toast.error('Failed to load orders')
+  }
   finally { loading.value = false }
 }
 

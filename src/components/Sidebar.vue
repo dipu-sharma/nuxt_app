@@ -74,6 +74,11 @@ const allSidebarItems = {
 			icon: 'mdi-store-outline',
 		},
 		{
+			label: 'Branches',
+			path: '/business/branches',
+			icon: 'mdi-source-branch',
+		},
+		{
 			label: 'Inventory',
 			path: '/admin/inventory',
 			icon: 'mdi-clipboard-text-play-outline',
@@ -116,6 +121,11 @@ const allSidebarItems = {
 			icon: 'mdi-view-dashboard',
 		},
 		{
+			label: 'Branches',
+			path: '/business/branches',
+			icon: 'mdi-source-branch',
+		},
+		{
 			label: 'Inventory',
 			path: '/business/inventory',
 			icon: 'mdi-store-outline',
@@ -151,6 +161,11 @@ const allSidebarItems = {
 			label: 'Dashboard',
 			path: '/business/',
 			icon: 'mdi-view-dashboard',
+		},
+		{
+			label: 'Branches',
+			path: '/business/branches',
+			icon: 'mdi-source-branch',
 		},
 		{
 			label: 'Products',

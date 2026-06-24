@@ -24,7 +24,8 @@ export const useBranches = () => {
       const bizId = businessId || payload.business_id
       const body = {
         branch_name: payload.branch_name,
-        location: payload.location
+        location: payload.location,
+        business_id: bizId
       }
       return await api('/api/branches/', {
         method: 'POST',
@@ -36,7 +37,8 @@ export const useBranches = () => {
       const bizId = businessId || payload.business_id
       const body = {
         branch_name: payload.branch_name,
-        location: payload.location
+        location: payload.location,
+        business_id: bizId
       }
       return await api(`/api/branches/${id}`, {
         method: 'PUT',

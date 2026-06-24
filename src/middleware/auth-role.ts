@@ -53,7 +53,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 	// Role-based access control
 	if (role.value) {
 		const rolePathPrefix = getRolePathPrefix(role.value)
-		const sharedRoutes = ['/settings', '/profile', '/logout']
+		const sharedRoutes = ['/settings', '/profile', '/logout', '/business/branches']
 		
 		const isSharedRoute = sharedRoutes.some((route) => to?.path?.startsWith(route))
 		const isRoleAllowed = to.path.startsWith(rolePathPrefix) || isSharedRoute

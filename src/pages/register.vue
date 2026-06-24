@@ -46,7 +46,7 @@
 									class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
 									type="email"
 									placeholder="Email"
-									v-model="payload.email_id"
+									v-model="payload.username"
 								/>
 							</div>
 
@@ -168,7 +168,7 @@ const user_type_list = ref([
 ])
 
 const payload = ref({
-	email_id: '',
+	username: '',
 	mobile_no: '',
 	password: '',
 	confirm_password: '',
@@ -189,7 +189,7 @@ const toggleConfirmPasswordVisibility = () => {
 
 const handleRegister = async () => {
 	// — Client-side validation —
-	if (!payload.value.email_id) {
+	if (!payload.value.username) {
 		return toast.error('Email is required')
 	}
 	if (!payload.value.mobile_no) {

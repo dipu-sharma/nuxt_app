@@ -4,6 +4,24 @@
       <h1 class="text-2xl font-bold">Branch Management</h1>
       <v-btn color="primary" prepend-icon="mdi:plus" rounded="lg" @click="openCreate">Add Branch</v-btn>
     </div>
+
+    <!-- Business Selector (Admins only) -->
+    <div v-if="isAdmin && businessesList.length" class="mb-6 max-w-md">
+      <label class="text-[10px] opacity-60 font-bold uppercase tracking-wider block mb-2">Filter by Business Context</label>
+      <div class="relative">
+        <select v-model="selectedBusinessId"
+          class="w-full pl-5 pr-10 py-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all appearance-none cursor-pointer shadow-sm"
+          style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))">
+          <option v-for="biz in businessesList" :key="biz.id" :value="biz.business_id || biz.id">
+            {{ biz.business_name || biz.name }} ({{ biz.business_email || biz.email || 'No email' }})
+          </option>
+        </select>
+        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none opacity-50">
+          <Icon name="mdi:chevron-down" class="w-5 h-5" />
+        </div>
+      </div>
+    </div>
+
     <v-row>
       <v-col v-for="branch in branches" :key="branch.id" cols="12" sm="6" lg="4">
         <v-card rounded="xl" class="pa-5 h-full">
@@ -74,9 +92,11 @@
 <script setup>
 import { toast } from 'vue3-toastify'
 import { useAuthStore } from '~/stores/auth'
+import { computed, ref, onMounted, watch } from 'vue'
 
-definePageMeta({ title: 'Branch Management', middleware: ['auth-role'], layout: 'admin', role: ['BUSINESS_OWNER'] })
+definePageMeta({ title: 'Branch Management', middleware: ['auth-role'], layout: 'admin', role: ['ADMIN', 'BUSINESS_OWNER', 'BUSINESS_MEMBER'] })
 
+const authStore = useAuthStore()
 const loading = ref(false)
 const saving = ref(false)
 const deleting = ref(false)
@@ -87,16 +107,20 @@ const deletingItem = ref(null)
 const branches = ref([])
 const form = ref({ name: '', branch_code: '', postal_code: '', address: '', city: '', state: '', phone: '', email: '', is_active: true })
 
+// Business selector state for ADMIN
+const isAdmin = computed(() => authStore.role === 'ADMIN')
+const businessesList = ref([])
+const selectedBusinessId = ref(null)
+
 const fetch = async () => {
+  if (!selectedBusinessId.value) {
+    branches.value = []
+    return
+  }
   loading.value = true
   try {
     const { getBranches } = useBranches()
-    const authStore = useAuthStore()
-    const params = {}
-    const businessId = authStore.user?.business_id || authStore.user?.business?.id
-    if (businessId) {
-      params.business_id = businessId
-    }
+    const params = { business_id: selectedBusinessId.value }
     const res = await getBranches(params)
     const resData = res?.data?.items || res?.data?.data || res?.data || []
     branches.value = Array.isArray(resData) ? resData : (Array.isArray(res?.data) ? res.data : [])
@@ -107,6 +131,10 @@ const fetch = async () => {
     loading.value = false
   }
 }
+
+watch(selectedBusinessId, () => {
+  fetch()
+})
 
 const openCreate = () => { editing.value = null; form.value = { name: '', branch_code: '', postal_code: '', address: '', city: '', state: '', phone: '', email: '', is_active: true }; dialog.value = true }
 const openEdit = (item) => {
@@ -128,11 +156,12 @@ const openEdit = (item) => {
 }
 
 const save = async () => {
+  if (!selectedBusinessId.value) {
+    return toast.error('No business context selected')
+  }
   saving.value = true
   try {
     const { createBranch, updateBranch } = useBranches()
-    const authStore = useAuthStore()
-    const businessId = authStore.user?.business_id || authStore.user?.business?.id
 
     const locationParts = [
       form.value.address || '',
@@ -147,10 +176,10 @@ const save = async () => {
     }
 
     if (editing.value) {
-      await updateBranch(editing.value.id, payload, businessId)
+      await updateBranch(editing.value.id, payload, selectedBusinessId.value)
       toast.success('Branch updated!')
     } else {
-      await createBranch(payload, businessId)
+      await createBranch(payload, selectedBusinessId.value)
       toast.success('Branch created!')
     }
     dialog.value = false; fetch()
@@ -164,15 +193,31 @@ const save = async () => {
 
 const confirmDelete = (item) => { deletingItem.value = item; deleteDialog.value = true }
 const doDelete = async () => {
+  if (!selectedBusinessId.value) return
   deleting.value = true
   try {
     const { deleteBranch } = useBranches()
-    const authStore = useAuthStore()
-    const businessId = authStore.user?.business_id || authStore.user?.business?.id
-    await deleteBranch(deletingItem.value.id, businessId)
+    await deleteBranch(deletingItem.value.id, selectedBusinessId.value)
     toast.success('Branch deleted!'); deleteDialog.value = false; fetch()
   } catch { toast.error('Failed to delete branch') }
   finally { deleting.value = false }
 }
-onMounted(fetch)
+
+onMounted(async () => {
+  if (isAdmin.value) {
+    try {
+      const { getBusinesses } = useAdminUsers()
+      const res = await getBusinesses()
+      businessesList.value = res?.data?.items || res?.data || res || []
+      if (businessesList.value.length > 0) {
+        selectedBusinessId.value = businessesList.value[0]?.business_id || businessesList.value[0]?.id
+      }
+    } catch (e) {
+      console.error('Failed to pre-fetch businesses for Admin selector:', e)
+    }
+  } else {
+    selectedBusinessId.value = authStore.user?.business_id || authStore.user?.business?.id
+  }
+  fetch()
+})
 </script>
