@@ -1,85 +1,107 @@
 /* src/assets/css/themes.css */
 
-/* Light Theme (Default) */
+/* Light Theme (Default - Slate & Deep Indigo) */
 :root,
 [data-theme="light"] {
-  --color-background: 255 255 255; /* white */
-  --color-text: 17 24 39; /* gray-900 */
-  --color-primary: 59 130 246; /* blue-500 */
-  --color-secondary: 243 244 246; /* gray-100 */
-  --color-accent: 239 68 68; /* red-500 */
-  --color-card: 255 255 255; /* white */
-  --color-border: 229 231 235; /* gray-200 */
-  --color-sidebar: 255 255 255; /* white */
-  --color-sidebar-text: 17 24 39; /* gray-900 - black text */
+  --color-background: 248 250 252; /* Slate-50 */
+  --color-text: 15 23 42; /* Slate-900 */
+  --color-primary: 99 102 241; /* Indigo-500 */
+  --color-secondary: 241 245 249; /* Slate-100 */
+  --color-accent: 236 72 153; /* Pink-500 */
+  --color-card: 255 255 255; /* White */
+  --color-border: 226 232 240; /* Slate-200 */
+  --color-sidebar: 255 255 255;
+  --color-sidebar-text: 15 23 42;
 }
 
-/* Dark Theme */
+/* Dark Theme (Midnight Purple & Neon Cyan) */
 [data-theme="dark"] {
-  --color-background: 17 24 39; /* gray-900 */
-  --color-text: 243 244 246; /* gray-100 */
-  --color-primary: 96 165 250; /* blue-400 */
-  --color-secondary: 31 41 55; /* gray-800 */
-  --color-accent: 248 113 113; /* red-400 */
-  --color-card: 31 41 55; /* gray-800 */
-  --color-border: 55 65 81; /* gray-700 */
-  --color-sidebar: 17 24 39; /* gray-900 */
-  --color-sidebar-text: 255 255 255; /* white */
+  --color-background: 10 10 18; /* Deep Midnight */
+  --color-text: 241 243 247; /* Soft White */
+  --color-primary: 139 92 246; /* Violet-500 */
+  --color-secondary: 30 30 46; /* Midnight Violet */
+  --color-accent: 6 182 212; /* Cyan-500 */
+  --color-card: 17 17 28; /* Midnight Card */
+  --color-border: 38 38 58; /* Midnight Border */
+  --color-sidebar: 13 13 23;
+  --color-sidebar-text: 241 243 247;
 }
 
-/* Sepia Theme */
+/* Sepia Theme (Warm Amber & Clay) */
 [data-theme="sepia"] {
-  --color-background: 254 243 199; /* yellow-50 */
-  --color-text: 120 53 15; /* yellow-900 */
-  --color-primary: 245 158 11; /* amber-500 */
-  --color-secondary: 254 249 195; /* yellow-100 */
-  --color-accent: 234 88 12; /* orange-500 */
-  --color-card: 254 243 199; /* yellow-50 */
-  --color-border: 253 230 138; /* yellow-200 */
-  --color-sidebar: 154 52 18; /* yellow-800 */
-  --color-sidebar-text: 217 119 6; /* yellow-600 */
+  --color-background: 252 248 240; /* Soft warm ivory */
+  --color-text: 67 40 24; /* Espresso */
+  --color-primary: 217 119 6; /* Warm Amber */
+  --color-secondary: 244 233 215; /* Cream */
+  --color-accent: 194 65 12; /* Terracotta */
+  --color-card: 255 255 255; /* White card for warmth */
+  --color-border: 235 220 195; /* Warm border */
+  --color-sidebar: 67 40 24;
+  --color-sidebar-text: 244 233 215;
 }
 
-/* Blue Theme */
+/* Blue Theme (Oceanic Deep & Sky Azure) */
 [data-theme="blue"] {
-  --color-background: 239 246 255; /* blue-50 */
-  --color-text: 30 58 138; /* blue-900 */
-  --color-primary: 37 99 235; /* blue-600 */
-  --color-secondary: 219 234 254; /* blue-100 */
-  --color-accent: 99 102 241; /* indigo-500 */
-  --color-card: 239 246 255; /* blue-50 */
-  --color-border: 191 219 254; /* blue-200 */
-  --color-sidebar: 30 58 138; /* blue-900 */
-  --color-sidebar-text: 96 165 250; /* blue-400 */
+  --color-background: 240 249 255; /* Sky-50 */
+  --color-text: 8 47 73; /* Deep Ocean */
+  --color-primary: 14 165 233; /* Sky-500 */
+  --color-secondary: 224 242 254; /* Sky-100 */
+  --color-accent: 99 102 241; /* Indigo-500 */
+  --color-card: 255 255 255;
+  --color-border: 186 230 253; /* Sky-200 */
+  --color-sidebar: 8 47 73;
+  --color-sidebar-text: 186 230 253;
 }
 
-/* Green Theme */
+/* Green Theme (Sage & Emerald Forest) */
 [data-theme="green"] {
-  --color-background: 236 253 245; /* green-50 */
-  --color-text: 20 83 45; /* green-900 */
-  --color-primary: 34 197 94; /* green-500 */
-  --color-secondary: 220 252 231; /* green-100 */
-  --color-accent: 16 185 129; /* emerald-500 */
-  --color-card: 236 253 245; /* green-50 */
-  --color-border: 187 247 208; /* green-200 */
-  --color-sidebar: 20 83 45; /* green-900 */
-  --color-sidebar-text: 74 222 128; /* green-400 */
+  --color-background: 240 253 244; /* Honeydew */
+  --color-text: 5 46 22; /* Deep Forest */
+  --color-primary: 16 185 129; /* Emerald-500 */
+  --color-secondary: 220 252 231; /* Mint */
+  --color-accent: 14 116 144; /* Sage Accent */
+  --color-card: 255 255 255;
+  --color-border: 187 247 208;
+  --color-sidebar: 5 46 22;
+  --color-sidebar-text: 187 247 208;
 }
 
-/* Cool Blue Theme */
+/* Cool Blue Theme (Slate & Bright Cyan) */
 [data-theme="coolBlue"] {
-  --color-background: 15 23 42; /* slate-900 */
-  --color-text: 248 250 252; /* slate-50 */
-  --color-primary: 6 182 212; /* cyan-500 */
-  --color-secondary: 30 41 59; /* slate-800 */
-  --color-accent: 20 184 166; /* teal-500 */
-  --color-card: 30 41 59; /* slate-800 */
-  --color-border: 51 65 85; /* slate-700 */
-  --color-sidebar: 15 23 42; /* slate-900 */
-  --color-sidebar-text: 248 250 252; /* slate-50 */
+  --color-background: 15 23 42; /* Slate-900 */
+  --color-text: 248 250 252; /* Slate-50 */
+  --color-primary: 6 182 212; /* Cyan-500 */
+  --color-secondary: 30 41 59; /* Slate-800 */
+  --color-accent: 244 63 94; /* Rose-500 */
+  --color-card: 30 41 59;
+  --color-border: 51 65 85;
+  --color-sidebar: 15 23 42;
+  --color-sidebar-text: 248 250 252;
 }
 
 /* Smooth transitions for theme changes */
 * {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Global contrast and color mapping for themes */
+[data-theme] .text-slate-900,
+[data-theme] .text-gray-900,
+[data-theme] .text-slate-800,
+[data-theme] .text-gray-800,
+[data-theme] .text-slate-700,
+[data-theme] .text-gray-700 {
+  color: rgb(var(--color-text)) !important;
+}
+
+[data-theme] .text-slate-500,
+[data-theme] .text-gray-500,
+[data-theme] .text-slate-600,
+[data-theme] .text-gray-600 {
+  color: rgba(var(--color-text) / 0.7) !important;
+}
+
+[data-theme] .text-slate-400,
+[data-theme] .text-gray-400 {
+  color: rgba(var(--color-text) / 0.5) !important;
 }

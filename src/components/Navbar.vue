@@ -5,7 +5,7 @@
 			style="background-color: rgb(var(--color-sidebar)); color: rgb(var(--color-sidebar-text))"
 		>
 			<div>
-				<NuxtLink to="/" class="h2 w-6 text-black font-bold" style="color: rgb(var(--color-sidebar-text))"> D-Shop </NuxtLink>
+				<NuxtLink to="/" class="text-2xl font-bold" style="color: rgb(var(--color-sidebar-text))"> D-Shop </NuxtLink>
 			</div>
 
 			<svg
@@ -29,7 +29,7 @@
 				class="w-full flex justify-center items-center md:flex md:items-center md:w-auto"
 				:class="{ hidden: !isMenuOpen }"
 			>
-				<ul class="pt-0 text-base text-gray-700 md:flex md:justify-between md:pt-0">
+				<ul class="pt-0 text-base md:flex md:justify-between md:pt-0">
 					<li>
 						<NuxtLink class="md:p-4 py-2 block hover:text-purple-400" to="/">Home</NuxtLink>
 					</li>
@@ -50,7 +50,7 @@
 					</li>
 					<li class="p-4" @click="themeStore.toggleTheme()">
 						<Icon
-							:name="themeStore.theme === 'light' ? 'ri:moon-line' : 'ri:sun-line'"
+							:name="themeStore.currentTheme === 'light' ? 'ri:moon-line' : 'ri:sun-line'"
 							class="text-purple-500"
 						/>
 					</li>
@@ -62,7 +62,7 @@
 						>
 					</li>
 
-					<li v-else>
+					<li v-else class="relative" ref="dropdownRef">
 						<button
 							@click="toggleDropdown"
 							class="md:p-4 py-2 block hover:text-purple-400 text-purple-500 focus:outline-none"
@@ -71,20 +71,20 @@
 						</button>
 						<div
 							v-if="isDropdownOpen"
-							class="absolute right-0 mt-2 mr-12 md:mr-6 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10"
+							class="absolute right-0 mt-2 mr-12 md:mr-6 w-48 bg-card border border-border rounded-md shadow-lg z-10"
 						>
-							<NuxtLink to="/user" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+							<NuxtLink to="/user" class="block px-4 py-2 text-text hover:bg-secondary">
 								Account
 							</NuxtLink>
-							<NuxtLink to="/user/cart" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+							<NuxtLink to="/user/cart" class="block px-4 py-2 text-text hover:bg-secondary">
 								Cart
 							</NuxtLink>
-							<NuxtLink to="/user/order" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+							<NuxtLink to="/user/order" class="block px-4 py-2 text-text hover:bg-secondary">
 								Order
 							</NuxtLink>
 							<button
 								@click="logout"
-								class="block px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
+								class="block px-4 py-2 text-text hover:bg-secondary w-full text-left"
 							>
 								Logout
 							</button>
@@ -97,6 +97,7 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useThemeStore } from '~/stores/themeStore'
 const themeStore = useThemeStore()
@@ -104,6 +105,8 @@ const authStore = useAuthStore()
 
 const isMenuOpen = ref(false)
 const isDropdownOpen = ref(false)
+const dropdownRef = ref(null)
+
 const toggleMenu = () => {
 	isMenuOpen.value = !isMenuOpen.value
 }
@@ -116,6 +119,24 @@ const logout = () => {
 	authStore.doLogout()
 	navigateTo('/login')
 }
+
+const handleClickOutside = (event) => {
+	if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+		isDropdownOpen.value = false
+	}
+}
+
+onMounted(() => {
+	if (process.client) {
+		document.addEventListener('click', handleClickOutside)
+	}
+})
+
+onUnmounted(() => {
+	if (process.client) {
+		document.removeEventListener('click', handleClickOutside)
+	}
+})
 </script>
 
 <style scoped>

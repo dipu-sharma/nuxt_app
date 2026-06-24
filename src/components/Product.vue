@@ -5,7 +5,7 @@
         
         <div v-for="product in products" :key="product.id"
           @click="getDetails(String(product.product_id || product.id))"
-          class="group custom-card-hover relative bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] hover:shadow-2xl hover:shadow-purple-700/40 transition-all duration-500 hover:bg-purple-700 cursor-pointer flex flex-col pt-16 px-4 pb-5 text-center h-full">
+          class="group custom-card-hover relative bg-card rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] hover:shadow-2xl hover:shadow-purple-700/40 transition-all duration-500 hover:bg-purple-700 cursor-pointer flex flex-col pt-16 px-4 pb-5 text-center h-full">
           
           <!-- Image Popping Out of Top -->
           <div class="absolute -top-8 left-1/2 -translate-x-1/2 w-24 h-24 z-10 transition-transform duration-500 group-hover:-translate-y-2">
@@ -14,8 +14,8 @@
               :alt="product.product_name || product.name"
               class="w-full h-full object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.15)] group-hover:drop-shadow-[0_20px_20px_rgba(0,0,0,0.25)] transition-all duration-500" />
             
-            <div v-else class="w-full h-full flex items-center justify-center bg-gray-50 rounded-2xl shadow-md border border-gray-100">
-              <Icon name="mdi:image-outline" class="w-10 h-10 text-gray-300" />
+            <div v-else class="w-full h-full flex items-center justify-center bg-secondary rounded-2xl shadow-md border border-border">
+              <Icon name="mdi:image-outline" class="w-10 h-10 opacity-30" />
             </div>
 
             <!-- Discount Badge -->
@@ -29,12 +29,12 @@
           <div class="flex-1 flex flex-col justify-between relative z-10">
             <div>
               <!-- Product Title -->
-              <h3 class="text-lg font-bold text-gray-900 group-hover:text-white transition-colors duration-300 line-clamp-1">
+              <h3 class="text-lg font-bold text-text group-hover:text-white transition-colors duration-300 line-clamp-1">
                 {{ product.product_name || product.name }}
               </h3>
 
               <!-- Description -->
-              <p class="text-[11px] text-gray-500 group-hover:text-purple-200 mt-2 line-clamp-2 transition-colors duration-300 leading-relaxed">
+              <p class="text-[11px] text-text opacity-70 group-hover:text-purple-200 mt-2 line-clamp-2 transition-colors duration-300 leading-relaxed">
                 {{ product.description || 'Premium quality handcrafted product designed to elevate your everyday lifestyle with perfect functionality.' }}
               </p>
 
@@ -49,7 +49,7 @@
                 </div>
 
                 <!-- Price -->
-                <div class="text-base font-bold text-gray-900 group-hover:text-white transition-colors duration-300">
+                <div class="text-base font-bold text-text group-hover:text-white transition-colors duration-300">
                   ₹{{ (product.selling_price || product.price)?.toLocaleString('en-IN') }}
                 </div>
               </div>

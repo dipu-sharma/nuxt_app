@@ -29,8 +29,12 @@ export const useThemeIntegration = () => {
 		const currentTheme = themeStore.currentTheme as ThemeName
 		const vuetifyThemeName = themeMapping[currentTheme] || 'light'
 
-		if (vuetifyTheme && vuetifyTheme.global) {
-			vuetifyTheme.global.name.value = vuetifyThemeName
+		if (vuetifyTheme) {
+			if (typeof vuetifyTheme.change === 'function') {
+				vuetifyTheme.change(vuetifyThemeName)
+			} else if (vuetifyTheme.global) {
+				vuetifyTheme.global.name.value = vuetifyThemeName
+			}
 		}
 
 		// Apply data-theme attribute

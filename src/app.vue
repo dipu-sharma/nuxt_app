@@ -6,8 +6,10 @@
 
 <script setup>
 import { useThemeStore } from '~/stores/themeStore'
+import { useThemeIntegration } from '~/composables/useThemeIntegration'
 
 const themeStore = useThemeStore()
+useThemeIntegration()
 
 useHead({
 	htmlAttrs: {
