@@ -10,7 +10,7 @@
 
     <!-- Sticky Search Header with Glassmorphism -->
     <div
-      class="sticky top-0 z-20 py-6 px-4 sm:px-8 xl:px-12 bg-background/80 backdrop-blur-2xl border-b border-border/50 transition-all duration-300">
+      class="sticky top-16 z-20 py-6 px-4 sm:px-8 xl:px-12 bg-background/80 backdrop-blur-2xl border-b border-border/50 transition-all duration-300">
       <div class="w-full mx-auto flex flex-col sm:flex-row gap-4 items-center relative">
         <div class="relative flex-1 w-full group">
           <Icon name="mdi:magnify"

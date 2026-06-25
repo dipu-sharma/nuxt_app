@@ -1,6 +1,6 @@
 <template>
   <div style="background-color: rgb(var(--color-background)); min-height: 100vh">
-    <header>
+    <header class="relative z-[100]">
       <Navbar />
     </header>
     <main :class="{ 'pt-20': !isLoginPage }">

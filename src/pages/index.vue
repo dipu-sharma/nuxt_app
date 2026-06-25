@@ -2,31 +2,54 @@
   <div class="min-h-screen relative overflow-hidden bg-background text-text selection:bg-primary/30 py-1 lg:py-12">
     <!-- Abstract Cool Color Gradient Blobs -->
     <div
-      class="absolute top-0 left-0 w-[500px] h-[500px] bg-gradient-to-br from-cyan-500/20 via-blue-500/20 to-transparent rounded-full blur-[100px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">
+      class="absolute top-0 left-0 w-[500px] h-[500px] bg-gradient-to-br from-cyan-500/20 via-blue-500/20 to-transparent rounded-full blur-[100px] -translate-x-1/3 -translate-y-1/3 pointer-events-none animate-blob">
     </div>
     <div
-      class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-tl from-indigo-500/20 via-purple-500/20 to-transparent rounded-full blur-[120px] translate-x-1/3 translate-y-1/3 pointer-events-none">
+      class="absolute top-20 right-0 w-[600px] h-[600px] bg-gradient-to-tl from-indigo-500/20 via-purple-500/20 to-transparent rounded-full blur-[120px] translate-x-1/3 -translate-y-1/3 pointer-events-none animate-blob" style="animation-delay: 2s;">
+    </div>
+    <div
+      class="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-gradient-to-tr from-rose-500/10 via-orange-500/10 to-transparent rounded-full blur-[100px] translate-y-1/3 pointer-events-none animate-blob" style="animation-delay: 4s;">
     </div>
 
-    <div class="relative z-10 w-full px-4 sm:px-8 xl:px-12">
+    <div class="relative z-10 w-full px-4 sm:px-8 xl:px-12 pt-16">
 
-      <!-- Elegant Header Section -->
-      <div class="mb-6 border-b border-border/50 pb-1 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <!-- NEW HERO SECTION -->
+      <div class="flex flex-col items-center justify-center text-center py-16 lg:py-24 relative">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold mb-8 animate-fade-in-up">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+          </span>
+          New Arrivals
+        </div>
+        
+        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 animate-fade-in-up-delay-1 max-w-4xl">
+          Elevate Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500">Lifestyle</span>
+        </h1>
+        
+        <p class="text-lg md:text-xl text-text opacity-70 mb-10 max-w-2xl animate-fade-in-up-delay-2 leading-relaxed">
+          Discover our handcrafted, premium collection of goods designed to bring beauty, function, and elegance to your everyday life.
+        </p>
+        
+        <div class="flex gap-4 animate-fade-in-up" style="animation-delay: 0.6s;">
+          <button @click="scrollToCatalog" class="relative group overflow-hidden rounded-[2rem] font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/40 transition-all h-14 px-10 flex items-center bg-gradient-to-r from-indigo-600 to-purple-600">
+            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+            <span class="relative z-10">Shop Now</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-12 opacity-50"></div>
+      
+      <!-- Catalog Section Header -->
+      <div id="catalog-section" class="mb-8 border-b border-border/50 pb-4 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <p class="text-text opacity-70 font-medium tracking-wide">
-            Handcrafted & curated goods designed for your lifestyle.
+          <h2 class="text-3xl font-bold tracking-tight mb-2">Curated Collection</h2>
+          <p class="text-text opacity-70 font-medium tracking-wide text-sm">
+            Find exactly what you're looking for with our advanced filters.
           </p>
         </div>
-
-        <router-link to="/products"
-          class="relative group overflow-hidden rounded-[1.5rem] font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-indigo-500/30 transition-all h-12 px-8 flex items-center">
-          <div
-            class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 transition-transform duration-500 group-hover:scale-105">
-          </div>
-          <div class="relative z-10 flex items-center justify-center gap-2">
-            BROWSE ALL PRODUCTS
-          </div>
-        </router-link>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -165,6 +188,13 @@ const filteredProducts = computed(() => {
 const resetFilters = () => {
   amount_range.value = [10, 100000]
   selectedCategory.value = ''
+}
+
+const scrollToCatalog = () => {
+  const el = document.getElementById('catalog-section')
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' })
+  }
 }
 </script>
 
