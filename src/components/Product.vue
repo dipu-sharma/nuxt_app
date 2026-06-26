@@ -77,23 +77,17 @@
               </span>
             </div>
 
-            <!-- Add to Cart Button -->
+            <!-- Add to Cart Button - Neon Gradient -->
             <button @click.stop="handleAddToCart(String(product.product_id || product.id))"
-              class="add-to-cart-btn relative w-full overflow-hidden rounded-2xl py-3 text-xs font-extrabold uppercase tracking-widest transition-all duration-300 active:scale-95 flex justify-center items-center gap-2 group/btn">
-              <!-- Default state bg -->
-              <div
-                class="absolute inset-0 bg-secondary group-hover/btn:opacity-0 transition-opacity duration-300 rounded-2xl">
-              </div>
-              <!-- Hover state bg -->
-              <div
-                class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-primary to-purple-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-2xl">
-              </div>
-              <!-- Shimmer -->
-              <div
-                class="absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 shimmer-effect rounded-2xl">
-              </div>
-              <span
-                class="relative z-10 text-text group-hover/btn:text-white transition-colors duration-300 flex items-center gap-2">
+              class="neon-cart-btn relative w-full rounded-2xl py-3 text-xs font-extrabold uppercase tracking-widest transition-all duration-300 active:scale-95 flex justify-center items-center gap-2 overflow-hidden">
+              <!-- Animated gradient background -->
+              <div class="btn-gradient-bg absolute inset-0 rounded-2xl"></div>
+              <!-- Neon shimmer sweep -->
+              <div class="btn-shimmer absolute inset-0 rounded-2xl"></div>
+              <!-- Neon outer glow ring -->
+              <div class="btn-glow-ring absolute inset-[-2px] rounded-[18px] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <!-- Label -->
+              <span class="relative z-10 text-white flex items-center gap-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">
                 <Icon name="mdi:cart-arrow-down" class="w-4 h-4" />
                 Add to Cart
               </span>
@@ -167,23 +161,80 @@ const getDetails = (product_id) => {
   transform-style: preserve-3d;
 }
 
-/* Shimmer sweep effect on the button */
-.shimmer-effect {
-  background: linear-gradient(105deg,
-      transparent 40%,
-      rgba(255, 255, 255, 0.2) 50%,
-      transparent 60%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+/* ───── Neon Add to Cart Button ───── */
+
+/* Always-on animated gradient fill */
+.btn-gradient-bg {
+  background: linear-gradient(
+    270deg,
+    #6366f1,
+    #8b5cf6,
+    #ec4899,
+    #06b6d4,
+    #6366f1
+  );
+  background-size: 300% 300%;
+  animation: neon-gradient 4s ease infinite;
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: 200% center;
-  }
+@keyframes neon-gradient {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
-  100% {
-    background-position: -200% center;
+/* Shimmer sweep on top */
+.btn-shimmer {
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: neon-shimmer 2s linear infinite;
+}
+
+@keyframes neon-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* Neon pulsing glow ring around button */
+.btn-glow-ring {
+  background: transparent;
+  box-shadow:
+    0 0 8px 2px rgba(139, 92, 246, 0.7),
+    0 0 20px 4px rgba(99, 102, 241, 0.5),
+    0 0 40px 6px rgba(236, 72, 153, 0.3);
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 8px 2px rgba(139, 92, 246, 0.7),
+      0 0 20px 4px rgba(99, 102, 241, 0.5),
+      0 0 40px 6px rgba(236, 72, 153, 0.3);
   }
+  50% {
+    box-shadow:
+      0 0 12px 4px rgba(236, 72, 153, 0.8),
+      0 0 30px 6px rgba(139, 92, 246, 0.6),
+      0 0 50px 10px rgba(6, 182, 212, 0.3);
+  }
+}
+
+.neon-cart-btn:hover {
+  box-shadow:
+    0 0 15px rgba(139, 92, 246, 0.6),
+    0 0 30px rgba(99, 102, 241, 0.4),
+    0 8px 25px rgba(236, 72, 153, 0.3);
+  transform: translateY(-1px);
+}
+
+.neon-cart-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
 }
 </style>

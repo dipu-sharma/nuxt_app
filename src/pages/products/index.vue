@@ -39,7 +39,7 @@
       </div>
     </div>
 
-    <div class="relative z-10 w-full mx-auto px-4 sm:px-8 xl:px-12 py-8">
+    <div class="relative z-10 w-full mx-auto px-4 sm:px-8 xl:px-12 py-8 mt-15">
       <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
 
         <!-- Filters Sidebar -->
@@ -102,7 +102,7 @@
         <main class="xl:col-span-10 2xl:col-span-10">
 
           <!-- Search Header States -->
-          <div v-if="!query && !hasSearched" class="mb-4">
+          <div v-if="!query && !hasSearched" class="mb-4 mt-15">
             <div class="mb-4" v-if="trending.length">
               <h2
                 class="text-[10px] font-bold uppercase tracking-widest text-text opacity-50 mb-4 flex items-center gap-2">
