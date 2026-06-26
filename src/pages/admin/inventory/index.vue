@@ -16,10 +16,10 @@
 
 		<!-- Elegant Tabs Section -->
 		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-			<div class="flex gap-1 p-1.5 rounded-[1.5rem] bg-card border border-border w-fit shadow-sm"
+			<div class="flex gap-1 p-1.5 rounded-[1.5rem] bg-card border border-border w-fit shadow-sm flex-wrap"
 				style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
 				<button v-for="tab in tabs" :key="tab.key" @click="activeTab = tab.key"
-					class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:opacity-100"
+					class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:opacity-100"
 					:class="activeTab === tab.key ? 'shadow-md hover:scale-102' : 'opacity-60'" :style="activeTab === tab.key
 						? 'background-color: rgb(var(--color-primary)); color: white'
 						: 'color: rgb(var(--color-text))'">
@@ -27,7 +27,7 @@
 				</button>
 			</div>
 
-			<div v-if="activeTab !== 'suppliers'" class="flex items-center gap-3">
+			<div v-if="['orders','transfers','levels','audit'].includes(activeTab)" class="flex items-center gap-3">
 				<span class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">Filter by
 					Branch</span>
 				<div class="relative">
@@ -45,7 +45,7 @@
 			</div>
 		</div>
 
-		<!-- SUPPLIERS TAB -->
+		<!-- ─── SUPPLIERS TAB ───────────────────────────────────────────────── -->
 		<div v-if="activeTab === 'suppliers'" class="space-y-6">
 			<div class="flex justify-between items-center mb-2">
 				<h2 class="text-xl font-light tracking-tight">Registered Suppliers</h2>
@@ -85,6 +85,7 @@
 								<th class="px-6 py-4 text-left">Email Address</th>
 								<th class="px-6 py-4 text-left">Phone</th>
 								<th class="px-6 py-4 text-left">Address</th>
+								<th class="px-6 py-4 text-right">Actions</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -97,6 +98,12 @@
 								<td class="px-6 py-4 text-text opacity-70">{{ s.email || '—' }}</td>
 								<td class="px-6 py-4 text-text opacity-70 font-mono">{{ s.phone || '—' }}</td>
 								<td class="px-6 py-4 text-text opacity-70 truncate max-w-xs">{{ s.address || '—' }}</td>
+								<td class="px-6 py-4 text-right">
+									<v-btn size="small" variant="text" color="primary" @click="openEditSupplierModal(s)"
+										class="mr-1">Edit</v-btn>
+									<v-btn size="small" variant="text" color="error"
+										@click="deleteSupplierAction(s)">Delete</v-btn>
+								</td>
 							</tr>
 						</tbody>
 					</table>
@@ -104,7 +111,7 @@
 			</div>
 		</div>
 
-		<!-- PURCHASE ORDERS TAB -->
+		<!-- ─── PURCHASE ORDERS TAB ─────────────────────────────────────────── -->
 		<div v-if="activeTab === 'orders'" class="space-y-6">
 			<div class="flex justify-between items-center mb-2">
 				<h2 class="text-xl font-light tracking-tight">Global Purchase Orders</h2>
@@ -153,16 +160,17 @@
 								style="border-color: rgb(var(--color-border))">
 								<td class="px-6 py-4 font-mono font-bold text-xs opacity-75">#{{ po.po_id || po.id }}
 								</td>
-								<td class="px-6 py-4 text-text opacity-85 font-medium">{{ po.supplier?.name || `Supplier
+								<td class="px-6 py-4 text-text opacity-85 font-medium">{{ po.supplier?.name ||
+									`Supplier
 									#${po.supplier_id}` }}</td>
 								<td class="px-6 py-4 text-text opacity-75 font-semibold">Branch #{{ po.branch_id || '—'
-								}}</td>
+									}}</td>
 								<td class="px-6 py-4 font-semibold text-primary">₹{{
 									po.total_amount?.toLocaleString('en-IN') ||
 									'—' }}</td>
 								<td class="px-6 py-4">
-									<span
-										class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+									<span :class="poStatusClass(po.status)"
+										class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
 										{{ po.status || 'pending' }}
 									</span>
 								</td>
@@ -184,7 +192,7 @@
 			</div>
 		</div>
 
-		<!-- STOCK ADJUST TAB -->
+		<!-- ─── STOCK ADJUSTMENT TAB ────────────────────────────────────────── -->
 		<div v-if="activeTab === 'stock'" class="space-y-6">
 			<h2 class="text-xl font-light tracking-tight">Manual Stock Adjustment</h2>
 
@@ -281,6 +289,7 @@
 								<div class="relative">
 									<select v-model="stockForm.branch_id" required
 										class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all appearance-none cursor-pointer">
+										<option value="">Smart Deduction (auto)</option>
 										<option v-for="branch in branchesList" :key="branch.id"
 											:value="branch.branch_id || branch.id">
 											{{ branch.name || branch.branch_name || `Branch #${branch.id}` }}
@@ -343,14 +352,402 @@
 			</div>
 		</div>
 
-		<!-- Supplier Modal Dialog -->
+		<!-- ─── STOCK TRANSFERS TAB ─────────────────────────────────────────── -->
+		<div v-if="activeTab === 'transfers'" class="space-y-6">
+			<h2 class="text-xl font-light tracking-tight">Stock Transfers</h2>
+
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+				<!-- Transfer Form -->
+				<div class="bg-card rounded-[2.5rem] p-6 border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)]"
+					style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+					<h3
+						class="font-bold text-xs uppercase tracking-widest text-primary border-b border-border/50 pb-2 mb-5">
+						New Transfer
+					</h3>
+					<div class="space-y-4 text-sm">
+						<div>
+							<label
+								class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Product
+								ID *</label>
+							<input v-model="transferForm.product_id" placeholder="e.g. prod_Abc123"
+								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+						</div>
+						<div>
+							<label
+								class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">From
+								Branch *</label>
+							<div class="relative">
+								<select v-model="transferForm.from_branch_id"
+									class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all appearance-none cursor-pointer">
+									<option value="" disabled>Select Source Branch</option>
+									<option v-for="b in branchesList" :key="b.id" :value="b.branch_id || b.id">
+										{{ b.name || b.branch_name || `Branch #${b.id}` }}
+									</option>
+								</select>
+								<div
+									class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text opacity-40">
+									<Icon name="mdi:chevron-down" class="w-5 h-5" />
+								</div>
+							</div>
+						</div>
+						<div>
+							<label
+								class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">To
+								Branch *</label>
+							<div class="relative">
+								<select v-model="transferForm.to_branch_id"
+									class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all appearance-none cursor-pointer">
+									<option value="" disabled>Select Destination Branch</option>
+									<option v-for="b in branchesList" :key="b.id" :value="b.branch_id || b.id">
+										{{ b.name || b.branch_name || `Branch #${b.id}` }}
+									</option>
+								</select>
+								<div
+									class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text opacity-40">
+									<Icon name="mdi:chevron-down" class="w-5 h-5" />
+								</div>
+							</div>
+						</div>
+						<div>
+							<label
+								class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Quantity
+								*</label>
+							<input v-model.number="transferForm.quantity" type="number" placeholder="e.g. 30" min="1"
+								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+						</div>
+						<div>
+							<label
+								class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Notes</label>
+							<input v-model="transferForm.notes" placeholder="e.g. Restocking Delhi branch"
+								maxlength="255"
+								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+						</div>
+						<v-btn color="primary" variant="flat" rounded="pill" block size="large"
+							:loading="submittingTransfer" @click="submitTransfer"
+							class="text-none tracking-widest font-semibold text-white shadow-sm mt-2" elevation="0">
+							<template #prepend>
+								<Icon name="mdi:swap-horizontal" class="w-4 h-4" />
+							</template>
+							TRANSFER STOCK
+						</v-btn>
+					</div>
+				</div>
+
+				<!-- Transfer History -->
+				<div class="lg:col-span-2 bg-card rounded-[2.5rem] p-6 border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)]"
+					style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+					<div class="flex justify-between items-center border-b border-border/50 pb-2 mb-4">
+						<h3 class="font-bold text-xs uppercase tracking-widest text-primary">Transfer History</h3>
+						<v-btn size="small" variant="text" color="primary" @click="loadTransfers">
+							<Icon name="mdi:refresh" class="w-4 h-4" />
+						</v-btn>
+					</div>
+					<div v-if="loadingTransfers" class="p-12 text-center">
+						<v-progress-circular indeterminate color="primary" :size="36" :width="2" class="opacity-50" />
+					</div>
+					<div v-else-if="transfers.length === 0" class="p-10 text-center text-text opacity-50 text-sm">
+						No stock transfers recorded yet.
+					</div>
+					<div v-else class="overflow-x-auto rounded-[1.5rem] border border-border/50"
+						style="border-color: rgb(var(--color-border))">
+						<table class="w-full text-sm">
+							<thead style="background-color: rgb(var(--color-background))">
+								<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60">
+									<th class="px-4 py-3 text-left">Transfer ID</th>
+									<th class="px-4 py-3 text-left">Product</th>
+									<th class="px-4 py-3 text-left">From → To</th>
+									<th class="px-4 py-3 text-left">Qty</th>
+									<th class="px-4 py-3 text-left">Status</th>
+									<th class="px-4 py-3 text-left">Date</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="t in transfers" :key="t.id"
+									class="border-t hover:bg-secondary/20 transition-colors"
+									style="border-color: rgb(var(--color-border))">
+									<td class="px-4 py-3 font-mono text-xs opacity-75">{{ t.transfer_id || t.id }}</td>
+									<td class="px-4 py-3 font-medium">Product #{{ t.product_id }}</td>
+									<td class="px-4 py-3 text-text opacity-70 text-xs">
+										<span class="font-semibold">Branch #{{ t.from_branch_id }}</span>
+										<Icon name="mdi:arrow-right" class="inline w-3 h-3 mx-1 opacity-50" />
+										<span class="font-semibold">Branch #{{ t.to_branch_id }}</span>
+									</td>
+									<td class="px-4 py-3 font-bold text-primary">{{ t.quantity }}</td>
+									<td class="px-4 py-3">
+										<span
+											class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 uppercase">
+											{{ t.status }}
+										</span>
+									</td>
+									<td class="px-4 py-3 text-xs opacity-70 font-mono">{{ formatDate(t.created_at) }}
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- ─── STOCK LEVELS TAB ────────────────────────────────────────────── -->
+		<div v-if="activeTab === 'levels'" class="space-y-6">
+			<div class="flex justify-between items-center mb-2">
+				<h2 class="text-xl font-light tracking-tight">Stock Levels</h2>
+				<div class="flex gap-3">
+					<v-btn size="small" variant="outlined" color="warning" rounded="pill" @click="loadLowStock"
+						:loading="loadingLowStock" class="text-none font-semibold">
+						<template #prepend><Icon name="mdi:alert-outline" class="w-4 h-4" /></template>
+						Low Stock Only
+					</v-btn>
+					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadStockLevels"
+						:loading="loadingLevels" class="text-none font-semibold">
+						<template #prepend><Icon name="mdi:refresh" class="w-4 h-4" /></template>
+						All Stock
+					</v-btn>
+				</div>
+			</div>
+
+			<div class="bg-card rounded-[2.5rem] p-6 sm:p-8 border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)] overflow-hidden"
+				style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+				<div v-if="loadingLevels || loadingLowStock" class="p-12 text-center">
+					<v-progress-circular indeterminate color="primary" :size="36" :width="2" class="opacity-50" />
+				</div>
+				<div v-else-if="stockLevels.length === 0" class="p-16 text-center">
+					<div class="w-20 h-20 mx-auto mb-6 bg-secondary rounded-full flex items-center justify-center"
+						style="background-color: rgb(var(--color-secondary))">
+						<Icon name="mdi:warehouse" class="w-8 h-8 text-text opacity-30" />
+					</div>
+					<p class="text-text opacity-50 text-sm font-medium">No stock data available.</p>
+				</div>
+				<div v-else class="overflow-x-auto rounded-[1.5rem] border border-border/50"
+					style="border-color: rgb(var(--color-border))">
+					<table class="w-full text-sm">
+						<thead style="background-color: rgb(var(--color-background))">
+							<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60">
+								<th class="px-6 py-4 text-left">Product</th>
+								<th class="px-6 py-4 text-left">Branch</th>
+								<th class="px-6 py-4 text-right">Total Qty</th>
+								<th class="px-6 py-4 text-right">Reserved</th>
+								<th class="px-6 py-4 text-right">Available</th>
+								<th class="px-6 py-4 text-right">Threshold</th>
+								<th class="px-6 py-4 text-center">Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(item, idx) in stockLevels" :key="idx"
+								class="border-t hover:bg-secondary/20 transition-colors"
+								style="border-color: rgb(var(--color-border))">
+								<td class="px-6 py-4">
+									<div class="font-semibold text-text">{{ item.product_name }}</div>
+									<div class="text-[10px] font-mono opacity-50 mt-0.5">{{ item.product_public_id }}
+									</div>
+								</td>
+								<td class="px-6 py-4 text-text opacity-75 font-medium">{{ item.branch_name || `Branch
+									#${item.branch_id}` }}</td>
+								<td class="px-6 py-4 text-right font-bold text-text">{{ item.quantity }}</td>
+								<td class="px-6 py-4 text-right text-text opacity-60">{{ item.reserved_quantity }}</td>
+								<td class="px-6 py-4 text-right font-bold"
+									:class="item.is_low_stock ? 'text-red-500' : 'text-green-600'">
+									{{ item.available_quantity }}
+								</td>
+								<td class="px-6 py-4 text-right text-text opacity-50">{{ item.low_stock_threshold }}
+								</td>
+								<td class="px-6 py-4 text-center">
+									<span v-if="item.is_low_stock"
+										class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 uppercase tracking-widest">
+										⚠ Low Stock
+									</span>
+									<span v-else
+										class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 uppercase tracking-widest">
+										✓ OK
+									</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- ─── VALUATION TAB ───────────────────────────────────────────────── -->
+		<div v-if="activeTab === 'valuation'" class="space-y-6">
+			<div class="flex justify-between items-center mb-2">
+				<h2 class="text-xl font-light tracking-tight">Inventory Valuation</h2>
+				<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadValuation"
+					:loading="loadingValuation" class="text-none font-semibold">
+					<template #prepend><Icon name="mdi:refresh" class="w-4 h-4" /></template>
+					Refresh
+				</v-btn>
+			</div>
+
+			<div v-if="loadingValuation" class="p-12 text-center">
+				<v-progress-circular indeterminate color="primary" :size="36" :width="2" class="opacity-50" />
+			</div>
+			<div v-else-if="valuation">
+				<!-- Summary Cards -->
+				<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+					<div class="bg-card rounded-[2rem] p-6 border border-border shadow-sm"
+						style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+						<p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-2">Total Stock
+							Value (Cost)</p>
+						<p class="text-3xl font-black text-primary">₹{{
+							valuation.total_stock_value_at_cost?.toLocaleString('en-IN') }}</p>
+					</div>
+					<div class="bg-card rounded-[2rem] p-6 border border-border shadow-sm"
+						style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+						<p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-2">Total Stock
+							Value (Selling)</p>
+						<p class="text-3xl font-black text-text">₹{{
+							valuation.total_stock_value_at_selling?.toLocaleString('en-IN') }}</p>
+					</div>
+					<div class="bg-card rounded-[2rem] p-6 border border-border shadow-sm"
+						style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+						<p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-2">Potential
+							Profit</p>
+						<p class="text-3xl font-black text-green-600">₹{{
+							valuation.total_potential_profit?.toLocaleString('en-IN') }}</p>
+					</div>
+				</div>
+
+				<!-- Items Table -->
+				<div class="bg-card rounded-[2.5rem] p-6 border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)]"
+					style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+					<h3
+						class="font-bold text-xs uppercase tracking-widest text-primary border-b border-border/50 pb-2 mb-4">
+						Product Breakdown ({{ valuation.total_items }} items)
+					</h3>
+					<div class="overflow-x-auto rounded-[1.5rem] border border-border/50">
+						<table class="w-full text-sm">
+							<thead style="background-color: rgb(var(--color-background))">
+								<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60">
+									<th class="px-5 py-3 text-left">Product</th>
+									<th class="px-5 py-3 text-right">Qty</th>
+									<th class="px-5 py-3 text-right">Cost Price</th>
+									<th class="px-5 py-3 text-right">Selling Price</th>
+									<th class="px-5 py-3 text-right">Value at Cost</th>
+									<th class="px-5 py-3 text-right">Potential Profit</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="item in valuation.items" :key="item.product_id"
+									class="border-t hover:bg-secondary/20"
+									style="border-color: rgb(var(--color-border))">
+									<td class="px-5 py-3">
+										<div class="font-semibold">{{ item.product_name }}</div>
+										<div class="text-[10px] font-mono opacity-50">{{ item.product_public_id }}</div>
+									</td>
+									<td class="px-5 py-3 text-right font-bold">{{ item.total_quantity }}</td>
+									<td class="px-5 py-3 text-right opacity-70">₹{{
+										item.cost_price?.toLocaleString('en-IN') }}</td>
+									<td class="px-5 py-3 text-right opacity-70">₹{{
+										item.selling_price?.toLocaleString('en-IN') }}</td>
+									<td class="px-5 py-3 text-right font-semibold text-primary">₹{{
+										item.stock_value_at_cost?.toLocaleString('en-IN') }}</td>
+									<td class="px-5 py-3 text-right font-semibold text-green-600">₹{{
+										item.potential_profit?.toLocaleString('en-IN') }}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<p class="text-[10px] text-text opacity-40 mt-4 text-right">Generated: {{ valuation.generated_at ?
+						new Date(valuation.generated_at).toLocaleString() : '—' }}</p>
+				</div>
+			</div>
+			<div v-else class="p-16 text-center text-text opacity-50 text-sm">
+				Click Refresh to load the valuation report.
+			</div>
+		</div>
+
+		<!-- ─── AUDIT TRAIL TAB ─────────────────────────────────────────────── -->
+		<div v-if="activeTab === 'audit'" class="space-y-6">
+			<div class="flex flex-col sm:flex-row justify-between gap-4 mb-2">
+				<h2 class="text-xl font-light tracking-tight">Adjustment Audit Trail</h2>
+				<div class="flex gap-3 flex-wrap">
+					<div class="relative">
+						<select v-model="auditTypeFilter" @change="loadAudit"
+							class="appearance-none pl-4 pr-10 py-2 bg-card border border-border rounded-xl text-sm font-medium focus:outline-none text-text cursor-pointer"
+							style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+							<option value="">All Types</option>
+							<option v-for="t in adjustmentTypes" :key="t" :value="t">{{ t }}</option>
+						</select>
+						<Icon name="mdi:chevron-down"
+							class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+					</div>
+					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadAudit"
+						:loading="loadingAudit" class="text-none font-semibold">
+						<template #prepend><Icon name="mdi:refresh" class="w-4 h-4" /></template>
+						Refresh
+					</v-btn>
+				</div>
+			</div>
+
+			<div class="bg-card rounded-[2.5rem] p-6 sm:p-8 border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)] overflow-hidden"
+				style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+				<div v-if="loadingAudit" class="p-12 text-center">
+					<v-progress-circular indeterminate color="primary" :size="36" :width="2" class="opacity-50" />
+				</div>
+				<div v-else-if="auditItems.length === 0" class="p-16 text-center">
+					<div class="w-20 h-20 mx-auto mb-6 bg-secondary rounded-full flex items-center justify-center"
+						style="background-color: rgb(var(--color-secondary))">
+						<Icon name="mdi:history" class="w-8 h-8 text-text opacity-30" />
+					</div>
+					<p class="text-text opacity-50 text-sm font-medium">No adjustment records found.</p>
+				</div>
+				<div v-else class="overflow-x-auto rounded-[1.5rem] border border-border/50"
+					style="border-color: rgb(var(--color-border))">
+					<table class="w-full text-sm">
+						<thead style="background-color: rgb(var(--color-background))">
+							<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60">
+								<th class="px-5 py-4 text-left">Type</th>
+								<th class="px-5 py-4 text-left">Product</th>
+								<th class="px-5 py-4 text-left">Branch</th>
+								<th class="px-5 py-4 text-right">Δ Qty</th>
+								<th class="px-5 py-4 text-right">Before → After</th>
+								<th class="px-5 py-4 text-left">Reason / Reference</th>
+								<th class="px-5 py-4 text-left">Date</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="a in auditItems" :key="a.id"
+								class="border-t hover:bg-secondary/20 transition-colors"
+								style="border-color: rgb(var(--color-border))">
+								<td class="px-5 py-4">
+									<span :class="auditTypeBadge(a.adjustment_type)"
+										class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
+										{{ a.adjustment_type?.replace(/_/g, ' ') }}
+									</span>
+								</td>
+								<td class="px-5 py-4 font-mono text-xs opacity-60">#{{ a.product_id }}</td>
+								<td class="px-5 py-4 text-text opacity-70">Branch #{{ a.branch_id }}</td>
+								<td class="px-5 py-4 text-right font-bold"
+									:class="a.quantity_change > 0 ? 'text-green-600' : 'text-red-500'">
+									{{ a.quantity_change > 0 ? '+' : '' }}{{ a.quantity_change }}
+								</td>
+								<td class="px-5 py-4 text-right text-xs opacity-60 font-mono">
+									{{ a.quantity_before }} → {{ a.quantity_after }}
+								</td>
+								<td class="px-5 py-4 text-text opacity-70 max-w-xs truncate text-xs">
+									<span v-if="a.reference_id"
+										class="font-mono text-primary mr-1">{{ a.reference_id }}</span>
+									{{ a.reason || '—' }}
+								</td>
+								<td class="px-5 py-4 text-xs opacity-60 font-mono whitespace-nowrap">{{
+									formatDate(a.created_at) }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- ─── SUPPLIER MODAL (Add / Edit) ─────────────────────────────────── -->
 		<v-dialog v-model="showSupplierModal" max-width="480" transition="dialog-bottom-transition">
 			<v-card class="rounded-[2.5rem] bg-card border-0 shadow-2xl overflow-hidden"
 				style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
 				<div class="px-8 py-8 md:px-10 md:py-10">
 					<h2 class="text-3xl font-light tracking-tight text-text mb-6 pb-2 border-b border-border"
 						style="border-color: rgb(var(--color-border))">
-						Add Supplier
+						{{ editingSupplierId ? 'Edit Supplier' : 'Add Supplier' }}
 					</h2>
 
 					<form @submit.prevent="saveSupplier" class="space-y-4">
@@ -409,7 +806,7 @@
 							<v-btn color="primary" variant="flat" rounded="pill" size="large"
 								class="flex-1 text-none tracking-widest font-medium text-white shadow-sm"
 								:loading="savingSupplier" type="submit">
-								SAVE SUPPLIER
+								{{ editingSupplierId ? 'UPDATE SUPPLIER' : 'SAVE SUPPLIER' }}
 							</v-btn>
 						</div>
 					</form>
@@ -417,7 +814,7 @@
 			</v-card>
 		</v-dialog>
 
-		<!-- Purchase Order Modal Dialog -->
+		<!-- ─── PURCHASE ORDER MODAL ─────────────────────────────────────────── -->
 		<v-dialog v-model="showPOModal" max-width="680" transition="dialog-bottom-transition">
 			<v-card class="rounded-[2.5rem] bg-card border-0 shadow-2xl overflow-hidden"
 				style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
@@ -498,6 +895,7 @@
 										<option value="PENDING">PENDING</option>
 										<option value="ORDERED">ORDERED</option>
 										<option value="DELIVERED">DELIVERED</option>
+										<option value="COMPLETED">COMPLETED</option>
 										<option value="CANCELLED">CANCELLED</option>
 									</select>
 									<div
@@ -505,6 +903,10 @@
 										<Icon name="mdi:chevron-down" class="w-5 h-5" />
 									</div>
 								</div>
+								<p v-if="['DELIVERED','COMPLETED'].includes(poForm.status)"
+									class="text-[10px] text-amber-600 mt-1.5 ml-2 font-semibold">
+									⚠ Setting status to {{ poForm.status }} will trigger a stock update.
+								</p>
 							</div>
 						</div>
 
@@ -589,7 +991,7 @@
 			</v-card>
 		</v-dialog>
 
-		<!-- Purchase Order Details Modal -->
+		<!-- ─── PURCHASE ORDER DETAILS MODAL ────────────────────────────────── -->
 		<v-dialog v-model="showPODetailsModal" max-width="700" transition="dialog-bottom-transition">
 			<v-card class="rounded-[2.5rem] bg-card border-0 shadow-2xl overflow-hidden"
 				style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
@@ -600,11 +1002,11 @@
 							<h2 class="text-3xl font-light tracking-tight text-text">
 								Purchase Order <span class="font-bold text-primary">#{{ selectedPO?.po_id ||
 									selectedPO?.id
-								}}</span>
+									}}</span>
 							</h2>
 							<p class="text-text opacity-70 mt-1">Status: <span class="font-bold uppercase">{{
 								selectedPO?.status
-							}}</span></p>
+									}}</span></p>
 						</div>
 						<v-btn icon variant="text" @click="showPODetailsModal = false">
 							<Icon name="mdi:close" class="w-6 h-6" />
@@ -622,7 +1024,7 @@
 								</p>
 								<p class="font-semibold">{{ selectedPO?.supplier?.name || `Supplier
 									#${selectedPO?.supplier_id}`
-								}}</p>
+									}}</p>
 							</div>
 							<div class="p-4 bg-secondary/20 rounded-2xl border border-border/50">
 								<p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-1">
@@ -671,7 +1073,7 @@
 										<td class="px-4 py-3 text-text">{{ item.quantity }}</td>
 										<td class="px-4 py-3 text-text">₹{{ item.cost_per_unit?.toLocaleString('en-IN')
 											|| '0'
-										}}</td>
+											}}</td>
 										<td class="px-4 py-3 font-semibold text-right text-primary">₹{{ (item.quantity *
 											item.cost_per_unit).toLocaleString('en-IN') }}</td>
 									</tr>
@@ -713,20 +1115,39 @@ const tabs = [
 	{ key: 'suppliers', label: 'Suppliers' },
 	{ key: 'orders', label: 'Purchase Orders' },
 	{ key: 'stock', label: 'Stock Adjustment' },
+	{ key: 'transfers', label: 'Stock Transfers' },
+	{ key: 'levels', label: 'Stock Levels' },
+	{ key: 'valuation', label: 'Valuation' },
+	{ key: 'audit', label: 'Audit Trail' },
 ]
 const activeTab = ref('suppliers')
 
+// ─── Data Refs ────────────────────────────────────────────────────────────────
 const suppliers = ref([])
 const purchaseOrders = ref([])
 const branchesList = ref([])
 const allProductsList = ref([])
+const transfers = ref([])
+const stockLevels = ref([])
+const valuation = ref(null)
+const auditItems = ref([])
 
+// ─── Loading States ───────────────────────────────────────────────────────────
 const loadingSuppliers = ref(false)
 const loadingPO = ref(false)
 const adjusting = ref(false)
 const savingSupplier = ref(false)
 const savingPO = ref(false)
+const loadingTransfers = ref(false)
+const submittingTransfer = ref(false)
+const loadingLevels = ref(false)
+const loadingLowStock = ref(false)
+const loadingValuation = ref(false)
+const loadingAudit = ref(false)
+
+// ─── Modal / Selection State ──────────────────────────────────────────────────
 const showSupplierModal = ref(false)
+const editingSupplierId = ref(null)
 const showPOModal = ref(false)
 const editingPOId = ref(null)
 const showPODetailsModal = ref(false)
@@ -734,6 +1155,7 @@ const selectedPO = ref(null)
 const selectedPOItems = ref([])
 const loadingPODetails = ref(false)
 
+// ─── Forms ────────────────────────────────────────────────────────────────────
 const supplierForm = ref({ name: '', email: '', phone: '', contact_person: '', address: '' })
 const poForm = ref({
 	supplier_id: '',
@@ -744,46 +1166,75 @@ const poForm = ref({
 	items: [{ product_id: '', quantity: '', cost_per_unit: '' }]
 })
 const stockForm = ref({ product_id: '', branch_id: '', adjustment_type: 'add', quantity: '', reason: '' })
+const transferForm = ref({ product_id: '', from_branch_id: '', to_branch_id: '', quantity: '', notes: '' })
 
-// Product selection search
+// ─── Product Search ───────────────────────────────────────────────────────────
 const productSearch = ref('')
 const searchingProducts = ref(false)
 const foundProducts = ref([])
 const selectedProd = ref(null)
 
+// ─── Filters ──────────────────────────────────────────────────────────────────
+const selectedBranchFilterId = ref('')
+const auditTypeFilter = ref('')
+const adjustmentTypes = [
+	'PURCHASE_ORDER', 'MANUAL', 'ORDER_DEDUCTION', 'ORDER_CANCELLATION_RESTORE',
+	'TRANSFER_IN', 'TRANSFER_OUT', 'DAMAGE', 'RETURN'
+]
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatDate = (d) => d ? new Date(d).toLocaleDateString() : '—'
 
-const selectedBranchFilterId = ref('')
+const filterDigits = (val, max) => String(val || '').replace(/\D/g, '').slice(0, max)
 
-const onBranchFilterChange = () => {
-	if (activeTab.value === 'orders') {
-		loadPO()
+const poStatusClass = (status) => {
+	const map = {
+		PENDING: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400',
+		ORDERED: 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400',
+		DELIVERED: 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400',
+		COMPLETED: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400',
+		CANCELLED: 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400',
 	}
-	if (selectedBranchFilterId.value) {
-		poForm.value.branch_id = selectedBranchFilterId.value
-		stockForm.value.branch_id = selectedBranchFilterId.value
-	}
+	return map[status] || 'bg-gray-100 text-gray-700'
 }
 
+const auditTypeBadge = (type) => {
+	const map = {
+		PURCHASE_ORDER: 'bg-blue-100 text-blue-700',
+		MANUAL: 'bg-purple-100 text-purple-700',
+		ORDER_DEDUCTION: 'bg-orange-100 text-orange-700',
+		ORDER_CANCELLATION_RESTORE: 'bg-teal-100 text-teal-700',
+		TRANSFER_IN: 'bg-green-100 text-green-700',
+		TRANSFER_OUT: 'bg-sky-100 text-sky-700',
+		DAMAGE: 'bg-red-100 text-red-700',
+		RETURN: 'bg-indigo-100 text-indigo-700',
+	}
+	return map[type] || 'bg-gray-100 text-gray-700'
+}
+
+const selectedBranchFilterId_ref = ref('')
 const cachedAdminBusinessId = ref(null)
 
 const getInventoryParams = async () => {
 	const authStore = useAuthStore()
 	const params = {}
-
-	// Always prioritize the business explicitly tied to the logged-in user
 	const userBusinessId = authStore.user?.business_id || authStore.user?.business?.business_id || authStore.user?.business?.id
-
 	if (userBusinessId) {
 		params.business_id = userBusinessId
 	} else if (authStore.role === 'ADMIN') {
-		// Fallback only if the admin has no explicit business tied to their account
 		params.business_id = cachedAdminBusinessId.value || ''
 	}
-
 	return params
 }
 
+const onBranchFilterChange = () => {
+	if (activeTab.value === 'orders') loadPO()
+	if (activeTab.value === 'transfers') loadTransfers()
+	if (activeTab.value === 'levels') loadStockLevels()
+	if (activeTab.value === 'audit') loadAudit()
+}
+
+// ─── Suppliers ────────────────────────────────────────────────────────────────
 const loadSuppliers = async () => {
 	loadingSuppliers.value = true
 	try {
@@ -799,13 +1250,72 @@ const loadSuppliers = async () => {
 	}
 }
 
+const openSupplierModal = () => {
+	editingSupplierId.value = null
+	supplierForm.value = { name: '', email: '', phone: '', contact_person: '', address: '' }
+	showSupplierModal.value = true
+}
+
+const openEditSupplierModal = (s) => {
+	editingSupplierId.value = s.supplier_id || s.id
+	supplierForm.value = {
+		name: s.name || '',
+		email: s.email || '',
+		phone: s.phone || '',
+		contact_person: s.contact_person || '',
+		address: s.address || ''
+	}
+	showSupplierModal.value = true
+}
+
+const saveSupplier = async () => {
+	if (!supplierForm.value.name) return toast.error('Supplier name is required')
+	savingSupplier.value = true
+	try {
+		const { createSupplier, updateSupplier } = useInventory()
+		const payload = {
+			name: supplierForm.value.name,
+			email: supplierForm.value.email || null,
+			phone: supplierForm.value.phone || null,
+			contact_person: supplierForm.value.contact_person || null,
+			address: supplierForm.value.address || null
+		}
+		if (editingSupplierId.value) {
+			await updateSupplier(editingSupplierId.value, payload)
+			toast.success('Supplier updated successfully')
+		} else {
+			await createSupplier(payload)
+			toast.success('Supplier added successfully')
+		}
+		showSupplierModal.value = false
+		loadSuppliers()
+	} catch (error) {
+		console.error(error)
+		toast.error(editingSupplierId.value ? 'Failed to update supplier' : 'Failed to add supplier')
+	} finally {
+		savingSupplier.value = false
+	}
+}
+
+const deleteSupplierAction = async (s) => {
+	if (!confirm(`Delete supplier "${s.name}"? This cannot be undone.`)) return
+	try {
+		const { deleteSupplier } = useInventory()
+		await deleteSupplier(s.supplier_id || s.id)
+		toast.success('Supplier deleted successfully')
+		loadSuppliers()
+	} catch (e) {
+		console.error(e)
+		toast.error('Failed to delete supplier')
+	}
+}
+
+// ─── Purchase Orders ──────────────────────────────────────────────────────────
 const loadPO = async () => {
 	loadingPO.value = true
 	try {
 		const params = await getInventoryParams()
-		if (selectedBranchFilterId.value) {
-			params.branch_id = selectedBranchFilterId.value
-		}
+		if (selectedBranchFilterId.value) params.branch_id = selectedBranchFilterId.value
 		const { getPurchaseOrders } = useInventory()
 		const res = await getPurchaseOrders(params)
 		purchaseOrders.value = res?.data?.items || res?.data || []
@@ -821,11 +1331,9 @@ const loadBranches = async () => {
 	try {
 		const { getBranches } = useBranches()
 		const params = await getInventoryParams()
-
 		const res = await getBranches(params)
 		const resData = res?.data?.data || res?.data?.items || res?.data || []
 		branchesList.value = Array.isArray(resData) ? resData : (Array.isArray(res?.data) ? res.data : [])
-
 		if (branchesList.value.length === 0) {
 			branchesList.value = [{ id: 1, name: 'Main Branch' }]
 		}
@@ -845,45 +1353,14 @@ const loadAllProducts = async () => {
 	}
 }
 
-const openSupplierModal = () => {
-	supplierForm.value = { name: '', email: '', phone: '', contact_person: '', address: '' }
-	showSupplierModal.value = true
-}
-
-const saveSupplier = async () => {
-	if (!supplierForm.value.name) return toast.error('Supplier name is required')
-	savingSupplier.value = true
-	try {
-		const { createSupplier } = useInventory()
-		await createSupplier({
-			name: supplierForm.value.name,
-			email: supplierForm.value.email || null,
-			phone: supplierForm.value.phone || null,
-			contact_person: supplierForm.value.contact_person || null,
-			address: supplierForm.value.address || null
-		})
-		toast.success('Supplier added successfully')
-		showSupplierModal.value = false
-		loadSuppliers()
-	} catch (error) {
-		console.error(error)
-		toast.error('Failed to add supplier')
-	} finally {
-		savingSupplier.value = false
-	}
-}
-
 const openPOModal = () => {
 	editingPOId.value = null
-	// Initialize dates
 	const now = new Date()
 	now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
 	const defaultOrderDate = now.toISOString().slice(0, 10)
-
 	const deliveryDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000)
 	deliveryDate.setMinutes(deliveryDate.getMinutes() - deliveryDate.getTimezoneOffset())
 	const defaultDeliveryDate = deliveryDate.toISOString().slice(0, 10)
-
 	poForm.value = {
 		supplier_id: '',
 		branch_id: selectedBranchFilterId.value || branchesList.value[0]?.branch_id || branchesList.value[0]?.id || '',
@@ -897,15 +1374,12 @@ const openPOModal = () => {
 
 const editPO = async (po) => {
 	editingPOId.value = po.po_id || po.id
-
-	// Format dates for date input
 	const formatForInput = (dateString) => {
 		if (!dateString) return ''
 		const d = new Date(dateString)
 		d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
 		return d.toISOString().slice(0, 10)
 	}
-
 	poForm.value = {
 		supplier_id: po.supplier_id,
 		branch_id: po.branch_id || branchesList.value[0]?.branch_id || branchesList.value[0]?.id || '',
@@ -918,10 +1392,7 @@ const editPO = async (po) => {
 			cost_per_unit: i.cost_per_unit
 		})) : [{ product_id: '', quantity: '', cost_per_unit: '' }]
 	}
-
 	showPOModal.value = true
-
-	// If items are missing, fetch them
 	if (!po.items || po.items.length === 0) {
 		try {
 			const { getPurchaseOrder } = useInventory()
@@ -941,7 +1412,6 @@ const editPO = async (po) => {
 
 const deletePO = async (po) => {
 	if (!confirm(`Are you sure you want to delete Purchase Order #${po.po_id || po.id}?`)) return
-
 	try {
 		const { deletePurchaseOrder } = useInventory()
 		await deletePurchaseOrder(po.po_id || po.id)
@@ -953,21 +1423,13 @@ const deletePO = async (po) => {
 	}
 }
 
-const addPOItemLine = () => {
-	poForm.value.items.push({ product_id: '', quantity: '', cost_per_unit: '' })
-}
-
-const removePOItemLine = (idx) => {
-	if (poForm.value.items.length > 1) {
-		poForm.value.items.splice(idx, 1)
-	}
-}
+const addPOItemLine = () => poForm.value.items.push({ product_id: '', quantity: '', cost_per_unit: '' })
+const removePOItemLine = (idx) => { if (poForm.value.items.length > 1) poForm.value.items.splice(idx, 1) }
 
 const viewPO = async (po) => {
 	selectedPO.value = po
 	selectedPOItems.value = po.items || []
 	showPODetailsModal.value = true
-
 	if (!po.items || po.items.length === 0) {
 		loadingPODetails.value = true
 		try {
@@ -990,15 +1452,11 @@ const savePurchaseOrder = async () => {
 	if (poForm.value.items.some(item => !item.product_id || !item.quantity || !item.cost_per_unit)) {
 		return toast.error('Please fill all item fields with valid values')
 	}
-
 	savingPO.value = true
 	try {
 		const { createPurchaseOrder, updatePurchaseOrder } = useInventory()
-
-		// Format order dates to ISO UTC strings
 		const utcOrderDate = new Date(poForm.value.order_date).toISOString()
 		const utcDeliveryDate = new Date(poForm.value.expected_delivery_date).toISOString()
-
 		const payload = {
 			supplier_id: poForm.value.supplier_id,
 			branch_id: poForm.value.branch_id,
@@ -1011,15 +1469,13 @@ const savePurchaseOrder = async () => {
 				cost_per_unit: Number(item.cost_per_unit)
 			}))
 		}
-
 		if (editingPOId.value) {
 			await updatePurchaseOrder(editingPOId.value, payload)
 			toast.success('Purchase Order updated successfully!')
 		} else {
 			await createPurchaseOrder(payload)
-			toast.success('Purchase Order created and stock updated!')
+			toast.success('Purchase Order created successfully!')
 		}
-
 		showPOModal.value = false
 		loadPO()
 	} catch (e) {
@@ -1030,6 +1486,7 @@ const savePurchaseOrder = async () => {
 	}
 }
 
+// ─── Stock Adjustment ─────────────────────────────────────────────────────────
 const selectProduct = (prod) => {
 	selectedProd.value = prod
 	stockForm.value.product_id = prod.product_id || prod.id
@@ -1061,17 +1518,16 @@ const submitStockAdjust = async () => {
 	adjusting.value = true
 	try {
 		const { adjustStock } = useInventory()
+		const qty = Number(stockForm.value.quantity)
+		const finalQty = stockForm.value.adjustment_type === 'remove' ? -Math.abs(qty) : qty
 		await adjustStock({
-			product_id: stockForm.value.product_id, // String UUID
-			branch_id: stockForm.value.branch_id,
-			quantity: Number(stockForm.value.quantity),
+			product_id: stockForm.value.product_id,
+			branch_id: stockForm.value.branch_id || null,
+			quantity: finalQty,
 			reason: stockForm.value.reason || null
 		})
 		toast.success('Stock adjusted successfully')
-
-		// Refresh selected product UI status
 		if (selectedProd.value) {
-			const qty = Number(stockForm.value.quantity)
 			if (stockForm.value.adjustment_type === 'add') {
 				selectedProd.value.stock_quantity = (selectedProd.value.stock_quantity || 0) + qty
 			} else if (stockForm.value.adjustment_type === 'remove') {
@@ -1080,7 +1536,6 @@ const submitStockAdjust = async () => {
 				selectedProd.value.stock_quantity = qty
 			}
 		}
-
 		stockForm.value = { product_id: '', branch_id: '', adjustment_type: 'add', quantity: '', reason: '' }
 		selectedProd.value = null
 		productSearch.value = ''
@@ -1093,11 +1548,129 @@ const submitStockAdjust = async () => {
 	}
 }
 
+// ─── Stock Transfers ──────────────────────────────────────────────────────────
+const loadTransfers = async () => {
+	loadingTransfers.value = true
+	try {
+		const params = await getInventoryParams()
+		if (selectedBranchFilterId.value) params.branch_id = selectedBranchFilterId.value
+		const { getStockTransfers } = useInventory()
+		const res = await getStockTransfers(params)
+		transfers.value = res?.data?.items || res?.data || []
+	} catch (e) {
+		console.error(e)
+		toast.error('Failed to load stock transfers')
+	} finally {
+		loadingTransfers.value = false
+	}
+}
+
+const submitTransfer = async () => {
+	if (!transferForm.value.product_id || !transferForm.value.from_branch_id || !transferForm.value.to_branch_id || !transferForm.value.quantity) {
+		return toast.error('Please fill all required transfer fields')
+	}
+	if (transferForm.value.from_branch_id === transferForm.value.to_branch_id) {
+		return toast.error('Source and destination branches must be different')
+	}
+	submittingTransfer.value = true
+	try {
+		const { createStockTransfer } = useInventory()
+		await createStockTransfer({
+			product_id: transferForm.value.product_id,
+			from_branch_id: transferForm.value.from_branch_id,
+			to_branch_id: transferForm.value.to_branch_id,
+			quantity: Number(transferForm.value.quantity),
+			notes: transferForm.value.notes || null
+		})
+		toast.success('Stock transferred successfully!')
+		transferForm.value = { product_id: '', from_branch_id: '', to_branch_id: '', quantity: '', notes: '' }
+		loadTransfers()
+	} catch (e) {
+		console.error(e)
+		toast.error('Stock transfer failed')
+	} finally {
+		submittingTransfer.value = false
+	}
+}
+
+// ─── Stock Levels ─────────────────────────────────────────────────────────────
+const loadStockLevels = async () => {
+	loadingLevels.value = true
+	try {
+		const params = await getInventoryParams()
+		if (selectedBranchFilterId.value) params.branch_id = selectedBranchFilterId.value
+		const { getStockLevels } = useInventory()
+		const res = await getStockLevels(params)
+		stockLevels.value = res?.data || []
+	} catch (e) {
+		console.error(e)
+		toast.error('Failed to load stock levels')
+	} finally {
+		loadingLevels.value = false
+	}
+}
+
+const loadLowStock = async () => {
+	loadingLowStock.value = true
+	try {
+		const params = await getInventoryParams()
+		if (selectedBranchFilterId.value) params.branch_id = selectedBranchFilterId.value
+		const { getLowStock } = useInventory()
+		const res = await getLowStock(params)
+		stockLevels.value = res?.data || []
+	} catch (e) {
+		console.error(e)
+		toast.error('Failed to load low stock data')
+	} finally {
+		loadingLowStock.value = false
+	}
+}
+
+// ─── Valuation ────────────────────────────────────────────────────────────────
+const loadValuation = async () => {
+	loadingValuation.value = true
+	try {
+		const params = await getInventoryParams()
+		const { getInventoryValuation } = useInventory()
+		const res = await getInventoryValuation(params)
+		valuation.value = res?.data || null
+	} catch (e) {
+		console.error(e)
+		toast.error('Failed to load valuation report')
+	} finally {
+		loadingValuation.value = false
+	}
+}
+
+// ─── Audit Trail ──────────────────────────────────────────────────────────────
+const loadAudit = async () => {
+	loadingAudit.value = true
+	try {
+		const params = await getInventoryParams()
+		if (selectedBranchFilterId.value) params.branch_id = selectedBranchFilterId.value
+		if (auditTypeFilter.value) params.adjustment_type = auditTypeFilter.value
+		const { getAdjustments } = useInventory()
+		const res = await getAdjustments(params)
+		auditItems.value = res?.data?.items || res?.data || []
+	} catch (e) {
+		console.error(e)
+		toast.error('Failed to load audit trail')
+	} finally {
+		loadingAudit.value = false
+	}
+}
+
+// ─── Watchers ─────────────────────────────────────────────────────────────────
 watch(activeTab, (tab) => {
 	if (tab === 'suppliers') loadSuppliers()
 	if (tab === 'orders') loadPO()
+	if (tab === 'transfers') loadTransfers()
+	if (tab === 'levels') loadStockLevels()
+	if (tab === 'valuation') loadValuation()
+	if (tab === 'audit') loadAudit()
 })
 
+// ─── Mount ────────────────────────────────────────────────────────────────────
 onMounted(async () => {
 	const authStore = useAuthStore()
 	const userBusinessId = authStore.user?.business_id || authStore.user?.business?.id
