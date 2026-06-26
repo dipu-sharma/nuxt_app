@@ -195,7 +195,7 @@ const tracking = ref(null)
 const cancelling = ref(false)
 const loadingTracking = ref(false)
 
-const statusOptions = ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
+const statusOptions = ['pending', 'shipped', 'delivered', 'canceled']
 
 const statusBadgeClass = (s) => {
   const map = {

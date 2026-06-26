@@ -127,18 +127,63 @@
                         class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
                     </div>
                   </div>
+                <!-- Address Line 1 -->
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Address Line 1</label>
+                  <div class="relative">
+                    <Icon name="mdi:home-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                    <input v-model="profileData.address.address_line_1" type="text" placeholder="Address Line 1"
+                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  </div>
+                </div>
+                <!-- Address Line 2 -->
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Address Line 2</label>
+                  <div class="relative">
+                    <Icon name="mdi:home-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                    <input v-model="profileData.address.address_line_2" type="text" placeholder="Address Line 2"
+                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  </div>
+                </div>
+                <!-- City -->
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">City</label>
+                  <div class="relative">
+                    <Icon name="mdi:map-marker-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                    <input v-model="profileData.address.city" type="text" placeholder="City"
+                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  </div>
+                </div>
+                <!-- State -->
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">State</label>
+                  <div class="relative">
+                    <Icon name="mdi:map-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                    <input v-model="profileData.address.state" type="text" placeholder="State"
+                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  </div>
+                </div>
+                <!-- Country -->
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Country</label>
+                  <div class="relative">
+                    <Icon name="mdi:earth" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                    <input v-model="profileData.address.country" type="text" placeholder="Country"
+                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  </div>
+                </div>
+                <!-- Zip Code -->
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Zip Code</label>
+                  <div class="relative">
+                    <Icon name="mdi:mailbox" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                    <input v-model="profileData.address.zip_code" type="text" placeholder="Zip Code"
+                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  </div>
+                </div>
 
                   <!-- Email -->
-                  <div>
-                    <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Email
-                      Address</label>
-                    <div class="relative">
-                      <Icon name="mdi:email-outline"
-                        class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                      <input v-model="profileData.email" type="email" required placeholder="email@example.com"
-                        class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
-                    </div>
-                  </div>
+
                 </div>
 
                 <!-- Bio -->
@@ -221,7 +266,7 @@
                     <p class="text-text opacity-60 text-sm mt-1" v-if="addr.address_line2">{{ addr.address_line2 }}</p>
                     <p class="text-text opacity-60 text-sm mt-1">
                       {{ addr.city }}, {{ addr.state }} - <span class="font-semibold text-text">{{ addr.pincode
-                      }}</span>
+                        }}</span>
                     </p>
                     <p class="text-text opacity-50 text-xs mt-2 uppercase tracking-widest font-bold">{{ addr.country }}
                     </p>
@@ -407,6 +452,7 @@
 import { toast } from 'vue3-toastify'
 import { useValidation } from '~/composables/useValidation'
 import { useAuthStore } from '~/stores/auth'
+import { useProfile } from '~/composables/useProfile'
 
 definePageMeta({
   title: 'User Dashboard',
@@ -436,9 +482,18 @@ const profileData = ref({
   first_name: authStore.user?.first_name || '',
   last_name: authStore.user?.last_name || '',
   phone: authStore.user?.phone || '',
-  email: authStore.user?.email || '',
+  username: authStore.user?.username || '',
   bio: authStore.user?.bio || '',
-  url: authStore.user?.url || ''
+  url: authStore.user?.url || '',
+  avatar_url: authStore.user?.url || '',
+  address: {
+    address_line_1: '',
+    address_line_2: '',
+    country: '',
+    state: '',
+    city: '',
+    zip_code: ''
+  }
 })
 const addressForm = ref({ address_line1: '', address_line2: '', city: '', state: '', country: 'India', pincode: '', is_default: false })
 const pwdForm = ref({ current: '', new_password: '', confirm: '' })
@@ -455,31 +510,44 @@ const handleImageUpload = async (event) => {
   const file = event.target.files[0]
   if (!file) return
   try {
-    const { uploadProfileImage } = useProfile()
-    await uploadProfileImage(file)
-    loadProfile()
+    const { updateProfileImage } = useProfile()
+    await updateProfileImage(file)
+    await loadProfile()
   } catch {
     // toast.error('Failed to upload photo')
   }
 }
 
 const loadProfile = async () => {
-  if (authStore.user) {
-    Object.assign(profileData.value, {
-      first_name: authStore.user.first_name || profileData.value.first_name || '',
-      last_name: authStore.user.last_name || profileData.value.last_name || '',
-      phone: authStore.user.phone || profileData.value.phone || '',
-      email: authStore.user.email || profileData.value.email || '',
-      bio: authStore.user.bio || profileData.value.bio || '',
-      url: authStore.user.url || profileData.value.url || ''
-    })
-  }
   try {
+    // Fetch fresh user account details
+    const { getAuthMe } = useProfile()
+    const meRes = await getAuthMe()
+    if (meRes?.data) {
+      Object.assign(profileData.value, {
+        first_name: meRes.data.first_name || '',
+        last_name: meRes.data.last_name || '',
+        phone: meRes.data.phone || '',
+        username: meRes.data.username || '',
+        bio: meRes.data.bio || '',
+        url: meRes.data.url || '',
+        avatar_url: meRes.data.url || '',
+        address: {
+          address_line_1: meRes.data.address?.[0]?.address_line_1 || '',
+          address_line_2: meRes.data.address?.[0]?.address_line_2 || '',
+          country: meRes.data.address?.[0]?.country || '',
+          state: meRes.data.address?.[0]?.state || '',
+          city: meRes.data.address?.[0]?.city || '',
+          zip_code: meRes.data.address?.[0]?.zip_code || ''
+        }
+      })
+    }
+    // Then fetch profile (image) data
     const { getProfile } = useProfile()
     const res = await getProfile()
-    console.log('Profile Data:', res?.data)
     if (res?.data) {
-      Object.assign(profileData.value, res.data)
+      const { url, ...rest } = res.data
+      Object.assign(profileData.value, { ...rest, avatar_url: url, url: url })
     }
   } catch {
     // silently fail
@@ -503,8 +571,8 @@ const saveProfile = async () => {
   if (!profileData.value.first_name?.trim() || !profileData.value.last_name?.trim()) {
     return toast.error('First and Last name are required')
   }
-  if (profileData.value.email && !validEmail(profileData.value.email)) {
-    return toast.error('Please enter a valid email address')
+  if (profileData.value.username && !validEmail(profileData.value.username)) {
+    return toast.error('Please enter a valid username address')
   }
   if (profileData.value.phone && profileData.value.phone.length !== 10) {
     return toast.error('Phone number must be exactly 10 digits')
@@ -512,8 +580,24 @@ const saveProfile = async () => {
 
   saving.value = true
   try {
-    const { updateProfile } = useProfile()
-    await updateProfile(profileData.value)
+    const { updateMe } = useProfile()
+    await updateMe({
+      first_name: profileData.value.first_name,
+      last_name: profileData.value.last_name,
+      phone: profileData.value.phone,
+      username: profileData.value.username,
+      bio: profileData.value.bio,
+      address: {
+        address_line_1: profileData.value.address.address_line_1,
+        address_line_2: profileData.value.address.address_line_2,
+        country: profileData.value.address.country,
+        state: profileData.value.address.state,
+        city: profileData.value.address.city,
+        zip_code: profileData.value.address.zip_code
+      }
+    })
+    // Reload fresh data
+    await loadProfile()
     toast.success('Profile details updated successfully!')
   } catch {
     toast.error('Failed to update profile')

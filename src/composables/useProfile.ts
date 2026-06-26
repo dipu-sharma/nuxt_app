@@ -15,12 +15,27 @@ export const useProfile = () => {
       return await api('/api/user/profile', { method: 'PUT', body: payload })
     },
 
+    /** Get authenticated user details */
+    async getAuthMe() {
+      return await api('/api/auth/me', { method: 'GET' })
+    },
+
     /** Upload profile image (multipart/form-data) */
     async uploadProfileImage(file: File) {
       const formData = new FormData()
       formData.append('file', file)
       return await api('/api/user/profile', {
         method: 'POST',
+        body: formData,
+        headers: { 'Content-Type': undefined as any }, // let browser set boundary
+      })
+    },
+    // Update profile image using PUT (multipart/form-data)
+    async updateProfileImage(file: File) {
+      const formData = new FormData()
+      formData.append('file', file)
+      return await api('/api/user/profile', {
+        method: 'PUT',
         body: formData,
         headers: { 'Content-Type': undefined as any }, // let browser set boundary
       })
@@ -34,6 +49,10 @@ export const useProfile = () => {
     /** Update user account details (email/username) */
     async updateMe(payload: any) {
       return await api('/api/user/me', { method: 'PUT', body: payload })
+    },
+    /** Patch user profile (partial update) */
+    async patchProfile(payload: any) {
+      return await api('/api/user/profile', { method: 'PATCH', body: payload })
     },
 
     /** Get business profile */
