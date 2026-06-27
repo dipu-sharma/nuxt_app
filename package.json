@@ -16,7 +16,7 @@
 		"dev:preview": "nuxt preview --dotenv .env.dev",
 		"uat:preview": "nuxt preview --dotenv .env.uat",
 		"prod:preview": "nuxt preview --dotenv .env.prod",
-		"postinstall": "nuxt postinstall",
+		"postinstall": "nuxt prepare",
 		"sonar": "node sonar-project.cjs"
 	},
 	"dependencies": {
