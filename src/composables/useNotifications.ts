@@ -24,5 +24,20 @@ export const useNotifications = () => {
     async getUnreadCount() {
       return await api('/api/notifications/unread-count', { method: 'GET' })
     },
+
+    /** Clear all notifications */
+    async clearAll() {
+      return await api('/api/notifications/clear/all', { method: 'DELETE' })
+    },
+
+    /** Clear all read notifications */
+    async clearRead() {
+      return await api('/api/notifications/clear/read', { method: 'DELETE' })
+    },
+
+    /** Update notification preferences */
+    async updatePreferences(payload: any) {
+      return await api('/api/notifications/preferences', { method: 'PUT', body: payload })
+    },
   }
 }

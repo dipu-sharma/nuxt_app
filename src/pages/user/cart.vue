@@ -417,21 +417,11 @@ const placeOrder = async () => {
       notes: orderNotes.value || undefined,
     })
     
-    // 2. If Cash on Delivery, we are done
-    if (mappedPaymentMethod === 'cod') {
-      toast.success('Order placed successfully')
-      checkoutDialog.value = false
-      cartItems.value = []
-      navigateTo('/user/order')
-      return
-    }
-    
-    // 3. For Online Payments, grab the Draft Order ID and initialize Stripe
+    // 2. Grab the Draft Order ID and initialize payment
     const orderId = res?.data?.order_id || res?.data?.id
     if (!orderId) throw new Error('Order creation failed on backend')
 
-    paymentStep.value = 2
-    await initializeStripe(orderId)
+    await initializeStripe(orderId, mappedPaymentMethod)
     
   } catch (err) {
     console.error(err)
@@ -441,27 +431,37 @@ const placeOrder = async () => {
   }
 }
 
-const initializeStripe = async (orderId) => {
+const initializeStripe = async (orderId, mappedPaymentMethod) => {
   try {
     const { getConfig, createIntent } = usePayments()
+    
+    // Pass the Draft Order ID and selected method to the backend
+    const intentRes = await createIntent({
+      order_id: orderId,
+      currency: 'inr',
+      payment_method: mappedPaymentMethod
+    })
+    
+    // If client_secret is null, it's an offline method like COD! Checkout is complete.
+    const secret = intentRes?.data?.client_secret || intentRes?.client_secret
+    if (!secret) {
+      toast.success('Order placed successfully!')
+      checkoutDialog.value = false
+      cartItems.value = []
+      navigateTo('/user/order')
+      return
+    }
+    
+    // Otherwise, it's an online method. Transition to Step 2 and mount Stripe.
+    paymentStep.value = 2
+    clientSecret.value = secret
+    paymentIntentId.value = intentRes?.data?.stripe_payment_intent_id || intentRes?.data?.payment_intent_id || intentRes?.payment_intent_id
     
     const confRes = await getConfig()
     const pubKey = confRes?.data?.publishable_key || confRes?.publishable_key
     if (!pubKey) throw new Error('Stripe config missing')
     
     stripeObj.value = await loadStripe(pubKey)
-    
-    // Pass the Draft Order ID to the backend to generate the Intent
-    const intentRes = await createIntent({
-      order_id: orderId,
-      currency: 'inr'
-    })
-    
-    clientSecret.value = intentRes?.data?.client_secret || intentRes?.client_secret
-    paymentIntentId.value = intentRes?.data?.payment_intent_id || intentRes?.payment_intent_id
-    
-    if (!clientSecret.value) throw new Error('Payment initialization failed')
-    
     elementsObj.value = stripeObj.value.elements({ clientSecret: clientSecret.value })
     const paymentElement = elementsObj.value.create('payment')
     

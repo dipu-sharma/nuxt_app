@@ -27,7 +27,7 @@
 				</button>
 			</div>
 
-			<div v-if="['orders','transfers','levels','audit'].includes(activeTab)" class="flex items-center gap-3">
+			<div v-if="['orders', 'transfers', 'levels', 'audit'].includes(activeTab)" class="flex items-center gap-3">
 				<span class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">Filter by
 					Branch</span>
 				<div class="relative">
@@ -164,7 +164,7 @@
 									`Supplier
 									#${po.supplier_id}` }}</td>
 								<td class="px-6 py-4 text-text opacity-75 font-semibold">Branch #{{ po.branch_id || '—'
-									}}</td>
+								}}</td>
 								<td class="px-6 py-4 font-semibold text-primary">₹{{
 									po.total_amount?.toLocaleString('en-IN') ||
 									'—' }}</td>
@@ -178,11 +178,11 @@
 									||
 									po.order_date) }}</td>
 								<td class="px-6 py-4 text-right">
-									<v-btn size="small" variant="text" color="primary" @click="viewPO(po)"
+									<v-btn size="small" rounded="xl" variant="flat" color="#111FA2" @click="viewPO(po)"
 										class="mr-1">View</v-btn>
-									<v-btn size="small" variant="text" color="secondary" @click="editPO(po)"
+									<v-btn size="small" rounded="xl" variant="flat" color="#FE7F2D" @click="editPO(po)"
 										class="mr-1">Edit</v-btn>
-									<v-btn size="small" variant="text" color="error"
+									<v-btn size="small" rounded="xl" variant="flat" color="error"
 										@click="deletePO(po)">Delete</v-btn>
 								</td>
 							</tr>
@@ -496,12 +496,16 @@
 				<div class="flex gap-3">
 					<v-btn size="small" variant="outlined" color="warning" rounded="pill" @click="loadLowStock"
 						:loading="loadingLowStock" class="text-none font-semibold">
-						<template #prepend><Icon name="mdi:alert-outline" class="w-4 h-4" /></template>
+						<template #prepend>
+							<Icon name="mdi:alert-outline" class="w-4 h-4" />
+						</template>
 						Low Stock Only
 					</v-btn>
 					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadStockLevels"
 						:loading="loadingLevels" class="text-none font-semibold">
-						<template #prepend><Icon name="mdi:refresh" class="w-4 h-4" /></template>
+						<template #prepend>
+							<Icon name="mdi:refresh" class="w-4 h-4" />
+						</template>
 						All Stock
 					</v-btn>
 				</div>
@@ -575,7 +579,9 @@
 				<h2 class="text-xl font-light tracking-tight">Inventory Valuation</h2>
 				<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadValuation"
 					:loading="loadingValuation" class="text-none font-semibold">
-					<template #prepend><Icon name="mdi:refresh" class="w-4 h-4" /></template>
+					<template #prepend>
+						<Icon name="mdi:refresh" class="w-4 h-4" />
+					</template>
 					Refresh
 				</v-btn>
 			</div>
@@ -675,7 +681,9 @@
 					</div>
 					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadAudit"
 						:loading="loadingAudit" class="text-none font-semibold">
-						<template #prepend><Icon name="mdi:refresh" class="w-4 h-4" /></template>
+						<template #prepend>
+							<Icon name="mdi:refresh" class="w-4 h-4" />
+						</template>
 						Refresh
 					</v-btn>
 				</div>
@@ -727,8 +735,8 @@
 									{{ a.quantity_before }} → {{ a.quantity_after }}
 								</td>
 								<td class="px-5 py-4 text-text opacity-70 max-w-xs truncate text-xs">
-									<span v-if="a.reference_id"
-										class="font-mono text-primary mr-1">{{ a.reference_id }}</span>
+									<span v-if="a.reference_id" class="font-mono text-primary mr-1">{{ a.reference_id
+									}}</span>
 									{{ a.reason || '—' }}
 								</td>
 								<td class="px-5 py-4 text-xs opacity-60 font-mono whitespace-nowrap">{{
@@ -903,7 +911,7 @@
 										<Icon name="mdi:chevron-down" class="w-5 h-5" />
 									</div>
 								</div>
-								<p v-if="['DELIVERED','COMPLETED'].includes(poForm.status)"
+								<p v-if="['DELIVERED', 'COMPLETED'].includes(poForm.status)"
 									class="text-[10px] text-amber-600 mt-1.5 ml-2 font-semibold">
 									⚠ Setting status to {{ poForm.status }} will trigger a stock update.
 								</p>
@@ -1002,7 +1010,7 @@
 							<h2 class="text-3xl font-light tracking-tight text-text">
 								Purchase Order <span class="font-bold text-primary">#{{ selectedPO?.po_id ||
 									selectedPO?.id
-									}}</span>
+								}}</span>
 							</h2>
 							<p class="text-text opacity-70 mt-1">Status: <span class="font-bold uppercase">{{
 								selectedPO?.status
@@ -1024,7 +1032,7 @@
 								</p>
 								<p class="font-semibold">{{ selectedPO?.supplier?.name || `Supplier
 									#${selectedPO?.supplier_id}`
-									}}</p>
+								}}</p>
 							</div>
 							<div class="p-4 bg-secondary/20 rounded-2xl border border-border/50">
 								<p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-1">
@@ -1073,7 +1081,7 @@
 										<td class="px-4 py-3 text-text">{{ item.quantity }}</td>
 										<td class="px-4 py-3 text-text">₹{{ item.cost_per_unit?.toLocaleString('en-IN')
 											|| '0'
-											}}</td>
+										}}</td>
 										<td class="px-4 py-3 font-semibold text-right text-primary">₹{{ (item.quantity *
 											item.cost_per_unit).toLocaleString('en-IN') }}</td>
 									</tr>
@@ -1196,6 +1204,17 @@ const poStatusClass = (status) => {
 		CANCELLED: 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400',
 	}
 	return map[status] || 'bg-gray-100 text-gray-700'
+}
+
+const poBtnColor = (status) => {
+	const map = {
+		PENDING: 'warning',
+		ORDERED: 'info',
+		DELIVERED: 'success',
+		COMPLETED: 'success',
+		CANCELLED: 'error',
+	}
+	return map[status] || 'primary'
 }
 
 const auditTypeBadge = (type) => {
