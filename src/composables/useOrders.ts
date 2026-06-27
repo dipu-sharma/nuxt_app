@@ -14,7 +14,10 @@ export const useOrders = () => {
     }) {
       return await api('/api/user/orders/create', {
         method: 'POST',
-        query: { address_id: payload.address_id }
+        query: { 
+          address_id: payload.address_id,
+          ...(payload.payment_method && { payment_method: payload.payment_method })
+        }
       })
     },
 

@@ -114,7 +114,7 @@
             class="text-center py-24 px-6 bg-card/60 backdrop-blur-2xl rounded-[3rem] border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)]">
             <div
               class="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-white/10">
-              <Icon name="mdi:leaf-outline" class="w-12 h-12 text-primary opacity-60" />
+              <Icon name="mdi:leaf" class="w-12 h-12 text-primary opacity-60" />
             </div>
             <h3 class="text-3xl font-bold text-text mb-3">No matching products</h3>
             <p class="text-text opacity-60 text-lg max-w-sm mx-auto">Try adjusting your category selection or expanding

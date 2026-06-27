@@ -185,7 +185,7 @@
 
     <!-- Checkout Dialog -->
     <v-dialog v-model="checkoutDialog" max-width="600" persistent>
-      <div class="bg-card/95 backdrop-blur-xl border border-white/20 shadow-2xl rounded-[2.5rem] p-8">
+      <div v-if="paymentStep === 1" class="bg-card/95 backdrop-blur-xl border border-white/20 shadow-2xl rounded-[2.5rem] p-8">
         <h2 class="text-2xl font-extrabold mb-6 text-text flex items-center gap-3">
           <Icon name="mdi:lock-outline" class="text-primary" /> Secure Checkout
         </h2>
@@ -202,15 +202,25 @@
             <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Payment
               Method</label>
             <div class="grid grid-cols-2 gap-4">
-              <button @click="paymentMethod = 'cod'"
-                class="p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-sm font-semibold"
-                :class="paymentMethod === 'cod' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-text/70 hover:border-primary/30'">
-                <Icon name="mdi:cash" class="w-6 h-6" /> Cash on Delivery
+              <button @click="paymentMethod = 'COD'"
+                class="p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-sm font-semibold text-center"
+                :class="paymentMethod === 'COD' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-text/70 hover:border-primary/30'">
+                <Icon name="mdi:cash" class="w-6 h-6 mb-1" /> Cash on Delivery
               </button>
-              <button @click="paymentMethod = 'online'"
-                class="p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-sm font-semibold"
-                :class="paymentMethod === 'online' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-text/70 hover:border-primary/30'">
-                <Icon name="mdi:credit-card-outline" class="w-6 h-6" /> Online Payment
+              <button @click="paymentMethod = 'UPI'"
+                class="p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-sm font-semibold text-center"
+                :class="paymentMethod === 'UPI' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-text/70 hover:border-primary/30'">
+                <Icon name="mdi:qrcode" class="w-6 h-6 mb-1" /> UPI Payment
+              </button>
+              <button @click="paymentMethod = 'DEBIT_CARD'"
+                class="p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-sm font-semibold text-center"
+                :class="paymentMethod === 'DEBIT_CARD' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-text/70 hover:border-primary/30'">
+                <Icon name="mdi:credit-card-outline" class="w-6 h-6 mb-1" /> Debit Card
+              </button>
+              <button @click="paymentMethod = 'CREDIT_CARD'"
+                class="p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-sm font-semibold text-center"
+                :class="paymentMethod === 'CREDIT_CARD' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-text/70 hover:border-primary/30'">
+                <Icon name="mdi:credit-card-check-outline" class="w-6 h-6 mb-1" /> Credit Card
               </button>
             </div>
           </div>
@@ -224,14 +234,38 @@
         </div>
 
         <div class="flex gap-4 mt-8">
-          <button @click="checkoutDialog = false"
+          <button @click="cancelCheckout"
             class="px-6 py-3.5 rounded-xl font-bold text-text/70 hover:bg-secondary transition-colors">
             Cancel
           </button>
           <button @click="placeOrder" :disabled="placingOrder"
             class="flex-1 bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2">
-            <Icon v-if="placingOrder" name="mdi:loading" class="w-5 h-5 animate-spin" />
+          <Icon v-if="placingOrder" name="mdi:loading" class="w-5 h-5 animate-spin" />
             <span v-else>Confirm & Pay ₹{{ total.toLocaleString('en-IN') }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div v-else-if="paymentStep === 2" class="bg-card border border-white/20 rounded-[2rem] shadow-2xl w-full max-w-xl p-8 max-h-[90vh] overflow-y-auto relative animate-[scaleIn_0.3s_ease-out]">
+        <h2 class="text-2xl font-black text-text mb-6 flex items-center gap-2">
+          <Icon name="mdi:credit-card-outline" class="text-primary" /> Complete Payment
+        </h2>
+        
+        <div id="payment-element" class="min-h-[250px] mb-6 p-4 rounded-xl border border-border bg-background">
+          <div v-if="!elementsObj" class="flex justify-center items-center h-[200px]">
+             <Icon name="mdi:loading" class="w-8 h-8 animate-spin text-primary" />
+          </div>
+        </div>
+
+        <div class="flex gap-4 mt-8">
+          <button @click="cancelCheckout"
+            class="px-6 py-3.5 rounded-xl font-bold text-text/70 hover:bg-secondary transition-colors">
+            Cancel
+          </button>
+          <button @click="confirmOnlinePayment" :disabled="processingPayment || !elementsObj"
+            class="flex-1 bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2">
+            <Icon v-if="processingPayment" name="mdi:loading" class="w-5 h-5 animate-spin" />
+            <span v-else>Pay ₹{{ total.toLocaleString('en-IN') }}</span>
           </button>
         </div>
       </div>
@@ -241,6 +275,12 @@
 
 <script setup>
 import { toast } from 'vue3-toastify'
+import { loadStripe } from '@stripe/stripe-js'
+import { useCart } from '~/composables/useCart'
+import { useCoupons } from '~/composables/useCoupons'
+import { useOrders } from '~/composables/useOrders'
+import { useAddress } from '~/composables/useAddress'
+import { usePayments } from '~/composables/usePayments'
 
 definePageMeta({ title: 'My Cart', middleware: ['auth-role'], layout: 'default' })
 
@@ -260,9 +300,17 @@ const discount = ref(0)
 const appliedCouponId = ref(null)
 const checkoutDialog = ref(false)
 const selectedAddress = ref(null)
-const paymentMethod = ref('cod')
+const paymentMethod = ref('COD')
 const orderNotes = ref('')
 const placingOrder = ref(false)
+
+// Stripe state
+const paymentStep = ref(1)
+const stripeObj = ref(null)
+const elementsObj = ref(null)
+const clientSecret = ref(null)
+const paymentIntentId = ref(null)
+const processingPayment = ref(false)
 
 const subtotal = computed(() => cartItems.value.reduce((s, i) => s + i.price * i.quantity, 0))
 const total = computed(() => Math.max(0, subtotal.value - discount.value))
@@ -355,20 +403,112 @@ const proceedToCheckout = () => {
 const placeOrder = async () => {
   if (!selectedAddress.value) return toast.error('Please select a delivery address')
   placingOrder.value = true
+  
   try {
     const { createOrder } = useOrders()
+    const mappedPaymentMethod = paymentMethod.value === 'CREDIT_CARD' || paymentMethod.value === 'DEBIT_CARD' ? 'card' : 
+                                paymentMethod.value === 'UPI' ? 'upi' : 'cod'
+    
+    // 1. Create the DRAFT Order First
     const res = await createOrder({
       address_id: selectedAddress.value,
-      payment_method: paymentMethod.value,
+      payment_method: mappedPaymentMethod,
       coupon_code: couponCode.value || undefined,
       notes: orderNotes.value || undefined,
     })
-    checkoutDialog.value = false
-    navigateTo('/user/order')
-  } catch {
+    
+    // 2. If Cash on Delivery, we are done
+    if (mappedPaymentMethod === 'cod') {
+      toast.success('Order placed successfully')
+      checkoutDialog.value = false
+      cartItems.value = []
+      navigateTo('/user/order')
+      return
+    }
+    
+    // 3. For Online Payments, grab the Draft Order ID and initialize Stripe
+    const orderId = res?.data?.order_id || res?.data?.id
+    if (!orderId) throw new Error('Order creation failed on backend')
 
+    paymentStep.value = 2
+    await initializeStripe(orderId)
+    
+  } catch (err) {
+    console.error(err)
+    toast.error('Failed to initiate order checkout')
+  } finally {
+    placingOrder.value = false
   }
-  finally { placingOrder.value = false }
+}
+
+const initializeStripe = async (orderId) => {
+  try {
+    const { getConfig, createIntent } = usePayments()
+    
+    const confRes = await getConfig()
+    const pubKey = confRes?.data?.publishable_key || confRes?.publishable_key
+    if (!pubKey) throw new Error('Stripe config missing')
+    
+    stripeObj.value = await loadStripe(pubKey)
+    
+    // Pass the Draft Order ID to the backend to generate the Intent
+    const intentRes = await createIntent({
+      order_id: orderId,
+      currency: 'inr'
+    })
+    
+    clientSecret.value = intentRes?.data?.client_secret || intentRes?.client_secret
+    paymentIntentId.value = intentRes?.data?.payment_intent_id || intentRes?.payment_intent_id
+    
+    if (!clientSecret.value) throw new Error('Payment initialization failed')
+    
+    elementsObj.value = stripeObj.value.elements({ clientSecret: clientSecret.value })
+    const paymentElement = elementsObj.value.create('payment')
+    
+    setTimeout(() => {
+      paymentElement.mount('#payment-element')
+    }, 200)
+    
+  } catch (err) {
+    console.error(err)
+    toast.error('Failed to initialize payment gateway')
+  }
+}
+
+const confirmOnlinePayment = async () => {
+  if (!stripeObj.value || !elementsObj.value) return
+  processingPayment.value = true
+  try {
+    const { error, paymentIntent } = await stripeObj.value.confirmPayment({
+      elements: elementsObj.value,
+      redirect: 'if_required'
+    })
+    
+    if (error) {
+      toast.error(error.message)
+      return
+    }
+    
+    // Payment successful! Now strictly confirm it with the backend
+    const { confirmPayment } = usePayments()
+    await confirmPayment({ payment_intent_id: paymentIntent.id || paymentIntentId.value })
+    
+    toast.success('Payment completed and order placed successfully!')
+    cancelCheckout()
+    cartItems.value = []
+    navigateTo('/user/order')
+    
+  } catch (err) {
+    console.error(err)
+    toast.error('Payment confirmation failed on server')
+  } finally {
+    processingPayment.value = false
+  }
+}
+
+const cancelCheckout = () => {
+  checkoutDialog.value = false
+  setTimeout(() => { paymentStep.value = 1 }, 300)
 }
 
 onMounted(() => { loadCart(); loadAddresses() })

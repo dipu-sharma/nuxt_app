@@ -23,6 +23,7 @@
 		"@mdi/font": "^7.4.47",
 		"@mdi/js": "^7.4.47",
 		"@pinia/nuxt": "^0.5.3",
+		"@stripe/stripe-js": "^9.8.0",
 		"@vueuse/core": "^13.2.0",
 		"axios": "^1.7.3",
 		"chart.js": "^4.4.4",
@@ -47,6 +48,7 @@
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {
+		"@iconify-json/mdi": "^1.2.3",
 		"@nuxt/icon": "^1.10.3",
 		"autoprefixer": "^10.4.20",
 		"cross-env": "^7.0.3",

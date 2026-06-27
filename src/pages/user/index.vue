@@ -50,6 +50,15 @@
 
               <!-- Tab List Buttons -->
               <nav class="space-y-2 mt-6">
+                <button @click="activeTab = 'overview'"
+                  class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
+                  :class="activeTab === 'overview'
+                    ? 'bg-primary text-white shadow-lg shadow-primary/25'
+                    : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+                  <Icon name="mdi:view-dashboard-outline" class="w-5 h-5" />
+                  Overview
+                </button>
+
                 <button @click="activeTab = 'profile'"
                   class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
                   :class="activeTab === 'profile'
@@ -76,12 +85,86 @@
                   <Icon name="mdi:lock-outline" class="w-5 h-5" />
                   Password & Security
                 </button>
+                
+                <nuxt-link to="/user/order"
+                  class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all text-text opacity-70 hover:opacity-100 hover:bg-secondary/60">
+                  <Icon name="mdi:package-variant-closed" class="w-5 h-5" />
+                  My Orders
+                </nuxt-link>
               </nav>
             </div>
           </aside>
 
           <!-- Main Workspace Tab Forms -->
           <main class="lg:col-span-8 xl:col-span-9">
+            <!-- Overview Pane -->
+            <div v-if="activeTab === 'overview'" class="space-y-6">
+              <div class="bg-card/60 backdrop-blur-2xl border border-white/20 shadow-xl rounded-[2rem] p-6 sm:p-8">
+                <h2 class="text-2xl font-bold mb-2 text-text flex items-center gap-2">
+                  Welcome back, {{ profileData.first_name || 'Guest' }}! 👋
+                </h2>
+                <p class="text-text opacity-70 text-sm mb-6">Here is an overview of your recent activity.</p>
+                
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                  <div class="bg-background rounded-2xl p-5 border border-border flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <Icon name="mdi:cart-outline" class="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">Cart Items</p>
+                      <p class="text-2xl font-black text-text">{{ dashboardCartCount }}</p>
+                    </div>
+                  </div>
+                  <div class="bg-background rounded-2xl p-5 border border-border flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                      <Icon name="mdi:package-variant" class="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">Recent Orders</p>
+                      <p class="text-2xl font-black text-text">{{ dashboardOrders.length }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div>
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-text">Recent Orders</h3>
+                    <nuxt-link to="/user/order" class="text-sm font-bold text-primary hover:underline">View All</nuxt-link>
+                  </div>
+                  <div v-if="loadingDashboard" class="flex justify-center py-8">
+                    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                  </div>
+                  <div v-else-if="!dashboardOrders.length" class="text-center py-8 bg-background border border-border rounded-2xl">
+                    <p class="text-text opacity-50 text-sm">No recent orders found.</p>
+                  </div>
+                  <div v-else class="space-y-4">
+                    <div v-for="order in dashboardOrders" :key="order.id" class="bg-background border border-border rounded-2xl p-5 hover:border-primary/50 transition-colors">
+                      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                          <p class="text-sm font-medium text-text">#{{ order.order_id || order.order_number || order.id }}</p>
+                          <p class="text-xs text-text opacity-60 mt-1">{{ formatDate(order.created_at) }}</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                          <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest" :class="statusBadgeClass(order.status)">
+                            {{ order.status }}
+                          </span>
+                          <p class="font-bold text-text whitespace-nowrap">₹{{ (order.total_price || order.total_amount || 0).toLocaleString('en-IN') }}</p>
+                        </div>
+                      </div>
+                      <div class="mt-4 pt-4 border-t border-border flex justify-end" v-if="['PENDING', 'SHIPPED'].includes(order.status?.toUpperCase())">
+                         <nuxt-link to="/user/order" class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                           <Icon name="mdi:truck-delivery-outline" /> Track Package
+                         </nuxt-link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
             <!-- Profile Form Pane -->
             <div v-if="activeTab === 'profile'"
               class="bg-card/60 backdrop-blur-2xl border border-white/20 shadow-xl rounded-[2rem] p-6 sm:p-8">
@@ -450,9 +533,12 @@
 
 <script setup>
 import { toast } from 'vue3-toastify'
+import dayjs from 'dayjs'
 import { useValidation } from '~/composables/useValidation'
 import { useAuthStore } from '~/stores/auth'
 import { useProfile } from '~/composables/useProfile'
+import { useOrders } from '~/composables/useOrders'
+import { useCart } from '~/composables/useCart'
 
 definePageMeta({
   title: 'User Dashboard',
@@ -465,7 +551,7 @@ definePageMeta({
 const authStore = useAuthStore()
 const { validEmail } = useValidation()
 
-const activeTab = ref('profile')
+const activeTab = ref('overview')
 const saving = ref(false)
 const savingAddress = ref(false)
 const savingPwd = ref(false)
@@ -477,6 +563,24 @@ const addresses = ref([])
 const showCurrentPwd = ref(false)
 const showNewPwd = ref(false)
 const showConfirmPwd = ref(false)
+
+const loadingDashboard = ref(false)
+const dashboardOrders = ref([])
+const dashboardCartCount = ref(0)
+const dashboardWishlistCount = ref(0)
+
+const statusBadgeClass = (s) => {
+  const map = {
+    pending: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 border border-amber-200/50',
+    processing: 'bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400 border border-sky-200/50',
+    shipped: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border border-indigo-200/50',
+    delivered: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-200/50',
+    cancelled: 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400 border border-rose-200/50'
+  }
+  return map[s?.toLowerCase()] || 'bg-secondary text-text opacity-80 border border-border'
+}
+
+const formatDate = (d) => d ? dayjs(d).format('MMM DD, YYYY') : 'N/A'
 
 const profileData = ref({
   first_name: authStore.user?.first_name || '',
@@ -672,9 +776,30 @@ const changePassword = async () => {
   }
 }
 
+const loadDashboardData = async () => {
+  loadingDashboard.value = true
+  try {
+    const { getOrders } = useOrders()
+    const { getCart } = useCart()
+    // Fetch recent orders
+    const ordersRes = await getOrders({ page: 1, per_page: 3 })
+    dashboardOrders.value = Array.isArray(ordersRes?.data) ? ordersRes.data : (ordersRes?.data?.items || [])
+    
+    // Fetch cart count
+    const cartRes = await getCart()
+    const rawItems = cartRes?.data?.items || []
+    dashboardCartCount.value = rawItems.length
+  } catch (e) {
+    console.error(e)
+  } finally {
+    loadingDashboard.value = false
+  }
+}
+
 onMounted(() => {
   loadProfile()
   loadAddresses()
+  loadDashboardData()
 })
 </script>
 

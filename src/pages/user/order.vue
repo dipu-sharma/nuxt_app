@@ -41,7 +41,7 @@
       <!-- Empty State -->
       <div v-else-if="!orders.length" class="text-center py-32 px-4 bg-card rounded-[3rem] border border-border shadow-sm">
         <div class="w-24 h-24 mx-auto mb-8 bg-secondary rounded-full flex items-center justify-center">
-          <Icon name="mdi:leaf-outline" class="w-10 h-10 text-primary opacity-70" />
+          <Icon name="mdi:leaf" class="w-10 h-10 text-primary opacity-70" />
         </div>
         <h2 class="text-2xl font-light text-text mb-4 tracking-tight">Your history is empty</h2>
         <p class="text-text opacity-60 max-w-sm mx-auto mb-10 font-medium leading-relaxed">You haven't made any purchases yet. Discover our curated collection.</p>
@@ -144,16 +144,20 @@
           </div>
 
           <!-- Tracking Timeline -->
-          <div v-if="tracking" class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
-            <div class="flex gap-4">
-              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Icon name="mdi:check" class="text-primary" />
-              </div>
-              <div>
-                <p class="font-medium text-lg text-text mb-1">{{ tracking.status }}</p>
-                <p class="text-text opacity-70 font-medium tracking-wide">{{ tracking.location }}</p>
-                <p class="text-xs text-text opacity-50 mt-3 tracking-widest uppercase">{{ formatDate(tracking.updated_at) }}</p>
-              </div>
+          <div v-if="tracking && tracking.tracking" class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
+            <h3 class="text-lg font-bold mb-4">Tracking Information</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div><span class="font-medium text-text opacity-70">Order Status:</span> <span class="font-bold ml-1">{{ tracking.order_status }}</span></div>
+              <div v-if="tracking.tracking.carrier"><span class="font-medium text-text opacity-70">Carrier:</span> <span class="font-bold ml-1">{{ tracking.tracking.carrier }}</span></div>
+              <div v-if="tracking.tracking.tracking_number"><span class="font-medium text-text opacity-70">Tracking #:</span> <span class="font-bold ml-1">{{ tracking.tracking.tracking_number }}</span></div>
+              <div v-if="tracking.tracking.tracking_url"><span class="font-medium text-text opacity-70">Tracking Link:</span> <a :href="tracking.tracking.tracking_url" target="_blank" class="text-primary hover:underline ml-1">View Details</a></div>
+              <div v-if="tracking.tracking.shipped_at"><span class="font-medium text-text opacity-70">Shipped At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.shipped_at) }}</span></div>
+              <div v-if="tracking.tracking.estimated_delivery"><span class="font-medium text-text opacity-70">Est. Delivery:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.estimated_delivery) }}</span></div>
+              <div v-if="tracking.tracking.delivered_at"><span class="font-medium text-text opacity-70">Delivered At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.delivered_at) }}</span></div>
+            </div>
+            <div v-if="tracking.tracking.notes" class="mt-4 pt-4 border-t border-border">
+              <span class="font-medium text-text opacity-70 block mb-1">Notes:</span>
+              <p class="text-sm opacity-90">{{ tracking.tracking.notes }}</p>
             </div>
           </div>
 
@@ -163,7 +167,7 @@
               Close
             </v-btn>
             <v-btn v-if="['pending','processing'].includes(selectedOrder.status?.toLowerCase())"
-              color="error" variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium" :loading="cancelling" @click="cancelOrder(selectedOrder.id)">
+              color="error" variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium" :loading="cancelling" @click="cancelOrder(selectedOrder.order_id)">
               Cancel Order
             </v-btn>
             <v-btn color="primary" variant="flat" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium text-white" :loading="loadingTracking" @click="loadTracking(selectedOrder.id)">
@@ -271,10 +275,15 @@ const loadTracking = async (order_id) => {
   loadingTracking.value = true
   try {
     const { trackOrder } = useOrders()
-    const res = await trackOrder(order_id)
-    tracking.value = res?.data
-  } catch { toast.error('Tracking info not available') }
-  finally { loadingTracking.value = false }
+    // Use order_id string if available, fallback to numeric id
+    const orderId = selectedOrder.value?.order_id || order_id
+    const res = await trackOrder(orderId)
+    tracking.value = res?.data || {}
+  } catch {
+    toast.error('Tracking info not available')
+  } finally {
+    loadingTracking.value = false
+  }
 }
 
 const cancelOrder = async (order_id) => {

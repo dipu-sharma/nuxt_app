@@ -1,277 +1,310 @@
 <template>
-	<div class="p-6">
-		<!-- With actions -->
-		<div class="flex justify-between items-center mb-4">
-			<h4 class="text-lg" style="background-color: rgb(var(--color-background)); color: rgb(var(--color-text))">Table with actions</h4>
-			<button @click="filterStore.toggleFilterSidebar()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition duration-200">
-				Filter
-			</button>
-		</div>
+  <div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-3xl font-extrabold text-text tracking-tight">Order Management</h1>
+        <p class="text-sm text-text/60 mt-1">View and manage all system orders</p>
+      </div>
+    </div>
 
-		<div class="w-full overflow-hidden rounded-lg shadow-xs mt-5">
-			<div class="w-full overflow-x-auto">
-				<table class="w-full whitespace-no-wrap">
-					<thead>
-						<tr
-							class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
-						>
-							<th class="px-4 py-3">Client</th>
-							<th class="px-4 py-3">Amount</th>
-							<th class="px-4 py-3">Status</th>
-							<th class="px-4 py-3">Date</th>
-							<th class="px-4 py-3">Actions</th>
-						</tr>
-					</thead>
-					<tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
-						<tr v-for="(user, index) in users" :key="index" class="text-gray-700 dark:text-gray-400">
-							<td class="px-4 py-3">
-								<div class="flex items-center text-sm">
-									<!-- Avatar with inset shadow -->
-									<div class="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-										<img
-											class="object-cover w-full h-full rounded-full"
-											:src="user.avatarUrl"
-											alt=""
-											loading="lazy"
-										/>
-										<div
-											class="absolute inset-0 rounded-full shadow-inner"
-											aria-hidden="true"
-										></div>
-									</div>
-									<div>
-										<p class="font-semibold">{{ user.name }}</p>
-										<p class="text-xs text-gray-600 dark:text-gray-400">{{ user.role }}</p>
-									</div>
-								</div>
-							</td>
-							<td class="px-4 py-3 text-sm">{{ user.price }}</td>
-							<td class="px-4 py-3 text-xs">
-								<span v-bind:class="getStatusClass(user.status)">
-									{{ user.status }}
-								</span>
-							</td>
-							<td class="px-4 py-3 text-sm">{{ user.date }}</td>
-							<td class="px-4 py-3">
-								<div class="flex items-center space-x-4 text-sm">
-									<button
-										@click="handleEdit(user)"
-										class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
-										aria-label="Edit"
-									>
-										<svg
-											class="w-5 h-5"
-											aria-hidden="true"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path
-												d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
-											></path>
-										</svg>
-									</button>
-									<button
-										@click="handleDelete(user)"
-										class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
-										aria-label="Delete"
-									>
-										<svg
-											class="w-5 h-5"
-											aria-hidden="true"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-												clip-rule="evenodd"
-											></path>
-										</svg>
-									</button>
-								</div>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-			<div
-				class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800"
-			>
-				<span class="flex items-center col-span-3"> Showing 21-30 of 100 </span>
-				<span class="col-span-2"></span>
-				<!-- Pagination -->
-				<span class="flex col-span-4 mt-2 sm:mt-auto sm:justify-end">
-					<nav aria-label="Table navigation">
-						<ul class="inline-flex items-center">
-							<li>
-								<button
-									class="px-3 py-1 rounded-md rounded-l-lg focus:outline-none focus:shadow-outline-purple"
-									aria-label="Previous"
-								>
-									<svg class="w-4 h-4 fill-current" aria-hidden="true" viewBox="0 0 20 20">
-										<path
-											d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-											clip-rule="evenodd"
-											fill-rule="evenodd"
-										></path>
-									</svg>
-								</button>
-							</li>
-							<li>
-								<button
-									class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple"
-								>
-									1
-								</button>
-							</li>
-							<li>
-								<button
-									class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple"
-								>
-									2
-								</button>
-							</li>
-							<li>
-								<button
-									class="px-3 py-1 text-white transition-colors duration-150 bg-purple-600 border border-r-0 border-purple-600 rounded-md focus:outline-none focus:shadow-outline-purple"
-								>
-									3
-								</button>
-							</li>
-							<li>
-								<button
-									class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple"
-								>
-									4
-								</button>
-							</li>
-							<li>
-								<span class="px-3 py-1">...</span>
-							</li>
-							<li>
-								<button
-									class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple"
-								>
-									8
-								</button>
-							</li>
-							<li>
-								<button
-									class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple"
-								>
-									9
-								</button>
-							</li>
-							<li>
-								<button
-									class="px-3 py-1 rounded-md rounded-r-lg focus:outline-none focus:shadow-outline-purple"
-									aria-label="Next"
-								>
-									<svg class="w-4 h-4 fill-current" aria-hidden="true" viewBox="0 0 20 20">
-										<path
-											d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-											clip-rule="evenodd"
-											fill-rule="evenodd"
-										></path>
-									</svg>
-								</button>
-							</li>
-						</ul>
-					</nav>
-				</span>
-			</div>
-		</div>
-	</div>
+    <!-- Filters -->
+    <v-card class="mb-6 rounded-2xl shadow-sm border border-border/50 bg-card" elevation="0">
+      <v-card-text>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <v-text-field
+            v-model="filters.search"
+            label="Search Orders"
+            prepend-inner-icon="mdi:magnify"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="debouncedLoad"
+          />
+          <v-select
+            v-model="filters.status"
+            :items="statusOptions"
+            label="Filter by Status"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="loadOrders"
+          />
+          <v-text-field
+            v-model="filters.from_date"
+            type="date"
+            label="From Date"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            @update:model-value="loadOrders"
+          />
+          <v-text-field
+            v-model="filters.to_date"
+            type="date"
+            label="To Date"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            @update:model-value="loadOrders"
+          />
+        </div>
+      </v-card-text>
+    </v-card>
+
+    <!-- Data Table -->
+    <v-card class="rounded-2xl shadow-sm border border-border/50 bg-card overflow-hidden" elevation="0">
+      <v-data-table-server
+        v-model:options="tableOptions"
+        :headers="headers"
+        :items="orders"
+        :items-length="totalOrders"
+        :loading="loading"
+        class="bg-transparent"
+        @update:options="loadOrders"
+        hover
+      >
+        <template #item.order_id="{ item }">
+          <div class="font-mono text-sm font-semibold text-primary cursor-pointer hover:underline" @click="openDetails(item)">
+            {{ item.order_id }}
+          </div>
+        </template>
+        <template #item.user_id="{ item }">
+          <div class="flex flex-col" v-if="item.user">
+            <span class="font-medium text-text">{{ item.user.first_name }} {{ item.user.last_name }}</span>
+            <span class="text-xs text-text/60">{{ item.user.username }}</span>
+          </div>
+          <span v-else class="font-medium text-text/80">ID: {{ item.user_id }}</span>
+        </template>
+        <template #item.created_at="{ item }">
+          <span class="text-sm text-text/70">{{ formatDate(item.created_at) }}</span>
+        </template>
+        <template #item.total_price="{ item }">
+          <span class="font-bold text-text">₹{{ item.total_price?.toLocaleString('en-IN') }}</span>
+        </template>
+        <template #item.status="{ item }">
+          <v-chip
+            :color="getStatusColor(item.status)"
+            size="small"
+            class="font-bold uppercase tracking-wider text-[10px]"
+          >
+            {{ item.status }}
+          </v-chip>
+        </template>
+        <template #item.actions="{ item }">
+          <v-btn icon="mdi:eye-outline" variant="text" size="small" color="primary" @click="openDetails(item)" />
+        </template>
+      </v-data-table-server>
+    </v-card>
+
+    <!-- Order Details Dialog -->
+    <v-dialog v-model="detailsDialog" max-width="800" scrollable>
+      <v-card class="rounded-3xl bg-card border border-white/20 shadow-2xl">
+        <v-card-title class="flex justify-between items-center p-6 border-b border-border/50">
+          <div>
+            <h2 class="text-2xl font-black text-text">Order Details</h2>
+            <p class="text-sm font-mono text-text/60 mt-1">{{ selectedOrder?.order_id }}</p>
+          </div>
+          <v-btn icon="mdi:close" variant="tonal" size="small" @click="detailsDialog = false" />
+        </v-card-title>
+        
+        <v-card-text class="p-6" v-if="loadingDetails">
+          <div class="flex justify-center items-center h-48">
+            <v-progress-circular indeterminate color="primary" size="48" />
+          </div>
+        </v-card-text>
+
+        <v-card-text class="p-6" v-else-if="selectedOrder">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="p-5 rounded-2xl bg-secondary/30 border border-border">
+              <h3 class="text-xs font-bold uppercase tracking-widest text-text/50 mb-4">Summary</h3>
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between"><span class="text-text/70">Placed On</span><span class="font-medium text-text">{{ formatDate(selectedOrder.created_at) }}</span></div>
+                <div class="flex justify-between"><span class="text-text/70">Payment Method</span><span class="font-bold text-text uppercase">{{ selectedOrder.payment_method }}</span></div>
+                <div class="flex justify-between" v-if="selectedOrder.user">
+                  <span class="text-text/70">Customer</span>
+                  <div class="text-right">
+                    <div class="font-medium text-text">{{ selectedOrder.user.first_name }} {{ selectedOrder.user.last_name }}</div>
+                    <div class="text-xs text-text/60">{{ selectedOrder.user.username }}</div>
+                  </div>
+                </div>
+                <div class="flex justify-between" v-else><span class="text-text/70">User ID</span><span class="font-medium text-text">{{ selectedOrder.user_id }}</span></div>
+                <div class="flex justify-between text-base mt-2 pt-2 border-t border-border/50"><span class="font-bold text-text">Total</span><span class="font-black text-primary">₹{{ selectedOrder.total_price?.toLocaleString('en-IN') }}</span></div>
+              </div>
+            </div>
+            
+            <div class="p-5 rounded-2xl bg-secondary/30 border border-border">
+              <h3 class="text-xs font-bold uppercase tracking-widest text-text/50 mb-4">Manage Status</h3>
+              <v-select
+                v-model="updateStatusValue"
+                :items="['DRAFT', 'PENDING', 'ACCEPTED', 'PICKED', 'ONWAY', 'SHIPPED', 'DELIVERED', 'CANCELED', 'RECEIVED']"
+                label="Current Status"
+                variant="outlined"
+                density="comfortable"
+                hide-details
+                class="mb-4"
+              />
+              <v-btn 
+                block 
+                color="primary" 
+                size="large" 
+                class="rounded-xl font-bold tracking-wide" 
+                :loading="updatingStatus"
+                @click="updateStatus"
+              >
+                Update Order Status
+              </v-btn>
+            </div>
+          </div>
+
+          <h3 class="text-lg font-bold text-text mb-4">Order Items</h3>
+          <div class="space-y-4">
+            <div v-for="item in selectedOrder.order_items" :key="item.id" class="flex gap-4 p-4 rounded-xl border border-border/50 bg-background/50 items-center">
+              <div class="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center text-primary">
+                <Icon name="mdi:package-variant-closed" class="w-6 h-6" />
+              </div>
+              <div class="flex-1">
+                <h4 class="font-bold text-text">{{ item.product_name_snapshot }}</h4>
+                <p class="text-xs text-text/60 font-mono">SKU: {{ item.product_sku_snapshot }}</p>
+              </div>
+              <div class="text-right">
+                <div class="font-bold text-text">₹{{ item.price_per_unit?.toLocaleString('en-IN') }}</div>
+                <div class="text-xs text-text/60">Qty: {{ item.quantity }}</div>
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script setup>
-import { useFilterStore } from '~/stores/filterStore';
-import { watch } from 'vue';
+import { ref, watch, onMounted } from 'vue'
+import { useOrders } from '~/composables/useOrders'
+import { toast } from 'vue3-toastify'
+import dayjs from 'dayjs'
 
-const filterStore = useFilterStore();
+definePageMeta({ title: 'Manage Orders', layout: 'admin', middleware: ['auth-role'] })
 
-definePageMeta({
-	title: 'Order',
-	description: 'Learn more about our company',
-	layout: 'admin',
-	middleware: ['auth-role'],
+const { getAdminOrders, getAdminOrderDetail, updateOrderStatus } = useOrders()
+
+const loading = ref(true)
+const orders = ref([])
+const totalOrders = ref(0)
+const tableOptions = ref({ page: 1, itemsPerPage: 10, sortBy: [] })
+
+const filters = ref({
+  search: '',
+  status: null,
+  from_date: null,
+  to_date: null
 })
 
-const range = ref({
-	start: new Date(2020, 0, 6),
-	end: new Date(2020, 0, 10),
-})
+const statusOptions = ['PENDING', 'ACCEPTED', 'PICKED', 'ONWAY', 'SHIPPED', 'DELIVERED', 'CANCELED', 'RECEIVED']
 
-const attributes_data = ref([
-	{
-		key: 'today',
-		highlight: true,
-		dates: new Date(),
-	},
-])
-const users = [
-	{
-		name: 'Hans Burger',
-		role: '10x Developer',
-		avatarUrl:
-			'https://images.unsplash.com/flagged/photo-1570612861542-284f4c12e75f?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&ixid=eyJhcHBfaWQiOjE3Nzg0fQ',
-		price: '$863.45',
-		status: 'Approved',
-		date: '6/10/2020',
-	},
-	{
-		name: 'Jolina Angelie',
-		role: 'Unemployed',
-		avatarUrl:
-			'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&facepad=3&fit=facearea&s=707b9c33066bf8808c934c8ab394dff6',
-		price: '$369.95',
-		status: 'Pending',
-		date: '6/10/2020',
-	},
-	{
-		name: 'Sarah Curry',
-		role: 'Designer',
-		avatarUrl:
-			'https://images.unsplash.com/photo-1551069613-1904dbdcda11?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&ixid=eyJhcHBfaWQiOjE3Nzg0fQ',
-		price: '$86.00',
-		status: 'Denied',
-		date: '6/10/2020',
-	},
-	{
-		name: 'Rulia Job',
-		role: 'Developer',
-		avatarUrl:
-			'https://images.unsplash.com/photo-1551006917-3b4c078c47c9?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&ixid=eyJhcHBfaWQiOjE3Nzg0fQ',
-		price: '$150.00',
-		status: 'Approved',
-		date: '6/10/2020',
-	},
+const headers = [
+  { title: 'Order ID', key: 'order_id', align: 'start' },
+  { title: 'Customer', key: 'user_id' },
+  { title: 'Date', key: 'created_at' },
+  { title: 'Total Amount', key: 'total_price' },
+  { title: 'Status', key: 'status', align: 'center' },
+  { title: 'Actions', key: 'actions', align: 'end', sortable: false }
 ]
 
-const fetchData = () => {
-	const params = {};
-	if (filterStore.startDate) {
-		params.startDate = filterStore.startDate.toISOString();
-	}
-	if (filterStore.endDate) {
-		params.endDate = filterStore.endDate.toISOString();
-	}
-	console.log('fetchData called with params:', params);
+let searchTimeout = null
+const debouncedLoad = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    tableOptions.value.page = 1
+    loadOrders()
+  }, 500)
 }
 
-watch(() => [filterStore.startDate, filterStore.endDate], () => {
-    fetchData();
-});
-
-const updateRange = () => {}
-
-const getStatusClass = () => {}
-const handleEdit = (data) => {
-	console.log('Order Page Table Edit________________________________', data)
+const loadOrders = async () => {
+  loading.value = true
+  try {
+    const params = {
+      page: tableOptions.value.page,
+      per_page: tableOptions.value.itemsPerPage,
+      ...(filters.value.search && { search: filters.value.search }),
+      ...(filters.value.status && { status: filters.value.status }),
+      ...(filters.value.from_date && { from_date: dayjs(filters.value.from_date).startOf('day').toISOString() }),
+      ...(filters.value.to_date && { to_date: dayjs(filters.value.to_date).endOf('day').toISOString() })
+    }
+    
+    // Convert Vuetify sorting to API format
+    if (tableOptions.value.sortBy.length) {
+      const sort = tableOptions.value.sortBy[0]
+      params.sort_by = sort.order === 'desc' ? `-${sort.key}` : sort.key
+    }
+    
+    const res = await getAdminOrders(params)
+    orders.value = res?.data || []
+    totalOrders.value = res?.total || res?.data?.length || 0 // Provide fallback
+  } catch (err) {
+    console.error(err)
+    toast.error('Failed to load orders')
+  } finally {
+    loading.value = false
+  }
 }
-const handleDelete = (data) => {
-	console.log('Order Page Table Delete________________________________', data)
+
+// Order Details Modal
+const detailsDialog = ref(false)
+const loadingDetails = ref(false)
+const selectedOrder = ref(null)
+const updateStatusValue = ref(null)
+const updatingStatus = ref(false)
+
+const openDetails = async (order) => {
+  detailsDialog.value = true
+  loadingDetails.value = true
+  selectedOrder.value = null
+  updateStatusValue.value = order.status
+  try {
+    const res = await getAdminOrderDetail(order.order_id)
+    selectedOrder.value = res?.data
+  } catch (err) {
+    console.error(err)
+    toast.error('Failed to load order details')
+    detailsDialog.value = false
+  } finally {
+    loadingDetails.value = false
+  }
 }
+
+const updateStatus = async () => {
+  if (!selectedOrder.value || !updateStatusValue.value) return
+  updatingStatus.value = true
+  try {
+    const res = await updateOrderStatus(selectedOrder.value.order_id, updateStatusValue.value)
+    selectedOrder.value = res?.data || selectedOrder.value
+    selectedOrder.value.status = updateStatusValue.value
+    toast.success('Status updated successfully')
+    loadOrders() // Refresh background table
+  } catch (err) {
+    console.error(err)
+    toast.error('Failed to update status')
+  } finally {
+    updatingStatus.value = false
+  }
+}
+
+const formatDate = (dateStr) => dateStr ? dayjs(dateStr).format('MMM D, YYYY - h:mm A') : 'N/A'
+
+const getStatusColor = (status) => {
+  if (!status) return 'grey'
+  switch (status.toUpperCase()) {
+    case 'DELIVERED': case 'RECEIVED': return 'success'
+    case 'CANCELED': return 'error'
+    case 'PENDING': case 'DRAFT': return 'warning'
+    case 'ACCEPTED': case 'PICKED': return 'info'
+    case 'SHIPPED': case 'ONWAY': return 'primary'
+    default: return 'grey'
+  }
+}
+
+onMounted(() => loadOrders())
 </script>
-
-<style scoped></style>
