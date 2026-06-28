@@ -1,7 +1,7 @@
 <template>
 	<header>
 		<nav
-			class="fixed top-0 left-0 right-0 flex flex-wrap items-center justify-between w-full py-3 md:py-0 px-4 text-lg shadow-md z-50 bg-background/70 backdrop-blur-xl border-b border-border/50 transition-colors duration-300">
+			class="fixed top-0 left-0 right-0 flex flex-wrap items-center justify-between w-full py-3 md:py-0 px-4 text-lg shadow-[0_4px_30px_rgba(0,0,0,0.1)] z-50 bg-background/40 backdrop-blur-2xl border-b border-border/30 transition-colors duration-500">
 			<div class="md:p-4">
 				<NuxtLink to="/"
 					class="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-purple-500 hover:to-indigo-500 transition-all duration-300 tracking-tight">
@@ -37,10 +37,12 @@
 							to="/products?category=grocery">Grocery</NuxtLink>
 					</li>
 					<!-- Theme Toggle -->
-					<li class="p-4 cursor-pointer hover:scale-110 transition-transform"
-						@click="themeStore.toggleTheme()">
-						<Icon :name="themeStore.currentTheme === 'light' ? 'ri:moon-line' : 'ri:sun-line'"
-							class="text-primary w-5 h-5" />
+					<li class="p-4 cursor-pointer hover:scale-110 transition-transform relative group"
+						@click="themeStore.toggleTheme()" :title="'Current theme: ' + themeStore.currentTheme">
+						<Icon :name="themeIcon" class="text-primary w-5 h-5" />
+						<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-text text-background px-2 py-1 rounded shadow pointer-events-none capitalize">
+							{{ themeStore.currentTheme }}
+						</span>
 					</li>
 					<!-- Cart Icon -->
 					<ClientOnly>
@@ -79,7 +81,7 @@
 								<Icon name="mdi:account-outline" class="w-4 h-4" /> Account Settings
 							</NuxtLink>
 
-							<NuxtLink to="/user/order"
+							<NuxtLink to="/user?tab=orders"
 								class="block px-4 py-2.5 text-sm text-text/80 hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-3">
 								<Icon name="mdi:package-variant" class="w-4 h-4" /> My Orders
 							</NuxtLink>
@@ -97,7 +99,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useThemeStore } from '~/stores/themeStore'
 import { useCartStore } from '~/stores/cartStore'
@@ -105,6 +107,19 @@ import { useCartStore } from '~/stores/cartStore'
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+
+const themeIcon = computed(() => {
+	switch(themeStore.currentTheme) {
+		case 'light': return 'ri:sun-line'
+		case 'dark': return 'ri:moon-line'
+		case 'sepia': return 'ri:cup-line'
+		case 'blue': return 'ri:drop-line'
+		case 'green': return 'ri:leaf-line'
+		case 'coolBlue': return 'ri:snowy-line'
+		case 'glassmorphism': return 'ri:magic-line'
+		default: return 'ri:sun-line'
+	}
+})
 
 const isMenuOpen = ref(false)
 const isDropdownOpen = ref(false)

@@ -146,7 +146,7 @@
 						<v-list-item to="/user/wishlist" prepend-icon="mdi-heart-outline">
 							<v-list-item-title>Wishlist</v-list-item-title>
 						</v-list-item>
-						<v-list-item to="/user/order" prepend-icon="mdi-package-variant-outline">
+						<v-list-item to="/user?tab=orders" prepend-icon="mdi-package-variant-outline">
 							<v-list-item-title>My Orders</v-list-item-title>
 						</v-list-item>
 						<v-divider />

@@ -86,17 +86,22 @@
                   Password & Security
                 </button>
                 
-                <nuxt-link to="/user/order"
-                  class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all text-text opacity-70 hover:opacity-100 hover:bg-secondary/60">
+                <button @click="activeTab = 'orders'"
+                  class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
+                  :class="activeTab === 'orders'
+                    ? 'bg-primary text-white shadow-lg shadow-primary/25'
+                    : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
                   <Icon name="mdi:package-variant-closed" class="w-5 h-5" />
                   My Orders
-                </nuxt-link>
+                </button>
               </nav>
             </div>
           </aside>
 
           <!-- Main Workspace Tab Forms -->
           <main class="lg:col-span-8 xl:col-span-9">
+            <UserOrderHistory v-if="activeTab === 'orders'" />
+
             <!-- Overview Pane -->
             <div v-if="activeTab === 'overview'" class="space-y-6">
               <div class="bg-card/60 backdrop-blur-2xl border border-white/20 shadow-xl rounded-[2rem] p-6 sm:p-8">
@@ -427,6 +432,267 @@
       </ClientOnly>
     </div>
 
+    <!-- Order Detail Dialog -->
+<v-dialog v-model="detailDialog" max-width="720" transition="dialog-bottom-transition">
+      <v-card v-if="selectedOrder" class="rounded-[2.5rem] overflow-hidden border-0 shadow-2xl bg-background">
+        
+        <div class="px-8 py-8 md:px-12 md:py-10">
+          <div class="flex justify-between items-start mb-10">
+            <div>
+              <p class="text-text opacity-50 font-medium mb-2 tracking-widest uppercase text-[10px]">Order Details</p>
+              <h2 class="text-3xl font-light tracking-tight text-text mb-2">#{{ selectedOrder.order_number || selectedOrder.id }}</h2>
+              <p class="text-text opacity-70 font-medium tracking-wide text-sm">{{ formatDate(selectedOrder.created_at) }}</p>
+            </div>
+            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest" :class="statusBadgeClass(selectedOrder.status)">
+              {{ selectedOrder.status }}
+            </span>
+          </div>
+
+          <!-- Order Items -->
+          <div class="space-y-4 mb-10">
+            <div v-for="item in selectedOrder.items" :key="item.id" class="flex gap-6 items-center p-4 rounded-2xl hover:bg-card transition-colors">
+              <div class="w-20 h-20 rounded-xl bg-secondary overflow-hidden flex-shrink-0 relative">
+                <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                <Icon v-else name="mdi:image-outline" class="w-8 h-8 absolute inset-0 m-auto text-text opacity-30" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-text truncate text-lg">{{ item.name }}</p>
+                <p class="text-text opacity-70 text-sm font-medium tracking-wide mt-1">Qty: {{ item.quantity }} <span class="mx-2 opacity-30">×</span> ₹{{ item.price?.toLocaleString('en-IN') }}</p>
+              </div>
+              <p class="font-light text-xl text-text whitespace-nowrap pl-4">₹{{ (item.price * item.quantity).toLocaleString('en-IN') }}</p>
+            </div>
+          </div>
+
+          <v-divider class="my-8 opacity-50 dark:opacity-20 border-border" />
+
+          <!-- Totals -->
+          <div class="mb-10 pl-4 pr-4 md:pl-28">
+            <div class="space-y-4 text-sm font-medium tracking-wide text-text opacity-80">
+              <div class="flex justify-between items-center">
+                <span>Subtotal</span>
+                <span class="text-text">₹{{ selectedOrder.subtotal?.toLocaleString('en-IN') }}</span>
+              </div>
+              <div v-if="selectedOrder.discount" class="flex justify-between items-center text-primary">
+                <span>Discount</span>
+                <span>-₹{{ selectedOrder.discount?.toLocaleString('en-IN') }}</span>
+              </div>
+              <div class="flex justify-between items-end pt-4 border-t border-border mt-4">
+                <span class="font-bold uppercase tracking-widest text-[10px] text-text opacity-50">Total</span>
+                <span class="text-3xl font-light text-text tracking-tight">₹{{ selectedOrder.total_amount?.toLocaleString('en-IN') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tracking Timeline -->
+          <div v-if="tracking && tracking.tracking" class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
+            <h3 class="text-lg font-bold mb-4">Tracking Information</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div><span class="font-medium text-text opacity-70">Order Status:</span> <span class="font-bold ml-1">{{ tracking.order_status }}</span></div>
+              <div v-if="tracking.tracking.carrier"><span class="font-medium text-text opacity-70">Carrier:</span> <span class="font-bold ml-1">{{ tracking.tracking.carrier }}</span></div>
+              <div v-if="tracking.tracking.tracking_number"><span class="font-medium text-text opacity-70">Tracking #:</span> <span class="font-bold ml-1">{{ tracking.tracking.tracking_number }}</span></div>
+              <div v-if="tracking.tracking.tracking_url"><span class="font-medium text-text opacity-70">Tracking Link:</span> <a :href="tracking.tracking.tracking_url" target="_blank" class="text-primary hover:underline ml-1">View Details</a></div>
+              <div v-if="tracking.tracking.shipped_at"><span class="font-medium text-text opacity-70">Shipped At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.shipped_at) }}</span></div>
+              <div v-if="tracking.tracking.estimated_delivery"><span class="font-medium text-text opacity-70">Est. Delivery:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.estimated_delivery) }}</span></div>
+              <div v-if="tracking.tracking.delivered_at"><span class="font-medium text-text opacity-70">Delivered At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.delivered_at) }}</span></div>
+            </div>
+            <div v-if="tracking.tracking.notes" class="mt-4 pt-4 border-t border-border">
+              <span class="font-medium text-text opacity-70 block mb-1">Notes:</span>
+              <p class="text-sm opacity-90">{{ tracking.tracking.notes }}</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border">
+            <v-btn variant="text" size="x-large" class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full" @click="detailDialog = false">
+              Close
+            </v-btn>
+            <v-btn v-if="['pending','processing'].includes(selectedOrder.status?.toLowerCase())"
+              color="error" variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium" :loadingDashboard="cancelling" @click="cancelOrder(selectedOrder.order_id)">
+              Cancel Order
+            </v-btn>
+            <v-btn color="primary" variant="flat" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium text-white" :loadingDashboard="loadingDashboardTracking" @click="loadTracking(selectedOrder.id)">
+              Track Package
+            </v-btn>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
+  
+
+    <!-- Order Detail Dialog -->
+<v-dialog v-model="detailDialog" max-width="720" transition="dialog-bottom-transition">
+      <v-card v-if="selectedOrder" class="rounded-[2.5rem] overflow-hidden border-0 shadow-2xl bg-background">
+        
+        <div class="px-8 py-8 md:px-12 md:py-10">
+          <div class="flex justify-between items-start mb-10">
+            <div>
+              <p class="text-text opacity-50 font-medium mb-2 tracking-widest uppercase text-[10px]">Order Details</p>
+              <h2 class="text-3xl font-light tracking-tight text-text mb-2">#{{ selectedOrder.order_number || selectedOrder.id }}</h2>
+              <p class="text-text opacity-70 font-medium tracking-wide text-sm">{{ formatDate(selectedOrder.created_at) }}</p>
+            </div>
+            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest" :class="statusBadgeClass(selectedOrder.status)">
+              {{ selectedOrder.status }}
+            </span>
+          </div>
+
+          <!-- Order Items -->
+          <div class="space-y-4 mb-10">
+            <div v-for="item in selectedOrder.items" :key="item.id" class="flex gap-6 items-center p-4 rounded-2xl hover:bg-card transition-colors">
+              <div class="w-20 h-20 rounded-xl bg-secondary overflow-hidden flex-shrink-0 relative">
+                <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                <Icon v-else name="mdi:image-outline" class="w-8 h-8 absolute inset-0 m-auto text-text opacity-30" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-text truncate text-lg">{{ item.name }}</p>
+                <p class="text-text opacity-70 text-sm font-medium tracking-wide mt-1">Qty: {{ item.quantity }} <span class="mx-2 opacity-30">×</span> ₹{{ item.price?.toLocaleString('en-IN') }}</p>
+              </div>
+              <p class="font-light text-xl text-text whitespace-nowrap pl-4">₹{{ (item.price * item.quantity).toLocaleString('en-IN') }}</p>
+            </div>
+          </div>
+
+          <v-divider class="my-8 opacity-50 dark:opacity-20 border-border" />
+
+          <!-- Totals -->
+          <div class="mb-10 pl-4 pr-4 md:pl-28">
+            <div class="space-y-4 text-sm font-medium tracking-wide text-text opacity-80">
+              <div class="flex justify-between items-center">
+                <span>Subtotal</span>
+                <span class="text-text">₹{{ selectedOrder.subtotal?.toLocaleString('en-IN') }}</span>
+              </div>
+              <div v-if="selectedOrder.discount" class="flex justify-between items-center text-primary">
+                <span>Discount</span>
+                <span>-₹{{ selectedOrder.discount?.toLocaleString('en-IN') }}</span>
+              </div>
+              <div class="flex justify-between items-end pt-4 border-t border-border mt-4">
+                <span class="font-bold uppercase tracking-widest text-[10px] text-text opacity-50">Total</span>
+                <span class="text-3xl font-light text-text tracking-tight">₹{{ selectedOrder.total_amount?.toLocaleString('en-IN') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tracking Timeline -->
+          <div v-if="tracking && tracking.tracking" class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
+            <h3 class="text-lg font-bold mb-4">Tracking Information</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div><span class="font-medium text-text opacity-70">Order Status:</span> <span class="font-bold ml-1">{{ tracking.order_status }}</span></div>
+              <div v-if="tracking.tracking.carrier"><span class="font-medium text-text opacity-70">Carrier:</span> <span class="font-bold ml-1">{{ tracking.tracking.carrier }}</span></div>
+              <div v-if="tracking.tracking.tracking_number"><span class="font-medium text-text opacity-70">Tracking #:</span> <span class="font-bold ml-1">{{ tracking.tracking.tracking_number }}</span></div>
+              <div v-if="tracking.tracking.tracking_url"><span class="font-medium text-text opacity-70">Tracking Link:</span> <a :href="tracking.tracking.tracking_url" target="_blank" class="text-primary hover:underline ml-1">View Details</a></div>
+              <div v-if="tracking.tracking.shipped_at"><span class="font-medium text-text opacity-70">Shipped At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.shipped_at) }}</span></div>
+              <div v-if="tracking.tracking.estimated_delivery"><span class="font-medium text-text opacity-70">Est. Delivery:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.estimated_delivery) }}</span></div>
+              <div v-if="tracking.tracking.delivered_at"><span class="font-medium text-text opacity-70">Delivered At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.delivered_at) }}</span></div>
+            </div>
+            <div v-if="tracking.tracking.notes" class="mt-4 pt-4 border-t border-border">
+              <span class="font-medium text-text opacity-70 block mb-1">Notes:</span>
+              <p class="text-sm opacity-90">{{ tracking.tracking.notes }}</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border">
+            <v-btn variant="text" size="x-large" class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full" @click="detailDialog = false">
+              Close
+            </v-btn>
+            <v-btn v-if="['pending','processing'].includes(selectedOrder.status?.toLowerCase())"
+              color="error" variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium" :loadingDashboard="cancelling" @click="cancelOrder(selectedOrder.order_id)">
+              Cancel Order
+            </v-btn>
+            <v-btn color="primary" variant="flat" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium text-white" :loadingDashboard="loadingDashboardTracking" @click="loadTracking(selectedOrder.id)">
+              Track Package
+            </v-btn>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
+  
+
+    <!-- Order Detail Dialog -->
+<v-dialog v-model="detailDialog" max-width="720" transition="dialog-bottom-transition">
+      <v-card v-if="selectedOrder" class="rounded-[2.5rem] overflow-hidden border-0 shadow-2xl bg-background">
+        
+        <div class="px-8 py-8 md:px-12 md:py-10">
+          <div class="flex justify-between items-start mb-10">
+            <div>
+              <p class="text-text opacity-50 font-medium mb-2 tracking-widest uppercase text-[10px]">Order Details</p>
+              <h2 class="text-3xl font-light tracking-tight text-text mb-2">#{{ selectedOrder.order_number || selectedOrder.id }}</h2>
+              <p class="text-text opacity-70 font-medium tracking-wide text-sm">{{ formatDate(selectedOrder.created_at) }}</p>
+            </div>
+            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest" :class="statusBadgeClass(selectedOrder.status)">
+              {{ selectedOrder.status }}
+            </span>
+          </div>
+
+          <!-- Order Items -->
+          <div class="space-y-4 mb-10">
+            <div v-for="item in selectedOrder.items" :key="item.id" class="flex gap-6 items-center p-4 rounded-2xl hover:bg-card transition-colors">
+              <div class="w-20 h-20 rounded-xl bg-secondary overflow-hidden flex-shrink-0 relative">
+                <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                <Icon v-else name="mdi:image-outline" class="w-8 h-8 absolute inset-0 m-auto text-text opacity-30" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-text truncate text-lg">{{ item.name }}</p>
+                <p class="text-text opacity-70 text-sm font-medium tracking-wide mt-1">Qty: {{ item.quantity }} <span class="mx-2 opacity-30">×</span> ₹{{ item.price?.toLocaleString('en-IN') }}</p>
+              </div>
+              <p class="font-light text-xl text-text whitespace-nowrap pl-4">₹{{ (item.price * item.quantity).toLocaleString('en-IN') }}</p>
+            </div>
+          </div>
+
+          <v-divider class="my-8 opacity-50 dark:opacity-20 border-border" />
+
+          <!-- Totals -->
+          <div class="mb-10 pl-4 pr-4 md:pl-28">
+            <div class="space-y-4 text-sm font-medium tracking-wide text-text opacity-80">
+              <div class="flex justify-between items-center">
+                <span>Subtotal</span>
+                <span class="text-text">₹{{ selectedOrder.subtotal?.toLocaleString('en-IN') }}</span>
+              </div>
+              <div v-if="selectedOrder.discount" class="flex justify-between items-center text-primary">
+                <span>Discount</span>
+                <span>-₹{{ selectedOrder.discount?.toLocaleString('en-IN') }}</span>
+              </div>
+              <div class="flex justify-between items-end pt-4 border-t border-border mt-4">
+                <span class="font-bold uppercase tracking-widest text-[10px] text-text opacity-50">Total</span>
+                <span class="text-3xl font-light text-text tracking-tight">₹{{ selectedOrder.total_amount?.toLocaleString('en-IN') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tracking Timeline -->
+          <div v-if="tracking && tracking.tracking" class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
+            <h3 class="text-lg font-bold mb-4">Tracking Information</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div><span class="font-medium text-text opacity-70">Order Status:</span> <span class="font-bold ml-1">{{ tracking.order_status }}</span></div>
+              <div v-if="tracking.tracking.carrier"><span class="font-medium text-text opacity-70">Carrier:</span> <span class="font-bold ml-1">{{ tracking.tracking.carrier }}</span></div>
+              <div v-if="tracking.tracking.tracking_number"><span class="font-medium text-text opacity-70">Tracking #:</span> <span class="font-bold ml-1">{{ tracking.tracking.tracking_number }}</span></div>
+              <div v-if="tracking.tracking.tracking_url"><span class="font-medium text-text opacity-70">Tracking Link:</span> <a :href="tracking.tracking.tracking_url" target="_blank" class="text-primary hover:underline ml-1">View Details</a></div>
+              <div v-if="tracking.tracking.shipped_at"><span class="font-medium text-text opacity-70">Shipped At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.shipped_at) }}</span></div>
+              <div v-if="tracking.tracking.estimated_delivery"><span class="font-medium text-text opacity-70">Est. Delivery:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.estimated_delivery) }}</span></div>
+              <div v-if="tracking.tracking.delivered_at"><span class="font-medium text-text opacity-70">Delivered At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.delivered_at) }}</span></div>
+            </div>
+            <div v-if="tracking.tracking.notes" class="mt-4 pt-4 border-t border-border">
+              <span class="font-medium text-text opacity-70 block mb-1">Notes:</span>
+              <p class="text-sm opacity-90">{{ tracking.tracking.notes }}</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border">
+            <v-btn variant="text" size="x-large" class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full" @click="detailDialog = false">
+              Close
+            </v-btn>
+            <v-btn v-if="['pending','processing'].includes(selectedOrder.status?.toLowerCase())"
+              color="error" variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium" :loadingDashboard="cancelling" @click="cancelOrder(selectedOrder.order_id)">
+              Cancel Order
+            </v-btn>
+            <v-btn color="primary" variant="flat" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium text-white" :loadingDashboard="loadingDashboardTracking" @click="loadTracking(selectedOrder.id)">
+              Track Package
+            </v-btn>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
+  
+
     <!-- Address Dialog Modal overlay -->
     <div v-if="showAddressDialog"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md transition-opacity duration-300"
@@ -523,6 +789,113 @@
 </template>
 
 <script setup>
+
+import { useDebounceFn } from '@vueuse/core';
+
+const page = ref(1)
+const totalPages = ref(1)
+const search = ref('')
+const statusFilter = ref(null)
+const detailDialog = ref(false)
+const selectedOrder = ref(null)
+const tracking = ref(null)
+const cancelling = ref(false)
+const loadingTracking = ref(false)
+
+const statusOptions = ['pending', 'shipped', 'delivered', 'canceled']
+
+const debouncedFetch = useDebounceFn(() => { fetchOrders() }, 400)
+
+const fetchOrders = async () => {
+  loadingDashboard.value = true
+  try {
+    const { getOrders } = useOrders()
+    const res = await getOrders({ page: page.value, per_page: 10, search: search.value, status: statusFilter.value })
+    
+    const rawOrders = Array.isArray(res?.data) ? res.data : (res?.data?.items || [])
+    dashboardOrders.value = rawOrders.map(order => {
+      let computedSubtotal = 0
+      let computedDiscount = 0
+      
+      const mappedItems = (order.items || order.order_items || []).map(item => {
+        const finalPrice = item.price || item.price_per_unit || 0
+        const discountPct = item.product?.discount_percentage || 0
+        const originalPrice = discountPct > 0 ? (finalPrice / (1 - discountPct / 100)) : finalPrice
+        
+        computedSubtotal += originalPrice * item.quantity
+        computedDiscount += (originalPrice - finalPrice) * item.quantity
+        
+        return {
+          ...item,
+          price: finalPrice,
+          name: item.product_name_snapshot || item.product?.product_name || item.name || `Product #${item.product_id}`,
+          image_url: item.product?.images?.[0]?.url || item.product?.images?.[0]?.image_url || item.product?.images?.[0] || item.image_url || null
+        }
+      })
+
+      const totalAmount = order.total_price || order.total_amount || 0
+
+      return {
+        ...order,
+        order_number: order.order_number || order.order_id || `ord_${order.id}`,
+        items: mappedItems,
+        total_amount: totalAmount,
+        subtotal: computedSubtotal > totalAmount ? computedSubtotal : totalAmount,
+        discount: computedDiscount > 0 ? computedDiscount : (order.discount || 0)
+      }
+    })
+
+    const totalItems = res?.total || res?.data?.total || rawOrders.length
+    totalPages.value = Math.ceil(totalItems / 10) || 1
+  } catch (err) {
+    console.error(err)
+  }
+  finally { loadingDashboard.value = false }
+}
+
+const viewOrder = async (order) => {
+  selectedOrder.value = order
+  tracking.value = null
+  detailDialog.value = true
+}
+
+const loadTracking = async (order_id) => {
+  loadingTracking.value = true
+  try {
+    const { trackOrder } = useOrders()
+    const orderId = selectedOrder.value?.order_id || order_id
+    const res = await trackOrder(orderId)
+    tracking.value = res?.data || {}
+  } catch {
+    // silently fail
+  } finally {
+    loadingTracking.value = false
+  }
+}
+
+const cancelOrder = async (order_id) => {
+  cancelling.value = true
+  try {
+    const { cancelOrder: doCancel } = useOrders()
+    await doCancel(order_id)
+    detailDialog.value = false
+    fetchOrders()
+  } catch { }
+  finally { cancelling.value = false }
+}
+
+watch(statusFilter, fetchOrders)
+
+const loadDashboardData = async () => {
+  await fetchOrders()
+}
+
+
+
+
+
+
+
 import { toast } from 'vue3-toastify'
 import dayjs from 'dayjs'
 import { useValidation } from '~/composables/useValidation'
@@ -542,7 +915,8 @@ definePageMeta({
 const authStore = useAuthStore()
 const { validEmail } = useValidation()
 
-const activeTab = ref('overview')
+const route = useRoute()
+const activeTab = ref(route.query.tab || 'overview')
 const saving = ref(false)
 const savingAddress = ref(false)
 const savingPwd = ref(false)
@@ -763,21 +1137,6 @@ const changePassword = async () => {
     toast.error('Failed to change password. Check your current password.')
   } finally {
     savingPwd.value = false
-  }
-}
-
-const loadDashboardData = async () => {
-  loadingDashboard.value = true
-  try {
-    const { getOrders } = useOrders()
-    const { getCart } = useCart()
-    // Fetch recent orders
-    const ordersRes = await getOrders({ page: 1, per_page: 3 })
-    dashboardOrders.value = Array.isArray(ordersRes?.data) ? ordersRes.data : (ordersRes?.data?.items || [])
-  } catch (e) {
-    console.error(e)
-  } finally {
-    loadingDashboard.value = false
   }
 }
 

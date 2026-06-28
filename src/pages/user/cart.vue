@@ -448,7 +448,7 @@ const initializeStripe = async (orderId, mappedPaymentMethod) => {
       toast.success('Order placed successfully!')
       checkoutDialog.value = false
       cartItems.value = []
-      navigateTo('/user/order')
+      navigateTo('/user?tab=orders')
       return
     }
     
@@ -496,7 +496,7 @@ const confirmOnlinePayment = async () => {
     toast.success('Payment completed and order placed successfully!')
     cancelCheckout()
     cartItems.value = []
-    navigateTo('/user/order')
+    navigateTo('/user?tab=orders')
     
   } catch (err) {
     console.error(err)
