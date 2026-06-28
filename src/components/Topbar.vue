@@ -1,87 +1,85 @@
 <template>
-	<v-app-bar
-		flat
-		style="background-color: rgb(var(--color-sidebar)); color: rgb(var(--color-sidebar-text)); border-bottom: 1px solid rgb(var(--color-border))"
-	>
+	<v-app-bar flat
+		style="background-color: rgb(var(--color-sidebar)); color: rgb(var(--color-sidebar-text)); border-bottom: 1px solid rgb(var(--color-border))">
 		<div class="flex items-center justify-between h-full px-6 w-full text-primary">
-				<!-- Mobile hamburger -->
-				<button
-					type="button"
-					class="z-10 p-1 mr-5 -ml-1 rounded-md md:hidden focus:outline-none focus:shadow-outline-purple"
-					aria-label="Menu"
-					@click="toggleMenu"
-				>
-					<svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-						<path
-							fill-rule="evenodd"
-							d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-							clip-rule="evenodd"
-						></path>
-					</svg>
-				</button>
+			<!-- Mobile hamburger -->
+			<button type="button"
+				class="z-10 p-1 mr-5 -ml-1 rounded-md md:hidden focus:outline-none focus:shadow-outline-purple"
+				aria-label="Menu" @click="toggleMenu">
+				<svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+					<path fill-rule="evenodd"
+						d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+						clip-rule="evenodd"></path>
+				</svg>
+			</button>
 
-				<!-- Page Title (Left Side) -->
-				<div class="hidden md:block">
-					<h2 class="text-lg font-bold truncate max-w-[200px] lg:max-w-md">
-						{{ displayTitle }}
-					</h2>
-				</div>
+			<!-- Page Title (Left Side) -->
+			<div class="hidden md:block">
+				<h2 class="text-lg font-bold truncate max-w-[200px] lg:max-w-md">
+					{{ displayTitle }}
+				</h2>
+			</div>
 
-				<!-- Search input -->
-				<div class="flex justify-center flex-1 lg:mr-32">
-					<div class="relative w-full max-w-xl mr-7 focus-within:text-primary"></div>
-				</div>
-				<ul class="flex items-center flex-shrink-0 space-x-6">
-					<!-- Theme toggler -->
-					<li class="flex">
-						<button
-							class="rounded-md focus:outline-none focus:shadow-outline-purple p-2"
-							@click="themeStore.toggleTheme()"
-							:aria-label="`Switch to ${getNextThemeName()} theme`"
-						>
-							<!-- Current theme indicator -->
-							<div class="flex items-center space-x-1">
-								<!-- Theme icon based on current theme -->
-								<template v-if="themeStore.currentTheme === 'light'">
-									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
-									</svg>
-								</template>
-								<template v-else-if="themeStore.currentTheme === 'dark'">
-									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-									</svg>
-								</template>
-								<template v-else-if="themeStore.currentTheme === 'sepia'">
-									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-									</svg>
-								</template>
-								<template v-else-if="themeStore.currentTheme === 'blue'">
-									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path fill-rule="evenodd" d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-6a1 1 0 00-1 1v4a1 1 0 102 0V5a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-									</svg>
-								</template>
-								<template v-else-if="themeStore.currentTheme === 'green'">
-									<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-										<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-									</svg>
-								</template>
-								<!-- Theme name -->
-								<span class="text-xs ml-1 capitalize">{{ themeStore.currentTheme }}</span>
-							</div>
-						</button>
-					</li>
+			<!-- Search input -->
+			<div class="flex justify-center flex-1 lg:mr-32">
+				<div class="relative w-full max-w-xl mr-7 focus-within:text-primary"></div>
+			</div>
+			<ul class="flex items-center flex-shrink-0 space-x-6">
+				<!-- Theme toggler -->
+				<li class="flex">
+					<button class="rounded-md focus:outline-none focus:shadow-outline-purple p-2"
+						@click="themeStore.toggleTheme()" :aria-label="`Switch to ${getNextThemeName()} theme`">
+						<!-- Current theme indicator -->
+						<div class="flex items-center space-x-1">
+							<!-- Theme icon based on current theme -->
+							<template v-if="themeStore.currentTheme === 'light'">
+								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+									<path fill-rule="evenodd"
+										d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+										clip-rule="evenodd"></path>
+								</svg>
+							</template>
+							<template v-else-if="themeStore.currentTheme === 'dark'">
+								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+									<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+								</svg>
+							</template>
+							<template v-else-if="themeStore.currentTheme === 'sepia'">
+								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+									<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+								</svg>
+							</template>
+							<template v-else-if="themeStore.currentTheme === 'blue'">
+								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+									<path fill-rule="evenodd"
+										d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-6a1 1 0 00-1 1v4a1 1 0 102 0V5a1 1 0 00-1-1z"
+										clip-rule="evenodd"></path>
+								</svg>
+							</template>
+							<template v-else-if="themeStore.currentTheme === 'green'">
+								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+									<path fill-rule="evenodd"
+										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+										clip-rule="evenodd"></path>
+								</svg>
+							</template>
+							<!-- Theme name -->
+							<span class="text-xs ml-1 capitalize">{{ themeStore.currentTheme }}</span>
+						</div>
+					</button>
+				</li>
 
-					<!-- Notifications menu -->
+
+
+				<!-- Notifications menu -->
 				<li class="relative">
 					<v-menu offset-y max-width="340" @update:model-value="onNotifMenuOpen">
 						<template v-slot:activator="{ props }">
 							<v-btn icon v-bind="props" aria-label="Notifications">
 								<svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
 									<path
-										d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
-									></path>
+										d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z">
+									</path>
 								</svg>
 								<!-- Unread badge -->
 								<span v-if="unreadCount > 0" aria-hidden="true"
@@ -95,15 +93,15 @@
 							<div class="flex items-center justify-between px-3 py-2 border-b">
 								<span class="font-semibold text-sm">Notifications</span>
 								<v-btn v-if="unreadCount > 0" size="x-small" variant="text" color="primary"
-									@click="markAllRead">Mark all read</v-btn>
+									@click="markAllRead">Mark
+									all read</v-btn>
 							</div>
 							<div v-if="loadingNotifs" class="py-6 flex justify-center">
 								<v-progress-circular size="24" indeterminate color="primary" />
 							</div>
 							<template v-else-if="notifications.length">
 								<v-list-item v-for="notif in notifications" :key="notif.id"
-									:class="notif.is_read ? 'opacity-60' : 'bg-indigo-50'"
-									@click="readNotif(notif)">
+									:class="notif.is_read ? 'opacity-60' : 'bg-indigo-50'" @click="readNotif(notif)">
 									<template v-slot:prepend>
 										<div class="w-2 h-2 rounded-full mr-2 flex-shrink-0"
 											:class="notif.is_read ? 'bg-transparent' : 'bg-indigo-500'" />
@@ -122,11 +120,8 @@
 						<v-btn icon v-bind="props">
 							<v-avatar size="32" color="primary">
 								<ClientOnly>
-									<img v-if="authStore.user?.avatar_url"
-										class="object-cover w-8 h-8 rounded-full"
-										:src="authStore.user.avatar_url"
-										alt="User profile photo"
-									/>
+									<img v-if="authStore.user?.avatar_url" class="object-cover w-8 h-8 rounded-full"
+										:src="authStore.user.avatar_url" alt="User profile photo" />
 									<span v-else class="text-white text-sm font-bold">
 										{{ userInitial }}
 									</span>
@@ -139,7 +134,9 @@
 					</template>
 					<v-list>
 						<v-list-item class="py-2 px-3">
-							<v-list-item-title class="font-semibold">{{ authStore.user?.username || authStore.user?.email }}</v-list-item-title>
+							<v-list-item-title class="font-semibold">{{ authStore.user?.username ||
+								authStore.user?.email
+							}}</v-list-item-title>
 							<v-list-item-subtitle class="text-xs">{{ authStore.role }}</v-list-item-subtitle>
 						</v-list-item>
 						<v-divider />
@@ -220,6 +217,10 @@ const markAllRead = async () => {
 
 // Load unread count and cart on mount
 onMounted(async () => {
+	// Fetch Cart only for users or guests
+	if (!authStore.role || authStore.role?.toUpperCase() === 'USER') {
+		cartStore.fetchCart()
+	}
 
 	try {
 		const { getUnreadCount } = useNotifications()

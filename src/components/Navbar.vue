@@ -36,11 +36,25 @@
 							class="md:p-4 py-2 block text-text/70 hover:text-primary hover:-translate-y-0.5 transition-all font-medium"
 							to="/products?category=grocery">Grocery</NuxtLink>
 					</li>
+					<!-- Theme Toggle -->
 					<li class="p-4 cursor-pointer hover:scale-110 transition-transform"
 						@click="themeStore.toggleTheme()">
 						<Icon :name="themeStore.currentTheme === 'light' ? 'ri:moon-line' : 'ri:sun-line'"
 							class="text-primary w-5 h-5" />
 					</li>
+					<!-- Cart Icon -->
+					<ClientOnly>
+						<li v-if="!authStore.role || authStore.role?.toUpperCase() === 'USER'" class="relative p-4 flex items-center">
+							<NuxtLink to="/user/cart" class="relative text-text/70 hover:text-primary transition-colors focus:outline-none" aria-label="Cart">
+								<Icon name="mdi:cart-outline" class="w-6 h-6" />
+								<span v-if="cartStore.totalItems > 0"
+									class="absolute top-0 right-0 inline-flex items-center justify-center min-w-[20px] h-5 text-[11px] font-bold text-white bg-primary border-2 border-background rounded-full"
+									style="transform: translate(30%, -30%)">
+									{{ cartStore.totalItems > 99 ? '99+' : cartStore.totalItems }}
+								</span>
+							</NuxtLink>
+						</li>
+					</ClientOnly>
 					<li v-if="!authStore.isAuthenticated">
 						<NuxtLink
 							class="md:px-5 md:py-2 py-2 block font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full hover:shadow-lg hover:shadow-indigo-500/30 transition-all hover:-translate-y-0.5"
@@ -64,10 +78,7 @@
 								class="block px-4 py-2.5 text-sm text-text/80 hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-3">
 								<Icon name="mdi:account-outline" class="w-4 h-4" /> Account Settings
 							</NuxtLink>
-							<NuxtLink to="/user/cart"
-								class="block px-4 py-2.5 text-sm text-text/80 hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-3">
-								<Icon name="mdi:cart-outline" class="w-4 h-4" /> Shopping Cart
-							</NuxtLink>
+
 							<NuxtLink to="/user/order"
 								class="block px-4 py-2.5 text-sm text-text/80 hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-3">
 								<Icon name="mdi:package-variant" class="w-4 h-4" /> My Orders
@@ -89,8 +100,11 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useThemeStore } from '~/stores/themeStore'
+import { useCartStore } from '~/stores/cartStore'
+
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
+const cartStore = useCartStore()
 
 const isMenuOpen = ref(false)
 const isDropdownOpen = ref(false)
@@ -118,6 +132,10 @@ const handleClickOutside = (event) => {
 onMounted(() => {
 	if (process.client) {
 		document.addEventListener('click', handleClickOutside)
+	}
+	// Fetch Cart
+	if (!authStore.role || authStore.role?.toUpperCase() === 'USER') {
+		cartStore.fetchCart()
 	}
 })
 
