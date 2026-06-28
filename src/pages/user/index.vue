@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen relative overflow-hidden bg-background text-text selection:bg-primary/30 py-8 lg:py-12">
+  <div class="min-h-screen relative overflow-hidden bg-background text-text selection:bg-primary/30 py-8 lg:py-6">
     <!-- Cool Background Gradient Blobs -->
     <div
       class="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-indigo-500/10 via-purple-500/10 to-transparent rounded-full blur-[100px] translate-x-1/3 -translate-y-1/3 pointer-events-none">
@@ -8,7 +8,7 @@
       class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-cyan-500/10 via-blue-500/10 to-transparent rounded-full blur-[120px] -translate-x-1/3 translate-y-1/3 pointer-events-none">
     </div>
 
-    <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="relative z-10 max-w-8xl mx-auto sm:px-4 lg:px-32">
       <!-- Title Header -->
       <div class="mb-10">
         <h1
@@ -85,7 +85,7 @@
                   <Icon name="mdi:lock-outline" class="w-5 h-5" />
                   Password & Security
                 </button>
-                
+
                 <button @click="activeTab = 'orders'"
                   class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
                   :class="activeTab === 'orders'
@@ -103,17 +103,18 @@
             <UserOrderHistory v-if="activeTab === 'orders'" />
 
             <!-- Overview Pane -->
-            <div v-if="activeTab === 'overview'" class="space-y-6">
+            <div v-if="activeTab === 'overview'" class="space-y-8">
               <div class="bg-card/60 backdrop-blur-2xl border border-white/20 shadow-xl rounded-[2rem] p-6 sm:p-8">
                 <h2 class="text-2xl font-bold mb-2 text-text flex items-center gap-2">
                   Welcome back, {{ profileData.first_name || 'Guest' }}! 👋
                 </h2>
                 <p class="text-text opacity-70 text-sm mb-6">Here is an overview of your recent activity.</p>
-                
+
                 <!-- Quick Stats -->
                 <div class="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-8">
                   <div class="bg-background rounded-2xl p-5 border border-border flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                    <div
+                      class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                       <Icon name="mdi:package-variant" class="w-6 h-6" />
                     </div>
                     <div>
@@ -127,32 +128,40 @@
                 <div>
                   <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-text">Recent Orders</h3>
-                    <nuxt-link to="/user/order" class="text-sm font-bold text-primary hover:underline">View All</nuxt-link>
+                    <button @click="activeTab = 'orders'" class="text-sm font-bold text-primary hover:underline">View
+                      All</button>
                   </div>
                   <div v-if="loadingDashboard" class="flex justify-center py-8">
                     <v-progress-circular indeterminate color="primary"></v-progress-circular>
                   </div>
-                  <div v-else-if="!dashboardOrders.length" class="text-center py-8 bg-background border border-border rounded-2xl">
+                  <div v-else-if="!dashboardOrders.length"
+                    class="text-center py-8 bg-background border border-border rounded-2xl">
                     <p class="text-text opacity-50 text-sm">No recent orders found.</p>
                   </div>
                   <div v-else class="space-y-4">
-                    <div v-for="order in dashboardOrders" :key="order.id" class="bg-background border border-border rounded-2xl p-5 hover:border-primary/50 transition-colors">
+                    <div v-for="order in dashboardOrders" :key="order.id"
+                      class="bg-background border border-border rounded-2xl p-5 hover:border-primary/50 transition-colors">
                       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                          <p class="text-sm font-medium text-text">#{{ order.order_id || order.order_number || order.id }}</p>
+                          <p class="text-sm font-medium text-text">#{{ order.order_id || order.order_number || order.id
+                          }}</p>
                           <p class="text-xs text-text opacity-60 mt-1">{{ formatDate(order.created_at) }}</p>
                         </div>
                         <div class="flex items-center gap-4">
-                          <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest" :class="statusBadgeClass(order.status)">
+                          <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
+                            :class="statusBadgeClass(order.status)">
                             {{ order.status }}
                           </span>
-                          <p class="font-bold text-text whitespace-nowrap">₹{{ (order.total_price || order.total_amount || 0).toLocaleString('en-IN') }}</p>
+                          <p class="font-bold text-text whitespace-nowrap">₹{{ (order.total_price || order.total_amount
+                            || 0).toLocaleString('en-IN') }}</p>
                         </div>
                       </div>
-                      <div class="mt-4 pt-4 border-t border-border flex justify-end" v-if="['PENDING', 'SHIPPED'].includes(order.status?.toUpperCase())">
-                         <nuxt-link to="/user/order" class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
-                           <Icon name="mdi:truck-delivery-outline" /> Track Package
-                         </nuxt-link>
+                      <div class="mt-4 pt-4 border-t border-border flex justify-end"
+                        v-if="['PENDING', 'SHIPPED'].includes(order.status?.toUpperCase())">
+                        <button @click="activeTab = 'orders'"
+                          class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                          <Icon name="mdi:truck-delivery-outline" /> Track Package
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -206,60 +215,72 @@
                         class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
                     </div>
                   </div>
-                <!-- Address Line 1 -->
-                <div>
-                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Address Line 1</label>
-                  <div class="relative">
-                    <Icon name="mdi:home-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                    <input v-model="profileData.address.address_line_1" type="text" placeholder="Address Line 1"
-                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  <!-- Address Line 1 -->
+                  <div>
+                    <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Address
+                      Line 1</label>
+                    <div class="relative">
+                      <Icon name="mdi:home-outline"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                      <input v-model="profileData.address.address_line_1" type="text" placeholder="Address Line 1"
+                        class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                    </div>
                   </div>
-                </div>
-                <!-- Address Line 2 -->
-                <div>
-                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Address Line 2</label>
-                  <div class="relative">
-                    <Icon name="mdi:home-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                    <input v-model="profileData.address.address_line_2" type="text" placeholder="Address Line 2"
-                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  <!-- Address Line 2 -->
+                  <div>
+                    <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Address
+                      Line 2</label>
+                    <div class="relative">
+                      <Icon name="mdi:home-outline"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                      <input v-model="profileData.address.address_line_2" type="text" placeholder="Address Line 2"
+                        class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                    </div>
                   </div>
-                </div>
-                <!-- City -->
-                <div>
-                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">City</label>
-                  <div class="relative">
-                    <Icon name="mdi:map-marker-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                    <input v-model="profileData.address.city" type="text" placeholder="City"
-                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  <!-- City -->
+                  <div>
+                    <label
+                      class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">City</label>
+                    <div class="relative">
+                      <Icon name="mdi:map-marker-outline"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                      <input v-model="profileData.address.city" type="text" placeholder="City"
+                        class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                    </div>
                   </div>
-                </div>
-                <!-- State -->
-                <div>
-                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">State</label>
-                  <div class="relative">
-                    <Icon name="mdi:map-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                    <input v-model="profileData.address.state" type="text" placeholder="State"
-                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  <!-- State -->
+                  <div>
+                    <label
+                      class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">State</label>
+                    <div class="relative">
+                      <Icon name="mdi:map-outline"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                      <input v-model="profileData.address.state" type="text" placeholder="State"
+                        class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                    </div>
                   </div>
-                </div>
-                <!-- Country -->
-                <div>
-                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Country</label>
-                  <div class="relative">
-                    <Icon name="mdi:earth" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                    <input v-model="profileData.address.country" type="text" placeholder="Country"
-                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  <!-- Country -->
+                  <div>
+                    <label
+                      class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Country</label>
+                    <div class="relative">
+                      <Icon name="mdi:earth"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                      <input v-model="profileData.address.country" type="text" placeholder="Country"
+                        class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                    </div>
                   </div>
-                </div>
-                <!-- Zip Code -->
-                <div>
-                  <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Zip Code</label>
-                  <div class="relative">
-                    <Icon name="mdi:mailbox" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                    <input v-model="profileData.address.zip_code" type="text" placeholder="Zip Code"
-                      class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  <!-- Zip Code -->
+                  <div>
+                    <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Zip
+                      Code</label>
+                    <div class="relative">
+                      <Icon name="mdi:mailbox"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                      <input v-model="profileData.address.zip_code" type="text" placeholder="Zip Code"
+                        class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                    </div>
                   </div>
-                </div>
 
                   <!-- Email -->
 
@@ -345,7 +366,7 @@
                     <p class="text-text opacity-60 text-sm mt-1" v-if="addr.address_line2">{{ addr.address_line2 }}</p>
                     <p class="text-text opacity-60 text-sm mt-1">
                       {{ addr.city }}, {{ addr.state }} - <span class="font-semibold text-text">{{ addr.pincode
-                        }}</span>
+                      }}</span>
                     </p>
                     <p class="text-text opacity-50 text-xs mt-2 uppercase tracking-widest font-bold">{{ addr.country }}
                     </p>
@@ -433,33 +454,40 @@
     </div>
 
     <!-- Order Detail Dialog -->
-<v-dialog v-model="detailDialog" max-width="720" transition="dialog-bottom-transition">
+    <v-dialog v-model="detailDialog" max-width="720" transition="dialog-bottom-transition">
       <v-card v-if="selectedOrder" class="rounded-[2.5rem] overflow-hidden border-0 shadow-2xl bg-background">
-        
+
         <div class="px-8 py-8 md:px-12 md:py-10">
           <div class="flex justify-between items-start mb-10">
             <div>
               <p class="text-text opacity-50 font-medium mb-2 tracking-widest uppercase text-[10px]">Order Details</p>
-              <h2 class="text-3xl font-light tracking-tight text-text mb-2">#{{ selectedOrder.order_number || selectedOrder.id }}</h2>
-              <p class="text-text opacity-70 font-medium tracking-wide text-sm">{{ formatDate(selectedOrder.created_at) }}</p>
+              <h2 class="text-3xl font-light tracking-tight text-text mb-2">#{{ selectedOrder.order_number ||
+                selectedOrder.id }}</h2>
+              <p class="text-text opacity-70 font-medium tracking-wide text-sm">{{ formatDate(selectedOrder.created_at)
+              }}</p>
             </div>
-            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest" :class="statusBadgeClass(selectedOrder.status)">
+            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest"
+              :class="statusBadgeClass(selectedOrder.status)">
               {{ selectedOrder.status }}
             </span>
           </div>
 
           <!-- Order Items -->
           <div class="space-y-4 mb-10">
-            <div v-for="item in selectedOrder.items" :key="item.id" class="flex gap-6 items-center p-4 rounded-2xl hover:bg-card transition-colors">
+            <div v-for="item in selectedOrder.items" :key="item.id"
+              class="flex gap-6 items-center p-4 rounded-2xl hover:bg-card transition-colors">
               <div class="w-20 h-20 rounded-xl bg-secondary overflow-hidden flex-shrink-0 relative">
-                <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                <img v-if="item.image_url" :src="item.image_url" :alt="item.name"
+                  class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
                 <Icon v-else name="mdi:image-outline" class="w-8 h-8 absolute inset-0 m-auto text-text opacity-30" />
               </div>
               <div class="flex-1 min-w-0">
                 <p class="font-medium text-text truncate text-lg">{{ item.name }}</p>
-                <p class="text-text opacity-70 text-sm font-medium tracking-wide mt-1">Qty: {{ item.quantity }} <span class="mx-2 opacity-30">×</span> ₹{{ item.price?.toLocaleString('en-IN') }}</p>
+                <p class="text-text opacity-70 text-sm font-medium tracking-wide mt-1">Qty: {{ item.quantity }} <span
+                    class="mx-2 opacity-30">×</span> ₹{{ item.price?.toLocaleString('en-IN') }}</p>
               </div>
-              <p class="font-light text-xl text-text whitespace-nowrap pl-4">₹{{ (item.price * item.quantity).toLocaleString('en-IN') }}</p>
+              <p class="font-light text-xl text-text whitespace-nowrap pl-4">₹{{ (item.price *
+                item.quantity).toLocaleString('en-IN') }}</p>
             </div>
           </div>
 
@@ -478,22 +506,34 @@
               </div>
               <div class="flex justify-between items-end pt-4 border-t border-border mt-4">
                 <span class="font-bold uppercase tracking-widest text-[10px] text-text opacity-50">Total</span>
-                <span class="text-3xl font-light text-text tracking-tight">₹{{ selectedOrder.total_amount?.toLocaleString('en-IN') }}</span>
+                <span class="text-3xl font-light text-text tracking-tight">₹{{
+                  selectedOrder.total_amount?.toLocaleString('en-IN') }}</span>
               </div>
             </div>
           </div>
 
           <!-- Tracking Timeline -->
-          <div v-if="tracking && tracking.tracking" class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
+          <div v-if="tracking && tracking.tracking"
+            class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
             <h3 class="text-lg font-bold mb-4">Tracking Information</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div><span class="font-medium text-text opacity-70">Order Status:</span> <span class="font-bold ml-1">{{ tracking.order_status }}</span></div>
-              <div v-if="tracking.tracking.carrier"><span class="font-medium text-text opacity-70">Carrier:</span> <span class="font-bold ml-1">{{ tracking.tracking.carrier }}</span></div>
-              <div v-if="tracking.tracking.tracking_number"><span class="font-medium text-text opacity-70">Tracking #:</span> <span class="font-bold ml-1">{{ tracking.tracking.tracking_number }}</span></div>
-              <div v-if="tracking.tracking.tracking_url"><span class="font-medium text-text opacity-70">Tracking Link:</span> <a :href="tracking.tracking.tracking_url" target="_blank" class="text-primary hover:underline ml-1">View Details</a></div>
-              <div v-if="tracking.tracking.shipped_at"><span class="font-medium text-text opacity-70">Shipped At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.shipped_at) }}</span></div>
-              <div v-if="tracking.tracking.estimated_delivery"><span class="font-medium text-text opacity-70">Est. Delivery:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.estimated_delivery) }}</span></div>
-              <div v-if="tracking.tracking.delivered_at"><span class="font-medium text-text opacity-70">Delivered At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.delivered_at) }}</span></div>
+              <div><span class="font-medium text-text opacity-70">Order Status:</span> <span class="font-bold ml-1">{{
+                tracking.order_status }}</span></div>
+              <div v-if="tracking.tracking.carrier"><span class="font-medium text-text opacity-70">Carrier:</span> <span
+                  class="font-bold ml-1">{{ tracking.tracking.carrier }}</span></div>
+              <div v-if="tracking.tracking.tracking_number"><span class="font-medium text-text opacity-70">Tracking
+                  #:</span> <span class="font-bold ml-1">{{ tracking.tracking.tracking_number }}</span></div>
+              <div v-if="tracking.tracking.tracking_url"><span class="font-medium text-text opacity-70">Tracking
+                  Link:</span> <a :href="tracking.tracking.tracking_url" target="_blank"
+                  class="text-primary hover:underline ml-1">View Details</a></div>
+              <div v-if="tracking.tracking.shipped_at"><span class="font-medium text-text opacity-70">Shipped At:</span>
+                <span class="font-bold ml-1">{{ formatDate(tracking.tracking.shipped_at) }}</span>
+              </div>
+              <div v-if="tracking.tracking.estimated_delivery"><span class="font-medium text-text opacity-70">Est.
+                  Delivery:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.estimated_delivery)
+                  }}</span></div>
+              <div v-if="tracking.tracking.delivered_at"><span class="font-medium text-text opacity-70">Delivered
+                  At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.delivered_at) }}</span></div>
             </div>
             <div v-if="tracking.tracking.notes" class="mt-4 pt-4 border-t border-border">
               <span class="font-medium text-text opacity-70 block mb-1">Notes:</span>
@@ -503,50 +543,62 @@
 
           <!-- Actions -->
           <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border">
-            <v-btn variant="text" size="x-large" class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full" @click="detailDialog = false">
+            <v-btn variant="text" size="x-large"
+              class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full"
+              @click="detailDialog = false">
               Close
             </v-btn>
-            <v-btn v-if="['pending','processing'].includes(selectedOrder.status?.toLowerCase())"
-              color="error" variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium" :loadingDashboard="cancelling" @click="cancelOrder(selectedOrder.order_id)">
+            <v-btn v-if="['pending', 'processing'].includes(selectedOrder.status?.toLowerCase())" color="error"
+              variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium"
+              :loadingDashboard="cancelling" @click="cancelOrder(selectedOrder.order_id)">
               Cancel Order
             </v-btn>
-            <v-btn color="primary" variant="flat" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium text-white" :loadingDashboard="loadingDashboardTracking" @click="loadTracking(selectedOrder.id)">
+            <v-btn color="primary" variant="flat" rounded="pill" size="x-large"
+              class="flex-1 text-none tracking-widest font-medium text-white"
+              :loadingDashboard="loadingDashboardTracking" @click="loadTracking(selectedOrder.id)">
               Track Package
             </v-btn>
           </div>
         </div>
       </v-card>
     </v-dialog>
-  
+
 
     <!-- Order Detail Dialog -->
-<v-dialog v-model="detailDialog" max-width="720" transition="dialog-bottom-transition">
+    <v-dialog v-model="detailDialog" max-width="720" transition="dialog-bottom-transition">
       <v-card v-if="selectedOrder" class="rounded-[2.5rem] overflow-hidden border-0 shadow-2xl bg-background">
-        
+
         <div class="px-8 py-8 md:px-12 md:py-10">
           <div class="flex justify-between items-start mb-10">
             <div>
               <p class="text-text opacity-50 font-medium mb-2 tracking-widest uppercase text-[10px]">Order Details</p>
-              <h2 class="text-3xl font-light tracking-tight text-text mb-2">#{{ selectedOrder.order_number || selectedOrder.id }}</h2>
-              <p class="text-text opacity-70 font-medium tracking-wide text-sm">{{ formatDate(selectedOrder.created_at) }}</p>
+              <h2 class="text-3xl font-light tracking-tight text-text mb-2">#{{ selectedOrder.order_number ||
+                selectedOrder.id }}</h2>
+              <p class="text-text opacity-70 font-medium tracking-wide text-sm">{{ formatDate(selectedOrder.created_at)
+              }}</p>
             </div>
-            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest" :class="statusBadgeClass(selectedOrder.status)">
+            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest"
+              :class="statusBadgeClass(selectedOrder.status)">
               {{ selectedOrder.status }}
             </span>
           </div>
 
           <!-- Order Items -->
           <div class="space-y-4 mb-10">
-            <div v-for="item in selectedOrder.items" :key="item.id" class="flex gap-6 items-center p-4 rounded-2xl hover:bg-card transition-colors">
+            <div v-for="item in selectedOrder.items" :key="item.id"
+              class="flex gap-6 items-center p-4 rounded-2xl hover:bg-card transition-colors">
               <div class="w-20 h-20 rounded-xl bg-secondary overflow-hidden flex-shrink-0 relative">
-                <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                <img v-if="item.image_url" :src="item.image_url" :alt="item.name"
+                  class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
                 <Icon v-else name="mdi:image-outline" class="w-8 h-8 absolute inset-0 m-auto text-text opacity-30" />
               </div>
               <div class="flex-1 min-w-0">
                 <p class="font-medium text-text truncate text-lg">{{ item.name }}</p>
-                <p class="text-text opacity-70 text-sm font-medium tracking-wide mt-1">Qty: {{ item.quantity }} <span class="mx-2 opacity-30">×</span> ₹{{ item.price?.toLocaleString('en-IN') }}</p>
+                <p class="text-text opacity-70 text-sm font-medium tracking-wide mt-1">Qty: {{ item.quantity }} <span
+                    class="mx-2 opacity-30">×</span> ₹{{ item.price?.toLocaleString('en-IN') }}</p>
               </div>
-              <p class="font-light text-xl text-text whitespace-nowrap pl-4">₹{{ (item.price * item.quantity).toLocaleString('en-IN') }}</p>
+              <p class="font-light text-xl text-text whitespace-nowrap pl-4">₹{{ (item.price *
+                item.quantity).toLocaleString('en-IN') }}</p>
             </div>
           </div>
 
@@ -565,22 +617,34 @@
               </div>
               <div class="flex justify-between items-end pt-4 border-t border-border mt-4">
                 <span class="font-bold uppercase tracking-widest text-[10px] text-text opacity-50">Total</span>
-                <span class="text-3xl font-light text-text tracking-tight">₹{{ selectedOrder.total_amount?.toLocaleString('en-IN') }}</span>
+                <span class="text-3xl font-light text-text tracking-tight">₹{{
+                  selectedOrder.total_amount?.toLocaleString('en-IN') }}</span>
               </div>
             </div>
           </div>
 
           <!-- Tracking Timeline -->
-          <div v-if="tracking && tracking.tracking" class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
+          <div v-if="tracking && tracking.tracking"
+            class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
             <h3 class="text-lg font-bold mb-4">Tracking Information</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div><span class="font-medium text-text opacity-70">Order Status:</span> <span class="font-bold ml-1">{{ tracking.order_status }}</span></div>
-              <div v-if="tracking.tracking.carrier"><span class="font-medium text-text opacity-70">Carrier:</span> <span class="font-bold ml-1">{{ tracking.tracking.carrier }}</span></div>
-              <div v-if="tracking.tracking.tracking_number"><span class="font-medium text-text opacity-70">Tracking #:</span> <span class="font-bold ml-1">{{ tracking.tracking.tracking_number }}</span></div>
-              <div v-if="tracking.tracking.tracking_url"><span class="font-medium text-text opacity-70">Tracking Link:</span> <a :href="tracking.tracking.tracking_url" target="_blank" class="text-primary hover:underline ml-1">View Details</a></div>
-              <div v-if="tracking.tracking.shipped_at"><span class="font-medium text-text opacity-70">Shipped At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.shipped_at) }}</span></div>
-              <div v-if="tracking.tracking.estimated_delivery"><span class="font-medium text-text opacity-70">Est. Delivery:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.estimated_delivery) }}</span></div>
-              <div v-if="tracking.tracking.delivered_at"><span class="font-medium text-text opacity-70">Delivered At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.delivered_at) }}</span></div>
+              <div><span class="font-medium text-text opacity-70">Order Status:</span> <span class="font-bold ml-1">{{
+                tracking.order_status }}</span></div>
+              <div v-if="tracking.tracking.carrier"><span class="font-medium text-text opacity-70">Carrier:</span> <span
+                  class="font-bold ml-1">{{ tracking.tracking.carrier }}</span></div>
+              <div v-if="tracking.tracking.tracking_number"><span class="font-medium text-text opacity-70">Tracking
+                  #:</span> <span class="font-bold ml-1">{{ tracking.tracking.tracking_number }}</span></div>
+              <div v-if="tracking.tracking.tracking_url"><span class="font-medium text-text opacity-70">Tracking
+                  Link:</span> <a :href="tracking.tracking.tracking_url" target="_blank"
+                  class="text-primary hover:underline ml-1">View Details</a></div>
+              <div v-if="tracking.tracking.shipped_at"><span class="font-medium text-text opacity-70">Shipped At:</span>
+                <span class="font-bold ml-1">{{ formatDate(tracking.tracking.shipped_at) }}</span>
+              </div>
+              <div v-if="tracking.tracking.estimated_delivery"><span class="font-medium text-text opacity-70">Est.
+                  Delivery:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.estimated_delivery)
+                  }}</span></div>
+              <div v-if="tracking.tracking.delivered_at"><span class="font-medium text-text opacity-70">Delivered
+                  At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.delivered_at) }}</span></div>
             </div>
             <div v-if="tracking.tracking.notes" class="mt-4 pt-4 border-t border-border">
               <span class="font-medium text-text opacity-70 block mb-1">Notes:</span>
@@ -590,50 +654,62 @@
 
           <!-- Actions -->
           <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border">
-            <v-btn variant="text" size="x-large" class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full" @click="detailDialog = false">
+            <v-btn variant="text" size="x-large"
+              class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full"
+              @click="detailDialog = false">
               Close
             </v-btn>
-            <v-btn v-if="['pending','processing'].includes(selectedOrder.status?.toLowerCase())"
-              color="error" variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium" :loadingDashboard="cancelling" @click="cancelOrder(selectedOrder.order_id)">
+            <v-btn v-if="['pending', 'processing'].includes(selectedOrder.status?.toLowerCase())" color="error"
+              variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium"
+              :loadingDashboard="cancelling" @click="cancelOrder(selectedOrder.order_id)">
               Cancel Order
             </v-btn>
-            <v-btn color="primary" variant="flat" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium text-white" :loadingDashboard="loadingDashboardTracking" @click="loadTracking(selectedOrder.id)">
+            <v-btn color="primary" variant="flat" rounded="pill" size="x-large"
+              class="flex-1 text-none tracking-widest font-medium text-white"
+              :loadingDashboard="loadingDashboardTracking" @click="loadTracking(selectedOrder.id)">
               Track Package
             </v-btn>
           </div>
         </div>
       </v-card>
     </v-dialog>
-  
+
 
     <!-- Order Detail Dialog -->
-<v-dialog v-model="detailDialog" max-width="720" transition="dialog-bottom-transition">
+    <v-dialog v-model="detailDialog" max-width="720" transition="dialog-bottom-transition">
       <v-card v-if="selectedOrder" class="rounded-[2.5rem] overflow-hidden border-0 shadow-2xl bg-background">
-        
+
         <div class="px-8 py-8 md:px-12 md:py-10">
           <div class="flex justify-between items-start mb-10">
             <div>
               <p class="text-text opacity-50 font-medium mb-2 tracking-widest uppercase text-[10px]">Order Details</p>
-              <h2 class="text-3xl font-light tracking-tight text-text mb-2">#{{ selectedOrder.order_number || selectedOrder.id }}</h2>
-              <p class="text-text opacity-70 font-medium tracking-wide text-sm">{{ formatDate(selectedOrder.created_at) }}</p>
+              <h2 class="text-3xl font-light tracking-tight text-text mb-2">#{{ selectedOrder.order_number ||
+                selectedOrder.id }}</h2>
+              <p class="text-text opacity-70 font-medium tracking-wide text-sm">{{ formatDate(selectedOrder.created_at)
+              }}</p>
             </div>
-            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest" :class="statusBadgeClass(selectedOrder.status)">
+            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest"
+              :class="statusBadgeClass(selectedOrder.status)">
               {{ selectedOrder.status }}
             </span>
           </div>
 
           <!-- Order Items -->
           <div class="space-y-4 mb-10">
-            <div v-for="item in selectedOrder.items" :key="item.id" class="flex gap-6 items-center p-4 rounded-2xl hover:bg-card transition-colors">
+            <div v-for="item in selectedOrder.items" :key="item.id"
+              class="flex gap-6 items-center p-4 rounded-2xl hover:bg-card transition-colors">
               <div class="w-20 h-20 rounded-xl bg-secondary overflow-hidden flex-shrink-0 relative">
-                <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                <img v-if="item.image_url" :src="item.image_url" :alt="item.name"
+                  class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal" />
                 <Icon v-else name="mdi:image-outline" class="w-8 h-8 absolute inset-0 m-auto text-text opacity-30" />
               </div>
               <div class="flex-1 min-w-0">
                 <p class="font-medium text-text truncate text-lg">{{ item.name }}</p>
-                <p class="text-text opacity-70 text-sm font-medium tracking-wide mt-1">Qty: {{ item.quantity }} <span class="mx-2 opacity-30">×</span> ₹{{ item.price?.toLocaleString('en-IN') }}</p>
+                <p class="text-text opacity-70 text-sm font-medium tracking-wide mt-1">Qty: {{ item.quantity }} <span
+                    class="mx-2 opacity-30">×</span> ₹{{ item.price?.toLocaleString('en-IN') }}</p>
               </div>
-              <p class="font-light text-xl text-text whitespace-nowrap pl-4">₹{{ (item.price * item.quantity).toLocaleString('en-IN') }}</p>
+              <p class="font-light text-xl text-text whitespace-nowrap pl-4">₹{{ (item.price *
+                item.quantity).toLocaleString('en-IN') }}</p>
             </div>
           </div>
 
@@ -652,22 +728,34 @@
               </div>
               <div class="flex justify-between items-end pt-4 border-t border-border mt-4">
                 <span class="font-bold uppercase tracking-widest text-[10px] text-text opacity-50">Total</span>
-                <span class="text-3xl font-light text-text tracking-tight">₹{{ selectedOrder.total_amount?.toLocaleString('en-IN') }}</span>
+                <span class="text-3xl font-light text-text tracking-tight">₹{{
+                  selectedOrder.total_amount?.toLocaleString('en-IN') }}</span>
               </div>
             </div>
           </div>
 
           <!-- Tracking Timeline -->
-          <div v-if="tracking && tracking.tracking" class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
+          <div v-if="tracking && tracking.tracking"
+            class="bg-card rounded-3xl p-8 border border-border mb-10 relative overflow-hidden">
             <h3 class="text-lg font-bold mb-4">Tracking Information</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div><span class="font-medium text-text opacity-70">Order Status:</span> <span class="font-bold ml-1">{{ tracking.order_status }}</span></div>
-              <div v-if="tracking.tracking.carrier"><span class="font-medium text-text opacity-70">Carrier:</span> <span class="font-bold ml-1">{{ tracking.tracking.carrier }}</span></div>
-              <div v-if="tracking.tracking.tracking_number"><span class="font-medium text-text opacity-70">Tracking #:</span> <span class="font-bold ml-1">{{ tracking.tracking.tracking_number }}</span></div>
-              <div v-if="tracking.tracking.tracking_url"><span class="font-medium text-text opacity-70">Tracking Link:</span> <a :href="tracking.tracking.tracking_url" target="_blank" class="text-primary hover:underline ml-1">View Details</a></div>
-              <div v-if="tracking.tracking.shipped_at"><span class="font-medium text-text opacity-70">Shipped At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.shipped_at) }}</span></div>
-              <div v-if="tracking.tracking.estimated_delivery"><span class="font-medium text-text opacity-70">Est. Delivery:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.estimated_delivery) }}</span></div>
-              <div v-if="tracking.tracking.delivered_at"><span class="font-medium text-text opacity-70">Delivered At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.delivered_at) }}</span></div>
+              <div><span class="font-medium text-text opacity-70">Order Status:</span> <span class="font-bold ml-1">{{
+                tracking.order_status }}</span></div>
+              <div v-if="tracking.tracking.carrier"><span class="font-medium text-text opacity-70">Carrier:</span> <span
+                  class="font-bold ml-1">{{ tracking.tracking.carrier }}</span></div>
+              <div v-if="tracking.tracking.tracking_number"><span class="font-medium text-text opacity-70">Tracking
+                  #:</span> <span class="font-bold ml-1">{{ tracking.tracking.tracking_number }}</span></div>
+              <div v-if="tracking.tracking.tracking_url"><span class="font-medium text-text opacity-70">Tracking
+                  Link:</span> <a :href="tracking.tracking.tracking_url" target="_blank"
+                  class="text-primary hover:underline ml-1">View Details</a></div>
+              <div v-if="tracking.tracking.shipped_at"><span class="font-medium text-text opacity-70">Shipped At:</span>
+                <span class="font-bold ml-1">{{ formatDate(tracking.tracking.shipped_at) }}</span>
+              </div>
+              <div v-if="tracking.tracking.estimated_delivery"><span class="font-medium text-text opacity-70">Est.
+                  Delivery:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.estimated_delivery)
+                  }}</span></div>
+              <div v-if="tracking.tracking.delivered_at"><span class="font-medium text-text opacity-70">Delivered
+                  At:</span> <span class="font-bold ml-1">{{ formatDate(tracking.tracking.delivered_at) }}</span></div>
             </div>
             <div v-if="tracking.tracking.notes" class="mt-4 pt-4 border-t border-border">
               <span class="font-medium text-text opacity-70 block mb-1">Notes:</span>
@@ -677,21 +765,26 @@
 
           <!-- Actions -->
           <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border">
-            <v-btn variant="text" size="x-large" class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full" @click="detailDialog = false">
+            <v-btn variant="text" size="x-large"
+              class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full"
+              @click="detailDialog = false">
               Close
             </v-btn>
-            <v-btn v-if="['pending','processing'].includes(selectedOrder.status?.toLowerCase())"
-              color="error" variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium" :loadingDashboard="cancelling" @click="cancelOrder(selectedOrder.order_id)">
+            <v-btn v-if="['pending', 'processing'].includes(selectedOrder.status?.toLowerCase())" color="error"
+              variant="tonal" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium"
+              :loadingDashboard="cancelling" @click="cancelOrder(selectedOrder.order_id)">
               Cancel Order
             </v-btn>
-            <v-btn color="primary" variant="flat" rounded="pill" size="x-large" class="flex-1 text-none tracking-widest font-medium text-white" :loadingDashboard="loadingDashboardTracking" @click="loadTracking(selectedOrder.id)">
+            <v-btn color="primary" variant="flat" rounded="pill" size="x-large"
+              class="flex-1 text-none tracking-widest font-medium text-white"
+              :loadingDashboard="loadingDashboardTracking" @click="loadTracking(selectedOrder.id)">
               Track Package
             </v-btn>
           </div>
         </div>
       </v-card>
     </v-dialog>
-  
+
 
     <!-- Address Dialog Modal overlay -->
     <div v-if="showAddressDialog"
@@ -811,20 +904,20 @@ const fetchOrders = async () => {
   try {
     const { getOrders } = useOrders()
     const res = await getOrders({ page: page.value, per_page: 10, search: search.value, status: statusFilter.value })
-    
+
     const rawOrders = Array.isArray(res?.data) ? res.data : (res?.data?.items || [])
     dashboardOrders.value = rawOrders.map(order => {
       let computedSubtotal = 0
       let computedDiscount = 0
-      
+
       const mappedItems = (order.items || order.order_items || []).map(item => {
         const finalPrice = item.price || item.price_per_unit || 0
         const discountPct = item.product?.discount_percentage || 0
         const originalPrice = discountPct > 0 ? (finalPrice / (1 - discountPct / 100)) : finalPrice
-        
+
         computedSubtotal += originalPrice * item.quantity
         computedDiscount += (originalPrice - finalPrice) * item.quantity
-        
+
         return {
           ...item,
           price: finalPrice,
