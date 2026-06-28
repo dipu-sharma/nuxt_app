@@ -117,7 +117,16 @@
 
 					<!-- Actions -->
 					<div class="flex flex-col sm:flex-row gap-5 pt-4">
-						<button
+						<button v-if="cartStore.isInCart(product?.product_id)"
+							@click="router.push('/user/cart')"
+							class="relative flex-1 group overflow-hidden rounded-[2rem] font-bold text-lg text-primary bg-primary/20 border-2 border-primary/40 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl h-16"
+						>
+							<div class="relative flex items-center justify-center gap-3 h-full">
+								<Icon name="mdi:cart-check" class="w-6 h-6" />
+								In Cart (Go to Cart)
+							</div>
+						</button>
+						<button v-else
 							@click="handleAddToCart"
 							:disabled="addingToCart || !product.in_stock"
 							class="relative flex-1 group overflow-hidden rounded-[2rem] font-bold text-lg text-white shadow-xl disabled:opacity-60 disabled:cursor-not-allowed transition-all hover:-translate-y-1 hover:shadow-2xl h-16"
@@ -193,8 +202,8 @@
 				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
 					<div
 						v-for="rel in product.related_products"
-						:key="rel.id"
-						@click="navigateToProduct(rel.id)"
+						:key="rel.product_id || rel.id"
+						@click="navigateToProduct(rel.product_id || rel.id)"
 						class="group bg-card/60 backdrop-blur-2xl border border-white/20 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] rounded-[2rem] p-5 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
 					>
 						<div>
@@ -230,6 +239,7 @@
 import { useCart } from '~/composables/useCart'
 import { useProducts } from '~/composables/useProducts'
 import { useAuthStore } from '~/stores/auth'
+import { useCartStore } from '~/stores/cartStore'
 
 const route = useRoute()
 const router = useRouter()
@@ -246,6 +256,7 @@ const selectedImageIndex = ref(0)
 const { addToCart } = useCart()
 const { fetchProductDetails } = useProducts()
 const authStore = useAuthStore()
+const cartStore = useCartStore()
 
 const mainImage = computed(() => {
 	if (!product.value?.images?.length) return null
@@ -304,7 +315,7 @@ const handleAddToCart = async () => {
 
 	addingToCart.value = true
 	try {
-		await addToCart(productId, 1)
+		await cartStore.addProductToCart(product.value.product_id, 1)
 	} catch (err) {
 		console.error('Add to cart failed:', err)
 	} finally {

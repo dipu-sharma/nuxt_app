@@ -106,16 +106,7 @@
                 <p class="text-text opacity-70 text-sm mb-6">Here is an overview of your recent activity.</p>
                 
                 <!-- Quick Stats -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                  <div class="bg-background rounded-2xl p-5 border border-border flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                      <Icon name="mdi:cart-outline" class="w-6 h-6" />
-                    </div>
-                    <div>
-                      <p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">Cart Items</p>
-                      <p class="text-2xl font-black text-text">{{ dashboardCartCount }}</p>
-                    </div>
-                  </div>
+                <div class="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-8">
                   <div class="bg-background rounded-2xl p-5 border border-border flex items-center gap-4">
                     <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                       <Icon name="mdi:package-variant" class="w-6 h-6" />
@@ -566,7 +557,6 @@ const showConfirmPwd = ref(false)
 
 const loadingDashboard = ref(false)
 const dashboardOrders = ref([])
-const dashboardCartCount = ref(0)
 const dashboardWishlistCount = ref(0)
 
 const statusBadgeClass = (s) => {
@@ -784,11 +774,6 @@ const loadDashboardData = async () => {
     // Fetch recent orders
     const ordersRes = await getOrders({ page: 1, per_page: 3 })
     dashboardOrders.value = Array.isArray(ordersRes?.data) ? ordersRes.data : (ordersRes?.data?.items || [])
-    
-    // Fetch cart count
-    const cartRes = await getCart()
-    const rawItems = cartRes?.data?.items || []
-    dashboardCartCount.value = rawItems.length
   } catch (e) {
     console.error(e)
   } finally {

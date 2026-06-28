@@ -50,7 +50,7 @@
 		<template #content>
             <v-select
                 label="Status"
-                :items="['Pending', 'Shipped', 'Delivered', 'Cancelled']"
+                :items="['PENDING', 'ACCEPTED', 'PICKED', 'SHIPPED', 'DELIVERED', 'ONWAY', 'CANCELED', 'RECEIVED']"
                 v-model="selectedStatus"
             ></v-select>
 		</template>
@@ -62,6 +62,8 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { toast } from 'vue3-toastify'
 import { useFilterStore } from '~/stores/filterStore'
 import Dialog from '~/components/Dialog/Dialog.vue'
+import { useOrders } from '~/composables/useOrders'
+import dayjs from 'dayjs'
 
 definePageMeta({
 	title: 'Sales Orders',
@@ -72,12 +74,13 @@ definePageMeta({
 })
 
 const filterStore = useFilterStore()
+const { getAdminOrders, updateOrderStatus: apiUpdateOrderStatus } = useOrders()
 
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const isLoading = ref(false)
 const isChangeStatusDialogVisible = ref(false)
-const selectedStatus = ref('Pending')
+const selectedStatus = ref('PENDING')
 const selectedOrder = ref(null)
 const searchQuery = ref('')
 
@@ -94,43 +97,35 @@ const data_table = ref({
 	total_data: 0
 })
 
-const mockOrders = ref([
-	{ id: 1001, customer: 'John Doe', email: 'john@example.com', amount: '₹1,250.00', status: 'Pending', date: '2026-06-15' },
-	{ id: 1002, customer: 'Alice Smith', email: 'alice@example.com', amount: '₹3,400.00', status: 'Shipped', date: '2026-06-16' },
-	{ id: 1003, customer: 'Bob Johnson', email: 'bob@example.com', amount: '₹850.00', status: 'Delivered', date: '2026-06-16' },
-	{ id: 1004, customer: 'Eva Green', email: 'eva@example.com', amount: '₹2,100.00', status: 'Cancelled', date: '2026-06-17' },
-	{ id: 1005, customer: 'Michael Brown', email: 'michael@example.com', amount: '₹1,500.00', status: 'Pending', date: '2026-06-17' }
-])
-
-const loadOrders = () => {
+const loadOrders = async () => {
 	isLoading.value = true
 	try {
-		let filtered = [...mockOrders.value]
+        const params = {
+            page: currentPage.value,
+            per_page: itemsPerPage.value,
+            ...(searchQuery.value && { search: searchQuery.value })
+        }
+        
+        if (filterStore.startDate) {
+            params.from_date = dayjs(filterStore.startDate).startOf('day').toISOString()
+        }
+        if (filterStore.endDate) {
+            params.to_date = dayjs(filterStore.endDate).endOf('day').toISOString()
+        }
 
-		// Filter by search
-		if (searchQuery.value) {
-			const query = searchQuery.value.toLowerCase()
-			filtered = filtered.filter(o => 
-				o.customer.toLowerCase().includes(query) || 
-				o.id.toString().includes(query)
-			)
-		}
-
-		// Filter by date range from store
-		if (filterStore.startDate) {
-			filtered = filtered.filter(o => new Date(o.date) >= filterStore.startDate)
-		}
-		if (filterStore.endDate) {
-			filtered = filtered.filter(o => new Date(o.date) <= filterStore.endDate)
-		}
-
-		data_table.value.total_data = filtered.length
-
-		// Paginate
-		const start = (currentPage.value - 1) * itemsPerPage.value
-		const end = start + itemsPerPage.value
-		data_table.value.items = filtered.slice(start, end)
-	} catch {
+        const res = await getAdminOrders(params)
+        
+        data_table.value.items = (res?.data || []).map(o => ({
+            id: o.order_id,
+            customer: o.user ? `${o.user.first_name || ''} ${o.user.last_name || ''}`.trim() : `ID: ${o.user_id}`,
+            amount: `₹${o.total_price?.toLocaleString('en-IN')}`,
+            status: o.status,
+            date: dayjs(o.created_at).format('MMM D, YYYY'),
+            original: o
+        }))
+        data_table.value.total_data = res?.total || res?.data?.length || 0
+	} catch (err) {
+        console.error(err)
 		toast.error('Failed to load orders')
 	} finally {
 		isLoading.value = false
@@ -160,18 +155,16 @@ const handleChangeStatus = (order) => {
 	isChangeStatusDialogVisible.value = true
 }
 
-const updateOrderStatus = () => {
+const updateOrderStatus = async () => {
 	if (!selectedOrder.value) return
 	isLoading.value = true
 	try {
-		const order = mockOrders.value.find(o => o.id === selectedOrder.value.id)
-		if (order) {
-			order.status = selectedStatus.value
-			toast.success(`Order #${order.id} status updated to ${selectedStatus.value}`)
-		}
+        await apiUpdateOrderStatus(selectedOrder.value.id, selectedStatus.value)
+        toast.success(`Order #${selectedOrder.value.id} status updated to ${selectedStatus.value}`)
 		isChangeStatusDialogVisible.value = false
 		loadOrders()
-	} catch {
+	} catch (err) {
+        console.error(err)
 		toast.error('Failed to update status')
 	} finally {
 		isLoading.value = false

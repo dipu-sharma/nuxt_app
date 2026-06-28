@@ -72,6 +72,7 @@
 							</div>
 						</button>
 					</li>
+
 					<!-- Notifications menu -->
 				<li class="relative">
 					<v-menu offset-y max-width="340" @update:model-value="onNotifMenuOpen">
@@ -166,12 +167,14 @@ import { toast } from 'vue3-toastify'
 import { useNavStore } from '~/stores/navStore'
 import { useAuthStore } from '~/stores/auth'
 import { useThemeStore } from '~/stores/themeStore'
+import { useCartStore } from '~/stores/cartStore'
 import { ref, computed, onMounted } from 'vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
 const navStore = useNavStore()
 const themeStore = useThemeStore()
+const cartStore = useCartStore()
 
 // ── Notifications ─────────────────────────────────
 const notifications = ref([])
@@ -215,8 +218,9 @@ const markAllRead = async () => {
 	} catch { /* silently fail */ }
 }
 
-// Load unread count on mount
+// Load unread count and cart on mount
 onMounted(async () => {
+
 	try {
 		const { getUnreadCount } = useNotifications()
 		const res = await getUnreadCount()

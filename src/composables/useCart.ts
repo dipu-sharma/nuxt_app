@@ -12,9 +12,11 @@ export const useCart = () => {
 
     /** Relative Quantity Change (Add to Cart / Increment / Decrement) */
     async addToCart(product_id: string, quantity: number = 1) {
+      const payload = { product_id, quantity }
+      console.log('Sending Add to Cart Payload:', payload)
       return await api('/api/user/cart/', {
         method: 'POST',
-        body: { product_id, quantity },
+        body: payload,
       })
     },
 

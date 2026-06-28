@@ -14,7 +14,7 @@
           <v-text-field
             v-model="filters.search"
             label="Search Orders"
-            prepend-inner-icon="mdi:magnify"
+            prepend-inner-icon="mdi-magnify"
             variant="outlined"
             density="comfortable"
             hide-details
@@ -93,7 +93,7 @@
           </v-chip>
         </template>
         <template #item.actions="{ item }">
-          <v-btn icon="mdi:eye-outline" variant="text" size="small" color="primary" @click="openDetails(item)" />
+          <v-btn icon="mdi-eye-outline" variant="text" size="small" color="primary" @click="openDetails(item)" />
         </template>
       </v-data-table-server>
     </v-card>
@@ -106,7 +106,7 @@
             <h2 class="text-2xl font-black text-text">Order Details</h2>
             <p class="text-sm font-mono text-text/60 mt-1">{{ selectedOrder?.order_id }}</p>
           </div>
-          <v-btn icon="mdi:close" variant="tonal" size="small" @click="detailsDialog = false" />
+          <v-btn icon="mdi-close" variant="tonal" size="small" @click="detailsDialog = false" />
         </v-card-title>
         
         <v-card-text class="p-6" v-if="loadingDetails">
@@ -255,6 +255,7 @@ const loadOrders = async () => {
 const detailsDialog = ref(false)
 const loadingDetails = ref(false)
 const selectedOrder = ref(null)
+const selectedOrderId = ref(null)
 const updateStatusValue = ref(null)
 const updatingStatus = ref(false)
 
@@ -262,6 +263,7 @@ const openDetails = async (order) => {
   detailsDialog.value = true
   loadingDetails.value = true
   selectedOrder.value = null
+  selectedOrderId.value = order.order_id || order.id
   updateStatusValue.value = order.status
   try {
     const res = await getAdminOrderDetail(order.order_id)
@@ -276,10 +278,11 @@ const openDetails = async (order) => {
 }
 
 const updateStatus = async () => {
-  if (!selectedOrder.value || !updateStatusValue.value) return
+  const targetId = selectedOrder.value?.order_id || selectedOrderId.value
+  if (!targetId || !updateStatusValue.value) return
   updatingStatus.value = true
   try {
-    const res = await updateOrderStatus(selectedOrder.value.order_id, updateStatusValue.value)
+    const res = await updateOrderStatus(targetId, updateStatusValue.value)
     selectedOrder.value = res?.data || selectedOrder.value
     selectedOrder.value.status = updateStatusValue.value
     toast.success('Status updated successfully')

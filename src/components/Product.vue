@@ -3,7 +3,7 @@
     <div
       class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-6 gap-y-16">
 
-      <div v-for="product in products" :key="product.id" @click="getDetails(String(product.product_id || product.id))"
+      <div v-for="product in products" :key="product.product_id || product.id" @click="getDetails(String(product.product_id))"
         class="product-card group relative cursor-pointer flex flex-col h-full">
 
         <!-- Card Shell -->
@@ -78,7 +78,15 @@
             </div>
 
             <!-- Add to Cart Button - Neon Gradient -->
-            <button @click.stop="handleAddToCart(String(product.product_id || product.id))"
+            <button v-if="cartStore.isInCart(product.product_id)"
+              @click.stop="router.push('/user/cart')"
+              class="relative w-full rounded-2xl py-3 text-xs font-extrabold uppercase tracking-widest transition-all duration-300 active:scale-95 flex justify-center items-center gap-2 overflow-hidden bg-primary/20 border border-primary/30">
+              <span class="relative z-10 text-primary flex items-center gap-2">
+                <Icon name="mdi:cart-check" class="w-4 h-4" />
+                In Cart
+              </span>
+            </button>
+            <button v-else @click.stop="handleAddToCart(String(product.product_id))"
               class="neon-cart-btn relative w-full rounded-2xl py-3 text-xs font-extrabold uppercase tracking-widest transition-all duration-300 active:scale-95 flex justify-center items-center gap-2 overflow-hidden">
               <!-- Animated gradient background -->
               <div class="btn-gradient-bg absolute inset-0 rounded-2xl"></div>
@@ -111,12 +119,13 @@
 </template>
 
 <script setup>
-import { useCart } from '~/composables/useCart'
 import { useAuthStore } from '~/stores/auth'
+import { useCartStore } from '~/stores/cartStore'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const { addToCart } = useCart()
 const authStore = useAuthStore()
+const cartStore = useCartStore()
 
 const props = defineProps({
   products: {
@@ -141,7 +150,7 @@ const handleAddToCart = async (product_id) => {
     return
   }
   try {
-    await addToCart(product_id, 1)
+    await cartStore.addProductToCart(product_id, 1)
   } catch (error) {
     console.error('Failed to add product to cart:', error)
   }
