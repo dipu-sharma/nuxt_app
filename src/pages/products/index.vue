@@ -61,11 +61,11 @@
               <div class="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
                 <button v-for="cat in categories" :key="cat.id || cat.name || cat"
                   @click="selectedCategory = selectedCategory === (cat.id || cat.name || cat) ? '' : (cat.id || cat.name || cat); doSearch()"
-                  class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border border-transparent"
+                  class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border border-transparent capitalize"
                   :class="selectedCategory === (cat.id || cat.name || cat)
                     ? 'bg-gradient-to-r from-indigo-600/10 to-cyan-500/10 border-indigo-500/20 text-indigo-600 shadow-sm'
                     : 'text-text opacity-70 hover:bg-secondary/80 hover:border-border'">
-                  {{ cat.name || cat }}
+                  {{ (cat.name || cat) === 'electronic' ? 'Electronics' : (cat.name || cat) }}
                 </button>
               </div>
             </div>
@@ -149,11 +149,14 @@
             <!-- Empty State -->
             <div v-else-if="hasSearched && products.length === 0"
               class="text-center py-24 px-6 bg-card/60 backdrop-blur-2xl rounded-[3rem] border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)]">
+              <div class="text-3xl font-bold text-text mb-3">
+                <span v-if="query">0 results found for "{{ query }}"</span>
+                <span v-else>No products found</span>
+              </div>
               <div
-                class="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-white/10">
+                class="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-6 mt-6 shadow-inner border border-white/10">
                 <Icon name="mdi:magnify-close" class="w-12 h-12 text-primary opacity-60" />
               </div>
-              <h3 class="text-3xl font-bold text-text mb-3">No products found</h3>
               <p class="text-text opacity-60 text-lg max-w-sm mx-auto">Try refining your keyword query or resetting
                 categories.</p>
             </div>
@@ -264,7 +267,10 @@ const doSearch = async () => {
     const { searchProducts } = useSearch()
     const params = { limit: 20 }
     if (query.value) params.query = query.value
-    if (selectedCategory.value) params.category_id = selectedCategory.value
+    if (selectedCategory.value) {
+      params.category_id = selectedCategory.value
+      params.category = selectedCategory.value
+    }
     if (amount_range.value[0] > 10) params.min_price = amount_range.value[0]
     if (amount_range.value[1] < 100000) params.max_price = amount_range.value[1]
 
@@ -291,7 +297,10 @@ const loadMore = async () => {
       cursor: cursor.value
     }
     if (query.value) params.query = query.value
-    if (selectedCategory.value) params.category_id = selectedCategory.value
+    if (selectedCategory.value) {
+      params.category_id = selectedCategory.value
+      params.category = selectedCategory.value
+    }
     if (amount_range.value[0] > 10) params.min_price = amount_range.value[0]
     if (amount_range.value[1] < 100000) params.max_price = amount_range.value[1]
 

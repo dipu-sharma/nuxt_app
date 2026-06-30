@@ -69,41 +69,48 @@
 							</li>
 						</template>
 					</ClientOnly>
-					<li v-if="!authStore.isAuthenticated">
-						<NuxtLink
-							class="md:px-5 md:py-2 py-2 block font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full hover:shadow-lg hover:shadow-indigo-500/30 transition-all hover:-translate-y-0.5"
-							:to="{ name: 'login' }">Sign In</NuxtLink>
-					</li>
+					<ClientOnly>
+						<li v-if="!authStore.isAuthenticated">
+							<NuxtLink
+								class="md:px-5 md:py-2 py-2 block font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full hover:shadow-lg hover:shadow-indigo-500/30 transition-all hover:-translate-y-0.5"
+								:to="{ name: 'login' }">Sign In</NuxtLink>
+						</li>
 
-					<li v-else class="relative z-[100]" ref="dropdownRef">
-						<button @click="toggleDropdown"
-							class="md:p-4 py-2 flex items-center gap-1 font-medium text-text/70 hover:text-primary transition-colors focus:outline-none">
-							<Icon name="mdi:account-circle-outline" class="w-5 h-5" />
-							<span>Profile</span>
-							<Icon name="mdi:chevron-down" class="w-4 h-4 opacity-50" />
-						</button>
-						<div v-if="isDropdownOpen"
-							class="absolute z-[1000] right-0 mt-2 md:mr-0 w-56 bg-card/90 backdrop-blur-xl border border-border/60 rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-[100] overflow-hidden animate-fade-in-up py-2"
-							style="animation-duration: 0.2s;">
-							<div class="px-4 py-3 border-b border-border/50 mb-2">
-								<p class="text-sm font-bold text-text">My Account</p>
-							</div>
-							<NuxtLink to="/user"
-								class="block px-4 py-2.5 text-sm text-text/80 hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-3">
-								<Icon name="mdi:account-outline" class="w-4 h-4" /> Account Settings
-							</NuxtLink>
-
-							<NuxtLink to="/user?tab=orders"
-								class="block px-4 py-2.5 text-sm text-text/80 hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-3">
-								<Icon name="mdi:package-variant" class="w-4 h-4" /> My Orders
-							</NuxtLink>
-							<div class="h-px bg-border/50 my-2"></div>
-							<button @click="logout"
-								class="block w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/10 transition-colors flex items-center gap-3 font-medium">
-								<Icon name="mdi:logout" class="w-4 h-4" /> Logout
+						<li v-else class="relative z-[100]" ref="dropdownRef">
+							<button @click="toggleDropdown"
+								class="md:p-4 py-2 flex items-center gap-1 font-medium text-text/70 hover:text-primary transition-colors focus:outline-none">
+								<Icon name="mdi:account-circle-outline" class="w-5 h-5" />
+								<span>Profile</span>
+								<Icon name="mdi:chevron-down" class="w-4 h-4 opacity-50" />
 							</button>
-						</div>
-					</li>
+							<div v-if="isDropdownOpen"
+								class="absolute z-[1000] right-0 mt-2 md:mr-0 w-56 bg-card/90 backdrop-blur-xl border border-border/60 rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-[100] overflow-hidden animate-fade-in-up py-2"
+								style="animation-duration: 0.2s;">
+								<div class="px-4 py-3 border-b border-border/50 mb-2">
+									<p class="text-sm font-bold text-text">My Account</p>
+								</div>
+								<NuxtLink to="/user"
+									class="block px-4 py-2.5 text-sm text-text/80 hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-3">
+									<Icon name="mdi:account-outline" class="w-4 h-4" /> Account Settings
+								</NuxtLink>
+
+								<NuxtLink to="/user?tab=orders"
+									class="block px-4 py-2.5 text-sm text-text/80 hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-3">
+									<Icon name="mdi:package-variant" class="w-4 h-4" /> My Orders
+								</NuxtLink>
+								<div class="h-px bg-border/50 my-2"></div>
+								<button @click="logout"
+									class="block w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/10 transition-colors flex items-center gap-3 font-medium">
+									<Icon name="mdi:logout" class="w-4 h-4" /> Logout
+								</button>
+							</div>
+						</li>
+						<template #fallback>
+							<li>
+								<div class="w-24 h-10 rounded-full bg-secondary/50 animate-pulse"></div>
+							</li>
+						</template>
+					</ClientOnly>
 				</ul>
 			</div>
 		</nav>

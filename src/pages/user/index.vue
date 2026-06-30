@@ -39,11 +39,11 @@
                     <!-- Hover Edit Overlay -->
                     <div
                       class="absolute inset-0 bg-black/45 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Icon name="mdi:camera" class="w-6 h-6 text-white" />
+                      <div><Icon name="mdi:camera" class="w-6 h-6 text-white" /></div>
                     </div>
                   </div>
                   <div class="font-extrabold text-lg text-text mb-1">
-                    <span>{{ profileData.first_name || 'Guest' }} {{ profileData.last_name || '' }}</span>
+                    <span>{{ profileData.first_name || authStore.user?.first_name || authStore.user?.username || 'Guest' }} {{ profileData.last_name || authStore.user?.last_name || '' }}</span>
                   </div>
                   <p class="text-text opacity-50 text-xs font-semibold">@{{ authStore.user?.username || 'user' }}</p>
                   <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleImageUpload" />
@@ -67,7 +67,7 @@
                     ? 'bg-primary text-white shadow-lg shadow-primary/25'
                     : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
                   <Icon name="mdi:account-outline" class="w-5 h-5" />
-                  Profile Details
+                  Profile
                 </button>
 
                 <button @click="activeTab = 'address'"
@@ -130,8 +130,7 @@
                 <div>
                   <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-text">Recent Orders</h3>
-                    <button @click="activeTab = 'orders'" class="text-sm font-bold text-primary hover:underline">View
-                      All</button>
+                    <button @click="activeTab = 'orders'" class="text-sm font-bold text-primary hover:underline">View All</button>
                   </div>
                   <div v-if="loadingDashboard" class="flex justify-center py-8">
                     <v-progress-circular indeterminate color="primary"></v-progress-circular>
