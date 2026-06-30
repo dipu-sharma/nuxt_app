@@ -4,8 +4,10 @@ import { useAuthStore } from '~/stores/auth'
 
 export const useCartStore = defineStore('cart', {
   state: () => ({
+    cartId: '',
     items: [],
     loading: false,
+    _fetchPromise: null,
   }),
   getters: {
     totalItems: (state) => {
@@ -22,19 +24,30 @@ export const useCartStore = defineStore('cart', {
       const authStore = useAuthStore()
       if (!authStore.isAuthenticated) {
         this.items = []
+        this.cartId = ''
         return
       }
-      this.loading = true
-      try {
-        const { getCart } = useCart()
-        const res = await getCart()
-        // API response might be { data: { items: [] } } or just an array
-        this.items = res?.data?.items || res?.data || []
-      } catch (err) {
-        console.error('Failed to fetch cart', err)
-      } finally {
-        this.loading = false
+      
+      if (this._fetchPromise) {
+        return this._fetchPromise
       }
+
+      this.loading = true
+      this._fetchPromise = (async () => {
+        try {
+          const { getCart } = useCart()
+          const res = await getCart()
+          this.cartId = res?.data?.cart_id || ''
+          this.items = res?.data?.items || res?.data || []
+        } catch (err) {
+          console.error('Failed to fetch cart', err)
+        } finally {
+          this.loading = false
+          this._fetchPromise = null
+        }
+      })()
+
+      return this._fetchPromise
     },
     async addProductToCart(productId: string, quantity: number = 1) {
       try {

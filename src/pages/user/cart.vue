@@ -281,6 +281,8 @@ import { useCoupons } from '~/composables/useCoupons'
 import { useOrders } from '~/composables/useOrders'
 import { useAddress } from '~/composables/useAddress'
 import { usePayments } from '~/composables/usePayments'
+import { useCartStore } from '~/stores/cartStore'
+import { computed, ref, onMounted } from 'vue'
 
 definePageMeta({ title: 'My Cart', middleware: ['auth-role'], layout: 'default' })
 
@@ -291,8 +293,24 @@ useSeoMeta({
   robots: 'noindex, nofollow' // We do not want search engines indexing the private cart page
 })
 
-const loading = ref(false)
-const cartItems = ref([])
+const cartStore = useCartStore()
+
+const loading = computed(() => cartStore.loading)
+const cartId = computed(() => cartStore.cartId)
+
+const cartItems = computed(() => {
+  if (!Array.isArray(cartStore.items)) return []
+  return cartStore.items.map(item => ({
+    product_id: item.product?.product_id,
+    name: item.product?.product_name || item.product?.name,
+    price: item.product?.selling_price || item.product?.price || 0,
+    image_url: item.product?.images?.[0]?.url || item.product?.images?.[0]?.image_url || '',
+    quantity: item.quantity,
+    id: item.id,
+    total_available_quantity: item.product?.total_available_quantity !== undefined ? item.product.total_available_quantity : 999999
+  }))
+})
+
 const addresses = ref([])
 const couponCode = ref('')
 const applyingCoupon = ref(false)
@@ -318,26 +336,8 @@ const hasOutOfStockItems = computed(() => {
   return cartItems.value.some(item => item.quantity > item.total_available_quantity)
 })
 
-const cartId = ref('')
-
 const loadCart = async () => {
-  loading.value = true
-  try {
-    const { getCart } = useCart()
-    const res = await getCart()
-    cartId.value = res?.data?.cart_id || ''
-    const rawItems = res?.data?.items || []
-    cartItems.value = rawItems.map(item => ({
-      product_id: item.product?.product_id,
-      name: item.product?.product_name || item.product?.name,
-      price: item.product?.selling_price || item.product?.price || 0,
-      image_url: item.product?.images?.[0]?.url || item.product?.images?.[0]?.image_url || '',
-      quantity: item.quantity,
-      id: item.id,
-      total_available_quantity: item.product?.total_available_quantity !== undefined ? item.product.total_available_quantity : 999999
-    }))
-  } catch { toast.error('Failed to load cart') }
-  finally { loading.value = false }
+  await cartStore.fetchCart()
 }
 
 const loadAddresses = async () => {
@@ -353,7 +353,7 @@ const removeItem = async (item_id) => {
   try {
     const { removeFromCart } = useCart()
     await removeFromCart(item_id)
-    cartItems.value = cartItems.value.filter(i => i.id !== item_id)
+    await cartStore.fetchCart()
     toast.success('Item removed')
   } catch { toast.error('Failed to remove item') }
 }
@@ -367,7 +367,7 @@ const updateQty = async (item, qty) => {
       quantity: i.product_id === item.product_id ? qty : i.quantity
     }))
     await updateCart(cartId.value, itemsPayload)
-    item.quantity = qty
+    await cartStore.fetchCart()
   } catch { toast.error('Failed to update quantity') }
 }
 
@@ -376,7 +376,7 @@ const confirmClear = async () => {
   try {
     const { clearCart } = useCart()
     await clearCart(cartId.value)
-    cartItems.value = []
+    await cartStore.fetchCart()
     toast.success('Cart cleared')
   } catch { toast.error('Failed to clear cart') }
 }

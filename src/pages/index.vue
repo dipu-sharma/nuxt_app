@@ -109,22 +109,27 @@
 
         <!-- Right Product Grid Section -->
         <main class="lg:col-span-8">
-          <!-- Empty State -->
-          <div v-if="filteredProducts.length === 0"
-            class="text-center py-24 px-6 bg-card/60 backdrop-blur-2xl rounded-[3rem] border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)]">
-            <div
-              class="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-white/10">
-              <Icon name="mdi:leaf" class="w-12 h-12 text-primary opacity-60" />
+          <ClientOnly>
+            <!-- Empty State -->
+            <div v-if="filteredProducts.length === 0"
+              class="text-center py-24 px-6 bg-card/60 backdrop-blur-2xl rounded-[3rem] border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)]">
+              <div
+                class="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-white/10">
+                <Icon name="mdi:leaf" class="w-12 h-12 text-primary opacity-60" />
+              </div>
+              <h3 class="text-3xl font-bold text-text mb-3">No matching products</h3>
+              <p class="text-text opacity-60 text-lg max-w-sm mx-auto">Try adjusting your category selection or expanding
+                your price range limit.</p>
             </div>
-            <h3 class="text-3xl font-bold text-text mb-3">No matching products</h3>
-            <p class="text-text opacity-60 text-lg max-w-sm mx-auto">Try adjusting your category selection or expanding
-              your price range limit.</p>
-          </div>
 
-          <!-- Products component -->
-          <div v-else>
-            <Product :products="filteredProducts" />
-          </div>
+            <!-- Products component -->
+            <div v-else>
+              <Product :products="filteredProducts" />
+            </div>
+            <template #fallback>
+              <div class="flex justify-center p-12"><div class="animate-pulse font-bold text-primary">Loading products...</div></div>
+            </template>
+          </ClientOnly>
         </main>
       </div>
 
@@ -149,7 +154,13 @@ useSeoMeta({
 })
 
 const { fetchPublic } = useProducts()
-const { data: productResponse } = await useAsyncData('homeProducts', () => fetchPublic().catch(() => null))
+const { data: productResponse, refresh } = await useAsyncData('homeProducts', () => fetchPublic().catch(() => null))
+
+onMounted(() => {
+  if (products.value.length === 0) {
+    refresh()
+  }
+})
 
 const products = computed(() => {
   return productResponse.value?.data?.items || productResponse.value?.data || []

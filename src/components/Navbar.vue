@@ -39,10 +39,15 @@
 					<!-- Theme Toggle -->
 					<li class="p-4 cursor-pointer hover:scale-110 transition-transform relative group"
 						@click="themeStore.toggleTheme()" :title="'Current theme: ' + themeStore.currentTheme">
-						<Icon :name="themeIcon" class="text-primary w-5 h-5" />
-						<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-text text-background px-2 py-1 rounded shadow pointer-events-none capitalize">
-							{{ themeStore.currentTheme }}
-						</span>
+						<ClientOnly>
+							<Icon :name="themeIcon" class="text-primary w-5 h-5" />
+							<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-text text-background px-2 py-1 rounded shadow pointer-events-none capitalize">
+								{{ themeStore.currentTheme }}
+							</span>
+							<template #fallback>
+								<Icon name="ri:sun-line" class="text-primary w-5 h-5 opacity-50" />
+							</template>
+						</ClientOnly>
 					</li>
 					<!-- Cart Icon -->
 					<ClientOnly>
@@ -56,6 +61,13 @@
 								</span>
 							</NuxtLink>
 						</li>
+						<template #fallback>
+							<li class="relative p-4 flex items-center">
+								<NuxtLink to="/user/cart" class="relative text-text/70 hover:text-primary transition-colors focus:outline-none" aria-label="Cart">
+									<Icon name="mdi:cart-outline" class="w-6 h-6 opacity-50" />
+								</NuxtLink>
+							</li>
+						</template>
 					</ClientOnly>
 					<li v-if="!authStore.isAuthenticated">
 						<NuxtLink

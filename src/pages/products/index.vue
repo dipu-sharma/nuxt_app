@@ -128,53 +128,58 @@
               || 'Filters' }}"</span>
           </div>
 
-          <!-- Loading State -->
-          <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            <div v-for="i in 6" :key="i"
-              class="bg-card/60 backdrop-blur-xl rounded-[2rem] overflow-hidden animate-pulse border border-white/20 shadow-lg">
-              <div class="aspect-[4/3] w-full bg-secondary/80 relative overflow-hidden">
-                <div
-                  class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]">
+          <ClientOnly>
+            <!-- Loading State -->
+            <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+              <div v-for="i in 6" :key="i"
+                class="bg-card/60 backdrop-blur-xl rounded-[2rem] overflow-hidden animate-pulse border border-white/20 shadow-lg">
+                <div class="aspect-[4/3] w-full bg-secondary/80 relative overflow-hidden">
+                  <div
+                    class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]">
+                  </div>
+                </div>
+                <div class="p-6 space-y-4">
+                  <div class="h-3 w-1/3 rounded-full bg-secondary" />
+                  <div class="h-5 w-3/4 rounded-full bg-secondary" />
+                  <div class="h-4 w-1/2 rounded-full bg-secondary" />
                 </div>
               </div>
-              <div class="p-6 space-y-4">
-                <div class="h-3 w-1/3 rounded-full bg-secondary" />
-                <div class="h-5 w-3/4 rounded-full bg-secondary" />
-                <div class="h-4 w-1/2 rounded-full bg-secondary" />
+            </div>
+
+            <!-- Empty State -->
+            <div v-else-if="hasSearched && products.length === 0"
+              class="text-center py-24 px-6 bg-card/60 backdrop-blur-2xl rounded-[3rem] border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)]">
+              <div
+                class="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-white/10">
+                <Icon name="mdi:magnify-close" class="w-12 h-12 text-primary opacity-60" />
+              </div>
+              <h3 class="text-3xl font-bold text-text mb-3">No products found</h3>
+              <p class="text-text opacity-60 text-lg max-w-sm mx-auto">Try refining your keyword query or resetting
+                categories.</p>
+            </div>
+
+            <!-- Products Catalog Component -->
+            <div v-else>
+              <Product :products="products" />
+
+              <!-- Load More button -->
+              <div v-if="hasMore" class="mt-16 text-center">
+                <button @click="loadMore" :disabled="isLoadMoreLoading"
+                  class="relative group overflow-hidden rounded-[1.5rem] font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-indigo-500/30 transition-all h-14 px-12 inline-flex items-center justify-center disabled:opacity-50 disabled:pointer-events-none">
+                  <div
+                    class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 transition-transform duration-500 group-hover:scale-105">
+                  </div>
+                  <div class="relative z-10 flex items-center justify-center gap-2">
+                    <Icon v-if="isLoadMoreLoading" name="mdi:loading" class="w-5 h-5 animate-spin" />
+                    <span v-else>LOAD MORE PRODUCTS</span>
+                  </div>
+                </button>
               </div>
             </div>
-          </div>
-
-          <!-- Empty State -->
-          <div v-else-if="hasSearched && products.length === 0"
-            class="text-center py-24 px-6 bg-card/60 backdrop-blur-2xl rounded-[3rem] border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)]">
-            <div
-              class="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-white/10">
-              <Icon name="mdi:magnify-close" class="w-12 h-12 text-primary opacity-60" />
-            </div>
-            <h3 class="text-3xl font-bold text-text mb-3">No products found</h3>
-            <p class="text-text opacity-60 text-lg max-w-sm mx-auto">Try refining your keyword query or resetting
-              categories.</p>
-          </div>
-
-          <!-- Products Catalog Component -->
-          <div v-else>
-            <Product :products="products" />
-
-            <!-- Load More button -->
-            <div v-if="hasMore" class="mt-16 text-center">
-              <button @click="loadMore" :disabled="isLoadMoreLoading"
-                class="relative group overflow-hidden rounded-[1.5rem] font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-indigo-500/30 transition-all h-14 px-12 inline-flex items-center justify-center disabled:opacity-50 disabled:pointer-events-none">
-                <div
-                  class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 transition-transform duration-500 group-hover:scale-105">
-                </div>
-                <div class="relative z-10 flex items-center justify-center gap-2">
-                  <Icon v-if="isLoadMoreLoading" name="mdi:loading" class="w-5 h-5 animate-spin" />
-                  <span v-else>LOAD MORE PRODUCTS</span>
-                </div>
-              </button>
-            </div>
-          </div>
+            <template #fallback>
+              <div class="flex justify-center p-12"><div class="animate-pulse font-bold text-primary">Loading products...</div></div>
+            </template>
+          </ClientOnly>
 
         </main>
       </div>
@@ -364,7 +369,11 @@ cursor.value = initialSearchData.value?.pop?.next_cursor || null
 hasMore.value = !!initialSearchData.value?.pop?.has_more
 
 onMounted(() => {
-  if (query.value) doSearch()
+  if (query.value) {
+    doSearch()
+  } else if (products.value.length === 0) {
+    doSearch() // Fetch popular items on the client if SSR failed
+  }
 })
 </script>
 
