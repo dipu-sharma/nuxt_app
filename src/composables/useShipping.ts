@@ -14,5 +14,15 @@ export const useShipping = () => {
     async deleteShippingZone(id: string | number) {
       return await api(`/api/shipping/zones/${id}`, { method: 'DELETE' })
     },
+    
+    /** Get available shipping methods for Home */
+    async getHomeShippingMethods(params: Record<string, any> = {}) {
+      return await api('/api/home/shipping/methods', { method: 'GET', query: params })
+    },
+
+    /** Calculate shipping cost */
+    async calculateShipping(payload: any) {
+      return await api('/api/home/shipping/calculate', { method: 'POST', body: payload })
+    },
   }
 }

@@ -71,6 +71,6 @@ export const useAuth = () => {
     /** Logout */
     async logout() {
       return await api('/api/auth/logout', { method: 'POST' })
-    }
+    },
   }
 }

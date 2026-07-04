@@ -29,5 +29,8 @@ export const useSearch = () => {
     async getProductsByCategory(categoryName: string, params: any = {}) {
       return await api(`/api/home/products/category/${categoryName}`, { method: 'GET', query: params })
     },
+    async getProductsByCategoryId(params: { category_id: string; limit?: number; cursor?: string; min_price?: number; max_price?: number }) {
+      return await api('/api/home/products/category', { method: 'GET', query: params })
+    },
   }
 }

@@ -1,53 +1,31 @@
 <template>
-  <div class="min-h-screen relative overflow-hidden bg-background text-text selection:bg-primary/30 py-1 lg:py-12">
-    <!-- Abstract Cool Color Gradient Blobs -->
-    <div
-      class="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-indigo-500/20 via-purple-500/20 to-transparent rounded-full blur-[100px] translate-x-1/3 -translate-y-1/3 pointer-events-none">
+  <div class="text-text">
+    <div class="flex items-end justify-between mb-5">
+      <p class="text-text opacity-60 text-base font-medium tracking-wide">{{ cartItems.length }} item(s) waiting for you</p>
+      <button v-if="cartItems.length" @click="confirmClear"
+        class="px-5 py-2.5 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-bold text-sm tracking-widest uppercase flex items-center gap-2 shadow-sm">
+        <Icon name="mdi:trash-can-outline" class="w-4 h-4" /> Clear Cart
+      </button>
     </div>
-    <div
-      class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-cyan-500/20 via-blue-500/20 to-transparent rounded-full blur-[120px] -translate-x-1/3 translate-y-1/3 pointer-events-none">
+
+    <div v-if="loading" class="flex flex-col items-center justify-center py-32">
+      <div class="relative">
+        <div class="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+        <div class="absolute inset-0 bg-gradient-to-tr from-cyan-400 to-purple-500 rounded-full blur-xl opacity-30 animate-pulse" />
+      </div>
     </div>
 
-    <div class="relative z-10 max-w-6xl mx-auto px-6">
-      <!-- Header -->
-      <div class="flex items-end justify-between mb-5 mt-10">
-        <div>
-          <h1
-            class="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-text to-text/60 leading-tight">
-            My Cart</h1>
-          <p class="text-text opacity-60 text-base mt-2 font-medium tracking-wide">{{ cartItems.length }} item(s)
-            waiting for you</p>
-        </div>
-        <button v-if="cartItems.length" @click="confirmClear"
-          class="px-5 py-2.5 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-bold text-sm tracking-widest uppercase flex items-center gap-2 shadow-sm">
-          <Icon name="mdi:trash-can-outline" class="w-4 h-4" /> Clear Cart
-        </button>
+    <div v-else-if="!cartItems.length"
+      class="text-center py-24 bg-card/60 backdrop-blur-2xl border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] rounded-[3rem]">
+      <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-white/10">
+        <Icon name="mdi:cart-outline" class="w-12 h-12 text-primary opacity-60" />
       </div>
-
-      <div v-if="loading" class="flex flex-col items-center justify-center py-32">
-        <div class="relative">
-          <div class="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
-          <div
-            class="absolute inset-0 bg-gradient-to-tr from-cyan-400 to-purple-500 rounded-full blur-xl opacity-30 animate-pulse">
-          </div>
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <div v-else-if="!cartItems.length"
-        class="text-center py-24 bg-card/60 backdrop-blur-2xl border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] rounded-[3rem]">
-        <div
-          class="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-white/10">
-          <Icon name="mdi:cart-outline" class="w-12 h-12 text-primary opacity-60" />
-        </div>
-        <h2 class="text-3xl font-bold text-text mb-3">Your cart is empty</h2>
-        <p class="text-text opacity-60 mb-8 max-w-sm mx-auto text-lg">Looks like you haven't added anything yet. Let's
-          find something special!</p>
-        <router-link to="/"
-          class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold rounded-full hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all text-lg">
-          <Icon name="mdi:shopping-outline" class="w-6 h-6" /> Browse Collection
-        </router-link>
-      </div>
+      <h2 class="text-3xl font-bold text-text mb-3">Your cart is empty</h2>
+      <p class="text-text opacity-60 mb-8 max-w-sm mx-auto text-lg">Looks like you haven't added anything yet. Let's find something special!</p>
+      <NuxtLink to="/" class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold rounded-full hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all text-lg">
+        <Icon name="mdi:shopping-outline" class="w-6 h-6" /> Browse Collection
+      </NuxtLink>
+    </div>
 
       <!-- Cart Content -->
       <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
@@ -270,7 +248,6 @@
         </div>
       </div>
     </v-dialog>
-  </div>
 </template>
 
 <script setup>
@@ -284,7 +261,7 @@ import { usePayments } from '~/composables/usePayments'
 import { useCartStore } from '~/stores/cartStore'
 import { computed, ref, onMounted } from 'vue'
 
-definePageMeta({ title: 'My Cart', middleware: ['auth-role'], layout: 'default' })
+definePageMeta({ title: 'My Cart', middleware: ['auth-role'], layout: 'user' })
 
 useSeoMeta({
   title: 'My Shopping Cart | D-Shop',

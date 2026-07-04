@@ -69,5 +69,20 @@ export const useProfile = () => {
     async updateAdminProfile(payload: any) {
       return await api('/api/admin/profile', { method: 'PUT', body: payload })
     },
+    
+    /** Add a bank account */
+    async addBankAccount(payload: any) {
+      return await api('/api/user/add_bank_account', { method: 'POST', body: payload })
+    },
+
+    /** Basic user search */
+    async searchUsers(payload: any) {
+      return await api('/api/user/search', { method: 'POST', body: payload })
+    },
+
+    /** Advanced user search */
+    async advancedUserSearch(payload: any) {
+      return await api('/api/user/search/advanced', { method: 'POST', body: payload })
+    },
   }
 }

@@ -1,15 +1,11 @@
 <template>
-  <div class="p-6" style="color: rgb(var(--color-text))">
-    <div class="max-w-5xl mx-auto">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h1 class="text-2xl font-bold">My Invoices</h1>
-          <p class="text-slate-500 text-sm mt-1">{{ total }} invoices total</p>
-        </div>
-        <v-btn color="primary" prepend-icon="mdi:plus" rounded="lg" @click="openCreate">New Invoice</v-btn>
-      </div>
+  <div>
+    <div class="flex items-center justify-between mb-6">
+      <p class="text-text opacity-60 text-base font-medium tracking-wide">{{ total }} invoices total</p>
+      <v-btn color="primary" prepend-icon="mdi:plus" rounded="pill" @click="openCreate" class="text-none tracking-widest font-medium text-white shadow-lg">New Invoice</v-btn>
+    </div>
 
-      <v-card rounded="xl">
+    <v-card rounded="xl">
         <v-data-table :headers="headers" :items="invoices" :loading="loading" hover class="rounded-xl">
           <template #item.invoice_number="{ item }">
             <span class="font-semibold text-indigo-600">#{{ item.invoice_number || item.id }}</span>
@@ -80,14 +76,13 @@
         </div>
       </v-card>
     </v-dialog>
-  </div>
 </template>
 
 <script setup>
 import { toast } from 'vue3-toastify'
 import dayjs from 'dayjs'
 
-definePageMeta({ title: 'My Invoices', middleware: ['auth-role'], layout: 'default' })
+definePageMeta({ title: 'My Invoices', middleware: ['auth-role'], layout: 'user' })
 
 const loading = ref(false)
 const saving = ref(false)

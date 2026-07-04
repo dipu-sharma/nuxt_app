@@ -67,6 +67,18 @@
               Filter Catalog
             </h2>
 
+            <!-- Search Filter -->
+            <div class="mb-6 relative z-10">
+              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-3">
+                Search
+              </label>
+              <div class="relative">
+                <input v-model="searchQuery" type="text" placeholder="Search products..."
+                  class="w-full pl-10 pr-4 py-3 bg-background border border-border/60 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text shadow-sm" />
+                <Icon name="mdi:magnify" class="absolute left-3 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+              </div>
+            </div>
+
             <!-- Category Filter -->
             <div class="mb-8 relative z-10">
               <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-3">
@@ -75,8 +87,8 @@
               <div class="relative">
                 <select v-model="selectedCategory"
                   class="w-full pl-5 pr-10 py-3 bg-background border border-border/60 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer text-text shadow-sm">
-                  <option v-for="cat in categoriesList" :key="cat" :value="cat === 'All Categories' ? '' : cat">
-                    {{ cat }}
+                  <option v-for="cat in categoriesList" :key="cat.category_id" :value="cat.category_id">
+                    {{ cat.name }}
                   </option>
                 </select>
                 <Icon name="mdi:chevron-down"
@@ -100,7 +112,7 @@
             </div>
 
             <!-- Reset Filter Button -->
-            <button v-if="selectedCategory || amount_range[0] > 10 || amount_range[1] < 100000" @click="resetFilters"
+            <button v-if="searchQuery || selectedCategory || amount_range[0] > 10 || amount_range[1] < 100000" @click="resetFilters"
               class="w-full mt-6 py-3 rounded-xl text-sm font-bold bg-secondary/50 text-text/70 hover:bg-primary hover:text-white transition-all shadow-sm relative z-10">
               Reset Filters
             </button>
@@ -138,7 +150,10 @@
 </template>
 
 <script setup>
+import { ref, computed, watch, onMounted } from 'vue'
 import { useProducts } from '~/composables/useProducts'
+import { useSearch } from '~/composables/useSearch'
+import { useDebounceFn } from '@vueuse/core'
 
 definePageMeta({
   title: 'Home',
@@ -154,28 +169,60 @@ useSeoMeta({
 })
 
 const { fetchPublic } = useProducts()
-const { data: productResponse, refresh } = await useAsyncData('homeProducts', () => fetchPublic().catch(() => null))
+const { getPublicCategories, getProductsByCategoryId } = useSearch()
 
-onMounted(() => {
+const amount_range = ref([10, 100000])
+const selectedCategory = ref('')
+const searchQuery = ref('')
+
+const fetchParams = computed(() => {
+  const params = { limit: 50 }
+  if (selectedCategory.value) params.category_id = selectedCategory.value
+  if (searchQuery.value) params.search = searchQuery.value
+  return params
+})
+
+const { data: productResponse, refresh } = await useAsyncData('homeProducts', () => {
+  if (selectedCategory.value) {
+    return getProductsByCategoryId({ category_id: selectedCategory.value, limit: 50 }).catch(() => null)
+  }
+  return fetchPublic(fetchParams.value).catch(() => null)
+})
+
+const categoriesData = ref([])
+
+onMounted(async () => {
+  try {
+    const res = await getPublicCategories()
+    categoriesData.value = res?.data || []
+  } catch (e) {}
+
   if (products.value.length === 0) {
     refresh()
   }
+})
+
+// Debounce the refresh function so we don't spam the API on every keystroke
+const debouncedRefresh = useDebounceFn(() => {
+  refresh()
+}, 500)
+
+watch([searchQuery, selectedCategory], () => {
+  debouncedRefresh()
 })
 
 const products = computed(() => {
   return productResponse.value?.data?.items || productResponse.value?.data || []
 })
 
-const amount_range = ref([10, 100000])
-const selectedCategory = ref('')
-
 const categoriesList = computed(() => {
-  const list = new Set()
-  products.value.forEach(p => {
-    const cat = p.category?.name || p.category_name
-    if (cat) list.add(cat)
+  const list = [{ category_id: '', name: 'All Categories' }]
+  categoriesData.value.forEach(p => {
+    const category_id = p.category_id || p.id || ''
+    const name = p.name || p.category_name || (typeof p === 'string' ? p : '')
+    if (category_id || name) list.push({ category_id, name })
   })
-  return ['All Categories', ...Array.from(list)]
+  return list
 })
 
 const filteredProducts = computed(() => {
@@ -186,19 +233,13 @@ const filteredProducts = computed(() => {
     return price >= amount_range.value[0] && price <= amount_range.value[1]
   })
 
-  if (selectedCategory.value) {
-    list = list.filter(p => {
-      const catName = p.category?.name || p.category_name || ''
-      return catName.toLowerCase() === selectedCategory.value.toLowerCase()
-    })
-  }
-
   return list
 })
 
 const resetFilters = () => {
   amount_range.value = [10, 100000]
   selectedCategory.value = ''
+  searchQuery.value = ''
 }
 
 const scrollToCatalog = () => {

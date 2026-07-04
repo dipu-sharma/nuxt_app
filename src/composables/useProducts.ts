@@ -12,13 +12,10 @@ export const useProducts = () => {
 
   return {
     /**
-     * Public Catalog: Fetch products by category or all
+     * Public Catalog: Fetch products by query params (search, category, limit, etc.)
      */
-    async fetchPublic(category?: string) {
-      const url = category 
-        ? `/api/home/products/category/${category}` 
-        : '/api/home/products'
-      return await api(url, { method: 'GET' })
+    async fetchPublic(params?: any) {
+      return await api('/products', { method: 'GET', query: params })
     },
 
     /**
@@ -94,6 +91,26 @@ export const useProducts = () => {
      */
     async getAdminBusinessProducts(businessId: string, params: any = {}) {
       return await api(`/api/admin/businesses/${businessId}/products`, {
+        method: 'GET',
+        query: params
+      })
+    },
+
+    /**
+     * Home: Get all products
+     */
+    async getHomeProducts(params: any = {}) {
+      return await api('/api/home/products', {
+        method: 'GET',
+        query: params
+      })
+    },
+
+    /**
+     * User: Get user recommendations
+     */
+    async getUserRecommendations(params: any = {}) {
+      return await api('/api/user/recommendations', {
         method: 'GET',
         query: params
       })

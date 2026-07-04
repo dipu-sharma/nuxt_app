@@ -1,48 +1,39 @@
 <template>
-  <div class="p-6" style="color: rgb(var(--color-text))">
-    <div class="max-w-5xl mx-auto">
-      <div class="flex items-center justify-between mb-8">
-        <div>
-          <h1 class="text-2xl font-bold">My Wishlist</h1>
-          <p class="text-slate-500 text-sm mt-1">{{ items.length }} saved item(s)</p>
+  <div>
+    <p class="text-text opacity-60 text-base font-medium tracking-wide mb-5">{{ items.length }} saved item(s)</p>
+
+    <v-progress-circular v-if="loading" indeterminate color="primary" class="d-flex mx-auto my-16" />
+
+    <div v-else-if="!items.length" class="text-center py-20 bg-card/60 backdrop-blur-2xl border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] rounded-[3rem]">
+      <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-white/10">
+        <Icon name="mdi:heart-outline" class="w-12 h-12 text-primary opacity-60" />
+      </div>
+      <h2 class="text-3xl font-bold text-text mb-3">Your wishlist is empty</h2>
+      <p class="text-text opacity-60 mb-8 max-w-sm mx-auto text-lg">Save items you love for later</p>
+      <v-btn color="primary" rounded="pill" size="x-large" to="/products" class="px-8 text-none tracking-widest font-medium text-white shadow-lg">
+        <Icon name="mdi:shopping-outline" class="mr-2" /> Browse Products
+      </v-btn>
+    </div>
+
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div v-for="item in items" :key="item.id"
+        class="bg-card/60 backdrop-blur-xl border border-white/20 shadow-lg rounded-[2rem] overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group">
+        <div class="relative h-48 bg-secondary/40 overflow-hidden">
+          <img :src="item.image_url || '/placeholder-product.png'" :alt="item.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <button @click="removeItem(item.product_id)"
+            class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-lg">
+            <Icon name="mdi:heart" class="w-5 h-5" />
+          </button>
+        </div>
+        <div class="p-5">
+          <h3 class="font-bold text-text text-base line-clamp-2 mb-1">{{ item.name }}</h3>
+          <p class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500 mb-4">₹{{ item.price?.toLocaleString('en-IN') }}</p>
+          <button @click="addToCart(item)"
+            class="w-full py-3 rounded-xl bg-primary/10 text-primary font-bold text-sm hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 border border-primary/20">
+            <Icon name="mdi:cart-plus" class="w-4 h-4" /> Add to Cart
+          </button>
         </div>
       </div>
-
-      <v-progress-circular v-if="loading" indeterminate color="primary" class="d-flex mx-auto my-16" />
-
-      <div v-else-if="!items.length" class="text-center py-20">
-        <Icon name="mdi:heart-outline" class="w-20 h-20 text-slate-300 mx-auto mb-4" />
-        <h2 class="text-xl font-semibold text-slate-600 mb-2">Your wishlist is empty</h2>
-        <p class="text-slate-400 mb-6">Save items you love for later</p>
-        <v-btn color="primary" rounded="lg" size="large" to="/products">
-          <Icon name="mdi:shopping-outline" class="mr-2" /> Browse Products
-        </v-btn>
-      </div>
-
-      <v-row v-else>
-        <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="4" lg="3">
-          <v-card rounded="xl" class="overflow-hidden hover:shadow-lg transition-shadow h-full">
-            <div class="relative">
-              <img :src="item.image_url || '/placeholder-product.png'" :alt="item.name"
-                class="w-full h-48 object-cover bg-slate-100" />
-              <v-btn icon size="small" color="error" class="absolute top-2 right-2 shadow"
-                :loading="removing === item.product_id" @click="removeItem(item.product_id)">
-                <Icon name="mdi:heart" />
-              </v-btn>
-            </div>
-            <div class="pa-4">
-              <h3 class="font-semibold text-sm mb-1 line-clamp-2">{{ item.name }}</h3>
-              <p class="text-indigo-600 font-bold text-base mb-3">
-                ₹{{ item.price?.toLocaleString('en-IN') }}
-              </p>
-              <v-btn block color="primary" rounded="lg" size="small" variant="outlined"
-                :loading="addingToCart === item.product_id" @click="addToCart(item)">
-                <Icon name="mdi:cart-plus" class="mr-1" /> Add to Cart
-              </v-btn>
-            </div>
-          </v-card>
-        </v-col>
-      </v-row>
     </div>
   </div>
 </template>
@@ -50,7 +41,7 @@
 <script setup>
 import { toast } from 'vue3-toastify'
 
-definePageMeta({ title: 'My Wishlist', middleware: ['auth-role'], layout: 'default' })
+definePageMeta({ title: 'My Wishlist', middleware: ['auth-role'], layout: 'user' })
 
 const loading = ref(false)
 const removing = ref(null)

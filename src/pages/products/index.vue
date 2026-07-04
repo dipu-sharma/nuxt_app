@@ -264,18 +264,25 @@ const doSearch = async () => {
       return
     }
 
-    const { searchProducts } = useSearch()
     const params = { limit: 20 }
-    if (query.value) params.query = query.value
-    if (selectedCategory.value) {
-      params.category_id = selectedCategory.value
-      params.category = selectedCategory.value
-    }
     if (amount_range.value[0] > 10) params.min_price = amount_range.value[0]
     if (amount_range.value[1] < 100000) params.max_price = amount_range.value[1]
 
     try {
-      const res = await searchProducts(params)
+      let res
+      if (query.value) {
+        const { searchProducts } = useSearch()
+        params.query = query.value
+        if (selectedCategory.value) params.category_id = selectedCategory.value
+        res = await searchProducts(params)
+      } else if (selectedCategory.value) {
+        const { getProductsByCategoryId } = useSearch()
+        res = await getProductsByCategoryId({ category_id: selectedCategory.value, ...params })
+      } else {
+        const { getPopular } = useSearch()
+        res = await getPopular(params)
+      }
+
       products.value = extractArray(res)
       cursor.value = res?.data?.next_cursor || null
       hasMore.value = !!res?.data?.has_more
@@ -291,22 +298,29 @@ const loadMore = async () => {
   if (isLoadMoreLoading.value || !hasMore.value) return
   isLoadMoreLoading.value = true
   try {
-    const { searchProducts } = useSearch()
     const params = {
       limit: 20,
       cursor: cursor.value
     }
-    if (query.value) params.query = query.value
-    if (selectedCategory.value) {
-      params.category_id = selectedCategory.value
-      params.category = selectedCategory.value
-    }
     if (amount_range.value[0] > 10) params.min_price = amount_range.value[0]
     if (amount_range.value[1] < 100000) params.max_price = amount_range.value[1]
 
-    const res = await searchProducts(params)
-    const list = extractArray(res)
-    products.value.push(...list)
+    let res
+    if (query.value) {
+      const { searchProducts } = useSearch()
+      params.query = query.value
+      if (selectedCategory.value) params.category_id = selectedCategory.value
+      res = await searchProducts(params)
+    } else if (selectedCategory.value) {
+      const { getProductsByCategoryId } = useSearch()
+      res = await getProductsByCategoryId({ category_id: selectedCategory.value, ...params })
+    } else {
+      const { getPopular } = useSearch()
+      res = await getPopular(params)
+    }
+
+    const moreProducts = extractArray(res)
+    products.value.push(...moreProducts)
     cursor.value = res?.data?.next_cursor || null
     hasMore.value = !!res?.data?.has_more
   } catch (err) {

@@ -26,51 +26,77 @@
 
       <!-- Tab List Buttons -->
       <nav class="space-y-2 mt-6">
-        <button v-if="isIndexPage" @click="changeTab('overview')"
+        <NuxtLink to="/user?tab=overview"
           class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
-          :class="activeTab === 'overview'
+          :class="isActive('overview')
             ? 'bg-primary text-white shadow-lg shadow-primary/25'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:view-dashboard-outline" class="w-5 h-5" />
           Overview
-        </button>
+        </NuxtLink>
 
-        <button v-if="isIndexPage" @click="changeTab('profile')"
+        <NuxtLink to="/user?tab=profile"
           class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
-          :class="activeTab === 'profile'
+          :class="isActive('profile')
             ? 'bg-primary text-white shadow-lg shadow-primary/25'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:account-outline" class="w-5 h-5" />
-          Profile Details
-        </button>
+          Profile
+        </NuxtLink>
 
-        <button v-if="isIndexPage" @click="changeTab('address')"
+        <NuxtLink to="/user?tab=address"
           class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
-          :class="activeTab === 'address'
+          :class="isActive('address')
             ? 'bg-primary text-white shadow-lg shadow-primary/25'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:map-marker-outline" class="w-5 h-5" />
-          Saved Addresses
-        </button>
+          Addresses
+        </NuxtLink>
 
-        <button v-if="isIndexPage" @click="changeTab('security')"
+        <NuxtLink to="/user?tab=security"
           class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
-          :class="activeTab === 'security'
+          :class="isActive('security')
             ? 'bg-primary text-white shadow-lg shadow-primary/25'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:lock-outline" class="w-5 h-5" />
-          Password & Security
-        </button>
+          Security
+        </NuxtLink>
 
-        <button v-if="isIndexPage" @click="changeTab('orders')"
+        <NuxtLink to="/user?tab=orders"
           class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
-          :class="activeTab === 'orders'
+          :class="isActive('orders')
             ? 'bg-primary text-white shadow-lg shadow-primary/25'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:package-variant-closed" class="w-5 h-5" />
-          My Orders
-        </button>
+          Orders
+        </NuxtLink>
       </nav>
+
+      <!-- Divider -->
+      <div class="my-4 border-t border-border/40" />
+
+      <!-- Page Links -->
+      <div class="space-y-1">
+        <p class="px-4 text-[9px] font-black uppercase tracking-widest text-text/40 mb-2">Quick Access</p>
+        <NuxtLink to="/user/cart"
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-all"
+          :class="route.path === '/user/cart' ? 'bg-primary/10 text-primary' : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+          <Icon name="mdi:cart-outline" class="w-5 h-5" />
+          Shopping Cart
+        </NuxtLink>
+        <NuxtLink to="/user/wishlist"
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-all"
+          :class="route.path === '/user/wishlist' ? 'bg-primary/10 text-primary' : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+          <Icon name="mdi:heart-outline" class="w-5 h-5" />
+          Wishlist
+        </NuxtLink>
+        <NuxtLink to="/user/invoices"
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-all"
+          :class="route.path === '/user/invoices' ? 'bg-primary/10 text-primary' : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+          <Icon name="mdi:file-document-outline" class="w-5 h-5" />
+          Invoices
+        </NuxtLink>
+      </div>
     </div>
   </aside>
 </template>
@@ -97,9 +123,9 @@ const authStore = useAuthStore()
 const route = useRoute()
 const fileInput = ref(null)
 
-const isIndexPage = computed(() => {
-  return route.path === '/user' || route.path === '/user/'
-})
+const isActive = (tab) => {
+  return route.path === '/user' && (route.query.tab === tab || (!route.query.tab && tab === 'overview'))
+}
 
 const triggerUpload = () => {
   fileInput.value?.click()
@@ -107,9 +133,5 @@ const triggerUpload = () => {
 
 const handleImageUpload = (event) => {
   emit('handleImageUpload', event)
-}
-
-const changeTab = (tab) => {
-  emit('update:activeTab', tab)
 }
 </script>
