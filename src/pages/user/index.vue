@@ -388,11 +388,19 @@ const loadProfile = async () => {
         url: meRes.data.url || '',
         avatar_url: meRes.data.url || ''
       })
+      authStore.addUser({
+        ...authStore.user,
+        ...meRes.data
+      })
     }
     const { getProfile } = useProfile()
     const res = await getProfile()
     if (res?.data) {
       profileData.value.avatar_url = res.data.url || profileData.value.avatar_url
+      authStore.addUser({
+        ...authStore.user,
+        avatar_url: profileData.value.avatar_url
+      })
     }
   } catch { }
 }

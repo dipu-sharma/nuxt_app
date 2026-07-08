@@ -221,10 +221,13 @@ const handleLogin = async () => {
 			})
 		}
 	} catch (error) {
-		toast.error('Something went wrong. Please try again.', {
-			position: 'top-right',
-			autoClose: 3000,
-		})
+		const errorMessage = error?.data?.message || error?.response?._data?.message
+		if (errorMessage) {
+			toast.error(errorMessage, {
+				position: 'top-right',
+				autoClose: 3000,
+			})
+		}
 	}
 }
 

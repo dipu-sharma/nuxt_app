@@ -17,10 +17,16 @@
             <Icon name="mdi:camera" class="w-6 h-6 text-white" />
           </div>
         </div>
-        <h3 class="font-extrabold text-lg text-text">
-          {{ profileData?.first_name || authStore.user?.first_name || 'Guest' }} {{ profileData?.last_name || authStore.user?.last_name || '' }}
-        </h3>
-        <p class="text-text opacity-50 text-xs font-semibold mt-1">@{{ authStore.user?.username || 'user' }}</p>
+        <ClientOnly>
+          <h3 class="font-extrabold text-lg text-text">
+            {{ profileData?.first_name || authStore.user?.first_name || 'Guest' }} {{ profileData?.last_name || authStore.user?.last_name || '' }}
+          </h3>
+          <p class="text-text opacity-50 text-xs font-semibold mt-1">@{{ authStore.user?.username || 'user' }}</p>
+          <template #fallback>
+            <h3 class="font-extrabold text-lg text-text">Guest </h3>
+            <p class="text-text opacity-50 text-xs font-semibold mt-1">@user</p>
+          </template>
+        </ClientOnly>
         <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleImageUpload" />
       </div>
 

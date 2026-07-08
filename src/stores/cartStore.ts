@@ -40,7 +40,8 @@ export const useCartStore = defineStore('cart', {
           this.cartId = res?.data?.cart_id || ''
           this.items = res?.data?.items || res?.data || []
         } catch (err) {
-          console.error('Failed to fetch cart', err)
+          this.cartId = ''
+          this.items = []
         } finally {
           this.loading = false
           this._fetchPromise = null

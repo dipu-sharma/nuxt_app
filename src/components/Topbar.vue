@@ -140,7 +140,7 @@
 							<v-list-item-subtitle class="text-xs">{{ authStore.role }}</v-list-item-subtitle>
 						</v-list-item>
 						<v-divider />
-						<v-list-item to="/user/profile" prepend-icon="mdi-account-outline">
+						<v-list-item to="/user?tab=profile" prepend-icon="mdi-account-outline">
 							<v-list-item-title>Profile</v-list-item-title>
 						</v-list-item>
 						<v-list-item to="/user/wishlist" prepend-icon="mdi-heart-outline">

@@ -53,7 +53,7 @@ export const useApi = () => {
         return
       }
 
-      if (response.status !== 403) {
+      if (response.status !== 403 && response.status !== 404) {
         handleAxiosError(response.status, message, toast)
       }
     }
