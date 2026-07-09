@@ -1,6 +1,7 @@
 <template>
   <div>
     <ClientOnly>
+      <UserSessions v-if="activeTab === 'sessions'" />
       <UserOrderHistory v-if="activeTab === 'orders'" />
 
       <UserDashboard

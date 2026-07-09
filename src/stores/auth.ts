@@ -19,7 +19,22 @@ export const useAuthStore = defineStore('auth', {
 			const roleCookie = useCookie('role')
 			roleCookie.value = payload
 		},
-		doLogout() {
+		async doLogout() {
+			if (this.token) {
+				try {
+					const config = useRuntimeConfig()
+					const baseURL = config.public.API_BASE_URL || 'http://192.168.157.128:8001'
+					await $fetch(`${baseURL}/api/auth/logout`, {
+						method: 'POST',
+						headers: {
+							'Authorization': `Bearer ${this.token}`
+						}
+					})
+				} catch (e) {
+					console.error("Logout API failed", e)
+				}
+			}
+
 			this.token = null
 			this.role = null
 			this.user = null

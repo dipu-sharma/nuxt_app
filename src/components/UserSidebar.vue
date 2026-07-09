@@ -77,6 +77,15 @@
           <Icon name="mdi:package-variant-closed" class="w-5 h-5" />
           Orders
         </NuxtLink>
+
+        <NuxtLink to="/user?tab=sessions"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
+          :class="isActive('sessions')
+            ? 'active-link shadow-lg shadow-primary/25'
+            : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+          <Icon name="mdi:devices" class="w-5 h-5" />
+          Active Devices
+        </NuxtLink>
       </nav>
 
       <!-- Divider -->
