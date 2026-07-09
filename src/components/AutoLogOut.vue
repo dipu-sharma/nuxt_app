@@ -3,11 +3,7 @@
         <div>
             <div
                 v-if="isLoggedIn && !isModalVisible"
-                class="fixed bottom-4 right-4 bg-gray-100 px-4 py-2 rounded shadow-md z-50"
-                :class="{
-                    'bg-gray-700 text-white': themeStore.theme === 'light',
-                    'bg-gray-200 text-black': themeStore.theme === 'dark',
-                }"
+                class="fixed bottom-4 right-4 bg-card text-text border border-border/50 px-4 py-2 rounded-xl shadow-lg z-50 transition-colors duration-300"
             >
                 <p class="text-sm font-bold">Auto-logout in: {{ formattedTime }}</p>
             </div>

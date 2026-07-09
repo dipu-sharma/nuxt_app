@@ -19,7 +19,8 @@
         </div>
         <ClientOnly>
           <h3 class="font-extrabold text-lg text-text">
-            {{ profileData?.first_name || authStore.user?.first_name || 'Guest' }} {{ profileData?.last_name || authStore.user?.last_name || '' }}
+            {{ profileData?.first_name || authStore.user?.first_name || 'Guest' }} {{ profileData?.last_name ||
+              authStore.user?.last_name || '' }}
           </h3>
           <p class="text-text opacity-50 text-xs font-semibold mt-1">@{{ authStore.user?.username || 'user' }}</p>
           <template #fallback>
@@ -33,45 +34,45 @@
       <!-- Tab List Buttons -->
       <nav class="space-y-2 mt-6">
         <NuxtLink to="/user?tab=overview"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
           :class="isActive('overview')
-            ? 'bg-primary text-white shadow-lg shadow-primary/25'
+            ? 'active-link shadow-lg shadow-primary/25'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:view-dashboard-outline" class="w-5 h-5" />
           Overview
         </NuxtLink>
 
         <NuxtLink to="/user?tab=profile"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
           :class="isActive('profile')
-            ? 'bg-primary text-white shadow-lg shadow-primary/25'
+            ? 'active-link shadow-lg shadow-primary/25'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:account-outline" class="w-5 h-5" />
           Profile
         </NuxtLink>
 
         <NuxtLink to="/user?tab=address"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
           :class="isActive('address')
-            ? 'bg-primary text-white shadow-lg shadow-primary/25'
+            ? 'active-link shadow-lg shadow-primary/25'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:map-marker-outline" class="w-5 h-5" />
           Addresses
         </NuxtLink>
 
         <NuxtLink to="/user?tab=security"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
           :class="isActive('security')
-            ? 'bg-primary text-white shadow-lg shadow-primary/25'
+            ? 'active-link shadow-lg shadow-primary/25'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:lock-outline" class="w-5 h-5" />
           Security
         </NuxtLink>
 
         <NuxtLink to="/user?tab=orders"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
           :class="isActive('orders')
-            ? 'bg-primary text-white shadow-lg shadow-primary/25'
+            ? 'active-link shadow-lg shadow-primary/25'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:package-variant-closed" class="w-5 h-5" />
           Orders

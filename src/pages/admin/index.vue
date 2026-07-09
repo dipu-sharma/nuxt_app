@@ -208,13 +208,15 @@ const metricCards = computed(() => [
 ])
 
 const statusClass = (status) => {
+	if (!status) return 'bg-secondary text-text'
+	const normalizedStatus = String(status).toUpperCase()
 	const map = {
-		PENDING: 'bg-yellow-100 text-yellow-700',
-		PROCESSING: 'bg-blue-100 text-blue-700',
-		COMPLETED: 'bg-green-100 text-green-700',
-		CANCELLED: 'bg-red-100 text-red-700',
+		PENDING: 'bg-yellow-100 text-yellow-800',
+		PROCESSING: 'bg-blue-100 text-blue-800',
+		COMPLETED: 'bg-green-100 text-green-800',
+		CANCELLED: 'bg-red-100 text-red-800',
 	}
-	return map[status] || 'bg-gray-100 text-gray-700'
+	return map[normalizedStatus] || 'bg-secondary text-text'
 }
 
 const loadDashboard = async () => {

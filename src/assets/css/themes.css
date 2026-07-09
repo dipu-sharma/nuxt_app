@@ -3,63 +3,95 @@
 /* Light Theme (Default - Slate & Deep Indigo) */
 :root,
 [data-theme="light"] {
-  --color-background: 248 250 252; /* Slate-50 */
-  --color-text: 15 23 42; /* Slate-900 */
-  --color-primary: 99 102 241; /* Indigo-500 */
-  --color-secondary: 241 245 249; /* Slate-100 */
-  --color-accent: 236 72 153; /* Pink-500 */
-  --color-card: 255 255 255; /* White */
-  --color-border: 226 232 240; /* Slate-200 */
+  --color-background: 248 250 252;
+  /* Slate-50 */
+  --color-text: 15 23 42;
+  /* Slate-900 */
+  --color-primary: 99 102 241;
+  /* Indigo-500 */
+  --color-secondary: 241 245 249;
+  /* Slate-100 */
+  --color-accent: 236 72 153;
+  /* Pink-500 */
+  --color-card: 255 255 255;
+  /* White */
+  --color-border: 226 232 240;
+  /* Slate-200 */
   --color-sidebar: 255 255 255;
   --color-sidebar-text: 15 23 42;
 }
 
 /* Dark Theme (Midnight Purple & Neon Cyan) */
 [data-theme="dark"] {
-  --color-background: 10 10 18; /* Deep Midnight */
-  --color-text: 241 243 247; /* Soft White */
-  --color-primary: 139 92 246; /* Violet-500 */
-  --color-secondary: 30 30 46; /* Midnight Violet */
-  --color-accent: 6 182 212; /* Cyan-500 */
-  --color-card: 17 17 28; /* Midnight Card */
-  --color-border: 38 38 58; /* Midnight Border */
+  --color-background: 10 10 18;
+  /* Deep Midnight */
+  --color-text: 241 243 247;
+  /* Soft White */
+  --color-primary: 139 92 246;
+  /* Violet-500 */
+  --color-secondary: 30 30 46;
+  /* Midnight Violet */
+  --color-accent: 6 182 212;
+  /* Cyan-500 */
+  --color-card: 17 17 28;
+  /* Midnight Card */
+  --color-border: 38 38 58;
+  /* Midnight Border */
   --color-sidebar: 13 13 23;
   --color-sidebar-text: 241 243 247;
 }
 
 /* Sepia Theme (Warm Amber & Clay) */
 [data-theme="sepia"] {
-  --color-background: 252 248 240; /* Soft warm ivory */
-  --color-text: 67 40 24; /* Espresso */
-  --color-primary: 217 119 6; /* Warm Amber */
-  --color-secondary: 244 233 215; /* Cream */
-  --color-accent: 194 65 12; /* Terracotta */
-  --color-card: 255 255 255; /* White card for warmth */
-  --color-border: 235 220 195; /* Warm border */
+  --color-background: 252 248 240;
+  /* Soft warm ivory */
+  --color-text: 67 40 24;
+  /* Espresso */
+  --color-primary: 217 119 6;
+  /* Warm Amber */
+  --color-secondary: 244 233 215;
+  /* Cream */
+  --color-accent: 194 65 12;
+  /* Terracotta */
+  --color-card: 255 255 255;
+  /* White card for warmth */
+  --color-border: 235 220 195;
+  /* Warm border */
   --color-sidebar: 67 40 24;
   --color-sidebar-text: 244 233 215;
 }
 
 /* Blue Theme (Oceanic Deep & Sky Azure) */
 [data-theme="blue"] {
-  --color-background: 240 249 255; /* Sky-50 */
-  --color-text: 8 47 73; /* Deep Ocean */
-  --color-primary: 14 165 233; /* Sky-500 */
-  --color-secondary: 224 242 254; /* Sky-100 */
-  --color-accent: 99 102 241; /* Indigo-500 */
+  --color-background: 240 249 255;
+  /* Sky-50 */
+  --color-text: 8 47 73;
+  /* Deep Ocean */
+  --color-primary: 14 165 233;
+  /* Sky-500 */
+  --color-secondary: 224 242 254;
+  /* Sky-100 */
+  --color-accent: 99 102 241;
+  /* Indigo-500 */
   --color-card: 255 255 255;
-  --color-border: 186 230 253; /* Sky-200 */
+  --color-border: 186 230 253;
+  /* Sky-200 */
   --color-sidebar: 8 47 73;
   --color-sidebar-text: 186 230 253;
 }
 
 /* Green Theme (Sage & Emerald Forest) */
 [data-theme="green"] {
-  --color-background: 240 253 244; /* Honeydew */
-  --color-text: 5 46 22; /* Deep Forest */
-  --color-primary: 16 185 129; /* Emerald-500 */
-  --color-secondary: 220 252 231; /* Mint */
-  --color-accent: 14 116 144; /* Sage Accent */
+  --color-background: 240 253 244;
+  /* Honeydew */
+  --color-text: 5 46 22;
+  /* Deep Forest */
+  --color-primary: 16 185 129;
+  /* Emerald-500 */
+  --color-secondary: 220 252 231;
+  /* Mint */
+  --color-accent: 14 116 144;
+  /* Sage Accent */
   --color-card: 255 255 255;
   --color-border: 187 247 208;
   --color-sidebar: 5 46 22;
@@ -68,11 +100,16 @@
 
 /* Cool Blue Theme (Slate & Bright Cyan) */
 [data-theme="coolBlue"] {
-  --color-background: 15 23 42; /* Slate-900 */
-  --color-text: 248 250 252; /* Slate-50 */
-  --color-primary: 6 182 212; /* Cyan-500 */
-  --color-secondary: 30 41 59; /* Slate-800 */
-  --color-accent: 244 63 94; /* Rose-500 */
+  --color-background: 15 23 42;
+  /* Slate-900 */
+  --color-text: 248 250 252;
+  /* Slate-50 */
+  --color-primary: 6 182 212;
+  /* Cyan-500 */
+  --color-secondary: 30 41 59;
+  /* Slate-800 */
+  --color-accent: 244 63 94;
+  /* Rose-500 */
   --color-card: 30 41 59;
   --color-border: 51 65 85;
   --color-sidebar: 15 23 42;
@@ -81,38 +118,58 @@
 
 /* Glassmorphism Theme (Ethereal Purple & Pink) */
 [data-theme="glassmorphism"] {
-  --color-background: 245 243 255; /* Violet-50 */
-  --color-text: 30 41 59; /* Slate-800 */
-  --color-primary: 147 51 234; /* Purple-600 */
-  --color-secondary: 237 233 254; /* Violet-100 */
-  --color-accent: 236 72 153; /* Pink-500 */
-  --color-card: 255 255 255; /* White with transparency handled in components */
-  --color-border: 221 214 254; /* Violet-200 */
+  --color-background: 245 243 255;
+  /* Violet-50 */
+  --color-text: 30 41 59;
+  /* Slate-800 */
+  --color-primary: 147 51 234;
+  /* Purple-600 */
+  --color-secondary: 237 233 254;
+  /* Violet-100 */
+  --color-accent: 236 72 153;
+  /* Pink-500 */
+  --color-card: 255 255 255;
+  /* White with transparency handled in components */
+  --color-border: 221 214 254;
+  /* Violet-200 */
   --color-sidebar: 245 243 255;
   --color-sidebar-text: 30 41 59;
 }
 
 /* Claymorphism Theme (Soft 3D, Fluffy) */
 [data-theme="claymorphism"] {
-  --color-background: 243 244 246; /* Gray-100 */
-  --color-text: 31 41 55; /* Gray-800 */
-  --color-primary: 99 102 241; /* Indigo-500 */
-  --color-secondary: 229 231 235; /* Gray-200 */
-  --color-accent: 79 70 229; /* Indigo-600 */
-  --color-card: 229 231 235; /* Gray-200 */
-  --color-border: 209 213 219; /* Gray-300 */
+  --color-background: 243 244 246;
+  /* Gray-100 */
+  --color-text: 31 41 55;
+  /* Gray-800 */
+  --color-primary: 99 102 241;
+  /* Indigo-500 */
+  --color-secondary: 229 231 235;
+  /* Gray-200 */
+  --color-accent: 79 70 229;
+  /* Indigo-600 */
+  --color-card: 229 231 235;
+  /* Gray-200 */
+  --color-border: 209 213 219;
+  /* Gray-300 */
   --color-sidebar: 243 244 246;
   --color-sidebar-text: 31 41 55;
 }
 
 /* Neomorphism Theme (Flat, Extruded) */
 [data-theme="neomorphism"] {
-  --color-background: 224 229 236; /* Specific neo gray-blue */
-  --color-text: 45 55 72; /* Slate-700 */
-  --color-primary: 66 153 225; /* Blue-500 */
-  --color-secondary: 203 213 225; /* Slate-300 */
-  --color-accent: 49 130 206; /* Blue-600 */
-  --color-card: 224 229 236; /* Match background perfectly */
+  --color-background: 224 229 236;
+  /* Specific neo gray-blue */
+  --color-text: 45 55 72;
+  /* Slate-700 */
+  --color-primary: 66 153 225;
+  /* Blue-500 */
+  --color-secondary: 203 213 225;
+  /* Slate-300 */
+  --color-accent: 49 130 206;
+  /* Blue-600 */
+  --color-card: 224 229 236;
+  /* Match background perfectly */
   --color-border: 203 213 225;
   --color-sidebar: 224 229 236;
   --color-sidebar-text: 45 55 72;
@@ -144,3 +201,48 @@
 [data-theme] .text-gray-400 {
   color: rgba(var(--color-text) / 0.5) !important;
 }
+
+/* Sidebar Left-to-Right Fill Animation */
+.sidebar-link {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.sidebar-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  background: linear-gradient(to right, #1e293b, #1e40af); /* Darker slate to deep blue */
+  z-index: -1;
+  transition: width 0.4s ease-out;
+  border-radius: inherit;
+}
+
+.sidebar-link.active-link,
+.sidebar-link.v-list-item--active {
+  color: #ffffff !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+.sidebar-link.active-link::before,
+.sidebar-link.v-list-item--active::before {
+  width: 100%;
+}
+
+/* Force Vuetify buttons to respect dynamic theme primary colors */
+.bg-primary,
+.v-btn.bg-primary {
+  background-color: rgb(var(--color-primary)) !important;
+  color: white !important;
+}
+
+.text-primary,
+.v-btn.text-primary {
+  color: rgb(var(--color-primary)) !important;
+}
+

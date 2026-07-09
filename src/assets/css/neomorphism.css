@@ -39,8 +39,10 @@
 }
 
 [data-theme="neomorphism"] button.bg-primary,
-[data-theme="neomorphism"] .btn-primary {
-  color: rgb(var(--color-primary)) !important;
+[data-theme="neomorphism"] .btn-primary,
+[data-theme="neomorphism"] .v-btn.bg-primary {
+  background-color: rgb(var(--color-primary)) !important;
+  color: white !important;
 }
 
 [data-theme="neomorphism"] button:active,
