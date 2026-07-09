@@ -92,6 +92,32 @@
   --color-sidebar-text: 30 41 59;
 }
 
+/* Claymorphism Theme (Soft 3D, Fluffy) */
+[data-theme="claymorphism"] {
+  --color-background: 243 244 246; /* Gray-100 */
+  --color-text: 31 41 55; /* Gray-800 */
+  --color-primary: 99 102 241; /* Indigo-500 */
+  --color-secondary: 229 231 235; /* Gray-200 */
+  --color-accent: 79 70 229; /* Indigo-600 */
+  --color-card: 229 231 235; /* Gray-200 */
+  --color-border: 209 213 219; /* Gray-300 */
+  --color-sidebar: 243 244 246;
+  --color-sidebar-text: 31 41 55;
+}
+
+/* Neomorphism Theme (Flat, Extruded) */
+[data-theme="neomorphism"] {
+  --color-background: 224 229 236; /* Specific neo gray-blue */
+  --color-text: 45 55 72; /* Slate-700 */
+  --color-primary: 66 153 225; /* Blue-500 */
+  --color-secondary: 203 213 225; /* Slate-300 */
+  --color-accent: 49 130 206; /* Blue-600 */
+  --color-card: 224 229 236; /* Match background perfectly */
+  --color-border: 203 213 225;
+  --color-sidebar: 224 229 236;
+  --color-sidebar-text: 45 55 72;
+}
+
 /* Smooth transitions for theme changes */
 * {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;

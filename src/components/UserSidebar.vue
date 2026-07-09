@@ -7,7 +7,7 @@
         <div class="relative group cursor-pointer mb-4" @click="triggerUpload">
           <div
             class="w-24 h-24 rounded-full overflow-hidden border-2 border-primary/20 bg-secondary/40 flex items-center justify-center relative shadow-inner">
-            <img v-if="profileData?.avatar_url" :src="profileData.avatar_url" alt="Avatar"
+            <img v-if="profileData?.avatar_url" :src="getImageUrl(profileData.avatar_url)" alt="Avatar"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
             <Icon v-else name="mdi:account" class="w-12 h-12 text-text opacity-40" />
           </div>
@@ -128,6 +128,8 @@ const emit = defineEmits(['update:activeTab', 'handleImageUpload'])
 const authStore = useAuthStore()
 const route = useRoute()
 const fileInput = ref(null)
+
+const { getImageUrl } = useImageUrl()
 
 const isActive = (tab) => {
   return route.path === '/user' && (route.query.tab === tab || (!route.query.tab && tab === 'overview'))

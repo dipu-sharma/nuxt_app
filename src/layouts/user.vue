@@ -17,7 +17,7 @@
 
           <div class="relative z-10 max-w-8xl mx-auto sm:px-4 lg:px-32">
             <div class="mb-10">
-              <h1 class="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-text to-text/60 leading-tight">{{ pageTitle }}</h1>
+              <h1 class="text-2xl lg:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-text to-text/60 leading-tight">{{ pageTitle }}</h1>
               <p class="text-text opacity-60 text-base mt-2 font-medium tracking-wide">{{ pageSubtitle }}</p>
             </div>
 

@@ -63,6 +63,21 @@
 										clip-rule="evenodd"></path>
 								</svg>
 							</template>
+							<template v-else-if="themeStore.currentTheme === 'glassmorphism'">
+								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+									<path fill-rule="evenodd" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" clip-rule="evenodd"></path>
+								</svg>
+							</template>
+							<template v-else-if="themeStore.currentTheme === 'claymorphism'">
+								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path>
+								</svg>
+							</template>
+							<template v-else-if="themeStore.currentTheme === 'neomorphism'">
+								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+									<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"></path>
+								</svg>
+							</template>
 							<!-- Theme name -->
 							<span class="text-xs ml-1 capitalize">{{ themeStore.currentTheme }}</span>
 						</div>
@@ -121,7 +136,7 @@
 							<v-avatar size="32" color="primary">
 								<ClientOnly>
 									<img v-if="authStore.user?.avatar_url" class="object-cover w-8 h-8 rounded-full"
-										:src="authStore.user.avatar_url" alt="User profile photo" />
+										:src="getImageUrl(authStore.user.avatar_url)" alt="User profile photo" />
 									<span v-else class="text-white text-sm font-bold">
 										{{ userInitial }}
 									</span>
@@ -168,6 +183,10 @@ import { useCartStore } from '~/stores/cartStore'
 import { ref, computed, onMounted } from 'vue'
 
 const route = useRoute()
+const config = useRuntimeConfig()
+const { getImageUrl } = useImageUrl()
+
+const router = useRouter()
 const authStore = useAuthStore()
 const navStore = useNavStore()
 const themeStore = useThemeStore()

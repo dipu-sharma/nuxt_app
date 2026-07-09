@@ -136,6 +136,8 @@ const themeIcon = computed(() => {
 		case 'green': return 'ri:leaf-line'
 		case 'coolBlue': return 'ri:snowy-line'
 		case 'glassmorphism': return 'ri:magic-line'
+		case 'claymorphism': return 'ri:shape-2-line'
+		case 'neomorphism': return 'ri:focus-3-line'
 		default: return 'ri:sun-line'
 	}
 })

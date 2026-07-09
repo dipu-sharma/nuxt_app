@@ -91,7 +91,7 @@
 							</span>
 						</div>
 						
-						<h1 class="text-4xl lg:text-5xl font-extrabold bg-clip-text bg-gradient-to-r from-text to-text/60 leading-tight mb-6">
+						<h1 class="text-2xl lg:text-3xl font-extrabold bg-clip-text bg-gradient-to-r from-text to-text/60 leading-tight mb-6">
 							{{ product.name }}
 						</h1>
 

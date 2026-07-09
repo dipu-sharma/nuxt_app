@@ -20,7 +20,7 @@ export const useApi = () => {
   // Nuxt reactive cookie ref — works on server and initially on client
   const tokenCookie = useCookie('auth_token')
 
-  return $fetch.create({
+  const fetchInstance = $fetch.create({
     baseURL,
     async onRequest({ options }) {
       // Priority: Nuxt cookie ref → document.cookie (raw, always fresh) → nothing
@@ -58,4 +58,37 @@ export const useApi = () => {
       }
     }
   })
+
+  return async (request: string, options: any = {}) => {
+    const method = (options.method || 'GET').toUpperCase()
+    
+    // Only deduplicate GET requests
+    if (method !== 'GET') {
+      return fetchInstance(request, options)
+    }
+
+    const nuxtApp = useNuxtApp()
+    // Attach in-flight cache to NuxtApp instance to prevent cross-request pollution during SSR
+    if (!(nuxtApp as any)._inFlightRequests) {
+      (nuxtApp as any)._inFlightRequests = new Map<string, Promise<any>>()
+    }
+    const inFlightRequests = (nuxtApp as any)._inFlightRequests as Map<string, Promise<any>>
+
+    // Create a unique key based on URL and query params
+    const queryStr = options.params ? new URLSearchParams(options.params).toString() : (options.query ? new URLSearchParams(options.query).toString() : '')
+    const cacheKey = `${request}${queryStr ? '?' + queryStr : ''}`
+
+    if (inFlightRequests.has(cacheKey)) {
+      return inFlightRequests.get(cacheKey)
+    }
+
+    const promise = fetchInstance(request, options)
+    inFlightRequests.set(cacheKey, promise)
+
+    try {
+      return await promise
+    } finally {
+      inFlightRequests.delete(cacheKey)
+    }
+  }
 }

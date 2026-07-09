@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 export const useThemeStore = defineStore('theme', () => {
 	// Available themes
-	const themes = ['light', 'dark', 'sepia', 'blue', 'green', 'coolBlue', 'glassmorphism']
+	const themes = ['light', 'dark', 'sepia', 'blue', 'green', 'coolBlue', 'glassmorphism', 'claymorphism', 'neomorphism']
 
 	const currentTheme = ref('light') // Default theme
 
@@ -90,6 +90,20 @@ export const useThemeStore = defineStore('theme', () => {
 		primary: 'bg-purple-600',
 		secondary: 'bg-purple-100',
 		accent: 'bg-pink-500'
+	}
+		themeColors.claymorphism = {
+		background: 'bg-gray-100',
+		text: 'text-gray-800',
+		primary: 'bg-indigo-500',
+		secondary: 'bg-gray-200',
+		accent: 'bg-indigo-600'
+	}
+		themeColors.neomorphism = {
+		background: 'bg-slate-200',
+		text: 'text-slate-700',
+		primary: 'bg-blue-500',
+		secondary: 'bg-slate-300',
+		accent: 'bg-blue-600'
 	}
 	return themeColors[currentTheme.value] || themeColors.light
 	}

@@ -20,6 +20,8 @@ export default defineNuxtConfig({
   // === CSS & Styling ===
   css: [
     '~/assets/css/tailwind.css',
+    '~/assets/css/claymorphism.css',
+    '~/assets/css/neomorphism.css',
     '@mdi/font/css/materialdesignicons.min.css',
   ],
 
@@ -161,6 +163,34 @@ export default defineNuxtConfig({
               warning: "#FEE140",
               background: "#F0F4FF",
               surface: "rgba(255, 255, 255, 0.1)",
+            },
+          },
+          claymorphism: {
+            dark: false,
+            colors: {
+              primary: "#6366f1",
+              secondary: "#e5e7eb",
+              accent: "#4f46e5",
+              error: "#ef4444",
+              info: "#3b82f6",
+              success: "#10b981",
+              warning: "#f59e0b",
+              background: "#f3f4f6",
+              surface: "#e5e7eb",
+            },
+          },
+          neomorphism: {
+            dark: false,
+            colors: {
+              primary: "#4299e1",
+              secondary: "#e2e8f0",
+              accent: "#3182ce",
+              error: "#e53e3e",
+              info: "#3182ce",
+              success: "#38a169",
+              warning: "#dd6b20",
+              background: "#e0e5ec",
+              surface: "#e0e5ec",
             },
           },
         },

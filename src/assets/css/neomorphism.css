@@ -1,0 +1,77 @@
+/* Neomorphism Theme - Flat, extruded from background */
+
+[data-theme="neomorphism"] .card,
+[data-theme="neomorphism"] .bg-card,
+[data-theme="neomorphism"] .glass-card,
+[data-theme="neomorphism"] .glass-dark-card,
+[data-theme="neomorphism"] .glass-sidebar,
+[data-theme="neomorphism"] .glass-topbar {
+  background-color: rgb(var(--color-card)) !important;
+  border-radius: 16px !important;
+  border: none !important;
+  box-shadow: 
+    9px 9px 16px rgb(163, 177, 198, 0.6), 
+    -9px -9px 16px rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: none !important;
+  transition: all 0.3s ease;
+}
+
+[data-theme="neomorphism"] .card:hover,
+[data-theme="neomorphism"] .bg-card:hover,
+[data-theme="neomorphism"] .glass-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    12px 12px 20px rgb(163, 177, 198, 0.65), 
+    -12px -12px 20px rgba(255, 255, 255, 0.6) !important;
+}
+
+[data-theme="neomorphism"] button,
+[data-theme="neomorphism"] .btn,
+[data-theme="neomorphism"] .glass-button {
+  background-color: rgb(var(--color-card)) !important;
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 
+    5px 5px 10px rgb(163, 177, 198, 0.6), 
+    -5px -5px 10px rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: none !important;
+  color: rgb(var(--color-text)) !important;
+}
+
+[data-theme="neomorphism"] button.bg-primary,
+[data-theme="neomorphism"] .btn-primary {
+  color: rgb(var(--color-primary)) !important;
+}
+
+[data-theme="neomorphism"] button:active,
+[data-theme="neomorphism"] .btn:active,
+[data-theme="neomorphism"] .glass-button:active {
+  transform: scale(0.98);
+  box-shadow: 
+    inset 5px 5px 10px rgb(163, 177, 198, 0.6), 
+    inset -5px -5px 10px rgba(255, 255, 255, 0.5) !important;
+}
+
+[data-theme="neomorphism"] input,
+[data-theme="neomorphism"] select,
+[data-theme="neomorphism"] textarea,
+[data-theme="neomorphism"] .glass-input {
+  background-color: rgb(var(--color-card)) !important;
+  border-radius: 10px !important;
+  border: none !important;
+  box-shadow: 
+    inset 5px 5px 10px rgb(163, 177, 198, 0.6), 
+    inset -5px -5px 10px rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: none !important;
+  color: rgb(var(--color-text)) !important;
+}
+
+[data-theme="neomorphism"] input:focus,
+[data-theme="neomorphism"] select:focus,
+[data-theme="neomorphism"] textarea:focus,
+[data-theme="neomorphism"] .glass-input:focus {
+  outline: none;
+  box-shadow: 
+    inset 7px 7px 14px rgb(163, 177, 198, 0.7), 
+    inset -7px -7px 14px rgba(255, 255, 255, 0.6) !important;
+}

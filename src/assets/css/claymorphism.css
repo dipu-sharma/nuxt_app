@@ -1,0 +1,72 @@
+/* Claymorphism Theme - Soft, puffy, 3D inflated UI */
+
+[data-theme="claymorphism"] .card,
+[data-theme="claymorphism"] .bg-card,
+[data-theme="claymorphism"] .glass-card,
+[data-theme="claymorphism"] .glass-dark-card {
+  background-color: rgb(var(--color-card)) !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 
+    8px 8px 16px rgba(0, 0, 0, 0.08),
+    inset -8px -8px 16px rgba(0, 0, 0, 0.05),
+    inset 8px 8px 16px rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: none !important;
+  transition: all 0.3s ease;
+}
+
+[data-theme="claymorphism"] .card:hover,
+[data-theme="claymorphism"] .bg-card:hover,
+[data-theme="claymorphism"] .glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    12px 12px 20px rgba(0, 0, 0, 0.1),
+    inset -8px -8px 16px rgba(0, 0, 0, 0.05),
+    inset 8px 8px 16px rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-theme="claymorphism"] button,
+[data-theme="claymorphism"] .btn,
+[data-theme="claymorphism"] .glass-button {
+  border-radius: 16px !important;
+  box-shadow: 
+    4px 4px 8px rgba(0, 0, 0, 0.1),
+    inset -4px -4px 8px rgba(0, 0, 0, 0.1),
+    inset 4px 4px 8px rgba(255, 255, 255, 0.4) !important;
+  border: none !important;
+  backdrop-filter: none !important;
+}
+
+[data-theme="claymorphism"] button:active,
+[data-theme="claymorphism"] .btn:active,
+[data-theme="claymorphism"] .glass-button:active {
+  transform: scale(0.98);
+  box-shadow: 
+    2px 2px 4px rgba(0, 0, 0, 0.1),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.4) !important;
+}
+
+[data-theme="claymorphism"] input,
+[data-theme="claymorphism"] select,
+[data-theme="claymorphism"] textarea,
+[data-theme="claymorphism"] .glass-input {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 
+    inset 4px 4px 8px rgba(0, 0, 0, 0.05),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: none !important;
+}
+
+[data-theme="claymorphism"] input:focus,
+[data-theme="claymorphism"] select:focus,
+[data-theme="claymorphism"] textarea:focus,
+[data-theme="claymorphism"] .glass-input:focus {
+  outline: none;
+  box-shadow: 
+    inset 4px 4px 8px rgba(0, 0, 0, 0.08),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.9),
+    0 0 0 2px rgba(var(--color-primary), 0.3) !important;
+}
