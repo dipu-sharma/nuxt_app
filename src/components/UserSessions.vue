@@ -29,20 +29,24 @@
         
         <div class="grid grid-cols-1 gap-4">
           <div v-for="session in groupSessions" :key="session.id" 
-               class="bg-card/60 backdrop-blur-xl border border-white/20 shadow-sm rounded-[1.5rem] p-6 relative group hover:shadow-md transition-all duration-300">
+               class="backdrop-blur-xl border shadow-sm rounded-[1.5rem] p-6 relative group hover:shadow-2xl hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500"
+               :class="session.is_active ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.15)] bg-gradient-to-br from-card/80 to-emerald-500/10' : 'bg-card/60 border-white/20'">
         
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           
           <div class="flex items-start gap-4">
-            <div class="mt-1 w-12 h-12 rounded-full bg-gradient-to-tr flex items-center justify-center shrink-0 shadow-inner"
-                 :class="session.is_active ? 'from-green-500/20 to-emerald-500/20 text-emerald-500 border border-emerald-500/20' : 'from-indigo-500/10 to-cyan-500/10 text-primary border border-white/10'">
-              <Icon :name="getDeviceIcon(session.device)" class="w-6 h-6" />
+            <div class="mt-1 w-14 h-14 rounded-2xl bg-gradient-to-tr flex items-center justify-center shrink-0 shadow-inner group-hover:rotate-6 group-hover:scale-110 transition-transform duration-500"
+                 :class="session.is_active ? 'from-green-500/20 to-emerald-500/20 text-emerald-500 border border-emerald-500/30' : 'from-indigo-500/10 to-cyan-500/10 text-primary border border-white/10'">
+              <Icon :name="getDeviceIcon(session.device)" class="w-7 h-7" />
             </div>
             
             <div>
               <div class="flex items-center gap-2 mb-1 flex-wrap">
                 <h3 class="font-bold text-text">{{ getBrowserName(session.device) }}</h3>
-                <span v-if="session.is_active" class="text-[9px] font-black tracking-widest bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full uppercase border border-emerald-500/20">Current Session</span>
+                <span v-if="session.is_active" class="flex items-center gap-1.5 text-[9px] font-black tracking-widest bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full uppercase border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Current Session
+                </span>
               </div>
               
               <div class="text-sm text-text flex flex-col gap-1 mt-2">
@@ -52,9 +56,12 @@
             </div>
           </div>
           
-          <div class="flex flex-col items-start sm:items-end bg-background/40 p-4 rounded-xl border border-border/50 shrink-0">
+          <div class="flex flex-col items-start sm:items-end p-4 rounded-xl shrink-0 transition-all duration-500 group-hover:shadow-inner"
+               :class="session.is_active ? 'bg-emerald-500/5 border border-emerald-500/20' : 'bg-background/40 border border-border/50 group-hover:border-primary/30 group-hover:bg-primary/5'">
             <span class="text-[10px] font-bold uppercase tracking-widest text-text opacity-50 mb-1">Duration</span>
-            <span class="text-lg font-extrabold text-primary">{{ session.duration || 'Unknown' }}</span>
+            <span class="text-lg font-extrabold" :class="session.is_active ? 'text-emerald-500' : 'text-primary'">
+              {{ session.duration || 'Unknown' }}
+            </span>
           </div>
           
         </div>

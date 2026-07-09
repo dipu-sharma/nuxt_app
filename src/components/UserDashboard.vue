@@ -17,8 +17,8 @@
     <!-- Stats Grid -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
       <div v-for="stat in stats" :key="stat.label"
-        class="bg-card/60 backdrop-blur-xl border border-white/10 shadow-lg rounded-2xl p-5 md:p-6 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden group">
-        <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        class="bg-card/60 backdrop-blur-xl border border-white/10 shadow-lg rounded-2xl p-5 md:p-6 hover:shadow-2xl hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700 pointer-events-none"
           :class="stat.bgGlow" />
         <div class="relative z-10">
           <div class="flex items-center justify-between mb-4">
@@ -63,7 +63,7 @@
 
         <div v-else class="space-y-3">
           <div v-for="order in recentOrders" :key="order.id"
-            class="flex items-center gap-4 p-4 rounded-2xl bg-background/50 border border-border/40 hover:border-primary/30 transition-all cursor-pointer group"
+            class="flex items-center gap-4 p-4 rounded-2xl bg-background/50 border border-border/40 hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.01] hover:shadow-md transition-all duration-300 cursor-pointer group"
             @click="$emit('view-order', order)">
             <div class="w-11 h-11 rounded-xl bg-secondary/70 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/10 transition-colors">
               <Icon name="mdi:receipt-text-outline" class="w-5 h-5 text-text/60 group-hover:text-primary transition-colors" />
@@ -91,7 +91,7 @@
           <h3 class="text-lg font-bold text-text mb-5">Quick Actions</h3>
           <div class="space-y-3">
             <button @click="$emit('navigate', 'orders')"
-              class="w-full flex items-center gap-4 p-3.5 rounded-xl bg-background/50 border border-border/40 hover:border-primary/30 hover:bg-primary/5 transition-all group">
+              class="w-full flex items-center gap-4 p-3.5 rounded-xl bg-background/50 border border-border/40 hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.02] hover:shadow-md transition-all duration-300 group">
               <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors">
                 <Icon name="mdi:package-variant-closed" class="w-5 h-5 text-indigo-500" />
               </div>
@@ -103,7 +103,7 @@
             </button>
 
             <button @click="$emit('navigate', 'wishlist')"
-              class="w-full flex items-center gap-4 p-3.5 rounded-xl bg-background/50 border border-border/40 hover:border-primary/30 hover:bg-primary/5 transition-all group">
+              class="w-full flex items-center gap-4 p-3.5 rounded-xl bg-background/50 border border-border/40 hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.02] hover:shadow-md transition-all duration-300 group">
               <div class="w-10 h-10 rounded-lg bg-rose-500/10 flex items-center justify-center group-hover:bg-rose-500/20 transition-colors">
                 <Icon name="mdi:heart-outline" class="w-5 h-5 text-rose-500" />
               </div>
@@ -115,7 +115,7 @@
             </button>
 
             <button @click="$emit('navigate', 'cart')"
-              class="w-full flex items-center gap-4 p-3.5 rounded-xl bg-background/50 border border-border/40 hover:border-primary/30 hover:bg-primary/5 transition-all group">
+              class="w-full flex items-center gap-4 p-3.5 rounded-xl bg-background/50 border border-border/40 hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.02] hover:shadow-md transition-all duration-300 group">
               <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
                 <Icon name="mdi:cart-outline" class="w-5 h-5 text-emerald-500" />
               </div>
@@ -127,7 +127,7 @@
             </button>
 
             <NuxtLink to="/products"
-              class="flex items-center gap-4 p-3.5 rounded-xl bg-background/50 border border-border/40 hover:border-primary/30 hover:bg-primary/5 transition-all group">
+              class="flex items-center gap-4 p-3.5 rounded-xl bg-background/50 border border-border/40 hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.02] hover:shadow-md transition-all duration-300 group">
               <div class="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center group-hover:bg-cyan-500/20 transition-colors">
                 <Icon name="mdi:store-outline" class="w-5 h-5 text-cyan-500" />
               </div>

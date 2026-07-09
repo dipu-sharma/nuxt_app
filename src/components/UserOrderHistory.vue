@@ -48,7 +48,7 @@
         You haven't made any purchases yet. Discover our curated collection.
       </p>
       <v-btn color="primary" rounded="pill" size="x-large" to="/products"
-        class="px-12 text-none tracking-widest font-medium text-white shadow-lg hover:-translate-y-1 transition-transform duration-300"
+        class="px-12 text-none tracking-widest font-medium text-white shadow-[0_0_15px_rgba(var(--color-primary),0.3)] hover:-translate-y-1 hover:scale-105 hover:shadow-[0_0_25px_rgba(var(--color-primary),0.5)] transition-all duration-300"
         elevation="0">
         EXPLORE SHOP
       </v-btn>
@@ -57,14 +57,14 @@
     <!-- Orders List -->
     <div v-else class="space-y-6">
       <div v-for="(order, index) in orders" :key="order.id"
-        class="group bg-card rounded-[2rem] p-6 sm:p-8 cursor-pointer border border-border hover:border-primary/60 transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] relative"
+        class="group bg-card/60 backdrop-blur-xl rounded-[2rem] p-6 sm:p-8 cursor-pointer border border-border hover:border-primary/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(var(--color-primary),0.15)] hover:-translate-y-1 hover:scale-[1.02] relative"
         @click="viewOrder(order)">
         <div class="flex flex-col md:flex-row gap-8 justify-between items-start md:items-center">
           <div class="flex items-center gap-6 w-full md:w-auto">
             <div
               class="w-16 h-16 flex-shrink-0 rounded-full bg-secondary flex items-center justify-center border border-border group-hover:bg-primary/10 transition-colors duration-500">
               <Icon name="mdi:shopping-outline"
-                class="w-6 h-6 text-text opacity-50 group-hover:text-primary transition-colors" />
+                class="w-6 h-6 text-text opacity-50 group-hover:text-primary transition-all group-hover:rotate-12 group-hover:scale-110 duration-500" />
             </div>
             <div class="flex-1">
               <div class="flex flex-wrap items-center gap-4 mb-2">
@@ -260,13 +260,13 @@ const statusOptions = ['pending', 'shipped', 'delivered', 'canceled']
 
 const statusBadgeClass = (s) => {
   const map = {
-    pending: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 border border-amber-200/50',
-    processing: 'bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400 border border-sky-200/50',
+    pending: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 border border-amber-200/50 shadow-[0_0_10px_rgba(251,191,36,0.2)]',
+    processing: 'bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400 border border-sky-200/50 shadow-[0_0_10px_rgba(56,189,248,0.2)]',
     shipped:
-      'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border border-indigo-200/50',
+      'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border border-indigo-200/50 shadow-[0_0_10px_rgba(99,102,241,0.2)]',
     delivered:
-      'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-200/50',
-    cancelled: 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400 border border-rose-200/50',
+      'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-200/50 shadow-[0_0_10px_rgba(16,185,129,0.2)]',
+    cancelled: 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400 border border-rose-200/50 shadow-[0_0_10px_rgba(244,63,94,0.2)]',
   }
   return map[s?.toLowerCase()] || 'bg-secondary text-text opacity-80 border border-border'
 }

@@ -56,7 +56,7 @@
             <textarea v-model="profileData.bio" rows="3" maxlength="500" placeholder="Tell us a little bit about yourself..." class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text resize-none" />
           </div>
           <div class="flex justify-end pt-4">
-            <button type="submit" :disabled="saving" class="relative group overflow-hidden rounded-xl font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-0.5 hover:shadow-2xl transition-all h-12 px-8 flex items-center justify-center disabled:opacity-50">
+            <button type="submit" :disabled="saving" class="relative group overflow-hidden rounded-xl font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(var(--color-primary),0.4)] transition-all duration-300 h-12 px-8 flex items-center justify-center disabled:opacity-50">
               <div class="absolute inset-0 bg-primary" />
               <div class="relative z-10 flex items-center justify-center gap-2">
                 <Icon v-if="saving" name="mdi:loading" class="w-5 h-5 animate-spin" />
@@ -91,12 +91,15 @@
           <p class="text-text opacity-50 text-sm max-w-xs mx-auto">Please add a shipping address so you can place orders smoothly.</p>
         </div>
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div v-for="addr in addresses" :key="addr.id" class="bg-card/60 backdrop-blur-xl border border-white/20 shadow-sm rounded-[2rem] p-6 flex flex-col justify-between relative group hover:shadow-md transition-all duration-300">
+          <div v-for="addr in addresses" :key="addr.id" class="backdrop-blur-xl border border-white/20 shadow-sm rounded-[2rem] p-6 flex flex-col justify-between relative group hover:shadow-[0_0_20px_rgba(var(--color-primary),0.15)] hover:border-primary/50 hover:-translate-y-1 hover:scale-[1.02] transition-all duration-500" :class="addr.is_default ? 'bg-gradient-to-br from-card/80 to-emerald-500/5' : 'bg-card/60'">
             <div>
               <div class="flex justify-between items-start mb-4">
-                <span v-if="addr.is_default" class="text-[9px] font-black tracking-widest bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full uppercase border border-emerald-500/20">Default</span>
+                <span v-if="addr.is_default" class="flex items-center gap-1.5 text-[9px] font-black tracking-widest bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full uppercase border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Default
+                </span>
                 <span v-else class="h-4" />
-                <button v-if="!addr.is_used && !addr.has_orders && addr.is_editable !== false" @click="editAddress(addr)" class="w-8 h-8 rounded-full bg-secondary/80 text-text/75 hover:bg-primary hover:text-white flex items-center justify-center transition-colors shadow-sm" title="Edit Address">
+                <button v-if="!addr.is_used && !addr.has_orders && addr.is_editable !== false" @click="editAddress(addr)" class="w-8 h-8 rounded-full bg-secondary/80 text-text/75 hover:bg-primary hover:text-white flex items-center justify-center transition-all shadow-sm hover:scale-110 hover:shadow-lg duration-300" title="Edit Address">
                   <Icon name="mdi:pencil-outline" class="w-4 h-4" />
                 </button>
               </div>
@@ -148,7 +151,7 @@
             </div>
           </div>
           <div class="flex justify-end pt-4">
-            <button type="submit" :disabled="savingPwd" class="relative group overflow-hidden rounded-xl font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-0.5 transition-all h-12 px-8 flex items-center justify-center disabled:opacity-50">
+            <button type="submit" :disabled="savingPwd" class="relative group overflow-hidden rounded-xl font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(var(--color-primary),0.4)] transition-all duration-300 h-12 px-8 flex items-center justify-center disabled:opacity-50">
               <div class="absolute inset-0 bg-primary" />
               <div class="relative z-10 flex items-center justify-center gap-2">
                 <Icon v-if="savingPwd" name="mdi:loading" class="w-5 h-5 animate-spin" />

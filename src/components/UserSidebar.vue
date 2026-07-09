@@ -6,9 +6,9 @@
       <div class="flex flex-col items-center text-center pb-6 border-b border-border/50">
         <div class="relative group cursor-pointer mb-4" @click="triggerUpload">
           <div
-            class="w-24 h-24 rounded-full overflow-hidden border-2 border-primary/20 bg-secondary/40 flex items-center justify-center relative shadow-inner">
+            class="w-24 h-24 rounded-full overflow-hidden border-2 border-primary/20 bg-secondary/40 flex items-center justify-center relative shadow-inner group-hover:shadow-[0_0_25px_rgba(var(--color-primary),0.4)] group-hover:border-primary/50 transition-all duration-500">
             <img v-if="profileData?.avatar_url" :src="getImageUrl(profileData.avatar_url)" alt="Avatar"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             <Icon v-else name="mdi:account" class="w-12 h-12 text-text opacity-40" />
           </div>
           <!-- Hover Edit Overlay -->
@@ -34,55 +34,55 @@
       <!-- Tab List Buttons -->
       <nav class="space-y-2 mt-6">
         <NuxtLink to="/user?tab=overview"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('overview')
-            ? 'active-link shadow-lg shadow-primary/25'
-            : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:view-dashboard-outline" class="w-5 h-5" />
           Overview
         </NuxtLink>
 
         <NuxtLink to="/user?tab=profile"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('profile')
-            ? 'active-link shadow-lg shadow-primary/25'
-            : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:account-outline" class="w-5 h-5" />
           Profile
         </NuxtLink>
 
         <NuxtLink to="/user?tab=address"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('address')
-            ? 'active-link shadow-lg shadow-primary/25'
-            : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:map-marker-outline" class="w-5 h-5" />
           Addresses
         </NuxtLink>
 
         <NuxtLink to="/user?tab=security"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('security')
-            ? 'active-link shadow-lg shadow-primary/25'
-            : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:lock-outline" class="w-5 h-5" />
           Security
         </NuxtLink>
 
         <NuxtLink to="/user?tab=orders"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('orders')
-            ? 'active-link shadow-lg shadow-primary/25'
-            : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:package-variant-closed" class="w-5 h-5" />
           Orders
         </NuxtLink>
 
         <NuxtLink to="/user?tab=sessions"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('sessions')
-            ? 'active-link shadow-lg shadow-primary/25'
-            : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:devices" class="w-5 h-5" />
           Active Devices
         </NuxtLink>
