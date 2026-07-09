@@ -124,8 +124,7 @@
           <!-- Results count -->
           <div v-if="hasSearched"
             class="mb-8 text-sm text-text opacity-70 font-semibold bg-secondary/30 inline-block px-4 py-2 rounded-full border border-border/50">
-            {{ products.length }} results found for <span class="text-primary font-bold">"{{ query || selectedCategory
-              || 'Filters' }}"</span>
+            {{ products.length }} results found for <span class="text-primary font-bold">"{{ displaySearchTerm }}"</span>
           </div>
 
           <ClientOnly>
@@ -207,6 +206,15 @@ const categories = ref([])
 const cursor = ref(null)
 const hasMore = ref(false)
 const isLoadMoreLoading = ref(false)
+
+const displaySearchTerm = computed(() => {
+  if (query.value) return query.value
+  if (selectedCategory.value) {
+    const found = categories.value.find(c => c.category_id === selectedCategory.value || c.id === selectedCategory.value || c.name === selectedCategory.value)
+    return found ? (found.name || found.category_name) : selectedCategory.value
+  }
+  return 'Filters'
+})
 
 useSeoMeta({
   title: computed(() => {

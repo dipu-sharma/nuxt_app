@@ -1,8 +1,8 @@
 <template>
 	<header>
 		<nav
-			class="fixed top-0 left-0 right-0 flex flex-wrap items-center justify-between w-full py-3 md:py-0 px-4 text-lg shadow-[0_4px_30px_rgba(0,0,0,0.1)] z-50 bg-background/40 backdrop-blur-2xl border-b border-border/30 transition-colors duration-500">
-			<div class="md:p-4">
+			class="fixed top-0 left-0 right-0 flex flex-wrap items-center justify-between w-full py-3 md:py-1 px-4 text-lg shadow-[0_4px_30px_rgba(0,0,0,0.1)] z-50 bg-background/40 backdrop-blur-2xl border-b border-border/30 transition-colors duration-500">
+			<div class="md:py-2 md:px-4">
 				<NuxtLink to="/"
 					class="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-purple-500 hover:to-indigo-500 transition-all duration-300 tracking-tight">
 					D-Shop </NuxtLink>
@@ -18,30 +18,31 @@
 				<ul class="pt-4 text-base md:flex md:justify-between md:pt-0 items-center gap-2">
 					<li>
 						<NuxtLink
-							class="md:p-4 py-2 block text-text/70 hover:text-primary hover:-translate-y-0.5 transition-all font-medium"
+							class="md:py-2 md:px-4 py-2 block text-text/70 hover:text-primary hover:-translate-y-0.5 transition-all font-medium"
 							to="/">Home</NuxtLink>
 					</li>
 					<li>
 						<NuxtLink
-							class="md:p-4 py-2 block text-text/70 hover:text-primary hover:-translate-y-0.5 transition-all font-medium"
+							class="md:py-2 md:px-4 py-2 block text-text/70 hover:text-primary hover:-translate-y-0.5 transition-all font-medium"
 							to="/products?category=electronic">Electronic</NuxtLink>
 					</li>
 					<li>
 						<NuxtLink
-							class="md:p-4 py-2 block text-text/70 hover:text-primary hover:-translate-y-0.5 transition-all font-medium"
+							class="md:py-2 md:px-4 py-2 block text-text/70 hover:text-primary hover:-translate-y-0.5 transition-all font-medium"
 							to="/products?category=fashion">Fashion</NuxtLink>
 					</li>
 					<li>
 						<NuxtLink
-							class="md:p-4 py-2 block text-text/70 hover:text-primary hover:-translate-y-0.5 transition-all font-medium"
+							class="md:py-2 md:px-4 py-2 block text-text/70 hover:text-primary hover:-translate-y-0.5 transition-all font-medium"
 							to="/products?category=grocery">Grocery</NuxtLink>
 					</li>
 					<!-- Theme Toggle -->
-					<li class="p-4 cursor-pointer hover:scale-110 transition-transform relative group"
+					<li class="py-2 px-4 cursor-pointer hover:scale-110 transition-transform relative group"
 						@click="themeStore.toggleTheme()" :title="'Current theme: ' + themeStore.currentTheme">
 						<ClientOnly>
 							<Icon :name="themeIcon" class="text-primary w-5 h-5" />
-							<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-text text-background px-2 py-1 rounded shadow pointer-events-none capitalize">
+							<span
+								class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-text text-background px-2 py-1 rounded shadow pointer-events-none capitalize">
 								{{ themeStore.currentTheme }}
 							</span>
 							<template #fallback>
@@ -51,8 +52,11 @@
 					</li>
 					<!-- Cart Icon -->
 					<ClientOnly>
-						<li v-if="!authStore.role || authStore.role?.toUpperCase() === 'USER'" class="relative p-4 flex items-center">
-							<NuxtLink to="/user/cart" class="relative text-text/70 hover:text-primary transition-colors focus:outline-none" aria-label="Cart">
+						<li v-if="!authStore.role || authStore.role?.toUpperCase() === 'USER'"
+							class="relative py-1 px-4 flex items-center">
+							<NuxtLink to="/user/cart"
+								class="relative text-text/70 hover:text-primary transition-colors focus:outline-none"
+								aria-label="Cart">
 								<Icon name="mdi:cart-outline" class="w-6 h-6" />
 								<span v-if="cartStore.totalItems > 0"
 									class="absolute top-0 right-0 inline-flex items-center justify-center min-w-[20px] h-5 text-[11px] font-bold text-white bg-primary border-2 border-background rounded-full"
@@ -62,8 +66,10 @@
 							</NuxtLink>
 						</li>
 						<template #fallback>
-							<li class="relative p-4 flex items-center">
-								<NuxtLink to="/user/cart" class="relative text-text/70 hover:text-primary transition-colors focus:outline-none" aria-label="Cart">
+							<li class="relative py-2 px-4 flex items-center">
+								<NuxtLink to="/user/cart"
+									class="relative text-text/70 hover:text-primary transition-colors focus:outline-none"
+									aria-label="Cart">
 									<Icon name="mdi:cart-outline" class="w-6 h-6 opacity-50" />
 								</NuxtLink>
 							</li>
@@ -72,13 +78,13 @@
 					<ClientOnly>
 						<li v-if="!authStore.isAuthenticated">
 							<NuxtLink
-								class="md:px-5 md:py-2 py-2 block font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full hover:shadow-lg hover:shadow-indigo-500/30 transition-all hover:-translate-y-0.5"
+								class="md:py-2 md:px-5 py-2 block font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full hover:shadow-lg hover:shadow-indigo-500/30 transition-all hover:-translate-y-0.5"
 								:to="{ name: 'login' }">Sign In</NuxtLink>
 						</li>
 
 						<li v-else class="relative z-[100]" ref="dropdownRef">
 							<button @click="toggleDropdown"
-								class="md:p-4 py-2 flex items-center gap-1 font-medium text-text/70 hover:text-primary transition-colors focus:outline-none">
+								class="md:py-2 md:px-4 py-2 flex items-center gap-1 font-medium text-text/70 hover:text-primary transition-colors focus:outline-none">
 								<Icon name="mdi:account-circle-outline" class="w-5 h-5" />
 								<span>Profile</span>
 								<Icon name="mdi:chevron-down" class="w-4 h-4 opacity-50" />
@@ -128,7 +134,7 @@ const authStore = useAuthStore()
 const cartStore = useCartStore()
 
 const themeIcon = computed(() => {
-	switch(themeStore.currentTheme) {
+	switch (themeStore.currentTheme) {
 		case 'light': return 'ri:sun-line'
 		case 'dark': return 'ri:moon-line'
 		case 'sepia': return 'ri:cup-line'
