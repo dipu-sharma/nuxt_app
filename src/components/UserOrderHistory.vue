@@ -116,7 +116,7 @@
             <p class="text-text opacity-50 font-medium mb-2 tracking-widest uppercase text-[10px]">
               Order Details
             </p>
-            <h2 class="text-3xl font-light tracking-tight text-text mb-2">
+            <h2 class="text-3xl font-semibold tracking-tight text-text mb-2">
               #{{ selectedOrder.order_number || selectedOrder.id }}
             </h2>
             <p class="text-text opacity-70 font-medium tracking-wide text-sm">

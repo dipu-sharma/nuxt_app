@@ -2,7 +2,7 @@
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-3xl font-extrabold text-text tracking-tight">Order Management</h1>
+        <h1 class="text-3xl font-semibold text-text tracking-tight mb-2">Order Management</h1>
         <p class="text-sm text-text/60 mt-1">View and manage all system orders</p>
       </div>
     </div>

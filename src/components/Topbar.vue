@@ -27,61 +27,71 @@
 			<ul class="flex items-center flex-shrink-0 space-x-6">
 				<!-- Theme toggler -->
 				<li class="flex">
-					<button class="rounded-md focus:outline-none focus:shadow-outline-purple p-2"
-						@click="themeStore.toggleTheme()" :aria-label="`Switch to ${getNextThemeName()} theme`">
-						<!-- Current theme indicator -->
-						<div class="flex items-center space-x-1">
-							<!-- Theme icon based on current theme -->
-							<template v-if="themeStore.currentTheme === 'light'">
-								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-									<path fill-rule="evenodd"
-										d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-										clip-rule="evenodd"></path>
-								</svg>
-							</template>
-							<template v-else-if="themeStore.currentTheme === 'dark'">
-								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-									<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-								</svg>
-							</template>
-							<template v-else-if="themeStore.currentTheme === 'sepia'">
-								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-									<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-								</svg>
-							</template>
-							<template v-else-if="themeStore.currentTheme === 'blue'">
-								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-									<path fill-rule="evenodd"
-										d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-6a1 1 0 00-1 1v4a1 1 0 102 0V5a1 1 0 00-1-1z"
-										clip-rule="evenodd"></path>
-								</svg>
-							</template>
-							<template v-else-if="themeStore.currentTheme === 'green'">
-								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-									<path fill-rule="evenodd"
-										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-										clip-rule="evenodd"></path>
-								</svg>
-							</template>
-							<template v-else-if="themeStore.currentTheme === 'glassmorphism'">
-								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-									<path fill-rule="evenodd" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" clip-rule="evenodd"></path>
-								</svg>
-							</template>
-							<template v-else-if="themeStore.currentTheme === 'claymorphism'">
-								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path>
-								</svg>
-							</template>
-							<template v-else-if="themeStore.currentTheme === 'neomorphism'">
-								<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-									<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"></path>
-								</svg>
-							</template>
-							<!-- Theme name -->
-							<span class="text-xs ml-1 capitalize">{{ themeStore.currentTheme }}</span>
-						</div>
-					</button>
+					<v-tooltip location="bottom">
+						<template v-slot:activator="{ props }">
+							<button v-bind="props"
+								class="rounded-full focus:outline-none focus:shadow-outline-purple p-2 hover:bg-primary/10 transition-colors"
+								@click="themeStore.toggleTheme()" :aria-label="`Switch to ${getNextThemeName()} theme`">
+								<div class="flex items-center justify-center w-6 h-6">
+									<!-- Theme icon based on current theme -->
+									<template v-if="themeStore.currentTheme === 'light'">
+										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+											<path fill-rule="evenodd"
+												d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+												clip-rule="evenodd"></path>
+										</svg>
+									</template>
+									<template v-else-if="themeStore.currentTheme === 'dark'">
+										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+											<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z">
+											</path>
+										</svg>
+									</template>
+									<template v-else-if="themeStore.currentTheme === 'sepia'">
+										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+											<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+										</svg>
+									</template>
+									<template v-else-if="themeStore.currentTheme === 'blue'">
+										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+											<path fill-rule="evenodd"
+												d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-6a1 1 0 00-1 1v4a1 1 0 102 0V5a1 1 0 00-1-1z"
+												clip-rule="evenodd"></path>
+										</svg>
+									</template>
+									<template v-else-if="themeStore.currentTheme === 'green'">
+										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+											<path fill-rule="evenodd"
+												d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+												clip-rule="evenodd"></path>
+										</svg>
+									</template>
+									<template v-else-if="themeStore.currentTheme === 'glassmorphism'">
+										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+											<path fill-rule="evenodd"
+												d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+												clip-rule="evenodd"></path>
+										</svg>
+									</template>
+									<template v-else-if="themeStore.currentTheme === 'claymorphism'">
+										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+											<path
+												d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z">
+											</path>
+										</svg>
+									</template>
+									<template v-else-if="themeStore.currentTheme === 'neomorphism'">
+										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+											<path
+												d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z">
+											</path>
+										</svg>
+									</template>
+								</div>
+							</button>
+						</template>
+						<span class="capitalize font-medium">{{ themeStore.currentTheme }} Theme</span>
+					</v-tooltip>
 				</li>
 
 
@@ -132,64 +142,83 @@
 				<!-- Premium Profile Menu -->
 				<v-menu transition="slide-y-transition" :offset="12" location="bottom end">
 					<template v-slot:activator="{ props }">
-						<button v-bind="props" class="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:scale-105 transition-all shadow-sm ring-2 ring-transparent hover:ring-primary/30"
+						<button v-bind="props"
+							class="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:scale-105 transition-all shadow-sm ring-2 ring-transparent hover:ring-primary/30"
 							style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
 							<v-avatar size="32">
 								<ClientOnly>
 									<img v-if="authStore.user?.avatar_url" class="object-cover w-full h-full"
 										:src="getImageUrl(authStore.user.avatar_url)" alt="User profile photo" />
-									<span v-else class="text-white text-sm font-bold w-full h-full flex items-center justify-center"
+									<span v-else
+										class="text-white text-sm font-bold w-full h-full flex items-center justify-center"
 										style="background: linear-gradient(135deg, var(--sidebar-gradient-start, rgb(var(--color-primary))), var(--sidebar-gradient-end, rgb(var(--color-primary))))">
 										{{ userInitial }}
 									</span>
 									<template #fallback>
-										<span class="text-white text-sm font-bold bg-primary w-full h-full flex items-center justify-center">U</span>
+										<span
+											class="text-white text-sm font-bold bg-primary w-full h-full flex items-center justify-center">U</span>
 									</template>
 								</ClientOnly>
 							</v-avatar>
 						</button>
 					</template>
-					
+
 					<v-card class="rounded-[1.5rem] border border-border shadow-2xl overflow-hidden mt-2 min-w-[280px]"
-						style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text)); border-color: rgb(var(--color-border))" elevation="0">
-						
+						style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text)); border-color: rgb(var(--color-border))"
+						elevation="0">
+
 						<!-- Header with dynamic gradient -->
 						<div class="relative p-6 flex flex-col items-center text-center overflow-hidden z-10">
-							<div class="absolute inset-0 opacity-15" style="background: linear-gradient(135deg, var(--sidebar-gradient-start, rgb(var(--color-primary))), var(--sidebar-gradient-end, rgb(var(--color-accent)))); z-index: -1;"></div>
-							
-							<v-avatar size="64" class="mb-3 ring-4 shadow-lg" style="--tw-ring-color: rgb(var(--color-background))">
+							<div class="absolute inset-0 opacity-15"
+								style="background: linear-gradient(135deg, var(--sidebar-gradient-start, rgb(var(--color-primary))), var(--sidebar-gradient-end, rgb(var(--color-accent)))); z-index: -1;">
+							</div>
+
+							<v-avatar size="64" class="mb-3 ring-4 shadow-lg"
+								style="--tw-ring-color: rgb(var(--color-background))">
 								<img v-if="authStore.user?.avatar_url" class="object-cover w-full h-full"
 									:src="getImageUrl(authStore.user.avatar_url)" alt="User profile" />
-								<span v-else class="text-white text-2xl font-bold w-full h-full flex items-center justify-center shadow-inner"
+								<span v-else
+									class="text-white text-2xl font-bold w-full h-full flex items-center justify-center shadow-inner"
 									style="background: linear-gradient(135deg, var(--sidebar-gradient-start, rgb(var(--color-primary))), var(--sidebar-gradient-end, rgb(var(--color-accent))))">
 									{{ userInitial }}
 								</span>
 							</v-avatar>
-							
-							<h3 class="text-lg font-bold tracking-tight mb-0.5">{{ authStore.user?.first_name || authStore.user?.username?.split('@')[0] || 'User' }}</h3>
-							<p v-if="authStore.user?.email || authStore.user?.username?.includes('@')" class="text-xs opacity-70 font-medium tracking-wide">{{ authStore.user?.email || authStore.user?.username }}</p>
-							<span class="mt-3 px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border shadow-sm"
+
+							<h3 class="text-lg font-bold tracking-tight mb-0.5">{{ authStore.user?.first_name ||
+								authStore.user?.username?.split('@')[0] || 'User' }}</h3>
+							<p v-if="authStore.user?.email || authStore.user?.username?.includes('@')"
+								class="text-xs opacity-70 font-medium tracking-wide">{{ authStore.user?.email ||
+									authStore.user?.username }}</p>
+							<span
+								class="mt-3 px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border shadow-sm"
 								style="color: rgb(var(--color-primary)); background-color: rgba(var(--color-primary), 0.1); border-color: rgba(var(--color-primary), 0.2)">
 								{{ authStore.role }}
 							</span>
 						</div>
 
-						<v-list class="p-2 space-y-1 overflow-hidden" style="background-color: rgb(var(--color-background))">
-							<v-list-item to="/user?tab=profile" class="rounded-xl transition-all hover:bg-primary/10 hover:text-primary hover:translate-x-1" active-class="bg-primary/10 text-primary">
+						<v-list class="p-2 space-y-1 overflow-hidden"
+							style="background-color: rgb(var(--color-background))">
+							<v-list-item to="/user?tab=profile"
+								class="rounded-xl transition-all hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+								active-class="bg-primary/10 text-primary">
 								<template v-slot:prepend>
 									<Icon name="mdi:account-outline" class="w-5 h-5 mr-3 opacity-70" />
 								</template>
 								<v-list-item-title class="font-medium text-sm">My Profile</v-list-item-title>
 							</v-list-item>
-							
-							<v-list-item v-if="authStore.role === 'USER'" to="/user/wishlist" class="rounded-xl transition-all hover:bg-primary/10 hover:text-primary hover:translate-x-1" active-class="bg-primary/10 text-primary">
+
+							<v-list-item v-if="authStore.role === 'USER'" to="/user/wishlist"
+								class="rounded-xl transition-all hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+								active-class="bg-primary/10 text-primary">
 								<template v-slot:prepend>
 									<Icon name="mdi:heart-outline" class="w-5 h-5 mr-3 opacity-70" />
 								</template>
 								<v-list-item-title class="font-medium text-sm">My Wishlist</v-list-item-title>
 							</v-list-item>
-							
-							<v-list-item v-if="authStore.role === 'USER'" to="/user?tab=orders" class="rounded-xl transition-all hover:bg-primary/10 hover:text-primary hover:translate-x-1" active-class="bg-primary/10 text-primary">
+
+							<v-list-item v-if="authStore.role === 'USER'" to="/user?tab=orders"
+								class="rounded-xl transition-all hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+								active-class="bg-primary/10 text-primary">
 								<template v-slot:prepend>
 									<Icon name="mdi:package-variant-outline" class="w-5 h-5 mr-3 opacity-70" />
 								</template>
@@ -197,8 +226,10 @@
 							</v-list-item>
 						</v-list>
 
-						<div class="p-2 border-t border-border" style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
-							<v-list-item @click="logout" class="rounded-xl transition-all hover:bg-red-500/10 hover:text-red-500 text-red-500 hover:translate-x-1">
+						<div class="p-2 border-t border-border"
+							style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+							<v-list-item @click="logout"
+								class="rounded-xl transition-all hover:bg-red-500/10 hover:text-red-500 text-red-500 hover:translate-x-1">
 								<template v-slot:prepend>
 									<Icon name="mdi:logout" class="w-5 h-5 mr-3" />
 								</template>

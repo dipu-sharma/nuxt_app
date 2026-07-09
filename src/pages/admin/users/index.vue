@@ -4,7 +4,7 @@
     <!-- Premium Header Section -->
     <div class="mb-8 border-b border-border pb-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
       <div>
-        <h1 class="text-3xl font-light tracking-tight text-text mb-2">
+        <h1 class="text-3xl font-semibold tracking-tight text-text mb-2">
           User Management
         </h1>
         <p class="text-text opacity-70 text-sm font-medium tracking-wide">
@@ -114,7 +114,7 @@
     <v-dialog v-model="showPromoteModal" max-width="500" transition="dialog-bottom-transition">
       <v-card class="rounded-[2.5rem] bg-background border-0 shadow-2xl overflow-hidden">
         <div class="px-8 py-8 md:px-10 md:py-10">
-          <h2 class="text-3xl font-light tracking-tight text-text mb-4">
+          <h2 class="text-3xl font-semibold tracking-tight text-text mb-4">
             Promote Account
           </h2>
           <p class="text-text opacity-70 text-sm font-medium mb-6">

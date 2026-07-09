@@ -166,7 +166,7 @@
           <div class="flex justify-between items-start mb-10">
             <div>
               <p class="text-text opacity-50 font-medium mb-2 tracking-widest uppercase text-[10px]">Order Details</p>
-              <h2 class="text-3xl font-light tracking-tight text-text mb-2">#{{ selectedOrder.order_number || selectedOrder.id }}</h2>
+              <h2 class="text-3xl font-semibold tracking-tight text-text mb-2">#{{ selectedOrder.order_number || selectedOrder.id }}</h2>
               <p class="text-text opacity-70 font-medium tracking-wide text-sm">{{ formatDate(selectedOrder.created_at) }}</p>
             </div>
             <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest" :class="statusBadgeClass(selectedOrder.status)">

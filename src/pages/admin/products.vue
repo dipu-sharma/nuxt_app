@@ -4,7 +4,7 @@
 		<!-- Premium Header Section -->
 		<div class="mb-8 border-b border-border pb-6 flex flex-col md:flex-row md:items-end justify-between gap-6" style="border-color: rgb(var(--color-border))">
 			<div>
-				<h1 class="text-3xl font-light tracking-tight text-text mb-2">
+				<h1 class="text-3xl font-semibold tracking-tight text-text mb-2">
 					Product Management
 				</h1>
 				<p class="text-text opacity-70 text-sm font-medium tracking-wide">
@@ -185,7 +185,7 @@
 		<v-dialog v-model="showEditProductDialog" max-width="680" transition="dialog-bottom-transition">
 			<v-card class="rounded-[2.5rem] bg-card border-0 shadow-2xl overflow-hidden" style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
 				<div class="px-8 py-8 md:px-10 md:py-10">
-					<h2 class="text-3xl font-light tracking-tight text-text mb-6 pb-2 border-b border-border" style="border-color: rgb(var(--color-border))">
+					<h2 class="text-3xl font-semibold tracking-tight text-text mb-6 pb-2 border-b border-border" style="border-color: rgb(var(--color-border))">
 						{{ editingProduct ? 'Edit Product Details' : 'Add New Product' }}
 					</h2>
 					
@@ -415,7 +415,7 @@
 							<span class="text-[10px] text-primary font-bold uppercase tracking-widest bg-primary/10 px-2.5 py-1 rounded-full">
 								Product Details
 							</span>
-							<h2 class="text-3xl font-light tracking-tight text-text mt-2">
+							<h2 class="text-3xl font-semibold tracking-tight text-text mt-2">
 								{{ selectedProduct?.name || selectedProduct?.product_name }}
 							</h2>
 						</div>

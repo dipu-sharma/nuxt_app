@@ -5,7 +5,7 @@
 		<div class="mb-8 border-b border-border pb-6 flex flex-col md:flex-row md:items-end justify-between gap-6"
 			style="border-color: rgb(var(--color-border))">
 			<div>
-				<h1 class="text-3xl font-light tracking-tight text-text mb-2">
+				<h1 class="text-3xl font-semibold tracking-tight text-text mb-2">
 					Inventory Management
 				</h1>
 				<p class="text-text opacity-70 text-sm font-medium tracking-wide">
@@ -656,7 +656,7 @@
 			<v-card class="rounded-[2.5rem] bg-card border-0 shadow-2xl overflow-hidden"
 				style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
 				<div class="px-8 py-8 md:px-10 md:py-10">
-					<h2 class="text-3xl font-light tracking-tight text-text mb-6 pb-2 border-b border-border"
+					<h2 class="text-3xl font-semibold tracking-tight text-text mb-6 pb-2 border-b border-border"
 						style="border-color: rgb(var(--color-border))">
 						{{ editingSupplierId ? 'Edit Supplier' : 'Add Supplier' }}
 					</h2>
@@ -706,7 +706,7 @@
 			<v-card class="rounded-[2.5rem] bg-card border-0 shadow-2xl overflow-hidden"
 				style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text))">
 				<div class="px-8 py-8 md:px-10 md:py-10">
-					<h2 class="text-3xl font-light tracking-tight text-text mb-6 pb-2 border-b border-border"
+					<h2 class="text-3xl font-semibold tracking-tight text-text mb-6 pb-2 border-b border-border"
 						style="border-color: rgb(var(--color-border))">
 						{{ editingPOId ? 'Edit Purchase Order' : 'Create Purchase Order' }}
 					</h2>
@@ -830,7 +830,7 @@
 				<div class="px-8 py-8 md:px-10 md:py-10">
 					<div class="flex justify-between items-start mb-6 pb-2 border-b border-border" style="border-color: rgb(var(--color-border))">
 						<div>
-							<h2 class="text-3xl font-light tracking-tight text-text">
+							<h2 class="text-3xl font-semibold tracking-tight text-text">
 								Purchase Order <span class="font-bold text-primary">#{{ selectedPO?.po_id || selectedPO?.id }}</span>
 							</h2>
 							<p class="text-text opacity-70 mt-1">Status: <span class="font-bold uppercase">{{ selectedPO?.status }}</span></p>
