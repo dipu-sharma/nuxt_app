@@ -46,7 +46,9 @@ export const useAddress = () => {
         is_billing: !!payload.is_billing,
         is_home: payload.is_home !== undefined ? !!payload.is_home : true,
         landmark: payload.landmark || '',
-        label: payload.label || 'Home'
+        label: payload.label || 'Home',
+        latitude: payload.latitude,
+        longitude: payload.longitude
       }
       return await api('/api/address/', { method: 'POST', body: backendPayload })
     },
@@ -65,7 +67,9 @@ export const useAddress = () => {
         is_billing: !!payload.is_billing,
         is_home: payload.is_home !== undefined ? !!payload.is_home : true,
         landmark: payload.landmark || '',
-        label: payload.label || 'Home'
+        label: payload.label || 'Home',
+        latitude: payload.latitude,
+        longitude: payload.longitude
       }
       return await api('/api/address/', { method: 'PUT', body: backendPayload })
     },

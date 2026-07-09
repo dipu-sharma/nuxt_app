@@ -95,7 +95,7 @@
               <div class="flex justify-between items-start mb-4">
                 <span v-if="addr.is_default" class="text-[9px] font-black tracking-widest bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full uppercase border border-emerald-500/20">Default</span>
                 <span v-else class="h-4" />
-                <button @click="editAddress(addr)" class="w-8 h-8 rounded-full bg-secondary/80 text-text/75 hover:bg-primary hover:text-white flex items-center justify-center transition-colors shadow-sm">
+                <button v-if="!addr.is_used && !addr.has_orders && addr.is_editable !== false" @click="editAddress(addr)" class="w-8 h-8 rounded-full bg-secondary/80 text-text/75 hover:bg-primary hover:text-white flex items-center justify-center transition-colors shadow-sm" title="Edit Address">
                   <Icon name="mdi:pencil-outline" class="w-4 h-4" />
                 </button>
               </div>
@@ -338,7 +338,7 @@ const profileData = ref({
   avatar_url: authStore.user?.url || ''
 })
 
-const addressForm = ref({ address_line1: '', address_line2: '', city: '', state: '', country: 'India', pincode: '', is_default: false })
+const addressForm = ref({ address_line1: '', address_line2: '', city: '', state: '', country: 'India', pincode: '', is_default: false, latitude: null, longitude: null })
 const pwdForm = ref({ current: '', new_password: '', confirm: '' })
 
 const orderItems = computed(() => selectedOrder.value?.items || selectedOrder.value?.order_items || [])
@@ -501,7 +501,7 @@ const saveProfile = async () => {
 
 const openNewAddress = () => {
   editingAddress.value = null
-  addressForm.value = { address_line1: '', address_line2: '', city: '', state: '', country: 'India', pincode: '', is_default: false }
+  addressForm.value = { address_line1: '', address_line2: '', city: '', state: '', country: 'India', pincode: '', is_default: false, latitude: null, longitude: null }
   showAddressDialog.value = true
 }
 
@@ -528,6 +528,17 @@ const saveAddress = async () => {
   if (!addressForm.value.pincode || addressForm.value.pincode.length !== 6) return toast.error('Pincode must be exactly 6 digits')
   savingAddress.value = true
   try {
+    if (navigator.geolocation) {
+      try {
+        const pos = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+        })
+        addressForm.value.latitude = pos.coords.latitude
+        addressForm.value.longitude = pos.coords.longitude
+      } catch (err) {
+        // Failed to get location, proceed without it
+      }
+    }
     const { addAddress, updateAddress } = useAddress()
     if (editingAddress.value) {
       await updateAddress({ ...addressForm.value, id: editingAddress.value.id })

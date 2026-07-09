@@ -59,13 +59,13 @@
             <div class="mb-8 relative z-10">
               <p class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest mb-3">Categories</p>
               <div class="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                <button v-for="cat in categories" :key="cat.id || cat.name || cat"
-                  @click="selectedCategory = selectedCategory === (cat.id || cat.name || cat) ? '' : (cat.id || cat.name || cat); doSearch()"
+                <button v-for="cat in categories" :key="cat.category_id || cat.id || cat.name || cat"
+                  @click="selectedCategory = selectedCategory === (cat.category_id || cat.id || cat.name || cat) ? '' : (cat.category_id || cat.id || cat.name || cat); doSearch()"
                   class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border border-transparent capitalize"
-                  :class="selectedCategory === (cat.id || cat.name || cat)
+                  :class="selectedCategory === (cat.category_id || cat.id || cat.name || cat)
                     ? 'bg-gradient-to-r from-indigo-600/10 to-cyan-500/10 border-indigo-500/20 text-indigo-600 shadow-sm'
                     : 'text-text opacity-70 hover:bg-secondary/80 hover:border-border'">
-                  {{ (cat.name || cat) === 'electronic' ? 'Electronics' : (cat.name || cat) }}
+                  {{ (cat.name || cat.category_name || cat) === 'electronic' ? 'Electronics' : (cat.name || cat.category_name || cat) }}
                 </button>
               </div>
             </div>
@@ -212,8 +212,8 @@ useSeoMeta({
   title: computed(() => {
     if (query.value) return `Search results for "${query.value}" | D-Shop`
     if (selectedCategory.value) {
-      const found = categories.value.find(c => c.id === selectedCategory.value || c.name === selectedCategory.value)
-      return `${found ? found.name : selectedCategory.value} Products | D-Shop`
+      const found = categories.value.find(c => c.category_id === selectedCategory.value || c.id === selectedCategory.value || c.name === selectedCategory.value)
+      return `${found ? (found.name || found.category_name) : selectedCategory.value} Products | D-Shop`
     }
     return 'Shop All Products | D-Shop'
   }),
@@ -221,8 +221,8 @@ useSeoMeta({
   ogTitle: computed(() => {
     if (query.value) return `Search results for "${query.value}" | D-Shop`
     if (selectedCategory.value) {
-      const found = categories.value.find(c => c.id === selectedCategory.value || c.name === selectedCategory.value)
-      return `${found ? found.name : selectedCategory.value} Products | D-Shop`
+      const found = categories.value.find(c => c.category_id === selectedCategory.value || c.id === selectedCategory.value || c.name === selectedCategory.value)
+      return `${found ? (found.name || found.category_name) : selectedCategory.value} Products | D-Shop`
     }
     return 'Shop All Products | D-Shop'
   }),
@@ -252,12 +252,12 @@ const doSearch = async () => {
   hasMore.value = false
   try {
     if (!query.value && !selectedCategory.value && amount_range.value[0] === 10 && amount_range.value[1] === 100000) {
-      const { getPopular } = useSearch()
+      const { searchProducts } = useSearch()
       try {
-        const res = await getPopular()
+        const res = await searchProducts({ limit: 20, sort_by: 'relevance' })
         products.value = extractArray(res)
-        cursor.value = res?.data?.next_cursor || null
-        hasMore.value = !!res?.data?.has_more
+        cursor.value = res?.next_cursor || res?.data?.next_cursor || null
+        hasMore.value = !!(res?.has_more || res?.data?.has_more)
       } catch {
         products.value = []
       }
@@ -269,23 +269,19 @@ const doSearch = async () => {
     if (amount_range.value[1] < 100000) params.max_price = amount_range.value[1]
 
     try {
-      let res
+      const { searchProducts } = useSearch()
       if (query.value) {
-        const { searchProducts } = useSearch()
+        params.search = query.value
+        params.q = query.value
         params.query = query.value
-        if (selectedCategory.value) params.category_id = selectedCategory.value
-        res = await searchProducts(params)
-      } else if (selectedCategory.value) {
-        const { getProductsByCategoryId } = useSearch()
-        res = await getProductsByCategoryId({ category_id: selectedCategory.value, ...params })
-      } else {
-        const { getPopular } = useSearch()
-        res = await getPopular(params)
       }
+      if (selectedCategory.value) params.category_id = selectedCategory.value
+      params.sort_by = 'relevance'
+      let res = await searchProducts(params)
 
       products.value = extractArray(res)
-      cursor.value = res?.data?.next_cursor || null
-      hasMore.value = !!res?.data?.has_more
+      cursor.value = res?.next_cursor || res?.data?.next_cursor || null
+      hasMore.value = !!(res?.has_more || res?.data?.has_more)
     } catch {
       products.value = []
     }
@@ -305,24 +301,20 @@ const loadMore = async () => {
     if (amount_range.value[0] > 10) params.min_price = amount_range.value[0]
     if (amount_range.value[1] < 100000) params.max_price = amount_range.value[1]
 
-    let res
+    const { searchProducts } = useSearch()
     if (query.value) {
-      const { searchProducts } = useSearch()
+      params.search = query.value
+      params.q = query.value
       params.query = query.value
-      if (selectedCategory.value) params.category_id = selectedCategory.value
-      res = await searchProducts(params)
-    } else if (selectedCategory.value) {
-      const { getProductsByCategoryId } = useSearch()
-      res = await getProductsByCategoryId({ category_id: selectedCategory.value, ...params })
-    } else {
-      const { getPopular } = useSearch()
-      res = await getPopular(params)
     }
+    if (selectedCategory.value) params.category_id = selectedCategory.value
+    params.sort_by = 'relevance'
+    let res = await searchProducts(params)
 
     const moreProducts = extractArray(res)
     products.value.push(...moreProducts)
-    cursor.value = res?.data?.next_cursor || null
-    hasMore.value = !!res?.data?.has_more
+    cursor.value = res?.next_cursor || res?.data?.next_cursor || null
+    hasMore.value = !!(res?.has_more || res?.data?.has_more)
   } catch (err) {
     console.error('Failed to load more products:', err)
   } finally {
@@ -361,12 +353,23 @@ const clearFilters = () => {
   doSearch()
 }
 
-const { getTrending, getPublicCategories, getPopular } = useSearch()
+const flattenCategories = (cats) => {
+  let result = []
+  for (const c of cats) {
+    result.push(c)
+    if (c.children && Array.isArray(c.children)) {
+      result = result.concat(flattenCategories(c.children))
+    }
+  }
+  return result
+}
+
+const { getTrending, getPublicCategories, searchProducts } = useSearch()
 const { data: initialSearchData } = await useAsyncData('initial-search-data', async () => {
   const [trendRes, catRes, popRes] = await Promise.allSettled([
     getTrending(),
     getPublicCategories(),
-    getPopular()
+    searchProducts({ limit: 20, sort_by: 'relevance' })
   ])
 
   const trend = trendRes.status === 'fulfilled'
@@ -374,12 +377,12 @@ const { data: initialSearchData } = await useAsyncData('initial-search-data', as
     : []
 
   const cats = catRes.status === 'fulfilled'
-    ? extractArray(catRes.value)
+    ? flattenCategories(extractArray(catRes.value))
     : []
 
   const pop = popRes.status === 'fulfilled'
-    ? extractArray(popRes.value)
-    : []
+    ? popRes.value
+    : null
 
   return { trend, cats, pop }
 })
@@ -388,8 +391,8 @@ trending.value = initialSearchData.value?.trend || []
 categories.value = initialSearchData.value?.cats || []
 
 products.value = extractArray(initialSearchData.value?.pop)
-cursor.value = initialSearchData.value?.pop?.next_cursor || null
-hasMore.value = !!initialSearchData.value?.pop?.has_more
+cursor.value = initialSearchData.value?.pop?.next_cursor || initialSearchData.value?.pop?.data?.next_cursor || null
+hasMore.value = !!(initialSearchData.value?.pop?.has_more || initialSearchData.value?.pop?.data?.has_more)
 
 onMounted(() => {
   if (query.value) {

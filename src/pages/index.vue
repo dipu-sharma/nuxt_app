@@ -168,25 +168,25 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
 })
 
-const { fetchPublic } = useProducts()
-const { getPublicCategories, getProductsByCategoryId } = useSearch()
+const { getPublicCategories, searchProducts } = useSearch()
 
 const amount_range = ref([10, 100000])
 const selectedCategory = ref('')
 const searchQuery = ref('')
 
 const fetchParams = computed(() => {
-  const params = { limit: 50 }
+  const params = { limit: 20, sort_by: 'relevance' }
   if (selectedCategory.value) params.category_id = selectedCategory.value
-  if (searchQuery.value) params.search = searchQuery.value
+  if (searchQuery.value) {
+    params.search = searchQuery.value
+    params.q = searchQuery.value
+    params.query = searchQuery.value
+  }
   return params
 })
 
 const { data: productResponse, refresh } = await useAsyncData('homeProducts', () => {
-  if (selectedCategory.value) {
-    return getProductsByCategoryId({ category_id: selectedCategory.value, limit: 50 }).catch(() => null)
-  }
-  return fetchPublic(fetchParams.value).catch(() => null)
+  return searchProducts(fetchParams.value).catch(() => null)
 })
 
 const categoriesData = ref([])
@@ -211,13 +211,31 @@ watch([searchQuery, selectedCategory], () => {
   debouncedRefresh()
 })
 
+const flattenCategories = (cats) => {
+  let result = []
+  for (const c of cats) {
+    result.push(c)
+    if (c.children && Array.isArray(c.children)) {
+      result = result.concat(flattenCategories(c.children))
+    }
+  }
+  return result
+}
+
 const products = computed(() => {
-  return productResponse.value?.data?.items || productResponse.value?.data || []
+  const res = productResponse.value
+  if (!res) return []
+  if (Array.isArray(res)) return res
+  if (res.products) return res.products
+  if (res.data?.products) return res.data.products
+  if (res.data?.items) return res.data.items
+  return res.data || []
 })
 
 const categoriesList = computed(() => {
   const list = [{ category_id: '', name: 'All Categories' }]
-  categoriesData.value.forEach(p => {
+  const flatCats = flattenCategories(categoriesData.value)
+  flatCats.forEach(p => {
     const category_id = p.category_id || p.id || ''
     const name = p.name || p.category_name || (typeof p === 'string' ? p : '')
     if (category_id || name) list.push({ category_id, name })
