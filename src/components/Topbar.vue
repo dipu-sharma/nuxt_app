@@ -129,46 +129,83 @@
 						</v-list>
 					</v-menu>
 				</li>
-				<!-- Profile menu -->
-				<v-menu offset-y>
+				<!-- Premium Profile Menu -->
+				<v-menu transition="slide-y-transition" :offset="12" location="bottom end">
 					<template v-slot:activator="{ props }">
-						<v-btn icon v-bind="props">
-							<v-avatar size="32" color="primary">
+						<button v-bind="props" class="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:scale-105 transition-all shadow-sm ring-2 ring-transparent hover:ring-primary/30"
+							style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+							<v-avatar size="32">
 								<ClientOnly>
-									<img v-if="authStore.user?.avatar_url" class="object-cover w-8 h-8 rounded-full"
+									<img v-if="authStore.user?.avatar_url" class="object-cover w-full h-full"
 										:src="getImageUrl(authStore.user.avatar_url)" alt="User profile photo" />
-									<span v-else class="text-white text-sm font-bold">
+									<span v-else class="text-white text-sm font-bold w-full h-full flex items-center justify-center"
+										style="background: linear-gradient(135deg, var(--sidebar-gradient-start, rgb(var(--color-primary))), var(--sidebar-gradient-end, rgb(var(--color-primary))))">
 										{{ userInitial }}
 									</span>
 									<template #fallback>
-										<span class="text-white text-sm font-bold">U</span>
+										<span class="text-white text-sm font-bold bg-primary w-full h-full flex items-center justify-center">U</span>
 									</template>
 								</ClientOnly>
 							</v-avatar>
-						</v-btn>
+						</button>
 					</template>
-					<v-list>
-						<v-list-item class="py-2 px-3">
-							<v-list-item-title class="font-semibold">{{ authStore.user?.username ||
-								authStore.user?.email
-							}}</v-list-item-title>
-							<v-list-item-subtitle class="text-xs">{{ authStore.role }}</v-list-item-subtitle>
-						</v-list-item>
-						<v-divider />
-						<v-list-item to="/user?tab=profile" prepend-icon="mdi-account-outline">
-							<v-list-item-title>Profile</v-list-item-title>
-						</v-list-item>
-						<v-list-item to="/user/wishlist" prepend-icon="mdi-heart-outline">
-							<v-list-item-title>Wishlist</v-list-item-title>
-						</v-list-item>
-						<v-list-item to="/user?tab=orders" prepend-icon="mdi-package-variant-outline">
-							<v-list-item-title>My Orders</v-list-item-title>
-						</v-list-item>
-						<v-divider />
-						<v-list-item @click="logout" prepend-icon="mdi-logout" color="error">
-							<v-list-item-title>Log out</v-list-item-title>
-						</v-list-item>
-					</v-list>
+					
+					<v-card class="rounded-[1.5rem] border border-border shadow-2xl overflow-hidden mt-2 min-w-[280px]"
+						style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text)); border-color: rgb(var(--color-border))" elevation="0">
+						
+						<!-- Header with dynamic gradient -->
+						<div class="relative p-6 flex flex-col items-center text-center overflow-hidden z-10">
+							<div class="absolute inset-0 opacity-15" style="background: linear-gradient(135deg, var(--sidebar-gradient-start, rgb(var(--color-primary))), var(--sidebar-gradient-end, rgb(var(--color-accent)))); z-index: -1;"></div>
+							
+							<v-avatar size="64" class="mb-3 ring-4 shadow-lg" style="--tw-ring-color: rgb(var(--color-background))">
+								<img v-if="authStore.user?.avatar_url" class="object-cover w-full h-full"
+									:src="getImageUrl(authStore.user.avatar_url)" alt="User profile" />
+								<span v-else class="text-white text-2xl font-bold w-full h-full flex items-center justify-center shadow-inner"
+									style="background: linear-gradient(135deg, var(--sidebar-gradient-start, rgb(var(--color-primary))), var(--sidebar-gradient-end, rgb(var(--color-accent))))">
+									{{ userInitial }}
+								</span>
+							</v-avatar>
+							
+							<h3 class="text-lg font-bold tracking-tight mb-0.5">{{ authStore.user?.first_name || authStore.user?.username?.split('@')[0] || 'User' }}</h3>
+							<p v-if="authStore.user?.email || authStore.user?.username?.includes('@')" class="text-xs opacity-70 font-medium tracking-wide">{{ authStore.user?.email || authStore.user?.username }}</p>
+							<span class="mt-3 px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border shadow-sm"
+								style="color: rgb(var(--color-primary)); background-color: rgba(var(--color-primary), 0.1); border-color: rgba(var(--color-primary), 0.2)">
+								{{ authStore.role }}
+							</span>
+						</div>
+
+						<v-list class="p-2 space-y-1 overflow-hidden" style="background-color: rgb(var(--color-background))">
+							<v-list-item to="/user?tab=profile" class="rounded-xl transition-all hover:bg-primary/10 hover:text-primary hover:translate-x-1" active-class="bg-primary/10 text-primary">
+								<template v-slot:prepend>
+									<Icon name="mdi:account-outline" class="w-5 h-5 mr-3 opacity-70" />
+								</template>
+								<v-list-item-title class="font-medium text-sm">My Profile</v-list-item-title>
+							</v-list-item>
+							
+							<v-list-item v-if="authStore.role === 'USER'" to="/user/wishlist" class="rounded-xl transition-all hover:bg-primary/10 hover:text-primary hover:translate-x-1" active-class="bg-primary/10 text-primary">
+								<template v-slot:prepend>
+									<Icon name="mdi:heart-outline" class="w-5 h-5 mr-3 opacity-70" />
+								</template>
+								<v-list-item-title class="font-medium text-sm">My Wishlist</v-list-item-title>
+							</v-list-item>
+							
+							<v-list-item v-if="authStore.role === 'USER'" to="/user?tab=orders" class="rounded-xl transition-all hover:bg-primary/10 hover:text-primary hover:translate-x-1" active-class="bg-primary/10 text-primary">
+								<template v-slot:prepend>
+									<Icon name="mdi:package-variant-outline" class="w-5 h-5 mr-3 opacity-70" />
+								</template>
+								<v-list-item-title class="font-medium text-sm">My Orders</v-list-item-title>
+							</v-list-item>
+						</v-list>
+
+						<div class="p-2 border-t border-border" style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+							<v-list-item @click="logout" class="rounded-xl transition-all hover:bg-red-500/10 hover:text-red-500 text-red-500 hover:translate-x-1">
+								<template v-slot:prepend>
+									<Icon name="mdi:logout" class="w-5 h-5 mr-3" />
+								</template>
+								<v-list-item-title class="font-medium text-sm">Log out securely</v-list-item-title>
+							</v-list-item>
+						</div>
+					</v-card>
 				</v-menu>
 			</ul>
 		</div>
