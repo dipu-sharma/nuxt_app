@@ -11,11 +11,11 @@
         <Navbar />
       </header>
       <main class="flex-grow pt-20">
-        <div class="min-h-screen relative overflow-hidden py-8 lg:py-6">
+        <div class="min-h-screen relative overflow-hidden pt-8 pb-28 lg:py-6">
           <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-indigo-500/10 via-purple-500/10 to-transparent rounded-full blur-[100px] translate-x-1/3 -translate-y-1/3 pointer-events-none" />
           <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-cyan-500/10 via-blue-500/10 to-transparent rounded-full blur-[120px] -translate-x-1/3 translate-y-1/3 pointer-events-none" />
 
-          <div class="relative z-10 max-w-8xl mx-auto sm:px-4 lg:px-32">
+          <div class="relative z-10 max-w-8xl mx-auto px-4 sm:px-6 lg:px-32">
             <div class="mb-10">
               <h1 class="text-2xl lg:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-text to-text/60 leading-tight">{{ pageTitle }}</h1>
               <p class="text-text opacity-60 text-base mt-2 font-medium tracking-wide">{{ pageSubtitle }}</p>
@@ -30,6 +30,7 @@
           </div>
         </div>
       </main>
+      <MobileUserNav />
       <AutoLogOut />
     </div>
   </div>

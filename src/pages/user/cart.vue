@@ -1,10 +1,10 @@
 <template>
   <div class="text-text">
-    <div class="flex items-end justify-between mb-5">
-      <p class="text-text opacity-60 text-base font-medium tracking-wide">{{ cartItems.length }} item(s) waiting for you</p>
+    <div class="flex items-center justify-between mb-4 sm:mb-5">
+      <p class="text-text opacity-60 text-sm sm:text-base font-medium tracking-wide">{{ cartItems.length }} item(s) waiting for you</p>
       <button v-if="cartItems.length" @click="confirmClear"
-        class="px-5 py-2.5 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-bold text-sm tracking-widest uppercase flex items-center gap-2 shadow-sm">
-        <Icon name="mdi:trash-can-outline" class="w-4 h-4" /> Clear Cart
+        class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-bold text-xs sm:text-sm tracking-widest uppercase flex items-center gap-1 sm:gap-2 shadow-sm">
+        <Icon name="mdi:trash-can-outline" class="w-4 h-4 sm:w-4 sm:h-4" /> <span class="hidden sm:inline">Clear Cart</span><span class="sm:hidden">Clear</span>
       </button>
     </div>
 
@@ -30,25 +30,25 @@
       <!-- Cart Content -->
       <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         <!-- Items List -->
-        <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+        <div class="lg:col-span-7 xl:col-span-8 space-y-4 sm:space-y-6">
           <div v-for="item in cartItems" :key="item.product_id"
-            class="bg-card/60 backdrop-blur-xl border border-white/20 shadow-lg shadow-black/5 rounded-[2rem] p-5 flex flex-col sm:flex-row gap-6 transition-all hover:shadow-xl group">
+            class="bg-card/60 backdrop-blur-xl border border-white/20 shadow-lg shadow-black/5 rounded-[1.5rem] sm:rounded-[2rem] p-3 sm:p-5 flex flex-row gap-3 sm:gap-6 transition-all hover:shadow-xl group">
             <div
-              class="w-32 h-32 flex-shrink-0 bg-secondary/30 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
+              class="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 bg-secondary/30 rounded-[1rem] sm:rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
               <img v-if="item.image_url || item.url || item.image" :src="item.image_url || item.url || item.image"
                 :alt="item.name"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              <Icon v-else name="mdi:image-outline" class="w-10 h-10 text-gray-400" />
+              <Icon v-else name="mdi:image-outline" class="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
             </div>
-            <div class="flex-1 flex flex-col justify-center">
-              <div class="flex justify-between items-start gap-4">
+            <div class="flex-1 flex flex-col justify-between">
+              <div class="flex justify-between items-start gap-2">
                 <div>
-                  <h3 class="font-bold text-xl text-text line-clamp-2 leading-tight mb-1">{{ item.name }}</h3>
-                  <p class="text-text opacity-50 text-sm font-medium">{{ item.variant || '' }}</p>
+                  <h3 class="font-bold text-sm sm:text-xl text-text line-clamp-2 leading-tight mb-0.5 sm:mb-1">{{ item.name }}</h3>
+                  <p class="text-text opacity-50 text-[11px] sm:text-sm font-medium">{{ item.variant || '' }}</p>
                 </div>
                 <button @click="removeItem(item.id)"
-                  class="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors flex-shrink-0">
-                  <Icon name="mdi:close" class="w-4 h-4" />
+                  class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors flex-shrink-0">
+                  <Icon name="mdi:close" class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               </div>
 
@@ -60,22 +60,22 @@
                   item.</span>
               </div>
 
-              <div class="flex flex-wrap items-center justify-between gap-4 mt-auto pt-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 sm:gap-4 mt-2 sm:mt-auto sm:pt-4">
                 <span
-                  class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500">₹{{
+                  class="text-lg sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500">₹{{
                     item.price?.toLocaleString('en-IN') }}</span>
 
                 <!-- Quantity Controls -->
                 <div
                   class="flex items-center bg-background border border-border/60 rounded-full overflow-hidden shadow-inner p-1">
                   <button :disabled="item.quantity <= 1" @click="updateQty(item, item.quantity - 1)"
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-text hover:bg-secondary disabled:opacity-30 disabled:hover:bg-transparent transition-colors">
-                    <Icon name="mdi:minus" class="w-4 h-4" />
+                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-text hover:bg-secondary disabled:opacity-30 disabled:hover:bg-transparent transition-colors">
+                    <Icon name="mdi:minus" class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </button>
-                  <span class="w-10 text-center font-bold text-sm">{{ item.quantity }}</span>
+                  <span class="w-8 sm:w-10 text-center font-bold text-xs sm:text-sm">{{ item.quantity }}</span>
                   <button @click="updateQty(item, item.quantity + 1)"
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-text hover:bg-secondary transition-colors">
-                    <Icon name="mdi:plus" class="w-4 h-4" />
+                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-text hover:bg-secondary transition-colors">
+                    <Icon name="mdi:plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </button>
                 </div>
               </div>
@@ -86,12 +86,12 @@
         <!-- Order Summary -->
         <div class="lg:col-span-5 xl:col-span-4 sticky top-8">
           <div
-            class="bg-card/80 backdrop-blur-2xl border border-white/20 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] rounded-[2.5rem] p-8 relative overflow-hidden">
+            class="bg-card/80 backdrop-blur-2xl border border-white/20 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-8 relative overflow-hidden">
             <div
               class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
             </div>
 
-            <h2 class="text-2xl font-bold mb-8 text-text">Order Summary</h2>
+            <h2 class="text-xl sm:text-2xl font-bold mb-6 sm:mb-8 text-text">Order Summary</h2>
 
             <!-- Coupon Code -->
             <div class="mb-8">
@@ -147,7 +147,7 @@
                 class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 transition-transform duration-500 group-hover:scale-105">
               </div>
               <div class="relative flex items-center justify-center gap-2 h-full">
-                Proceed to Checkout
+                Checkout
                 <Icon name="mdi:arrow-right" class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
@@ -162,10 +162,10 @@
     </div>
 
     <!-- Checkout Dialog -->
-    <v-dialog v-model="checkoutDialog" max-width="600" persistent>
-      <div v-if="paymentStep === 1" class="bg-card/95 backdrop-blur-xl border border-white/20 shadow-2xl rounded-[2.5rem] p-8">
-        <h2 class="text-2xl font-extrabold mb-6 text-text flex items-center gap-3">
-          <Icon name="mdi:lock-outline" class="text-primary" /> Secure Checkout
+    <v-dialog v-model="checkoutDialog" max-width="600" :fullscreen="$vuetify.display.smAndDown" persistent>
+      <div v-if="paymentStep === 1" class="bg-card/95 backdrop-blur-xl border border-white/20 shadow-2xl rounded-t-[2rem] sm:rounded-[2.5rem] p-5 sm:p-8 h-full flex flex-col">
+        <h2 class="text-xl sm:text-2xl font-extrabold mb-4 sm:mb-6 text-text flex items-center gap-3 mt-4 sm:mt-0">
+          <Icon name="mdi:lock-outline" class="text-primary w-6 h-6 sm:w-8 sm:h-8" /> Secure Checkout
         </h2>
 
         <div class="space-y-6">
@@ -204,44 +204,44 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Order Notes
+            <label class="block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Order Notes
               (Optional)</label>
-            <textarea v-model="orderNotes" rows="3" placeholder="Any special instructions?"
+            <textarea v-model="orderNotes" rows="2" placeholder="Any special instructions?"
               class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text resize-none"></textarea>
           </div>
         </div>
 
-        <div class="flex gap-4 mt-8">
+        <div class="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-10 mb-4 sm:mb-0">
           <button @click="cancelCheckout"
-            class="px-6 py-3.5 rounded-xl font-bold text-text/70 hover:bg-secondary transition-colors">
+            class="px-6 py-3.5 rounded-xl font-bold text-text/70 hover:bg-secondary transition-colors w-full sm:w-auto">
             Cancel
           </button>
           <button @click="placeOrder" :disabled="placingOrder"
-            class="flex-1 bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2">
+            class="flex-1 bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2 py-3.5">
           <Icon v-if="placingOrder" name="mdi:loading" class="w-5 h-5 animate-spin" />
             <span v-else>Confirm & Pay ₹{{ total.toLocaleString('en-IN') }}</span>
           </button>
         </div>
       </div>
 
-      <div v-else-if="paymentStep === 2" class="bg-card border border-white/20 rounded-[2rem] shadow-2xl w-full max-w-xl p-8 max-h-[90vh] overflow-y-auto relative animate-[scaleIn_0.3s_ease-out]">
-        <h2 class="text-2xl font-black text-text mb-6 flex items-center gap-2">
-          <Icon name="mdi:credit-card-outline" class="text-primary" /> Complete Payment
+      <div v-else-if="paymentStep === 2" class="bg-card border border-white/20 rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl w-full max-w-xl p-5 sm:p-8 h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto relative animate-[scaleIn_0.3s_ease-out] flex flex-col">
+        <h2 class="text-xl sm:text-2xl font-black text-text mb-4 sm:mb-6 flex items-center gap-2 mt-4 sm:mt-0">
+          <Icon name="mdi:credit-card-outline" class="text-primary w-6 h-6 sm:w-8 sm:h-8" /> Complete Payment
         </h2>
         
-        <div id="payment-element" class="min-h-[250px] mb-6 p-4 rounded-xl border border-border bg-background">
+        <div id="payment-element" class="min-h-[250px] mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl border border-border bg-background">
           <div v-if="!elementsObj" class="flex justify-center items-center h-[200px]">
              <Icon name="mdi:loading" class="w-8 h-8 animate-spin text-primary" />
           </div>
         </div>
 
-        <div class="flex gap-4 mt-8">
+        <div class="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 mt-auto sm:mt-8 pt-4 sm:pt-0 mb-4 sm:mb-0">
           <button @click="cancelCheckout"
-            class="px-6 py-3.5 rounded-xl font-bold text-text/70 hover:bg-secondary transition-colors">
+            class="px-6 py-3.5 rounded-xl font-bold text-text/70 hover:bg-secondary transition-colors w-full sm:w-auto">
             Cancel
           </button>
           <button @click="confirmOnlinePayment" :disabled="processingPayment || !elementsObj"
-            class="flex-1 bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2">
+            class="flex-1 bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2 py-3.5">
             <Icon v-if="processingPayment" name="mdi:loading" class="w-5 h-5 animate-spin" />
             <span v-else>Pay ₹{{ total.toLocaleString('en-IN') }}</span>
           </button>

@@ -1,5 +1,5 @@
 <template>
-  <aside class="lg:col-span-4 xl:col-span-3">
+  <aside class="hidden lg:block lg:col-span-4 xl:col-span-3">
     <div
       class="bg-card/70 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] rounded-[2rem] p-6 relative overflow-hidden">
       <!-- Sidebar avatar summary -->
