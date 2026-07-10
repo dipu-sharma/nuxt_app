@@ -1,6 +1,6 @@
 <template>
 	<header>
-		<nav
+		<nav ref="navRef"
 			class="fixed top-0 left-0 right-0 flex flex-wrap items-center justify-between w-full py-3 md:py-1 px-4 text-lg shadow-[0_4px_30px_rgba(0,0,0,0.1)] z-50 bg-background/40 backdrop-blur-2xl border-b border-border/30 transition-colors duration-500">
 			<div class="md:py-2 md:px-4">
 				<NuxtLink to="/"
@@ -124,7 +124,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useThemeStore } from '~/stores/themeStore'
 import { useCartStore } from '~/stores/cartStore'
@@ -151,6 +151,13 @@ const themeIcon = computed(() => {
 const isMenuOpen = ref(false)
 const isDropdownOpen = ref(false)
 const dropdownRef = ref(null)
+const navRef = ref(null)
+const route = useRoute()
+
+watch(() => route.fullPath, () => {
+	isMenuOpen.value = false
+	isDropdownOpen.value = false
+})
 
 const toggleMenu = () => {
 	isMenuOpen.value = !isMenuOpen.value
@@ -168,6 +175,9 @@ const logout = () => {
 const handleClickOutside = (event) => {
 	if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
 		isDropdownOpen.value = false
+	}
+	if (navRef.value && !navRef.value.contains(event.target)) {
+		isMenuOpen.value = false
 	}
 }
 

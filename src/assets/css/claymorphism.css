@@ -1,72 +1,246 @@
-/* Claymorphism Theme - Soft, puffy, 3D inflated UI */
+/* ============================================
+   Claymorphism Theme — Clean Refined 3D Clay UI
+   Targeted selectors. No over-shadowing.
+   ============================================ */
 
-[data-theme="claymorphism"] .card,
+/* ── CSS Variables ── */
+[data-theme="claymorphism"] {
+  --clay-out:     6px 8px 18px rgba(0,0,0,0.10), -4px -4px 12px rgba(255,255,255,0.90);
+  --clay-out-sm:  4px 5px 12px rgba(0,0,0,0.08), -3px -3px 8px  rgba(255,255,255,0.85);
+  --clay-in:      inset 3px 3px 8px rgba(0,0,0,0.07), inset -3px -3px 8px rgba(255,255,255,0.92);
+  --clay-hover:   8px 10px 24px rgba(0,0,0,0.12), -4px -4px 14px rgba(255,255,255,0.92);
+  --clay-primary: 4px 6px 14px rgba(99,102,241,0.30), -2px -2px 6px rgba(255,255,255,0.60);
+  --clay-surface: #edf0f5;
+  --clay-bg:      #f0f2f6;
+}
+
+/* ── Strip backdrop blur ── */
+[data-theme="claymorphism"] [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ══════════════════════════════════════════
+   STRUCTURAL PANELS & CARDS
+   ══════════════════════════════════════════ */
+
+/* bg-card utility (all opacity variants) */
 [data-theme="claymorphism"] .bg-card,
-[data-theme="claymorphism"] .glass-card,
-[data-theme="claymorphism"] .glass-dark-card {
-  background-color: rgb(var(--color-card)) !important;
-  border-radius: 24px !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
-  box-shadow: 
-    8px 8px 16px rgba(0, 0, 0, 0.08),
-    inset -8px -8px 16px rgba(0, 0, 0, 0.05),
-    inset 8px 8px 16px rgba(255, 255, 255, 0.8) !important;
+[data-theme="claymorphism"] .bg-card\/60,
+[data-theme="claymorphism"] .bg-card\/70,
+[data-theme="claymorphism"] .bg-card\/80,
+[data-theme="claymorphism"] .bg-card\/90,
+[data-theme="claymorphism"] .bg-card\/95,
+[data-theme="claymorphism"] .bg-card\/98,
+[data-theme="claymorphism"] .card,
+[data-theme="claymorphism"] .glass-card {
+  background-color: var(--clay-surface) !important;
+  box-shadow: var(--clay-out) !important;
   backdrop-filter: none !important;
-  transition: all 0.3s ease;
+  border-color: rgba(255,255,255,0.65) !important;
 }
 
-[data-theme="claymorphism"] .card:hover,
-[data-theme="claymorphism"] .bg-card:hover,
-[data-theme="claymorphism"] .glass-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    12px 12px 20px rgba(0, 0, 0, 0.1),
-    inset -8px -8px 16px rgba(0, 0, 0, 0.05),
-    inset 8px 8px 16px rgba(255, 255, 255, 0.9) !important;
-}
-
-[data-theme="claymorphism"] button,
-[data-theme="claymorphism"] .btn,
-[data-theme="claymorphism"] .glass-button {
-  border-radius: 16px !important;
-  box-shadow: 
-    4px 4px 8px rgba(0, 0, 0, 0.1),
-    inset -4px -4px 8px rgba(0, 0, 0, 0.1),
-    inset 4px 4px 8px rgba(255, 255, 255, 0.4) !important;
-  border: none !important;
+/* Large custom-radius panels */
+[data-theme="claymorphism"] .rounded-\[2rem\],
+[data-theme="claymorphism"] .rounded-\[1\.5rem\],
+[data-theme="claymorphism"] .rounded-\[2\.5rem\],
+[data-theme="claymorphism"] .rounded-\[1\.2rem\] {
+  box-shadow: var(--clay-out) !important;
   backdrop-filter: none !important;
 }
 
-[data-theme="claymorphism"] button:active,
-[data-theme="claymorphism"] .btn:active,
-[data-theme="claymorphism"] .glass-button:active {
-  transform: scale(0.98);
-  box-shadow: 
-    2px 2px 4px rgba(0, 0, 0, 0.1),
-    inset -2px -2px 4px rgba(0, 0, 0, 0.1),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.4) !important;
+/* Standard rounded cards (stat cards etc.) — only when they also have bg-card */
+[data-theme="claymorphism"] .rounded-2xl.bg-card,
+[data-theme="claymorphism"] .rounded-2xl.bg-card\/60,
+[data-theme="claymorphism"] .rounded-2xl.bg-card\/70,
+[data-theme="claymorphism"] .rounded-2xl.bg-card\/80 {
+  background-color: var(--clay-surface) !important;
+  box-shadow: var(--clay-out-sm) !important;
 }
 
-[data-theme="claymorphism"] input,
+/* ── Navbar ── */
+[data-theme="claymorphism"] header > nav {
+  background-color: rgba(240,242,246,0.98) !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.09), 0 1px 0 rgba(255,255,255,0.85) inset !important;
+  border-bottom: 1px solid rgba(255,255,255,0.75) !important;
+}
+
+/* ── Desktop Sidebar ── */
+[data-theme="claymorphism"] aside > div {
+  background-color: var(--clay-surface) !important;
+  box-shadow: var(--clay-out) !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(255,255,255,0.65) !important;
+}
+
+/* ── Sidebar active link ── */
+[data-theme="claymorphism"] .sidebar-link.active-link {
+  box-shadow:
+    inset 2px 2px 5px rgba(99,102,241,0.15),
+    inset -1px -1px 4px rgba(255,255,255,0.60) !important;
+}
+
+/* ── Mobile Bottom Nav bar ── */
+[data-theme="claymorphism"] .fixed.bottom-0 .bg-card\/95,
+[data-theme="claymorphism"] .fixed.bottom-0 .bg-card\/90 {
+  background-color: rgba(240,242,246,0.99) !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 -4px 18px rgba(0,0,0,0.09), 0 2px 0 rgba(255,255,255,0.85) inset !important;
+  border-top: 1px solid rgba(255,255,255,0.75) !important;
+}
+
+/* ── Mobile More Drawer ── */
+[data-theme="claymorphism"] .fixed.bottom-0 .rounded-t-\[2rem\],
+[data-theme="claymorphism"] .fixed.bottom-0 .bg-card\/98 {
+  background-color: var(--clay-surface) !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 -8px 28px rgba(0,0,0,0.10) !important;
+  border-top: 1px solid rgba(255,255,255,0.70) !important;
+}
+
+/* ── Vuetify Modals ── */
+[data-theme="claymorphism"] .v-card,
+[data-theme="claymorphism"] .v-overlay__content > div {
+  background-color: var(--clay-surface) !important;
+  box-shadow: 10px 12px 32px rgba(0,0,0,0.12), -6px -6px 18px rgba(255,255,255,0.92) !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(255,255,255,0.65) !important;
+}
+
+/* ══════════════════════════════════════════
+   BUTTONS
+   ══════════════════════════════════════════ */
+
+/* Standard buttons (exclude tiny icon-only buttons) */
+[data-theme="claymorphism"] button.btn,
+[data-theme="claymorphism"] a[class*="rounded-full"][class*="px-"],
+[data-theme="claymorphism"] a[class*="rounded-xl"][class*="px-"] {
+  box-shadow: var(--clay-out-sm) !important;
+  backdrop-filter: none !important;
+  transition: box-shadow 0.2s ease, transform 0.15s ease !important;
+}
+
+/* Catch main action buttons by size/padding classes */
+[data-theme="claymorphism"] button[class*="px-4"],
+[data-theme="claymorphism"] button[class*="px-5"],
+[data-theme="claymorphism"] button[class*="px-6"],
+[data-theme="claymorphism"] button[class*="px-8"],
+[data-theme="claymorphism"] button[class*="h-10"],
+[data-theme="claymorphism"] button[class*="h-11"],
+[data-theme="claymorphism"] button[class*="h-12"] {
+  box-shadow: var(--clay-out-sm) !important;
+  transition: box-shadow 0.2s ease, transform 0.15s ease !important;
+}
+
+[data-theme="claymorphism"] button[class*="px-4"]:hover,
+[data-theme="claymorphism"] button[class*="px-5"]:hover,
+[data-theme="claymorphism"] button[class*="px-6"]:hover,
+[data-theme="claymorphism"] button[class*="px-8"]:hover,
+[data-theme="claymorphism"] button[class*="h-10"]:hover,
+[data-theme="claymorphism"] button[class*="h-11"]:hover,
+[data-theme="claymorphism"] button[class*="h-12"]:hover {
+  box-shadow: var(--clay-hover) !important;
+  transform: translateY(-1px) !important;
+}
+
+[data-theme="claymorphism"] button[class*="px-4"]:active,
+[data-theme="claymorphism"] button[class*="px-5"]:active,
+[data-theme="claymorphism"] button[class*="px-6"]:active,
+[data-theme="claymorphism"] button[class*="px-8"]:active,
+[data-theme="claymorphism"] button[class*="h-12"]:active {
+  transform: scale(0.97) !important;
+  box-shadow: 2px 3px 8px rgba(0,0,0,0.09),
+    inset 2px 2px 5px rgba(0,0,0,0.05),
+    inset -2px -2px 5px rgba(255,255,255,0.75) !important;
+}
+
+/* Primary buttons — indigo tinted glow */
+[data-theme="claymorphism"] button.bg-primary,
+[data-theme="claymorphism"] button[class*="from-primary"],
+[data-theme="claymorphism"] button[class*="from-indigo"],
+[data-theme="claymorphism"] button[class*="bg-gradient"] {
+  box-shadow: var(--clay-primary) !important;
+}
+
+/* Vuetify buttons */
+[data-theme="claymorphism"] .v-btn {
+  box-shadow: var(--clay-out-sm) !important;
+}
+
+/* ══════════════════════════════════════════
+   FORM INPUTS
+   ══════════════════════════════════════════ */
+[data-theme="claymorphism"] input[type="text"],
+[data-theme="claymorphism"] input[type="email"],
+[data-theme="claymorphism"] input[type="password"],
+[data-theme="claymorphism"] input[type="tel"],
+[data-theme="claymorphism"] input[type="number"],
+[data-theme="claymorphism"] input[type="search"],
 [data-theme="claymorphism"] select,
-[data-theme="claymorphism"] textarea,
-[data-theme="claymorphism"] .glass-input {
-  background-color: rgba(0, 0, 0, 0.02) !important;
-  border-radius: 12px !important;
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
-  box-shadow: 
-    inset 4px 4px 8px rgba(0, 0, 0, 0.05),
-    inset -4px -4px 8px rgba(255, 255, 255, 0.8) !important;
+[data-theme="claymorphism"] textarea {
+  background-color: var(--clay-bg) !important;
+  box-shadow: var(--clay-in) !important;
+  border: 1px solid rgba(255,255,255,0.70) !important;
   backdrop-filter: none !important;
+  color: rgb(31,41,55) !important;
 }
 
-[data-theme="claymorphism"] input:focus,
+[data-theme="claymorphism"] input[type="text"]:focus,
+[data-theme="claymorphism"] input[type="email"]:focus,
+[data-theme="claymorphism"] input[type="password"]:focus,
+[data-theme="claymorphism"] input[type="tel"]:focus,
+[data-theme="claymorphism"] input[type="number"]:focus,
+[data-theme="claymorphism"] input[type="search"]:focus,
 [data-theme="claymorphism"] select:focus,
-[data-theme="claymorphism"] textarea:focus,
-[data-theme="claymorphism"] .glass-input:focus {
-  outline: none;
-  box-shadow: 
-    inset 4px 4px 8px rgba(0, 0, 0, 0.08),
-    inset -4px -4px 8px rgba(255, 255, 255, 0.9),
-    0 0 0 2px rgba(var(--color-primary), 0.3) !important;
+[data-theme="claymorphism"] textarea:focus {
+  outline: none !important;
+  border-color: rgba(99,102,241,0.40) !important;
+  box-shadow: var(--clay-in), 0 0 0 3px rgba(99,102,241,0.12) !important;
 }
+
+[data-theme="claymorphism"] input:disabled {
+  opacity: 0.60 !important;
+  box-shadow: var(--clay-in) !important;
+}
+
+[data-theme="claymorphism"] .v-field {
+  background-color: var(--clay-bg) !important;
+  box-shadow: var(--clay-in) !important;
+}
+
+/* ══════════════════════════════════════════
+   LIST ROW ITEMS
+   ══════════════════════════════════════════ */
+[data-theme="claymorphism"] .bg-background\/50,
+[data-theme="claymorphism"] .bg-background\/40,
+[data-theme="claymorphism"] .bg-background\/60 {
+  background-color: var(--clay-bg) !important;
+  box-shadow: var(--clay-in) !important;
+  border: 1px solid rgba(255,255,255,0.60) !important;
+}
+
+/* ══════════════════════════════════════════
+   SMALL ICON WRAPPER BOXES (subtle lift only)
+   ══════════════════════════════════════════ */
+[data-theme="claymorphism"] .w-9.rounded-xl,
+[data-theme="claymorphism"] .w-10.rounded-xl,
+[data-theme="claymorphism"] .w-11.rounded-xl,
+[data-theme="claymorphism"] .w-14.rounded-\[1\.2rem\] {
+  box-shadow: 2px 3px 7px rgba(0,0,0,0.08), -2px -2px 5px rgba(255,255,255,0.85) !important;
+}
+
+/* ══════════════════════════════════════════
+   SCROLLBAR
+   ══════════════════════════════════════════ */
+[data-theme="claymorphism"] ::-webkit-scrollbar { width: 7px; }
+[data-theme="claymorphism"] ::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 8px;
+}
+[data-theme="claymorphism"] ::-webkit-scrollbar-thumb {
+  background: #bec1cc;
+  border-radius: 8px;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.09), -1px -1px 3px rgba(255,255,255,0.80);
+}
+[data-theme="claymorphism"] ::-webkit-scrollbar-thumb:hover { background: #a0a3b0; }

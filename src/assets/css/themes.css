@@ -238,7 +238,7 @@ html, body {
   left: 0;
   bottom: 0;
   width: 0%;
-  background: linear-gradient(to right, var(--sidebar-gradient-start), var(--sidebar-gradient-end));
+  background: linear-gradient(to right, color-mix(in srgb, var(--sidebar-gradient-start) 45%, white), var(--sidebar-gradient-start) 50%, var(--sidebar-gradient-end));
   z-index: -1;
   transition: width 0.4s ease-out;
   border-radius: inherit;

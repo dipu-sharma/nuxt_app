@@ -34,54 +34,54 @@
       <!-- Tab List Buttons -->
       <nav class="space-y-2 mt-6">
         <NuxtLink to="/user?tab=overview"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-full text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('overview')
-            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)]'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:view-dashboard-outline" class="w-5 h-5" />
           Overview
         </NuxtLink>
 
         <NuxtLink to="/user?tab=profile"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-full text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('profile')
-            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)]'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:account-outline" class="w-5 h-5" />
           Profile
         </NuxtLink>
 
         <NuxtLink to="/user?tab=address"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-full text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('address')
-            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)]'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:map-marker-outline" class="w-5 h-5" />
           Addresses
         </NuxtLink>
 
         <NuxtLink to="/user?tab=security"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-full text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('security')
-            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)]'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:lock-outline" class="w-5 h-5" />
           Security
         </NuxtLink>
 
         <NuxtLink to="/user?tab=orders"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-full text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('orders')
-            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)]'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:package-variant-closed" class="w-5 h-5" />
           Orders
         </NuxtLink>
 
         <NuxtLink to="/user?tab=sessions"
-          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
+          class="w-full flex items-center gap-3 px-4 py-3.5 rounded-full text-sm font-bold tracking-wide uppercase transition-all duration-300 sidebar-link"
           :class="isActive('sessions')
-            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)] bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary text-primary'
+            ? 'active-link shadow-[0_0_15px_rgba(var(--color-primary),0.2)]'
             : 'text-text opacity-70 hover:opacity-100 hover:bg-primary/5 hover:translate-x-1 hover:scale-[1.01]'">
           <Icon name="mdi:devices" class="w-5 h-5" />
           Active Devices
@@ -95,20 +95,20 @@
       <div class="space-y-1">
         <p class="px-4 text-[9px] font-black uppercase tracking-widest text-text/40 mb-2">Quick Access</p>
         <NuxtLink to="/user/cart"
-          class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-all"
-          :class="route.path === '/user/cart' ? 'bg-primary/10 text-primary' : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-bold tracking-wide transition-all sidebar-link"
+          :class="route.path === '/user/cart' ? 'active-link' : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:cart-outline" class="w-5 h-5" />
           Shopping Cart
         </NuxtLink>
         <NuxtLink to="/user/wishlist"
-          class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-all"
-          :class="route.path === '/user/wishlist' ? 'bg-primary/10 text-primary' : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-bold tracking-wide transition-all sidebar-link"
+          :class="route.path === '/user/wishlist' ? 'active-link' : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:heart-outline" class="w-5 h-5" />
           Wishlist
         </NuxtLink>
         <NuxtLink to="/user/invoices"
-          class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-all"
-          :class="route.path === '/user/invoices' ? 'bg-primary/10 text-primary' : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-bold tracking-wide transition-all sidebar-link"
+          :class="route.path === '/user/invoices' ? 'active-link' : 'text-text opacity-70 hover:opacity-100 hover:bg-secondary/60'">
           <Icon name="mdi:file-document-outline" class="w-5 h-5" />
           Invoices
         </NuxtLink>

@@ -16,151 +16,187 @@
         @view-order="openOrderDetail"
       />
 
-      <div v-if="activeTab === 'profile'" class="bg-card/60 backdrop-blur-2xl border border-white/20 shadow-xl rounded-[2rem] p-6 sm:p-8">
-        <h2 class="text-2xl font-bold mb-6 text-text flex items-center gap-2">
-          <Icon name="mdi:account-box-outline" class="text-primary w-6 h-6" /> Profile Details
-        </h2>
-        <form @submit.prevent="saveProfile" class="space-y-6">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">First Name</label>
-              <div class="relative">
-                <Icon name="mdi:account-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                <input v-model="profileData.first_name" type="text" required placeholder="First Name" class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
-              </div>
+      <div v-if="activeTab === 'profile'" class="bg-card/60 backdrop-blur-2xl border border-white/20 shadow-xl rounded-[2rem] overflow-hidden">
+        <!-- Profile Header Banner -->
+        <div class="relative h-24 sm:h-28 bg-gradient-to-br from-indigo-500/20 via-primary/15 to-cyan-500/10">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10" />
+        </div>
+        <div class="px-5 sm:px-8 pb-6 sm:pb-8">
+          <div class="flex items-end gap-4 -mt-8 mb-6">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-4 border-card bg-secondary/50 flex items-center justify-center overflow-hidden shadow-xl flex-shrink-0">
+              <Icon name="mdi:account-box-outline" class="text-primary w-8 h-8 sm:w-10 sm:h-10" />
             </div>
-            <div>
-              <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Last Name</label>
-              <div class="relative">
-                <Icon name="mdi:account-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                <input v-model="profileData.last_name" type="text" required placeholder="Last Name" class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
-              </div>
-            </div>
-            <div>
-              <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Phone Number</label>
-              <div class="relative">
-                <Icon name="mdi:phone-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                <input v-model="profileData.phone" type="tel" maxlength="10" @input="profileData.phone = filterDigits(profileData.phone, 10)" placeholder="10-digit number" class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
-              </div>
-            </div>
-            <div>
-              <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Email</label>
-              <div class="relative">
-                <Icon name="mdi:email-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                <input :value="authStore.user?.username" type="email" disabled class="w-full pl-12 pr-4 py-3.5 bg-background/50 border border-border/60 rounded-xl text-sm text-text/60 cursor-not-allowed" />
-              </div>
+            <div class="pb-1">
+              <h2 class="text-xl sm:text-2xl font-bold text-text">Profile Details</h2>
+              <p class="text-xs text-text/50 mt-0.5">Keep your information up to date</p>
             </div>
           </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Bio</label>
-            <textarea v-model="profileData.bio" rows="3" maxlength="500" placeholder="Tell us a little bit about yourself..." class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text resize-none" />
-          </div>
-          <div class="flex justify-end pt-4">
-            <button type="submit" :disabled="saving" class="relative group overflow-hidden rounded-xl font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(var(--color-primary),0.4)] transition-all duration-300 h-12 px-8 flex items-center justify-center disabled:opacity-50">
-              <div class="absolute inset-0 bg-primary" />
-              <div class="relative z-10 flex items-center justify-center gap-2">
-                <Icon v-if="saving" name="mdi:loading" class="w-5 h-5 animate-spin" />
-                <Icon v-else name="mdi:content-save-outline" class="w-5 h-5" />
-                Save Details
+          <form @submit.prevent="saveProfile" class="space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">First Name</label>
+                <div class="relative">
+                  <Icon name="mdi:account-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                  <input v-model="profileData.first_name" type="text" required placeholder="First Name" class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                </div>
               </div>
-            </button>
-          </div>
-        </form>
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Last Name</label>
+                <div class="relative">
+                  <Icon name="mdi:account-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                  <input v-model="profileData.last_name" type="text" required placeholder="Last Name" class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Phone Number</label>
+                <div class="relative">
+                  <Icon name="mdi:phone-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                  <input v-model="profileData.phone" type="tel" maxlength="10" @input="profileData.phone = filterDigits(profileData.phone, 10)" placeholder="10-digit number" class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Email</label>
+                <div class="relative">
+                  <Icon name="mdi:email-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                  <input :value="authStore.user?.username" type="email" disabled class="w-full pl-12 pr-4 py-3.5 bg-background/50 border border-border/60 rounded-xl text-sm text-text/60 cursor-not-allowed" />
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Bio</label>
+              <textarea v-model="profileData.bio" rows="3" maxlength="500" placeholder="Tell us a little bit about yourself..." class="w-full bg-background border border-border/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text resize-none" />
+            </div>
+            <div class="flex justify-end pt-2">
+              <button type="submit" :disabled="saving" class="relative group overflow-hidden rounded-xl font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(var(--color-primary),0.4)] transition-all duration-300 h-12 px-8 flex items-center justify-center disabled:opacity-50">
+                <div class="absolute inset-0 bg-gradient-to-r from-primary to-indigo-500" />
+                <div class="relative z-10 flex items-center justify-center gap-2">
+                  <Icon v-if="saving" name="mdi:loading" class="w-5 h-5 animate-spin" />
+                  <Icon v-else name="mdi:content-save-outline" class="w-5 h-5" />
+                  Save Details
+                </div>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
-      <div v-if="activeTab === 'address'" class="space-y-6">
-        <div class="flex flex-wrap justify-between items-center gap-4 bg-card/60 backdrop-blur-2xl border border-white/20 shadow-md rounded-[1.5rem] p-6">
+      <div v-if="activeTab === 'address'" class="space-y-4 sm:space-y-6">
+        <div class="flex flex-wrap justify-between items-center gap-3 bg-card/60 backdrop-blur-2xl border border-white/20 shadow-md rounded-[1.5rem] p-4 sm:p-6">
           <div>
-            <h2 class="text-xl font-bold text-text flex items-center gap-2">
-              <Icon name="mdi:map-marker-radius" class="text-primary w-6 h-6" /> Shipping Addresses
+            <h2 class="text-lg sm:text-xl font-bold text-text flex items-center gap-2">
+              <Icon name="mdi:map-marker-radius" class="text-primary w-5 h-5 sm:w-6 sm:h-6" /> Shipping Addresses
             </h2>
             <p class="text-xs text-text opacity-60 mt-1">Add and manage multiple delivery locations.</p>
           </div>
-          <button @click="openNewAddress" class="px-5 py-2.5 rounded-xl bg-primary text-white hover:shadow-lg transition-all font-bold text-xs tracking-widest uppercase flex items-center gap-2 shadow-sm">
-            <Icon name="mdi:plus" class="w-4 h-4" /> Add New Address
+          <button @click="openNewAddress" class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-primary text-white hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all font-bold text-xs tracking-widest uppercase flex items-center gap-2">
+            <Icon name="mdi:plus" class="w-4 h-4" /> Add New
           </button>
         </div>
         <div v-if="loadingAddresses" class="flex flex-col items-center justify-center py-20 bg-card/60 border border-white/10 rounded-[2rem]">
           <div class="w-12 h-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
         </div>
-        <div v-else-if="addresses.length === 0" class="text-center py-20 bg-card/60 backdrop-blur-xl border border-white/20 shadow-sm rounded-[2rem]">
-          <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-4 shadow-inner border border-white/10">
-            <Icon name="mdi:map-marker-off-outline" class="w-10 h-10 text-primary opacity-60" />
+        <div v-else-if="addresses.length === 0" class="text-center py-16 sm:py-20 bg-card/60 backdrop-blur-xl border border-white/20 shadow-sm rounded-[2rem]">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-4 shadow-inner border border-white/10">
+            <Icon name="mdi:map-marker-off-outline" class="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-60" />
           </div>
-          <h3 class="text-2xl font-bold text-text mb-2">No addresses saved</h3>
+          <h3 class="text-xl sm:text-2xl font-bold text-text mb-2">No addresses saved</h3>
           <p class="text-text opacity-50 text-sm max-w-xs mx-auto">Please add a shipping address so you can place orders smoothly.</p>
         </div>
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div v-for="addr in addresses" :key="addr.id" class="backdrop-blur-xl border border-white/20 shadow-sm rounded-[2rem] p-6 flex flex-col justify-between relative group hover:shadow-[0_0_20px_rgba(var(--color-primary),0.15)] hover:border-primary/50 hover:-translate-y-1 hover:scale-[1.02] transition-all duration-500" :class="addr.is_default ? 'bg-gradient-to-br from-card/80 to-emerald-500/5' : 'bg-card/60'">
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div v-for="addr in addresses" :key="addr.id"
+            class="relative group rounded-[2rem] p-5 sm:p-6 flex flex-col justify-between border transition-all duration-500 hover:-translate-y-1"
+            :class="addr.is_default
+              ? 'bg-gradient-to-br from-primary/8 to-emerald-500/5 border-primary/20 shadow-[0_0_20px_rgba(var(--color-primary),0.1)]'
+              : 'bg-card/60 backdrop-blur-xl border-white/20 shadow-sm hover:border-primary/30 hover:shadow-md'">
             <div>
               <div class="flex justify-between items-start mb-4">
-                <span v-if="addr.is_default" class="flex items-center gap-1.5 text-[9px] font-black tracking-widest bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full uppercase border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span v-if="addr.is_default" class="flex items-center gap-1.5 text-[9px] font-black tracking-widest bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full uppercase border border-emerald-500/20">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   Default
                 </span>
                 <span v-else class="h-4" />
-                <button v-if="!addr.is_used && !addr.has_orders && addr.is_editable !== false" @click="editAddress(addr)" class="w-8 h-8 rounded-full bg-secondary/80 text-text/75 hover:bg-primary hover:text-white flex items-center justify-center transition-all shadow-sm hover:scale-110 hover:shadow-lg duration-300" title="Edit Address">
+                <button v-if="!addr.is_used && !addr.has_orders && addr.is_editable !== false" @click="editAddress(addr)"
+                  class="w-8 h-8 rounded-full bg-secondary/80 text-text/75 hover:bg-primary hover:text-white flex items-center justify-center transition-all shadow-sm hover:scale-110 duration-300" title="Edit Address">
                   <Icon name="mdi:pencil-outline" class="w-4 h-4" />
                 </button>
               </div>
-              <p class="font-bold text-lg text-text">{{ addr.address_line1 }}</p>
-              <p class="text-text opacity-60 text-sm mt-1" v-if="addr.address_line2">{{ addr.address_line2 }}</p>
-              <p class="text-text opacity-60 text-sm mt-1">{{ addr.city }}, {{ addr.state }} - <span class="font-semibold text-text">{{ addr.pincode }}</span></p>
-              <p class="text-text opacity-50 text-xs mt-2 uppercase tracking-widest font-bold">{{ addr.country }}</p>
+              <div class="flex items-start gap-3 mb-3">
+                <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Icon name="mdi:home-outline" class="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p class="font-bold text-base text-text leading-snug">{{ addr.address_line1 }}</p>
+                  <p class="text-text opacity-60 text-sm mt-0.5" v-if="addr.address_line2">{{ addr.address_line2 }}</p>
+                  <p class="text-text opacity-60 text-sm mt-0.5">{{ addr.city }}, {{ addr.state }} - <span class="font-semibold text-text">{{ addr.pincode }}</span></p>
+                  <p class="text-text opacity-50 text-xs mt-1 uppercase tracking-widest font-bold">{{ addr.country }}</p>
+                </div>
+              </div>
             </div>
-            <div class="mt-4 pt-4 border-t border-border flex gap-2 justify-end">
-              <button @click="setDefaultAddress(addr)" v-if="!addr.is_default" class="text-xs font-bold text-primary hover:underline">Set Default</button>
+            <div class="mt-3 pt-3 border-t border-border/30 flex gap-2 justify-end">
+              <button @click="setDefaultAddress(addr)" v-if="!addr.is_default" class="text-xs font-bold text-primary hover:underline px-3 py-1.5 rounded-lg hover:bg-primary/10 transition-colors">Set Default</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div v-if="activeTab === 'security'" class="bg-card/60 backdrop-blur-2xl border border-white/20 shadow-xl rounded-[2rem] p-6 sm:p-8">
-        <h2 class="text-2xl font-bold mb-6 text-text flex items-center gap-2">
-          <Icon name="mdi:lock-check-outline" class="text-primary w-6 h-6" /> Change Password
-        </h2>
-        <form @submit.prevent="changePassword" class="space-y-6">
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Current Password</label>
-            <div class="relative">
-              <Icon name="mdi:lock-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-              <input v-model="pwdForm.current" :type="showCurrentPwd ? 'text' : 'password'" required placeholder="Enter current password" class="w-full pl-12 pr-12 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary transition-all text-text" />
-              <button type="button" @click="showCurrentPwd = !showCurrentPwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-text opacity-45 hover:opacity-100">
-                <Icon :name="showCurrentPwd ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" class="w-5 h-5" />
-              </button>
+      <div v-if="activeTab === 'security'" class="bg-card/60 backdrop-blur-2xl border border-white/20 shadow-xl rounded-[2rem] overflow-hidden">
+        <!-- Security Header Banner -->
+        <div class="relative h-20 sm:h-24 bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-primary/10">
+          <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-rose-500/5" />
+        </div>
+        <div class="px-5 sm:px-8 pb-6 sm:pb-8">
+          <div class="flex items-end gap-4 -mt-8 mb-6">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-4 border-card bg-amber-500/10 flex items-center justify-center shadow-xl flex-shrink-0">
+              <Icon name="mdi:lock-check-outline" class="text-amber-500 w-8 h-8 sm:w-10 sm:h-10" />
+            </div>
+            <div class="pb-1">
+              <h2 class="text-xl sm:text-2xl font-bold text-text">Change Password</h2>
+              <p class="text-xs text-text/50 mt-0.5">Secure your account with a strong password</p>
             </div>
           </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">New Password</label>
-            <div class="relative">
-              <Icon name="mdi:lock-reset" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-              <input v-model="pwdForm.new_password" :type="showNewPwd ? 'text' : 'password'" required placeholder="Minimum 6 characters" class="w-full pl-12 pr-12 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary transition-all text-text" />
-              <button type="button" @click="showNewPwd = !showNewPwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-text opacity-45 hover:opacity-100">
-                <Icon :name="showNewPwd ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" class="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Confirm New Password</label>
-            <div class="relative">
-              <Icon name="mdi:lock-check" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-              <input v-model="pwdForm.confirm" :type="showConfirmPwd ? 'text' : 'password'" required placeholder="Repeat new password" class="w-full pl-12 pr-12 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary transition-all text-text" />
-              <button type="button" @click="showConfirmPwd = !showConfirmPwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-text opacity-45 hover:opacity-100">
-                <Icon :name="showConfirmPwd ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" class="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-          <div class="flex justify-end pt-4">
-            <button type="submit" :disabled="savingPwd" class="relative group overflow-hidden rounded-xl font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(var(--color-primary),0.4)] transition-all duration-300 h-12 px-8 flex items-center justify-center disabled:opacity-50">
-              <div class="absolute inset-0 bg-primary" />
-              <div class="relative z-10 flex items-center justify-center gap-2">
-                <Icon v-if="savingPwd" name="mdi:loading" class="w-5 h-5 animate-spin" />
-                <Icon v-else name="mdi:key-change" class="w-5 h-5" />
-                Update Password
+          <form @submit.prevent="changePassword" class="space-y-5">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Current Password</label>
+              <div class="relative">
+                <Icon name="mdi:lock-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                <input v-model="pwdForm.current" :type="showCurrentPwd ? 'text' : 'password'" required placeholder="Enter current password" class="w-full pl-12 pr-12 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary transition-all text-text" />
+                <button type="button" @click="showCurrentPwd = !showCurrentPwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-text opacity-45 hover:opacity-100">
+                  <Icon :name="showCurrentPwd ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" class="w-5 h-5" />
+                </button>
               </div>
-            </button>
-          </div>
-        </form>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">New Password</label>
+              <div class="relative">
+                <Icon name="mdi:lock-reset" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                <input v-model="pwdForm.new_password" :type="showNewPwd ? 'text' : 'password'" required placeholder="Minimum 6 characters" class="w-full pl-12 pr-12 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary transition-all text-text" />
+                <button type="button" @click="showNewPwd = !showNewPwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-text opacity-45 hover:opacity-100">
+                  <Icon :name="showNewPwd ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" class="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Confirm New Password</label>
+              <div class="relative">
+                <Icon name="mdi:lock-check" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+                <input v-model="pwdForm.confirm" :type="showConfirmPwd ? 'text' : 'password'" required placeholder="Repeat new password" class="w-full pl-12 pr-12 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary transition-all text-text" />
+                <button type="button" @click="showConfirmPwd = !showConfirmPwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-text opacity-45 hover:opacity-100">
+                  <Icon :name="showConfirmPwd ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" class="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div class="flex justify-end pt-2">
+              <button type="submit" :disabled="savingPwd" class="relative group overflow-hidden rounded-xl font-bold text-sm tracking-widest uppercase text-white shadow-xl hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(var(--color-primary),0.4)] transition-all duration-300 h-12 px-8 flex items-center justify-center disabled:opacity-50">
+                <div class="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-400" />
+                <div class="relative z-10 flex items-center justify-center gap-2">
+                  <Icon v-if="savingPwd" name="mdi:loading" class="w-5 h-5 animate-spin" />
+                  <Icon v-else name="mdi:key-change" class="w-5 h-5" />
+                  Update Password
+                </div>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </ClientOnly>
 
