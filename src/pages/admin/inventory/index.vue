@@ -27,70 +27,144 @@
 				</button>
 			</div>
 
-			<div v-if="['orders', 'transfers', 'levels', 'audit'].includes(activeTab)" class="flex items-center gap-4 flex-wrap">
-				<!-- Branch Filter -->
-				<div class="flex items-center gap-2">
-					<span class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">Branch</span>
-					<div class="relative">
-						<select v-model="selectedBranchFilterId" @change="onBranchFilterChange"
-							class="appearance-none pl-4 pr-10 py-2 bg-card border border-border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer min-w-[150px]"
-							style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
-							<option value="">All Branches</option>
-							<option v-for="b in branchesList" :key="b.id" :value="b.branch_id || b.id">
-								{{ b.name || b.branch_name || `Branch #${b.id}` }}
-							</option>
-						</select>
-						<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
-					</div>
-				</div>
-
-				<!-- Supplier Filter (PO Tab only) -->
-				<div v-if="activeTab === 'orders'" class="flex items-center gap-2">
-					<span class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">Supplier</span>
-					<div class="relative">
-						<select v-model="selectedSupplierFilterId"
-							class="appearance-none pl-4 pr-10 py-2 bg-card border border-border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer min-w-[150px]"
-							style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
-							<option value="">All Suppliers</option>
-							<option v-for="s in allSuppliersList" :key="s.id" :value="s.supplier_id || s.id">
-								{{ s.name || `Supplier #${s.id}` }}
-							</option>
-						</select>
-						<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
-					</div>
-				</div>
-
-				<!-- Product Filter (Levels & Audit only) -->
-				<div v-if="['levels', 'audit'].includes(activeTab)" class="flex items-center gap-2">
-					<span class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">Product</span>
-					<div class="relative">
-						<select v-model="selectedProductFilterId"
-							class="appearance-none pl-4 pr-10 py-2 bg-card border border-border rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer min-w-[150px]"
-							style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
-							<option value="">All Products</option>
-							<option v-for="p in allProductsList" :key="p.id" :value="p.product_id || p.id">
-								{{ p.name || `Product #${p.id}` }}
-							</option>
-						</select>
-						<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
-					</div>
-				</div>
-				<span class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">Filter by
-					Branch</span>
-				<div class="relative">
-					<select v-model="selectedBranchFilterId" @change="onBranchFilterChange"
-						class="appearance-none pl-4 pr-10 py-2.5 bg-card border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer min-w-[200px]"
-						style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
-						<option value="">All Branches</option>
-						<option v-for="b in branchesList" :key="b.id" :value="b.branch_id || b.id">
-							{{ b.name || b.branch_name || `Branch #${b.id}` }}
-						</option>
-					</select>
-					<Icon name="mdi:chevron-down"
-						class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
-				</div>
+			
+			<!-- Filter Button -->
+			<div class="flex items-center gap-3">
+				<v-btn
+					color="primary"
+					variant="outlined"
+					rounded="pill"
+					@click="openFilterDrawer"
+					class="text-none tracking-widest font-semibold"
+				>
+					<template #prepend>
+						<Icon name="mdi:filter-variant" class="w-4 h-4" />
+					</template>
+					Filters
+				</v-btn>
 			</div>
 		</div>
+
+		<!-- Filter Side Drawer (Right to Left Slide-in) -->
+		<ClientOnly>
+		<v-navigation-drawer
+			v-model="filterDrawer"
+			location="right"
+			temporary
+			width="400"
+			class="bg-card border-l border-border"
+			style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))"
+		>
+			<div class="h-full flex flex-col p-6">
+				<!-- Header -->
+				<div class="flex justify-between items-center border-b border-border/50 pb-4 mb-6">
+					<h3 class="font-bold text-lg text-text">Filters</h3>
+					<v-btn icon variant="text" size="small" @click="filterDrawer = false">
+						<Icon name="mdi:close" class="w-5 h-5 text-text" />
+					</v-btn>
+				</div>
+
+				<!-- Dynamic Form Content -->
+				<div class="flex-grow overflow-y-auto space-y-6 pr-2">
+					<!-- Search Input (Suppliers Tab) -->
+					<div v-if="activeTab === 'suppliers'" class="space-y-2">
+						<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block">Search Suppliers</label>
+						<div class="relative">
+							<Icon name="mdi:magnify" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+							<input v-model="localFilters.search" type="text" placeholder="Search by name..." 
+								class="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text" />
+						</div>
+					</div>
+
+					<!-- Branch Selector (orders, transfers, levels, audit) -->
+					<div v-if="['orders', 'transfers', 'levels', 'audit'].includes(activeTab)" class="space-y-2">
+						<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block">Branch</label>
+						<div class="relative">
+							<select v-model="localFilters.branch_id"
+								class="appearance-none w-full pl-4 pr-10 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer"
+								style="border-color: rgb(var(--color-border))">
+								<option value="">All Branches</option>
+								<option v-for="b in branchesList" :key="b.id" :value="b.branch_id || b.id">
+									{{ b.name || b.branch_name || `Branch #${b.id}` }}
+								</option>
+							</select>
+							<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+						</div>
+					</div>
+
+					<!-- Supplier Selector (orders tab) -->
+					<div v-if="activeTab === 'orders'" class="space-y-2">
+						<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block">Supplier</label>
+						<div class="relative">
+							<select v-model="localFilters.supplier_id"
+								class="appearance-none w-full pl-4 pr-10 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer"
+								style="border-color: rgb(var(--color-border))">
+								<option value="">All Suppliers</option>
+								<option v-for="s in allSuppliersList" :key="s.id" :value="s.supplier_id || s.id">
+									{{ s.name || `Supplier #${s.id}` }}
+								</option>
+							</select>
+							<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+						</div>
+					</div>
+
+					<!-- Product Selector (levels, audit tab) -->
+					<div v-if="['levels', 'audit'].includes(activeTab)" class="space-y-2">
+						<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block">Product</label>
+						<div class="relative">
+							<select v-model="localFilters.product_id"
+								class="appearance-none w-full pl-4 pr-10 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer"
+								style="border-color: rgb(var(--color-border))">
+								<option value="">All Products</option>
+								<option v-for="p in allProductsList" :key="p.id" :value="p.product_id || p.id">
+									{{ p.name || `Product #${p.id}` }}
+								</option>
+							</select>
+							<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+						</div>
+					</div>
+
+					<!-- Audit Type Selector (audit tab) -->
+					<div v-if="activeTab === 'audit'" class="space-y-2">
+						<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block">Adjustment Type</label>
+						<div class="relative">
+							<select v-model="localFilters.adjustment_type"
+								class="appearance-none w-full pl-4 pr-10 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer"
+								style="border-color: rgb(var(--color-border))">
+								<option value="">All Types</option>
+								<option v-for="t in adjustmentTypes" :key="t" :value="t">
+									{{ t.replace(/_/g, ' ') }}
+								</option>
+							</select>
+							<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+						</div>
+					</div>
+
+					<!-- Low Stock Toggle (levels tab) -->
+					<div v-if="activeTab === 'levels'" class="flex items-center gap-3 pt-2">
+						<input v-model="localFilters.low_stock" type="checkbox" id="lowStockToggle"
+							class="w-4 h-4 rounded text-primary focus:ring-primary/20 border-border cursor-pointer" />
+						<label for="lowStockToggle" class="text-sm font-semibold text-text cursor-pointer select-none">Low Stock Only</label>
+					</div>
+
+					<!-- No Filters Message (valuation tab) -->
+					<div v-if="activeTab === 'valuation'" class="text-sm text-text opacity-50 italic text-center pt-8">
+						No filters available for this report.
+					</div>
+				</div>
+
+				<!-- Actions -->
+				<div class="border-t border-border/50 pt-4 mt-auto flex gap-3">
+					<v-btn variant="outlined" rounded="pill" class="flex-1 text-none font-semibold text-text border-border" @click="resetFilters">
+						Reset
+					</v-btn>
+					<v-btn color="primary" variant="flat" rounded="pill" class="flex-1 text-none font-semibold text-white" @click="applyFilters">
+						Apply
+					</v-btn>
+				</div>
+			</div>
+		</v-navigation-drawer>
+		</ClientOnly>
 
 		<!-- ─── SUPPLIERS TAB ───────────────────────────────────────────────── -->
 		<div v-if="activeTab === 'suppliers'" class="space-y-6">
@@ -1457,12 +1531,57 @@ const totalPages = computed(() => Math.ceil(pagination.value.total_count / pagin
 
 const cachedAdminBusinessId = ref(null)
 
-const { data: pageData, pending, refresh } = await useAsyncData(
-	'inventory-admin-data',
+// ─── Filter Drawer ────────────────────────────────────────────────────────────
+const filterDrawer = ref(false)
+const openFilterDrawer = () => {
+	localFilters.value = {
+		search: route.query.search || '',
+		branch_id: route.query.branch_id || '',
+		supplier_id: route.query.supplier_id || '',
+		product_id: route.query.product_id || '',
+		adjustment_type: route.query.adjustment_type || '',
+		low_stock: route.query.low_stock === 'true'
+	}
+	filterDrawer.value = true
+}
+const localFilters = ref({
+	search: '',
+	branch_id: '',
+	supplier_id: '',
+	product_id: '',
+	adjustment_type: '',
+	low_stock: false
+})
+
+const loadAudit = () => {
+	refresh()
+}
+
+const resetFilters = () => {
+	localFilters.value = { search: '', branch_id: '', supplier_id: '', product_id: '', adjustment_type: '', low_stock: false }
+	router.push({ query: { tab: route.query.tab, page: 1 } })
+	filterDrawer.value = false
+}
+
+const applyFilters = () => {
+	const query = { tab: route.query.tab, page: 1 }
+	if (localFilters.value.search) query.search = localFilters.value.search
+	if (localFilters.value.branch_id) query.branch_id = localFilters.value.branch_id
+	if (localFilters.value.supplier_id) query.supplier_id = localFilters.value.supplier_id
+	if (localFilters.value.product_id) query.product_id = localFilters.value.product_id
+	if (localFilters.value.adjustment_type) query.adjustment_type = localFilters.value.adjustment_type
+	if (localFilters.value.low_stock) query.low_stock = 'true'
+	router.push({ query })
+	filterDrawer.value = false
+}
+
+// ─── Dropdown Dependencies (fetched once) ────────────────────────────────────
+const { data: dropdownData } = await useAsyncData(
+	'inventory-admin-dropdowns',
 	async () => {
 		const params = {}
 		const userBusinessId = authStore.user?.business_id || authStore.user?.business?.business_id || authStore.user?.business?.id
-		
+
 		if (userBusinessId) {
 			params.business_id = userBusinessId
 		} else if (authStore.role === 'ADMIN') {
@@ -1481,7 +1600,6 @@ const { data: pageData, pending, refresh } = await useAsyncData(
 			}
 		}
 
-		// Fetch static dropdown dependencies
 		const { getBranches } = useBranches()
 		const { getAllProducts } = useAdminUsers()
 		const { getSuppliers: getSuppliersApi } = useInventory()
@@ -1515,7 +1633,34 @@ const { data: pageData, pending, refresh } = await useAsyncData(
 			console.error(e)
 		}
 
-		// Fetch tab-specific paginated data
+		return { branches, allProducts, allSuppliers }
+	},
+	{ server: false }
+)
+
+watch(dropdownData, (val) => {
+	if (val) {
+		branchesList.value = val.branches || []
+		allProductsList.value = val.allProducts || []
+		allSuppliersList.value = val.allSuppliers || []
+	}
+}, { immediate: true })
+
+// ─── Tab Data (fetches on route change) ──────────────────────────────────────
+const { data: tabResult, pending, refresh } = await useAsyncData(
+	'inventory-admin-tab-data',
+	async () => {
+		const params = {}
+		const userBusinessId = authStore.user?.business_id || authStore.user?.business?.business_id || authStore.user?.business?.id
+
+		if (userBusinessId) {
+			params.business_id = userBusinessId
+		} else if (authStore.role === 'ADMIN') {
+			if (cachedAdminBusinessId.value) {
+				params.business_id = cachedAdminBusinessId.value
+			}
+		}
+
 		const currentTab = activeTab.value
 		const page = currentPage.value
 		const limit = 20
@@ -1559,82 +1704,71 @@ const { data: pageData, pending, refresh } = await useAsyncData(
 			tabData = await getAdjustments(apiParams)
 		}
 
-		return {
-			branches,
-			allProducts,
-			allSuppliers,
-			tabData
-		}
+		return tabData
 	},
 	{
-		watch: [() => route.query, () => authStore.user],
+		watch: [() => route.query.tab, () => route.query.page, () => route.query.search, () => route.query.branch_id, () => route.query.supplier_id, () => route.query.product_id, () => route.query.adjustment_type, () => route.query.low_stock, () => authStore.user],
 		server: false
 	}
 )
 
-const syncData = () => {
-	if (pageData.value) {
-		branchesList.value = pageData.value.branches || []
-		allProductsList.value = pageData.value.allProducts || []
-		allSuppliersList.value = pageData.value.allSuppliers || []
+const syncTabData = () => {
+	const res = tabResult.value
+	const currentTab = activeTab.value
 
-		const currentTab = activeTab.value
-		const res = pageData.value.tabData
-
-		if (currentTab === 'suppliers') {
-			suppliers.value = res?.data?.items || res?.data || []
-			pagination.value = {
-				total_count: res?.data?.total_count || suppliers.value.length || 0,
-				skip: res?.data?.skip || 0,
-				limit: res?.data?.limit || 20,
-				has_more: res?.data?.has_more || false
-			}
-		} else if (currentTab === 'orders') {
-			purchaseOrders.value = res?.data?.items || res?.data || []
-			pagination.value = {
-				total_count: res?.data?.total_count || purchaseOrders.value.length || 0,
-				skip: res?.data?.skip || 0,
-				limit: res?.data?.limit || 20,
-				has_more: res?.data?.has_more || false
-			}
-		} else if (currentTab === 'transfers') {
-			transfers.value = res?.data?.items || res?.data || []
-			pagination.value = {
-				total_count: res?.data?.total_count || transfers.value.length || 0,
-				skip: res?.data?.skip || 0,
-				limit: res?.data?.limit || 20,
-				has_more: res?.data?.has_more || false
-			}
-		} else if (currentTab === 'levels') {
-			stockLevels.value = res?.data?.items || res?.data || []
-			pagination.value = {
-				total_count: res?.data?.total_count || stockLevels.value.length || 0,
-				skip: res?.data?.skip || 0,
-				limit: res?.data?.limit || 20,
-				has_more: res?.data?.has_more || false
-			}
-		} else if (currentTab === 'valuation') {
-			valuation.value = res?.data || null
-			const items = res?.data?.items || []
-			pagination.value = {
-				total_count: res?.data?.total_count || items.length || 0,
-				skip: res?.data?.skip || 0,
-				limit: res?.data?.limit || 20,
-				has_more: res?.data?.has_more || false
-			}
-		} else if (currentTab === 'audit') {
-			auditItems.value = res?.data?.items || res?.data || []
-			pagination.value = {
-				total_count: res?.data?.total_count || auditItems.value.length || 0,
-				skip: res?.data?.skip || 0,
-				limit: res?.data?.limit || 20,
-				has_more: res?.data?.has_more || false
-			}
+	if (currentTab === 'suppliers') {
+		suppliers.value = res?.data?.items || res?.data || []
+		pagination.value = {
+			total_count: res?.data?.total_count || suppliers.value.length || 0,
+			skip: res?.data?.skip || 0,
+			limit: res?.data?.limit || 20,
+			has_more: res?.data?.has_more || false
+		}
+	} else if (currentTab === 'orders') {
+		purchaseOrders.value = res?.data?.items || res?.data || []
+		pagination.value = {
+			total_count: res?.data?.total_count || purchaseOrders.value.length || 0,
+			skip: res?.data?.skip || 0,
+			limit: res?.data?.limit || 20,
+			has_more: res?.data?.has_more || false
+		}
+	} else if (currentTab === 'transfers') {
+		transfers.value = res?.data?.items || res?.data || []
+		pagination.value = {
+			total_count: res?.data?.total_count || transfers.value.length || 0,
+			skip: res?.data?.skip || 0,
+			limit: res?.data?.limit || 20,
+			has_more: res?.data?.has_more || false
+		}
+	} else if (currentTab === 'levels') {
+		stockLevels.value = res?.data?.items || res?.data || []
+		pagination.value = {
+			total_count: res?.data?.total_count || stockLevels.value.length || 0,
+			skip: res?.data?.skip || 0,
+			limit: res?.data?.limit || 20,
+			has_more: res?.data?.has_more || false
+		}
+	} else if (currentTab === 'valuation') {
+		valuation.value = res?.data || null
+		const items = res?.data?.items || []
+		pagination.value = {
+			total_count: res?.data?.total_count || items.length || 0,
+			skip: res?.data?.skip || 0,
+			limit: res?.data?.limit || 20,
+			has_more: res?.data?.has_more || false
+		}
+	} else if (currentTab === 'audit') {
+		auditItems.value = res?.data?.items || res?.data || []
+		pagination.value = {
+			total_count: res?.data?.total_count || auditItems.value.length || 0,
+			skip: res?.data?.skip || 0,
+			limit: res?.data?.limit || 20,
+			has_more: res?.data?.has_more || false
 		}
 	}
 }
 
-watch(pageData, syncData, { immediate: true })
+watch(tabResult, syncTabData, { immediate: true })
 
 const onBranchFilterChange = () => {}
 

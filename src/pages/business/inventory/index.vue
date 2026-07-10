@@ -53,7 +53,127 @@
 					class="px-8 text-none tracking-widest font-medium text-white shadow-sm" elevation="0">
 					<template #prepend>
 						<Icon name="mdi:plus" class="w-4 h-4 mr-0.5" />
-					</template>
+					
+		<!-- Filter Side Drawer (Right to Left Slide-in) -->
+		<v-navigation-drawer
+			v-model="filterDrawer"
+			location="right"
+			temporary
+			width="400"
+			class="bg-card border-l border-border"
+			style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))"
+		>
+			<div class="h-full flex flex-col p-6">
+				<!-- Header -->
+				<div class="flex justify-between items-center border-b border-border/50 pb-4 mb-6">
+					<h3 class="font-bold text-lg text-text">Filters</h3>
+					<v-btn icon variant="text" size="small" @click="filterDrawer = false">
+						<Icon name="mdi:close" class="w-5 h-5 text-text" />
+					</v-btn>
+				</div>
+
+				<!-- Dynamic Form Content -->
+				<div class="flex-grow overflow-y-auto space-y-6 pr-2">
+					<!-- Search Input (Suppliers Tab) -->
+					<div v-if="activeTab === 'suppliers'" class="space-y-2">
+						<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block">Search Suppliers</label>
+						<div class="relative">
+							<Icon name="mdi:magnify" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+							<input v-model="localFilters.search" type="text" placeholder="Search by name..." 
+								class="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text" />
+						</div>
+					</div>
+
+					<!-- Branch Selector (orders, transfers, levels, audit) -->
+					<div v-if="['orders', 'transfers', 'levels', 'audit'].includes(activeTab)" class="space-y-2">
+						<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block">Branch</label>
+						<div class="relative">
+							<select v-model="localFilters.branch_id"
+								class="appearance-none w-full pl-4 pr-10 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer"
+								style="border-color: rgb(var(--color-border))">
+								<option value="">All Branches</option>
+								<option v-for="b in branchesList" :key="b.id" :value="b.branch_id || b.id">
+									{{ b.name || b.branch_name || `Branch #${b.id}` }}
+								</option>
+							</select>
+							<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+						</div>
+					</div>
+
+					<!-- Supplier Selector (orders tab) -->
+					<div v-if="activeTab === 'orders'" class="space-y-2">
+						<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block">Supplier</label>
+						<div class="relative">
+							<select v-model="localFilters.supplier_id"
+								class="appearance-none w-full pl-4 pr-10 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer"
+								style="border-color: rgb(var(--color-border))">
+								<option value="">All Suppliers</option>
+								<option v-for="s in allSuppliersList" :key="s.id" :value="s.supplier_id || s.id">
+									{{ s.name || `Supplier #${s.id}` }}
+								</option>
+							</select>
+							<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+						</div>
+					</div>
+
+					<!-- Product Selector (levels, audit tab) -->
+					<div v-if="['levels', 'audit'].includes(activeTab)" class="space-y-2">
+						<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block">Product</label>
+						<div class="relative">
+							<select v-model="localFilters.product_id"
+								class="appearance-none w-full pl-4 pr-10 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer"
+								style="border-color: rgb(var(--color-border))">
+								<option value="">All Products</option>
+								<option v-for="p in allProductsList" :key="p.id" :value="p.product_id || p.id">
+									{{ p.name || `Product #${p.id}` }}
+								</option>
+							</select>
+							<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+						</div>
+					</div>
+
+					<!-- Audit Type Selector (audit tab) -->
+					<div v-if="activeTab === 'audit'" class="space-y-2">
+						<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block">Adjustment Type</label>
+						<div class="relative">
+							<select v-model="localFilters.adjustment_type"
+								class="appearance-none w-full pl-4 pr-10 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer"
+								style="border-color: rgb(var(--color-border))">
+								<option value="">All Types</option>
+								<option v-for="t in adjustmentTypes" :key="t" :value="t">
+									{{ t.replace(/_/g, ' ') }}
+								</option>
+							</select>
+							<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+						</div>
+					</div>
+
+					<!-- Low Stock Toggle (levels tab) -->
+					<div v-if="activeTab === 'levels'" class="flex items-center gap-3 pt-2">
+						<input v-model="localFilters.low_stock" type="checkbox" id="lowStockToggle"
+							class="w-4 h-4 rounded text-primary focus:ring-primary/20 border-border cursor-pointer" />
+						<label for="lowStockToggle" class="text-sm font-semibold text-text cursor-pointer select-none">Low Stock Only</label>
+					</div>
+
+					<!-- No Filters Message (valuation tab) -->
+					<div v-if="activeTab === 'valuation'" class="text-sm text-text opacity-50 italic text-center pt-8">
+						No filters available for this report.
+					</div>
+				</div>
+
+				<!-- Actions -->
+				<div class="border-t border-border/50 pt-4 mt-auto flex gap-3">
+					<v-btn variant="outlined" rounded="pill" block class="flex-1 text-none font-semibold text-text border-border" @click="resetFilters">
+						Reset
+					</v-btn>
+					<v-btn color="primary" variant="flat" rounded="pill" block class="flex-1 text-none font-semibold text-white" @click="applyFilters">
+						Apply
+					</v-btn>
+				</div>
+			</div>
+		</v-navigation-drawer>
+
+</template>
 					ADD SUPPLIER
 				</v-btn>
 			</div>
