@@ -2,7 +2,7 @@
   <div>
     <p class="text-text opacity-60 text-base font-medium tracking-wide mb-5">{{ items.length }} saved item(s)</p>
 
-    <v-progress-circular v-if="loading" indeterminate color="primary" class="d-flex mx-auto my-16" />
+    <v-progress-circular v-if="loading && !items.length" indeterminate color="primary" class="d-flex mx-auto my-16" />
 
     <div v-else-if="!items.length" class="text-center py-20 bg-card/60 backdrop-blur-2xl border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] rounded-[3rem]">
       <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-6 shadow-inner border border-white/10">

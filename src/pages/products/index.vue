@@ -129,7 +129,7 @@
 
           <ClientOnly>
             <!-- Loading State -->
-            <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div v-if="loading && !products.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
               <div v-for="i in 6" :key="i"
                 class="bg-card/60 backdrop-blur-xl rounded-[2rem] overflow-hidden animate-pulse border border-white/20 shadow-lg">
                 <div class="aspect-[4/3] w-full bg-secondary/80 relative overflow-hidden">

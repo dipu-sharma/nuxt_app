@@ -90,7 +90,7 @@
 								<Icon name="mdi:chevron-down" class="w-4 h-4 opacity-50" />
 							</button>
 							<div v-if="isDropdownOpen"
-								class="absolute z-[1000] left-0 right-0 mx-auto md:left-auto md:right-0 md:mx-0 mt-2 md:mr-0 w-56 bg-card/90 backdrop-blur-xl border border-border/60 rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] overflow-hidden animate-fade-in-up py-2"
+								class="absolute z-[1000] top-full mt-2 w-56 left-1/2 -translate-x-1/2 md:left-auto md:-translate-x-0 md:right-0 bg-card/90 backdrop-blur-xl border border-border/60 rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] overflow-hidden animate-fade-in-up py-2"
 								style="animation-duration: 0.2s;">
 								<div class="px-4 py-3 border-b border-border/50 mb-2">
 									<p class="text-sm font-bold text-text">My Account</p>

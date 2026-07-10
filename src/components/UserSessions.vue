@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <div v-if="loading" class="flex flex-col items-center justify-center py-20 bg-card/60 border border-white/10 rounded-[2rem]">
+    <div v-if="loading && Object.keys(sessions).length === 0" class="flex flex-col items-center justify-center py-20 bg-card/60 border border-white/10 rounded-[2rem]">
       <div class="w-12 h-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
     </div>
 

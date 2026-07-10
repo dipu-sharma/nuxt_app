@@ -8,7 +8,7 @@
       </button>
     </div>
 
-    <div v-if="loading" class="flex flex-col items-center justify-center py-32">
+    <div v-if="loading && !cartItems.length" class="flex flex-col items-center justify-center py-32">
       <div class="relative">
         <div class="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
         <div class="absolute inset-0 bg-gradient-to-tr from-cyan-400 to-purple-500 rounded-full blur-xl opacity-30 animate-pulse" />

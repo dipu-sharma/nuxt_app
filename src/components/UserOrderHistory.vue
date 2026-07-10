@@ -33,7 +33,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex flex-col items-center justify-center py-32">
+    <div v-if="loading && !orders.length" class="flex flex-col items-center justify-center py-32">
       <v-progress-circular indeterminate color="primary" :size="50" :width="2" class="mb-6 opacity-50" />
     </div>
 
