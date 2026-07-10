@@ -60,7 +60,16 @@
 
 			<div class="bg-card rounded-[2.5rem] p-6 sm:p-8 border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)] overflow-hidden"
 				style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
-				<div v-if="loadingSuppliers" class="p-12 text-center">
+				
+			<!-- Search Bar -->
+			<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+				<div class="relative w-full sm:w-80">
+					<Icon name="mdi:magnify" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
+					<input v-model="supplierSearch" @input="onSearchInput" type="text" placeholder="Search suppliers..." 
+						class="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text" />
+				</div>
+			</div>
+<div v-if="loadingSuppliers" class="p-12 text-center">
 					<v-progress-circular indeterminate color="primary" :size="36" :width="2" class="opacity-50" />
 				</div>
 				<div v-else-if="suppliers.length === 0" class="p-16 text-center">
@@ -76,33 +85,51 @@
 				</div>
 				<div v-else class="overflow-x-auto rounded-[1.5rem] border border-border/50"
 					style="border-color: rgb(var(--color-border))">
-					<table class="w-full text-sm">
-						<thead style="background-color: rgb(var(--color-background))">
-							<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60 font-sans">
-								<th class="px-6 py-4 text-left">Supplier Name</th>
-								<th class="px-6 py-4 text-left">Contact Person</th>
-								<th class="px-6 py-4 text-left">Email Address</th>
-								<th class="px-6 py-4 text-left">Phone</th>
-								<th class="px-6 py-4 text-left">Address</th>
-								<th class="px-6 py-4 text-right">Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="s in suppliers" :key="s.id"
-								class="border-t hover:bg-secondary/20 transition-colors"
-								style="border-color: rgb(var(--color-border))">
-								<td class="px-6 py-4 font-semibold text-text">{{ s.name }}</td>
-								<td class="px-6 py-4 text-text opacity-85 font-medium">{{ s.contact_person || '—' }}</td>
-								<td class="px-6 py-4 text-text opacity-70">{{ s.email || '—' }}</td>
-								<td class="px-6 py-4 text-text opacity-70 font-mono">{{ s.phone || '—' }}</td>
-								<td class="px-6 py-4 text-text opacity-70 truncate max-w-xs">{{ s.address || '—' }}</td>
-								<td class="px-6 py-4 text-right">
-									<v-btn size="small" variant="text" color="primary" @click="openEditSupplierModal(s)" class="mr-1">Edit</v-btn>
-									<v-btn size="small" variant="text" color="error" @click="deleteSupplierAction(s)">Delete</v-btn>
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<v-data-table
+						:headers="supplierHeaders"
+						:items="suppliers"
+						:loading="loadingSuppliers"
+						class="custom-data-table"
+						hide-default-footer
+						hover
+					>
+						<template #item.name="{ item }">
+							<span class="font-semibold text-text">{{ item.name }}</span>
+						</template>
+						<template #item.contact_person="{ item }">
+							<span class="text-text opacity-85 font-medium">{{ item.contact_person || '—' }}</span>
+						</template>
+						<template #item.email="{ item }">
+							<span class="text-text opacity-70">{{ item.email || '—' }}</span>
+						</template>
+						<template #item.phone="{ item }">
+							<span class="text-text opacity-70 font-mono">{{ item.phone || '—' }}</span>
+						</template>
+						<template #item.address="{ item }">
+							<span class="text-text opacity-70 truncate max-w-xs block">{{ item.address || '—' }}</span>
+						</template>
+						<template #item.actions="{ item }">
+							<div class="flex justify-end">
+								<v-btn size="small" variant="text" color="primary" @click="openEditSupplierModal(item)" class="mr-1">Edit</v-btn>
+								<v-btn size="small" variant="text" color="error" @click="deleteSupplierAction(item)">Delete</v-btn>
+							</div>
+						</template>
+					</v-data-table>
+					<!-- Pagination -->
+					<div v-if="pagination.total_count > 0" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+						<div class="text-xs text-text opacity-50">
+							Showing {{ pagination.skip + 1 }} to {{ Math.min(pagination.skip + pagination.limit, pagination.total_count) }} of {{ pagination.total_count }} records
+						</div>
+						<v-pagination
+							v-model="currentPage"
+							:length="totalPages"
+							:total-visible="5"
+							density="comfortable"
+							active-color="primary"
+							variant="flat"
+							class="my-0"
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -138,41 +165,57 @@
 				</div>
 				<div v-else class="overflow-x-auto rounded-[1.5rem] border border-border/50"
 					style="border-color: rgb(var(--color-border))">
-					<table class="w-full text-sm">
-						<thead style="background-color: rgb(var(--color-background))">
-							<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60">
-								<th class="px-6 py-4 text-left">PO Code</th>
-								<th class="px-6 py-4 text-left">Supplier</th>
-								<th class="px-6 py-4 text-left">Branch</th>
-								<th class="px-6 py-4 text-left">Total Value</th>
-								<th class="px-6 py-4 text-left">Status</th>
-								<th class="px-6 py-4 text-left">Order Date</th>
-								<th class="px-6 py-4 text-right">Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="po in purchaseOrders" :key="po.id"
-								class="border-t hover:bg-secondary/20 transition-colors"
-								style="border-color: rgb(var(--color-border))">
-								<td class="px-6 py-4 font-mono font-bold text-xs opacity-75">{{ po.po_id || po.id }}</td>
-								<td class="px-6 py-4 text-text opacity-85 font-medium">{{ po.supplier?.name || `Supplier #${po.supplier_id}` }}</td>
-								<td class="px-6 py-4 text-text opacity-75 font-semibold">Branch #{{ po.branch_id || '—' }}</td>
-								<td class="px-6 py-4 font-semibold text-primary">₹{{ po.total_amount?.toLocaleString('en-IN') || '—' }}</td>
-								<td class="px-6 py-4">
-									<span :class="poStatusClass(po.status)"
-										class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
-										{{ po.status || 'pending' }}
-									</span>
-								</td>
-								<td class="px-6 py-4 text-text opacity-70 font-mono text-xs">{{ formatDate(po.created_at || po.order_date) }}</td>
-								<td class="px-6 py-4 text-right">
-									<v-btn size="small" variant="text" color="primary" @click="viewPO(po)" class="mr-1">View</v-btn>
-									<v-btn size="small" variant="text" color="secondary" @click="editPO(po)" class="mr-1">Edit</v-btn>
-									<v-btn size="small" variant="text" color="error" @click="deletePO(po)">Delete</v-btn>
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<v-data-table
+						:headers="poHeaders"
+						:items="purchaseOrders"
+						:loading="loadingPO"
+						class="custom-data-table"
+						hide-default-footer
+						hover
+					>
+						<template #item.id="{ item }">
+							<span class="font-mono font-bold text-xs opacity-75">#{{ item.po_id || item.id }}</span>
+						</template>
+						<template #item.supplier="{ item }">
+							<span class="text-text opacity-85 font-medium">{{ item.supplier?.name || `Supplier #${item.supplier_id}` }}</span>
+						</template>
+						<template #item.branch_id="{ item }">
+							<span class="text-text opacity-75 font-semibold">Branch #{{ item.branch_id || '—' }}</span>
+						</template>
+						<template #item.total_amount="{ item }">
+							<span class="font-semibold text-primary">₹{{ item.total_amount?.toLocaleString('en-IN') || '—' }}</span>
+						</template>
+						<template #item.status="{ item }">
+							<span :class="poStatusClass(item.status)" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
+								{{ item.status || 'pending' }}
+							</span>
+						</template>
+						<template #item.order_date="{ item }">
+							<span class="text-text opacity-70 font-mono text-xs">{{ formatDate(item.created_at || item.order_date) }}</span>
+						</template>
+						<template #item.actions="{ item }">
+							<div class="flex justify-end">
+								<v-btn size="small" variant="text" color="primary" @click="viewPO(item)" class="mr-1">View</v-btn>
+								<v-btn size="small" variant="text" color="secondary" @click="editPO(item)" class="mr-1">Edit</v-btn>
+								<v-btn size="small" variant="text" color="error" @click="deletePO(item)">Delete</v-btn>
+							</div>
+						</template>
+					</v-data-table>
+					<!-- Pagination -->
+					<div v-if="pagination.total_count > 0" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+						<div class="text-xs text-text opacity-50">
+							Showing {{ pagination.skip + 1 }} to {{ Math.min(pagination.skip + pagination.limit, pagination.total_count) }} of {{ pagination.total_count }} records
+						</div>
+						<v-pagination
+							v-model="currentPage"
+							:length="totalPages"
+							:total-visible="5"
+							density="comfortable"
+							active-color="primary"
+							variant="flat"
+							class="my-0"
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -390,37 +433,54 @@
 						No stock transfers recorded yet.
 					</div>
 					<div v-else class="overflow-x-auto rounded-[1.5rem] border border-border/50" style="border-color: rgb(var(--color-border))">
-						<table class="w-full text-sm">
-							<thead style="background-color: rgb(var(--color-background))">
-								<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60">
-									<th class="px-4 py-3 text-left">Transfer ID</th>
-									<th class="px-4 py-3 text-left">Product</th>
-									<th class="px-4 py-3 text-left">From → To</th>
-									<th class="px-4 py-3 text-left">Qty</th>
-									<th class="px-4 py-3 text-left">Status</th>
-									<th class="px-4 py-3 text-left">Date</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr v-for="t in transfers" :key="t.id" class="border-t hover:bg-secondary/20 transition-colors"
-									style="border-color: rgb(var(--color-border))">
-									<td class="px-4 py-3 font-mono text-xs opacity-75">{{ t.transfer_id || t.id }}</td>
-									<td class="px-4 py-3 font-medium">Product #{{ t.product_id }}</td>
-									<td class="px-4 py-3 text-text opacity-70 text-xs">
-										<span class="font-semibold">Branch #{{ t.from_branch_id }}</span>
-										<Icon name="mdi:arrow-right" class="inline w-3 h-3 mx-1 opacity-50" />
-										<span class="font-semibold">Branch #{{ t.to_branch_id }}</span>
-									</td>
-									<td class="px-4 py-3 font-bold text-primary">{{ t.quantity }}</td>
-									<td class="px-4 py-3">
-										<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 uppercase">
-											{{ t.status }}
-										</span>
-									</td>
-									<td class="px-4 py-3 text-xs opacity-70 font-mono">{{ formatDate(t.created_at) }}</td>
-								</tr>
-							</tbody>
-						</table>
+						<v-data-table
+							:headers="transferHeaders"
+							:items="transfers"
+							:loading="loadingTransfers"
+							class="custom-data-table"
+							hide-default-footer
+							hover
+						>
+							<template #item.id="{ item }">
+								<span class="font-mono text-xs opacity-75">{{ item.transfer_id || item.id }}</span>
+							</template>
+							<template #item.product_id="{ item }">
+								<span class="font-medium">Product #{{ item.product_id }}</span>
+							</template>
+							<template #item.branches="{ item }">
+								<span class="text-text opacity-70 text-xs">
+									<span class="font-semibold">Branch #{{ item.from_branch_id }}</span>
+									<Icon name="mdi:arrow-right" class="inline w-3 h-3 mx-1 opacity-50" />
+									<span class="font-semibold">Branch #{{ item.to_branch_id }}</span>
+								</span>
+							</template>
+							<template #item.quantity="{ item }">
+								<span class="font-bold text-primary">{{ item.quantity }}</span>
+							</template>
+							<template #item.status="{ item }">
+								<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 uppercase">
+									{{ item.status }}
+								</span>
+							</template>
+							<template #item.created_at="{ item }">
+								<span class="text-xs opacity-70 font-mono">{{ formatDate(item.created_at) }}</span>
+							</template>
+						</v-data-table>
+					<!-- Pagination -->
+					<div v-if="pagination.total_count > 0" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+						<div class="text-xs text-text opacity-50">
+							Showing {{ pagination.skip + 1 }} to {{ Math.min(pagination.skip + pagination.limit, pagination.total_count) }} of {{ pagination.total_count }} records
+						</div>
+						<v-pagination
+							v-model="currentPage"
+							:length="totalPages"
+							:total-visible="5"
+							density="comfortable"
+							active-color="primary"
+							variant="flat"
+							class="my-0"
+						/>
+					</div>
 					</div>
 				</div>
 			</div>
@@ -457,46 +517,59 @@
 					<p class="text-text opacity-50 text-sm font-medium">No stock data available. Click "All Stock" to load.</p>
 				</div>
 				<div v-else class="overflow-x-auto rounded-[1.5rem] border border-border/50" style="border-color: rgb(var(--color-border))">
-					<table class="w-full text-sm">
-						<thead style="background-color: rgb(var(--color-background))">
-							<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60">
-								<th class="px-6 py-4 text-left">Product</th>
-								<th class="px-6 py-4 text-left">Branch</th>
-								<th class="px-6 py-4 text-right">Total Qty</th>
-								<th class="px-6 py-4 text-right">Reserved</th>
-								<th class="px-6 py-4 text-right">Available</th>
-								<th class="px-6 py-4 text-right">Threshold</th>
-								<th class="px-6 py-4 text-center">Status</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="(item, idx) in stockLevels" :key="idx"
-								class="border-t hover:bg-secondary/20 transition-colors"
-								style="border-color: rgb(var(--color-border))">
-								<td class="px-6 py-4">
-									<div class="font-semibold text-text">{{ item.product_name }}</div>
-									<div class="text-[10px] font-mono opacity-50 mt-0.5">{{ item.product_public_id }}</div>
-								</td>
-								<td class="px-6 py-4 text-text opacity-75 font-medium">{{ item.branch_name || `Branch #${item.branch_id}` }}</td>
-								<td class="px-6 py-4 text-right font-bold text-text">{{ item.quantity }}</td>
-								<td class="px-6 py-4 text-right text-text opacity-60">{{ item.reserved_quantity }}</td>
-								<td class="px-6 py-4 text-right font-bold" :class="item.is_low_stock ? 'text-red-500' : 'text-green-600'">
-									{{ item.available_quantity }}
-								</td>
-								<td class="px-6 py-4 text-right text-text opacity-50">{{ item.low_stock_threshold }}</td>
-								<td class="px-6 py-4 text-center">
-									<span v-if="item.is_low_stock"
-										class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 uppercase tracking-widest">
-										⚠ Low Stock
-									</span>
-									<span v-else
-										class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 uppercase tracking-widest">
-										✓ OK
-									</span>
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<v-data-table
+						:headers="stockHeaders"
+						:items="stockLevels"
+						:loading="loadingLevels || loadingLowStock"
+						class="custom-data-table"
+						hide-default-footer
+						hover
+					>
+						<template #item.product_name="{ item }">
+							<div class="font-semibold text-text">{{ item.product_name }}</div>
+							<div class="text-[10px] font-mono opacity-50 mt-0.5">{{ item.product_public_id }}</div>
+						</template>
+						<template #item.branch_name="{ item }">
+							<span class="text-text opacity-75 font-medium">{{ item.branch_name || `Branch #${item.branch_id}` }}</span>
+						</template>
+						<template #item.quantity="{ item }">
+							<span class="font-bold text-text">{{ item.quantity }}</span>
+						</template>
+						<template #item.reserved_quantity="{ item }">
+							<span class="text-text opacity-60">{{ item.reserved_quantity }}</span>
+						</template>
+						<template #item.available_quantity="{ item }">
+							<span class="font-bold" :class="item.is_low_stock ? 'text-red-500' : 'text-green-600'">
+								{{ item.available_quantity }}
+							</span>
+						</template>
+						<template #item.low_stock_threshold="{ item }">
+							<span class="text-text opacity-50">{{ item.low_stock_threshold }}</span>
+						</template>
+						<template #item.status="{ item }">
+							<span v-if="item.is_low_stock" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 uppercase tracking-widest block text-center">
+								⚠ Low Stock
+							</span>
+							<span v-else class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 uppercase tracking-widest block text-center">
+								✓ OK
+							</span>
+						</template>
+					</v-data-table>
+					<!-- Pagination -->
+					<div v-if="pagination.total_count > 0" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+						<div class="text-xs text-text opacity-50">
+							Showing {{ pagination.skip + 1 }} to {{ Math.min(pagination.skip + pagination.limit, pagination.total_count) }} of {{ pagination.total_count }} records
+						</div>
+						<v-pagination
+							v-model="currentPage"
+							:length="totalPages"
+							:total-visible="5"
+							density="comfortable"
+							active-color="primary"
+							variant="flat"
+							class="my-0"
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -539,32 +612,49 @@
 						Product Breakdown ({{ valuation.total_items }} items)
 					</h3>
 					<div class="overflow-x-auto rounded-[1.5rem] border border-border/50">
-						<table class="w-full text-sm">
-							<thead style="background-color: rgb(var(--color-background))">
-								<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60">
-									<th class="px-5 py-3 text-left">Product</th>
-									<th class="px-5 py-3 text-right">Qty</th>
-									<th class="px-5 py-3 text-right">Cost Price</th>
-									<th class="px-5 py-3 text-right">Selling Price</th>
-									<th class="px-5 py-3 text-right">Value at Cost</th>
-									<th class="px-5 py-3 text-right">Potential Profit</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr v-for="item in valuation.items" :key="item.product_id"
-									class="border-t hover:bg-secondary/20" style="border-color: rgb(var(--color-border))">
-									<td class="px-5 py-3">
-										<div class="font-semibold">{{ item.product_name }}</div>
-										<div class="text-[10px] font-mono opacity-50">{{ item.product_public_id }}</div>
-									</td>
-									<td class="px-5 py-3 text-right font-bold">{{ item.total_quantity }}</td>
-									<td class="px-5 py-3 text-right opacity-70">₹{{ item.cost_price?.toLocaleString('en-IN') }}</td>
-									<td class="px-5 py-3 text-right opacity-70">₹{{ item.selling_price?.toLocaleString('en-IN') }}</td>
-									<td class="px-5 py-3 text-right font-semibold text-primary">₹{{ item.stock_value_at_cost?.toLocaleString('en-IN') }}</td>
-									<td class="px-5 py-3 text-right font-semibold text-green-600">₹{{ item.potential_profit?.toLocaleString('en-IN') }}</td>
-								</tr>
-							</tbody>
-						</table>
+						<v-data-table
+							:headers="valuationHeaders"
+							:items="valuation.items"
+							:loading="loadingValuation"
+							class="custom-data-table"
+							hide-default-footer
+							hover
+						>
+							<template #item.product_name="{ item }">
+								<div class="font-semibold">{{ item.product_name }}</div>
+								<div class="text-[10px] font-mono opacity-50">{{ item.product_public_id }}</div>
+							</template>
+							<template #item.total_quantity="{ item }">
+								<span class="font-bold">{{ item.total_quantity }}</span>
+							</template>
+							<template #item.cost_price="{ item }">
+								<span class="opacity-70">₹{{ item.cost_price?.toLocaleString('en-IN') }}</span>
+							</template>
+							<template #item.selling_price="{ item }">
+								<span class="opacity-70">₹{{ item.selling_price?.toLocaleString('en-IN') }}</span>
+							</template>
+							<template #item.stock_value_at_cost="{ item }">
+								<span class="font-semibold text-primary">₹{{ item.stock_value_at_cost?.toLocaleString('en-IN') }}</span>
+							</template>
+							<template #item.potential_profit="{ item }">
+								<span class="font-semibold text-green-600">₹{{ item.potential_profit?.toLocaleString('en-IN') }}</span>
+							</template>
+						</v-data-table>
+					<!-- Pagination -->
+					<div v-if="pagination.total_count > 0" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+						<div class="text-xs text-text opacity-50">
+							Showing {{ pagination.skip + 1 }} to {{ Math.min(pagination.skip + pagination.limit, pagination.total_count) }} of {{ pagination.total_count }} records
+						</div>
+						<v-pagination
+							v-model="currentPage"
+							:length="totalPages"
+							:total-visible="5"
+							density="comfortable"
+							active-color="primary"
+							variant="flat"
+							class="my-0"
+						/>
+					</div>
 					</div>
 					<p class="text-[10px] text-text opacity-40 mt-4 text-right">Generated: {{ valuation.generated_at ? new Date(valuation.generated_at).toLocaleString() : '—' }}</p>
 				</div>
@@ -610,43 +700,58 @@
 					<p class="text-text opacity-50 text-sm font-medium">No adjustment records found.</p>
 				</div>
 				<div v-else class="overflow-x-auto rounded-[1.5rem] border border-border/50" style="border-color: rgb(var(--color-border))">
-					<table class="w-full text-sm">
-						<thead style="background-color: rgb(var(--color-background))">
-							<tr class="text-[10px] text-text font-bold uppercase tracking-widest opacity-60">
-								<th class="px-5 py-4 text-left">Type</th>
-								<th class="px-5 py-4 text-left">Product</th>
-								<th class="px-5 py-4 text-left">Branch</th>
-								<th class="px-5 py-4 text-right">Δ Qty</th>
-								<th class="px-5 py-4 text-right">Before → After</th>
-								<th class="px-5 py-4 text-left">Reason / Reference</th>
-								<th class="px-5 py-4 text-left">Date</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="a in auditItems" :key="a.id"
-								class="border-t hover:bg-secondary/20 transition-colors"
-								style="border-color: rgb(var(--color-border))">
-								<td class="px-5 py-4">
-									<span :class="auditTypeBadge(a.adjustment_type)"
-										class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
-										{{ a.adjustment_type?.replace(/_/g, ' ') }}
-									</span>
-								</td>
-								<td class="px-5 py-4 font-mono text-xs opacity-60">#{{ a.product_id }}</td>
-								<td class="px-5 py-4 text-text opacity-70">Branch #{{ a.branch_id }}</td>
-								<td class="px-5 py-4 text-right font-bold"
-									:class="a.quantity_change > 0 ? 'text-green-600' : 'text-red-500'">
-									{{ a.quantity_change > 0 ? '+' : '' }}{{ a.quantity_change }}
-								</td>
-								<td class="px-5 py-4 text-right text-xs opacity-60 font-mono">{{ a.quantity_before }} → {{ a.quantity_after }}</td>
-								<td class="px-5 py-4 text-text opacity-70 max-w-xs truncate text-xs">
-									<span v-if="a.reference_id" class="font-mono text-primary mr-1">{{ a.reference_id }}</span>
-									{{ a.reason || '—' }}
-								</td>
-								<td class="px-5 py-4 text-xs opacity-60 font-mono whitespace-nowrap">{{ formatDate(a.created_at) }}</td>
-							</tr>
-						</tbody>
-					</table>
+					<v-data-table
+						:headers="auditHeaders"
+						:items="auditItems"
+						:loading="loadingAudit"
+						class="custom-data-table"
+						hide-default-footer
+						hover
+					>
+						<template #item.adjustment_type="{ item }">
+							<span :class="auditTypeBadge(item.adjustment_type)" class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
+								{{ item.adjustment_type?.replace(/_/g, ' ') }}
+							</span>
+						</template>
+						<template #item.product_id="{ item }">
+							<span class="font-mono text-xs opacity-60">#{{ item.product_id }}</span>
+						</template>
+						<template #item.branch_id="{ item }">
+							<span class="text-text opacity-70">Branch #{{ item.branch_id }}</span>
+						</template>
+						<template #item.quantity_change="{ item }">
+							<span class="font-bold" :class="item.quantity_change > 0 ? 'text-green-600' : 'text-red-500'">
+								{{ item.quantity_change > 0 ? '+' : '' }}{{ item.quantity_change }}
+							</span>
+						</template>
+						<template #item.quantity_range="{ item }">
+							<span class="text-xs opacity-60 font-mono">{{ item.quantity_before }} → {{ item.quantity_after }}</span>
+						</template>
+						<template #item.reason="{ item }">
+							<span class="text-text opacity-70 max-w-xs truncate text-xs block">
+								<span v-if="item.reference_id" class="font-mono text-primary mr-1">{{ item.reference_id }}</span>
+								{{ item.reason || '—' }}
+							</span>
+						</template>
+						<template #item.created_at="{ item }">
+							<span class="text-xs opacity-60 font-mono whitespace-nowrap">{{ formatDate(item.created_at) }}</span>
+						</template>
+					</v-data-table>
+					<!-- Pagination -->
+					<div v-if="pagination.total_count > 0" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+						<div class="text-xs text-text opacity-50">
+							Showing {{ pagination.skip + 1 }} to {{ Math.min(pagination.skip + pagination.limit, pagination.total_count) }} of {{ pagination.total_count }} records
+						</div>
+						<v-pagination
+							v-model="currentPage"
+							:length="totalPages"
+							:total-visible="5"
+							density="comfortable"
+							active-color="primary"
+							variant="flat"
+							class="my-0"
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -899,19 +1004,77 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { useInventory } from '~/composables/useInventory'
-import { useBusinessProducts } from '~/composables/useBusinessProducts'
-import { useBranches } from '~/composables/useBranches'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
+import { useInventory } from '@/composables/useInventory'
+import { useBranches } from '@/composables/useBranches'
+import { useAdminUsers } from '@/composables/useAdminUsers'
 import { toast } from 'vue3-toastify'
 import { useDebounceFn } from '@vueuse/core'
+
+const supplierHeaders = [
+	{ title: 'Supplier Name', key: 'name', sortable: false },
+	{ title: 'Contact Person', key: 'contact_person', sortable: false },
+	{ title: 'Email Address', key: 'email', sortable: false },
+	{ title: 'Phone', key: 'phone', sortable: false },
+	{ title: 'Address', key: 'address', sortable: false },
+	{ title: 'Actions', key: 'actions', sortable: false, align: 'end' }
+]
+
+const poHeaders = [
+	{ title: 'PO Code', key: 'id', sortable: false },
+	{ title: 'Supplier', key: 'supplier', sortable: false },
+	{ title: 'Branch ID', key: 'branch_id', sortable: false },
+	{ title: 'Total Value', key: 'total_amount', sortable: false },
+	{ title: 'Status', key: 'status', sortable: false },
+	{ title: 'Order Date', key: 'order_date', sortable: false },
+	{ title: 'Actions', key: 'actions', sortable: false, align: 'end' }
+]
+
+const transferHeaders = [
+	{ title: 'Transfer ID', key: 'id', sortable: false },
+	{ title: 'Product', key: 'product_id', sortable: false },
+	{ title: 'From → To', key: 'branches', sortable: false },
+	{ title: 'Qty', key: 'quantity', sortable: false },
+	{ title: 'Status', key: 'status', sortable: false },
+	{ title: 'Date', key: 'created_at', sortable: false }
+]
+
+const stockHeaders = [
+	{ title: 'Product', key: 'product_name', sortable: false },
+	{ title: 'Branch', key: 'branch_name', sortable: false },
+	{ title: 'Total Qty', key: 'quantity', sortable: false, align: 'end' },
+	{ title: 'Reserved', key: 'reserved_quantity', sortable: false, align: 'end' },
+	{ title: 'Available', key: 'available_quantity', sortable: false, align: 'end' },
+	{ title: 'Threshold', key: 'low_stock_threshold', sortable: false, align: 'end' },
+	{ title: 'Status', key: 'status', sortable: false, align: 'center' }
+]
+
+const valuationHeaders = [
+	{ title: 'Product', key: 'product_name', sortable: false },
+	{ title: 'Qty', key: 'total_quantity', sortable: false, align: 'end' },
+	{ title: 'Cost Price', key: 'cost_price', sortable: false, align: 'end' },
+	{ title: 'Selling Price', key: 'selling_price', sortable: false, align: 'end' },
+	{ title: 'Value at Cost', key: 'stock_value_at_cost', sortable: false, align: 'end' },
+	{ title: 'Potential Profit', key: 'potential_profit', sortable: false, align: 'end' }
+]
+
+const auditHeaders = [
+	{ title: 'Type', key: 'adjustment_type', sortable: false },
+	{ title: 'Product', key: 'product_id', sortable: false },
+	{ title: 'Branch', key: 'branch_id', sortable: false },
+	{ title: 'Δ Qty', key: 'quantity_change', sortable: false, align: 'end' },
+	{ title: 'Before → After', key: 'quantity_range', sortable: false, align: 'end' },
+	{ title: 'Reason / Reference', key: 'reason', sortable: false },
+	{ title: 'Date', key: 'created_at', sortable: false }
+]
 
 definePageMeta({
 	title: 'Inventory',
 	middleware: ['auth-role'],
-	layout: 'admin',
-	role: ['BUSINESS_OWNER', 'BUSINESS_MEMBER'],
+	layout: 'business',
+	role: ['BUSINESS'],
 })
 
 const tabs = [
@@ -923,13 +1086,69 @@ const tabs = [
 	{ key: 'valuation', label: 'Valuation' },
 	{ key: 'audit', label: 'Audit Trail' },
 ]
-const activeTab = ref('suppliers')
+
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
+const activeTab = computed({
+	get: () => route.query.tab || 'suppliers',
+	set: (val) => {
+		router.push({ query: { ...route.query, tab: val, page: 1 } })
+	}
+})
+
+const currentPage = computed({
+	get: () => Number(route.query.page) || 1,
+	set: (val) => {
+		router.push({ query: { ...route.query, page: val } })
+	}
+})
+
+const selectedBranchFilterId = computed({
+	get: () => route.query.branch_id || '',
+	set: (val) => {
+		router.push({ query: { ...route.query, branch_id: val || undefined, page: 1 } })
+	}
+})
+
+const selectedSupplierFilterId = computed({
+	get: () => route.query.supplier_id || '',
+	set: (val) => {
+		router.push({ query: { ...route.query, supplier_id: val || undefined, page: 1 } })
+	}
+})
+
+const selectedProductFilterId = computed({
+	get: () => route.query.product_id || '',
+	set: (val) => {
+		router.push({ query: { ...route.query, product_id: val || undefined, page: 1 } })
+	}
+})
+
+const auditTypeFilter = computed({
+	get: () => route.query.adjustment_type || '',
+	set: (val) => {
+		router.push({ query: { ...route.query, adjustment_type: val || undefined, page: 1 } })
+	}
+})
+
+// Debounced search for suppliers
+const supplierSearch = ref(route.query.search || '')
+const onSearchInput = useDebounceFn((val) => {
+	router.push({ query: { ...route.query, search: val || undefined, page: 1 } })
+}, 400)
+
+watch(() => route.query.search, (val) => {
+	supplierSearch.value = val || ''
+})
 
 // ─── Data Refs ────────────────────────────────────────────────────────────────
 const suppliers = ref([])
 const purchaseOrders = ref([])
 const branchesList = ref([])
 const allProductsList = ref([])
+const allSuppliersList = ref([])
 const transfers = ref([])
 const stockLevels = ref([])
 const valuation = ref(null)
@@ -962,7 +1181,7 @@ const loadingPODetails = ref(false)
 const supplierForm = ref({ name: '', email: '', phone: '', contact_person: '', address: '' })
 const poForm = ref({
 	supplier_id: '',
-	branch_id: 1,
+	branch_id: '',
 	order_date: '',
 	expected_delivery_date: '',
 	status: 'DELIVERED',
@@ -977,9 +1196,6 @@ const searchingProducts = ref(false)
 const foundProducts = ref([])
 const selectedProd = ref(null)
 
-// ─── Filters ──────────────────────────────────────────────────────────────────
-const selectedBranchFilterId = ref('')
-const auditTypeFilter = ref('')
 const adjustmentTypes = [
 	'PURCHASE_ORDER', 'MANUAL', 'ORDER_DEDUCTION', 'ORDER_CANCELLATION_RESTORE',
 	'TRANSFER_IN', 'TRANSFER_OUT', 'DAMAGE', 'RETURN'
@@ -1014,28 +1230,193 @@ const auditTypeBadge = (type) => {
 	return map[type] || 'bg-gray-100 text-gray-700'
 }
 
-const onBranchFilterChange = () => {
-	if (activeTab.value === 'orders') loadPO()
-	if (activeTab.value === 'transfers') loadTransfers()
-	if (activeTab.value === 'levels') loadStockLevels()
-	if (activeTab.value === 'audit') loadAudit()
-}
+const pagination = ref({ total_count: 0, skip: 0, limit: 20, has_more: false })
+const totalPages = computed(() => Math.ceil(pagination.value.total_count / pagination.value.limit) || 1)
 
-// ─── Suppliers ────────────────────────────────────────────────────────────────
-const loadSuppliers = async () => {
-	loadingSuppliers.value = true
-	try {
-		const { getSuppliers } = useInventory()
-		const res = await getSuppliers()
-		suppliers.value = res?.data?.items || res?.data || []
-	} catch (error) {
-		console.error(error)
-		toast.error('Failed to load suppliers')
-	} finally {
-		loadingSuppliers.value = false
+const cachedAdminBusinessId = ref(null)
+
+const { data: pageData, pending, refresh } = await useAsyncData(
+	'inventory-business-data',
+	async () => {
+		const params = {}
+		const userBusinessId = authStore.user?.business_id || authStore.user?.business?.business_id || authStore.user?.business?.id
+		
+		if (userBusinessId) {
+			params.business_id = userBusinessId
+		} else if (authStore.role === 'ADMIN') {
+			if (!cachedAdminBusinessId.value) {
+				try {
+					const { getBusinesses } = useAdminUsers()
+					const bizRes = await getBusinesses({ limit: 1, user_id: authStore.user?.user_id })
+					const firstBiz = bizRes?.data?.items?.[0] || bizRes?.data?.[0] || bizRes?.[0]
+					cachedAdminBusinessId.value = firstBiz?.business_id || firstBiz?.id
+				} catch (e) {
+					console.error('Failed to resolve fallback admin business ID', e)
+				}
+			}
+			if (cachedAdminBusinessId.value) {
+				params.business_id = cachedAdminBusinessId.value
+			}
+		}
+
+		// Fetch static dropdown dependencies
+		const { getBranches } = useBranches()
+		const { getAllProducts } = useAdminUsers()
+		const { getSuppliers: getSuppliersApi } = useInventory()
+
+		let branches = []
+		let allProducts = []
+		let allSuppliers = []
+
+		try {
+			const branchesRes = await getBranches(params)
+			const resData = branchesRes?.data?.data || branchesRes?.data?.items || branchesRes?.data || []
+			branches = Array.isArray(resData) ? resData : (Array.isArray(branchesRes?.data) ? branchesRes.data : [])
+		} catch (e) {
+			console.error(e)
+		}
+		if (branches.length === 0) {
+			branches = [{ id: 1, name: 'Main Branch' }]
+		}
+
+		try {
+			const productsRes = await getAllProducts({ limit: 100 })
+			allProducts = productsRes?.data?.items || productsRes?.data || []
+		} catch (e) {
+			console.error(e)
+		}
+
+		try {
+			const suppliersRes = await getSuppliersApi({ ...params, limit: 100 })
+			allSuppliers = suppliersRes?.data?.items || suppliersRes?.data || []
+		} catch (e) {
+			console.error(e)
+		}
+
+		// Fetch tab-specific paginated data
+		const currentTab = activeTab.value
+		const page = currentPage.value
+		const limit = 20
+		const skip = (page - 1) * limit
+
+		const apiParams = {
+			...params,
+			skip,
+			limit,
+		}
+
+		const { getSuppliers, getPurchaseOrders, getStockLevels, getInventoryValuation, getAdjustments, getStockTransfers } = useInventory()
+
+		let tabData = null
+
+		if (currentTab === 'suppliers') {
+			if (route.query.search) apiParams.search = route.query.search
+			tabData = await getSuppliers(apiParams)
+		} else if (currentTab === 'orders') {
+			if (route.query.branch_id) apiParams.branch_id = route.query.branch_id
+			if (route.query.supplier_id) apiParams.supplier_id = route.query.supplier_id
+			tabData = await getPurchaseOrders(apiParams)
+		} else if (currentTab === 'transfers') {
+			if (route.query.branch_id) apiParams.branch_id = route.query.branch_id
+			tabData = await getStockTransfers(apiParams)
+		} else if (currentTab === 'levels') {
+			if (route.query.branch_id) apiParams.branch_id = route.query.branch_id
+			if (route.query.product_id) apiParams.product_id = route.query.product_id
+			if (route.query.low_stock === 'true') {
+				const { getLowStock } = useInventory()
+				tabData = await getLowStock(apiParams)
+			} else {
+				tabData = await getStockLevels(apiParams)
+			}
+		} else if (currentTab === 'valuation') {
+			tabData = await getInventoryValuation(apiParams)
+		} else if (currentTab === 'audit') {
+			if (route.query.branch_id) apiParams.branch_id = route.query.branch_id
+			if (route.query.product_id) apiParams.product_id = route.query.product_id
+			if (route.query.adjustment_type) apiParams.adjustment_type = route.query.adjustment_type
+			tabData = await getAdjustments(apiParams)
+		}
+
+		return {
+			branches,
+			allProducts,
+			allSuppliers,
+			tabData
+		}
+	},
+	{
+		watch: [() => route.query, () => authStore.user],
+		server: false
+	}
+)
+
+const syncData = () => {
+	if (pageData.value) {
+		branchesList.value = pageData.value.branches || []
+		allProductsList.value = pageData.value.allProducts || []
+		allSuppliersList.value = pageData.value.allSuppliers || []
+
+		const currentTab = activeTab.value
+		const res = pageData.value.tabData
+
+		if (currentTab === 'suppliers') {
+			suppliers.value = res?.data?.items || res?.data || []
+			pagination.value = {
+				total_count: res?.data?.total_count || suppliers.value.length || 0,
+				skip: res?.data?.skip || 0,
+				limit: res?.data?.limit || 20,
+				has_more: res?.data?.has_more || false
+			}
+		} else if (currentTab === 'orders') {
+			purchaseOrders.value = res?.data?.items || res?.data || []
+			pagination.value = {
+				total_count: res?.data?.total_count || purchaseOrders.value.length || 0,
+				skip: res?.data?.skip || 0,
+				limit: res?.data?.limit || 20,
+				has_more: res?.data?.has_more || false
+			}
+		} else if (currentTab === 'transfers') {
+			transfers.value = res?.data?.items || res?.data || []
+			pagination.value = {
+				total_count: res?.data?.total_count || transfers.value.length || 0,
+				skip: res?.data?.skip || 0,
+				limit: res?.data?.limit || 20,
+				has_more: res?.data?.has_more || false
+			}
+		} else if (currentTab === 'levels') {
+			stockLevels.value = res?.data?.items || res?.data || []
+			pagination.value = {
+				total_count: res?.data?.total_count || stockLevels.value.length || 0,
+				skip: res?.data?.skip || 0,
+				limit: res?.data?.limit || 20,
+				has_more: res?.data?.has_more || false
+			}
+		} else if (currentTab === 'valuation') {
+			valuation.value = res?.data || null
+			const items = res?.data?.items || []
+			pagination.value = {
+				total_count: res?.data?.total_count || items.length || 0,
+				skip: res?.data?.skip || 0,
+				limit: res?.data?.limit || 20,
+				has_more: res?.data?.has_more || false
+			}
+		} else if (currentTab === 'audit') {
+			auditItems.value = res?.data?.items || res?.data || []
+			pagination.value = {
+				total_count: res?.data?.total_count || auditItems.value.length || 0,
+				skip: res?.data?.skip || 0,
+				limit: res?.data?.limit || 20,
+				has_more: res?.data?.has_more || false
+			}
+		}
 	}
 }
 
+watch(pageData, syncData, { immediate: true })
+
+const onBranchFilterChange = () => {}
+
+// ─── Modal / Action Handlers ──────────────────────────────────────────────────
 const openSupplierModal = () => {
 	editingSupplierId.value = null
 	supplierForm.value = { name: '', email: '', phone: '', contact_person: '', address: '' }
@@ -1068,194 +1449,124 @@ const saveSupplier = async () => {
 		}
 		if (editingSupplierId.value) {
 			await updateSupplier(editingSupplierId.value, payload)
-			toast.success('Supplier updated successfully')
+			toast.success('Supplier updated successfully!')
 		} else {
 			await createSupplier(payload)
-			toast.success('Supplier added successfully')
+			toast.success('Supplier added successfully!')
 		}
 		showSupplierModal.value = false
-		loadSuppliers()
-	} catch (error) {
-		console.error(error)
-		toast.error(editingSupplierId.value ? 'Failed to update supplier' : 'Failed to add supplier')
+		refresh()
+	} catch (e) {
+		console.error(e)
+		toast.error('Failed to save supplier')
 	} finally {
 		savingSupplier.value = false
 	}
 }
 
 const deleteSupplierAction = async (s) => {
-	if (!confirm(`Delete supplier "${s.name}"? This cannot be undone.`)) return
+	if (!confirm('Are you sure you want to delete this supplier?')) return
 	try {
 		const { deleteSupplier } = useInventory()
 		await deleteSupplier(s.supplier_id || s.id)
-		toast.success('Supplier deleted successfully')
-		loadSuppliers()
+		toast.success('Supplier deleted successfully!')
+		refresh()
 	} catch (e) {
 		console.error(e)
 		toast.error('Failed to delete supplier')
 	}
 }
 
-// ─── Purchase Orders ──────────────────────────────────────────────────────────
-const loadPO = async () => {
-	loadingPO.value = true
-	try {
-		const { getPurchaseOrders } = useInventory()
-		const params = {}
-		if (selectedBranchFilterId.value) params.branch_id = selectedBranchFilterId.value
-		const res = await getPurchaseOrders(params)
-		purchaseOrders.value = res?.data?.items || res?.data || []
-	} catch (error) {
-		console.error(error)
-		toast.error('Failed to load purchase orders')
-	} finally {
-		loadingPO.value = false
-	}
-}
-
-const loadBranches = async () => {
-	try {
-		const { getBranches } = useBranches()
-		const authStore = useAuthStore()
-		const params = {}
-		const businessId = authStore.user?.business_id || authStore.user?.business?.id
-		if (businessId) params.business_id = businessId
-		const res = await getBranches(params)
-		const resData = res?.data?.data || res?.data?.items || res?.data || []
-		branchesList.value = Array.isArray(resData) ? resData : (Array.isArray(res?.data) ? res.data : [])
-		if (branchesList.value.length === 0) {
-			branchesList.value = [{ id: 1, name: 'Main Branch' }]
-		}
-	} catch (e) {
-		console.error(e)
-		branchesList.value = [{ id: 1, name: 'Main Branch' }]
-	}
-}
-
-const loadAllProducts = async () => {
-	try {
-		const { getProducts } = useBusinessProducts()
-		const res = await getProducts({ limit: 100 })
-		allProductsList.value = res?.data?.items || res?.data || []
-	} catch (e) {
-		console.error(e)
-	}
-}
-
+// ─── Purchase Orders Handlers ────────────────────────────────────────────────
 const openPOModal = () => {
 	editingPOId.value = null
-	const now = new Date()
-	now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
-	const defaultOrderDate = now.toISOString().slice(0, 10)
-	const deliveryDate = new Date(Date.now() + 5*24*60*60*1000)
-	deliveryDate.setMinutes(deliveryDate.getMinutes() - deliveryDate.getTimezoneOffset())
-	const defaultDeliveryDate = deliveryDate.toISOString().slice(0, 10)
 	poForm.value = {
 		supplier_id: '',
-		branch_id: branchesList.value[0]?.branch_id || branchesList.value[0]?.id || 1,
-		order_date: defaultOrderDate,
-		expected_delivery_date: defaultDeliveryDate,
+		branch_id: '',
+		order_date: new Date().toISOString().split('T')[0],
+		expected_delivery_date: '',
 		status: 'DELIVERED',
 		items: [{ product_id: '', quantity: '', cost_per_unit: '' }]
 	}
 	showPOModal.value = true
 }
 
-const editPO = async (po) => {
-	editingPOId.value = po.po_id || po.id
-	const formatForInput = (dateString) => {
-		if (!dateString) return ''
-		const d = new Date(dateString)
-		d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
-		return d.toISOString().slice(0, 10)
+const addPOItemLine = () => {
+	poForm.value.items.push({ product_id: '', quantity: '', cost_per_unit: '' })
+}
+
+const removePOItemLine = (idx) => {
+	if (poForm.value.items.length > 1) {
+		poForm.value.items.splice(idx, 1)
 	}
+}
+
+const editPO = (po) => {
+	editingPOId.value = po.po_id || po.id
 	poForm.value = {
-		supplier_id: po.supplier_id,
-		branch_id: po.branch_id || branchesList.value[0]?.branch_id || branchesList.value[0]?.id || 1,
-		order_date: formatForInput(po.order_date || po.created_at),
-		expected_delivery_date: formatForInput(po.expected_delivery_date),
-		status: po.status,
-		items: po.items?.length ? po.items.map(i => ({
-			product_id: i.product_id,
-			quantity: i.quantity,
-			cost_per_unit: i.cost_per_unit
-		})) : [{ product_id: '', quantity: '', cost_per_unit: '' }]
+		supplier_id: po.supplier_id || '',
+		branch_id: po.branch_id || '',
+		order_date: po.created_at ? new Date(po.created_at).toISOString().split('T')[0] : '',
+		expected_delivery_date: po.expected_delivery_date ? new Date(po.expected_delivery_date).toISOString().split('T')[0] : '',
+		status: po.status || 'PENDING',
+		items: po.items && po.items.length > 0
+			? po.items.map(i => ({ product_id: i.product_id, quantity: i.quantity, cost_per_unit: i.cost_per_unit }))
+			: [{ product_id: '', quantity: '', cost_per_unit: '' }]
 	}
 	showPOModal.value = true
-	if (!po.items || po.items.length === 0) {
-		try {
-			const { getPurchaseOrder } = useInventory()
-			const res = await getPurchaseOrder(po.po_id || po.id)
-			if (res?.data?.items?.length) {
-				poForm.value.items = res.data.items.map(i => ({
-					product_id: i.product_id,
-					quantity: i.quantity,
-					cost_per_unit: i.cost_per_unit
-				}))
-			}
-		} catch (e) {
-			console.error('Failed to load PO details for editing', e)
-		}
-	}
 }
 
 const deletePO = async (po) => {
-	if (!confirm(`Are you sure you want to delete Purchase Order #${po.po_id || po.id}?`)) return
+	if (!confirm('Are you sure you want to delete this Purchase Order?')) return
 	try {
 		const { deletePurchaseOrder } = useInventory()
 		await deletePurchaseOrder(po.po_id || po.id)
-		toast.success('Purchase order deleted!')
-		loadPO()
+		toast.success('Purchase Order deleted successfully!')
+		refresh()
 	} catch (e) {
 		console.error(e)
-		toast.error('Failed to delete purchase order')
+		toast.error('Failed to delete Purchase Order')
 	}
 }
 
-const addPOItemLine = () => poForm.value.items.push({ product_id: '', quantity: '', cost_per_unit: '' })
-const removePOItemLine = (idx) => { if (poForm.value.items.length > 1) poForm.value.items.splice(idx, 1) }
-
 const viewPO = async (po) => {
 	selectedPO.value = po
-	selectedPOItems.value = po.items || []
 	showPODetailsModal.value = true
-	if (!po.items || po.items.length === 0) {
-		loadingPODetails.value = true
-		try {
-			const { getPurchaseOrder } = useInventory()
-			const res = await getPurchaseOrder(po.po_id || po.id)
-			if (res?.data) {
-				selectedPO.value = res.data
-				selectedPOItems.value = res.data.items || res.data.purchase_order_items || []
-			}
-		} catch (e) {
-			console.error('Failed to load PO details', e)
-		} finally {
-			loadingPODetails.value = false
-		}
+	loadingPODetails.value = true
+	selectedPOItems.value = []
+	try {
+		const { getPurchaseOrderDetails } = useInventory()
+		const res = await getPurchaseOrderDetails(po.po_id || po.id)
+		selectedPOItems.value = res?.data?.items || res?.data || []
+	} catch (e) {
+		console.error(e)
+		toast.error('Failed to load PO details')
+	} finally {
+		loadingPODetails.value = false
 	}
 }
 
 const savePurchaseOrder = async () => {
-	if (!poForm.value.supplier_id) return toast.error('Please select a supplier')
-	if (poForm.value.items.some(item => !item.product_id || !item.quantity || !item.cost_per_unit)) {
-		return toast.error('Please fill all item fields with valid values')
+	if (!poForm.value.supplier_id || !poForm.value.branch_id) {
+		return toast.error('Supplier and Branch are required')
 	}
+	const cleanItems = poForm.value.items.filter(i => i.product_id && i.quantity && i.cost_per_unit)
+	if (cleanItems.length === 0) {
+		return toast.error('Add at least one item with product, quantity, and cost')
+	}
+
 	savingPO.value = true
 	try {
 		const { createPurchaseOrder, updatePurchaseOrder } = useInventory()
-		const utcOrderDate = new Date(poForm.value.order_date).toISOString()
-		const utcDeliveryDate = new Date(poForm.value.expected_delivery_date).toISOString()
 		const payload = {
 			supplier_id: Number(poForm.value.supplier_id),
 			branch_id: Number(poForm.value.branch_id),
-			order_date: utcOrderDate,
-			expected_delivery_date: utcDeliveryDate,
 			status: poForm.value.status,
-			items: poForm.value.items.map(item => ({
-				product_id: Number(item.product_id),
-				quantity: Number(item.quantity),
-				cost_per_unit: Number(item.cost_per_unit)
+			expected_delivery_date: poForm.value.expected_delivery_date || null,
+			items: cleanItems.map(i => ({
+				product_id: Number(i.product_id),
+				quantity: Number(i.quantity),
+				cost_per_unit: Number(i.cost_per_unit)
 			}))
 		}
 		if (editingPOId.value) {
@@ -1266,94 +1577,72 @@ const savePurchaseOrder = async () => {
 			toast.success('Purchase Order created successfully!')
 		}
 		showPOModal.value = false
-		loadPO()
+		refresh()
 	} catch (e) {
 		console.error(e)
-		toast.error(editingPOId.value ? 'Failed to update purchase order' : 'Failed to create purchase order')
+		toast.error('Failed to save Purchase Order')
 	} finally {
 		savingPO.value = false
 	}
 }
 
-// ─── Stock Adjustment ─────────────────────────────────────────────────────────
-const selectProduct = (prod) => {
-	selectedProd.value = prod
-	stockForm.value.product_id = prod.product_id || prod.id
-}
-
-const debouncedProductSearch = useDebounceFn(async () => {
-	if (!productSearch.value) {
-		foundProducts.value = []
-		return
-	}
+// ─── Stock Adjustments Handlers ──────────────────────────────────────────────
+const searchProducts = async () => {
+	if (!productSearch.value.trim()) return
 	searchingProducts.value = true
 	try {
-		const { getProducts } = useBusinessProducts()
-		const res = await getProducts({ search: productSearch.value, limit: 15 })
-		const itemsList = res?.data?.items || res?.data || []
-		foundProducts.value = Array.isArray(itemsList) ? itemsList : []
-	} catch (error) {
-		console.error(error)
-		foundProducts.value = []
+		const { getAllProducts } = useAdminUsers()
+		const res = await getAllProducts({ search: productSearch.value, limit: 10 })
+		foundProducts.value = res?.data?.items || res?.data || []
+	} catch (e) {
+		console.error(e)
 	} finally {
 		searchingProducts.value = false
 	}
-}, 400)
+}
+
+const selectProduct = (p) => {
+	selectedProd.value = p
+	stockForm.value.product_id = p.id
+	transferForm.value.product_id = p.id
+	toast.info(`Selected Product: ${p.name}`)
+}
+
+const clearProductSearch = () => {
+	productSearch.value = ''
+	foundProducts.value = []
+	selectedProd.value = null
+	stockForm.value.product_id = ''
+	transferForm.value.product_id = ''
+}
 
 const submitStockAdjust = async () => {
-	if (!stockForm.value.product_id || stockForm.value.quantity === '' || stockForm.value.quantity === undefined) {
-		return toast.error('Please select a product and enter quantity')
+	if (!stockForm.value.product_id || !stockForm.value.branch_id || !stockForm.value.quantity) {
+		return toast.error('Please select product, branch and fill quantity')
 	}
 	adjusting.value = true
 	try {
 		const { adjustStock } = useInventory()
-		const qty = Number(stockForm.value.quantity)
-		const finalQty = stockForm.value.adjustment_type === 'remove' ? -Math.abs(qty) : qty
 		await adjustStock({
-			product_id: stockForm.value.product_id,
-			branch_id: stockForm.value.branch_id || null,
-			quantity: finalQty,
+			product_id: Number(stockForm.value.product_id),
+			branch_id: Number(stockForm.value.branch_id),
+			quantity: Number(stockForm.value.quantity),
+			adjustment_type: stockForm.value.adjustment_type === 'add' ? 'MANUAL' : 'DAMAGE',
 			reason: stockForm.value.reason || null
 		})
-		toast.success('Stock adjusted successfully')
-		if (selectedProd.value) {
-			if (stockForm.value.adjustment_type === 'add') {
-				selectedProd.value.stock_quantity = (selectedProd.value.stock_quantity || 0) + qty
-			} else if (stockForm.value.adjustment_type === 'remove') {
-				selectedProd.value.stock_quantity = Math.max(0, (selectedProd.value.stock_quantity || 0) - qty)
-			} else if (stockForm.value.adjustment_type === 'set') {
-				selectedProd.value.stock_quantity = qty
-			}
-		}
-		stockForm.value = { product_id: '', branch_id: '', adjustment_type: 'add', quantity: '', reason: '' }
-		selectedProd.value = null
-		productSearch.value = ''
-		foundProducts.value = []
-	} catch (error) {
-		console.error(error)
+		toast.success('Stock adjusted successfully!')
+		stockForm.value.quantity = ''
+		stockForm.value.reason = ''
+		refresh()
+	} catch (e) {
+		console.error(e)
 		toast.error('Stock adjustment failed')
 	} finally {
 		adjusting.value = false
 	}
 }
 
-// ─── Stock Transfers ──────────────────────────────────────────────────────────
-const loadTransfers = async () => {
-	loadingTransfers.value = true
-	try {
-		const { getStockTransfers } = useInventory()
-		const params = {}
-		if (selectedBranchFilterId.value) params.branch_id = selectedBranchFilterId.value
-		const res = await getStockTransfers(params)
-		transfers.value = res?.data?.items || res?.data || []
-	} catch (e) {
-		console.error(e)
-		toast.error('Failed to load stock transfers')
-	} finally {
-		loadingTransfers.value = false
-	}
-}
-
+// ─── Stock Transfers Handlers ────────────────────────────────────────────────
 const submitTransfer = async () => {
 	if (!transferForm.value.product_id || !transferForm.value.from_branch_id || !transferForm.value.to_branch_id || !transferForm.value.quantity) {
 		return toast.error('Please fill all required transfer fields')
@@ -1373,7 +1662,7 @@ const submitTransfer = async () => {
 		})
 		toast.success('Stock transferred successfully!')
 		transferForm.value = { product_id: '', from_branch_id: '', to_branch_id: '', quantity: '', notes: '' }
-		loadTransfers()
+		refresh()
 	} catch (e) {
 		console.error(e)
 		toast.error('Stock transfer failed')
@@ -1382,88 +1671,9 @@ const submitTransfer = async () => {
 	}
 }
 
-// ─── Stock Levels ─────────────────────────────────────────────────────────────
-const loadStockLevels = async () => {
-	loadingLevels.value = true
-	try {
-		const { getStockLevels } = useInventory()
-		const params = {}
-		if (selectedBranchFilterId.value) params.branch_id = selectedBranchFilterId.value
-		const res = await getStockLevels(params)
-		stockLevels.value = res?.data || []
-	} catch (e) {
-		console.error(e)
-		toast.error('Failed to load stock levels')
-	} finally {
-		loadingLevels.value = false
-	}
+const loadLowStock = () => {
+	router.push({ query: { ...route.query, low_stock: route.query.low_stock === 'true' ? undefined : 'true', page: 1 } })
 }
-
-const loadLowStock = async () => {
-	loadingLowStock.value = true
-	try {
-		const { getLowStock } = useInventory()
-		const params = {}
-		if (selectedBranchFilterId.value) params.branch_id = selectedBranchFilterId.value
-		const res = await getLowStock(params)
-		stockLevels.value = res?.data || []
-	} catch (e) {
-		console.error(e)
-		toast.error('Failed to load low stock data')
-	} finally {
-		loadingLowStock.value = false
-	}
-}
-
-// ─── Valuation ────────────────────────────────────────────────────────────────
-const loadValuation = async () => {
-	loadingValuation.value = true
-	try {
-		const { getInventoryValuation } = useInventory()
-		const res = await getInventoryValuation()
-		valuation.value = res?.data || null
-	} catch (e) {
-		console.error(e)
-		toast.error('Failed to load valuation report')
-	} finally {
-		loadingValuation.value = false
-	}
-}
-
-// ─── Audit Trail ──────────────────────────────────────────────────────────────
-const loadAudit = async () => {
-	loadingAudit.value = true
-	try {
-		const { getAdjustments } = useInventory()
-		const params = {}
-		if (selectedBranchFilterId.value) params.branch_id = selectedBranchFilterId.value
-		if (auditTypeFilter.value) params.adjustment_type = auditTypeFilter.value
-		const res = await getAdjustments(params)
-		auditItems.value = res?.data?.items || res?.data || []
-	} catch (e) {
-		console.error(e)
-		toast.error('Failed to load audit trail')
-	} finally {
-		loadingAudit.value = false
-	}
-}
-
-// ─── Watchers ─────────────────────────────────────────────────────────────────
-watch(activeTab, (tab) => {
-	if (tab === 'suppliers') loadSuppliers()
-	if (tab === 'orders') loadPO()
-	if (tab === 'transfers') loadTransfers()
-	if (tab === 'levels') loadStockLevels()
-	if (tab === 'valuation') loadValuation()
-	if (tab === 'audit') loadAudit()
-})
-
-// ─── Mount ────────────────────────────────────────────────────────────────────
-onMounted(() => {
-	loadSuppliers()
-	loadBranches()
-	loadAllProducts()
-})
 </script>
 
 <style scoped>
@@ -1476,5 +1686,16 @@ onMounted(() => {
 .custom-scrollbar::-webkit-scrollbar-thumb {
 	background: #e7e5e4;
 	border-radius: 9999px;
+}
+
+.custom-data-table {
+	background: transparent !important;
+}
+:deep(.v-data-table-header__content) {
+	font-weight: 600 !important;
+	text-transform: uppercase !important;
+	font-size: 10px !important;
+	letter-spacing: 0.1em !important;
+	color: #a8a29e !important;
 }
 </style>
