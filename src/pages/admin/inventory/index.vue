@@ -588,7 +588,7 @@
 					style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
 					<div class="flex justify-between items-center border-b border-border/50 pb-2 mb-4">
 						<h3 class="font-bold text-xs uppercase tracking-widest text-primary">Transfer History</h3>
-						<v-btn size="small" variant="text" color="primary" @click="loadTransfers">
+						<v-btn size="small" variant="text" color="primary" @click="refresh">
 							<Icon name="mdi:refresh" class="w-4 h-4" />
 						</v-btn>
 					</div>
@@ -665,7 +665,7 @@
 						</template>
 						Low Stock Only
 					</v-btn>
-					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadStockLevels"
+					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="refresh"
 						:loading="loadingLevels" class="text-none font-semibold">
 						<template #prepend>
 							<Icon name="mdi:refresh" class="w-4 h-4" />
@@ -750,7 +750,7 @@
 		<div v-if="activeTab === 'valuation'" class="space-y-6">
 			<div class="flex justify-between items-center mb-2">
 				<h2 class="text-xl font-light tracking-tight">Inventory Valuation</h2>
-				<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadValuation"
+				<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="refresh"
 					:loading="loadingValuation" class="text-none font-semibold">
 					<template #prepend>
 						<Icon name="mdi:refresh" class="w-4 h-4" />
@@ -864,7 +864,7 @@
 						<Icon name="mdi:chevron-down"
 							class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
 					</div>
-					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadAudit"
+					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="refresh"
 						:loading="loadingAudit" class="text-none font-semibold">
 						<template #prepend>
 							<Icon name="mdi:refresh" class="w-4 h-4" />
@@ -1948,7 +1948,8 @@ const searchProducts = async () => {
 	searchingProducts.value = true
 	try {
 		const { getAllProducts } = useAdminUsers()
-		const res = await getAllProducts({ search: productSearch.value, limit: 10 })
+		const bizId = authStore.user?.business_id || authStore.user?.business?.id || cachedAdminBusinessId.value
+		const res = await getAllProducts({ search: productSearch.value, limit: 10, business_id: bizId })
 		foundProducts.value = res?.data?.items || res?.data || []
 	} catch (e) {
 		console.error(e)
@@ -1956,6 +1957,8 @@ const searchProducts = async () => {
 		searchingProducts.value = false
 	}
 }
+
+const debouncedProductSearch = useDebounceFn(searchProducts, 400)
 
 const selectProduct = (p) => {
 	selectedProd.value = p

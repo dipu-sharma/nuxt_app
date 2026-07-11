@@ -542,7 +542,7 @@
 					style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
 					<div class="flex justify-between items-center border-b border-border/50 pb-2 mb-4">
 						<h3 class="font-bold text-xs uppercase tracking-widest text-primary">Transfer History</h3>
-						<v-btn size="small" variant="text" color="primary" @click="loadTransfers">
+						<v-btn size="small" variant="text" color="primary" @click="refresh">
 							<Icon name="mdi:refresh" class="w-4 h-4" />
 						</v-btn>
 					</div>
@@ -616,7 +616,7 @@
 						<template #prepend><Icon name="mdi:alert-outline" class="w-4 h-4" /></template>
 						Low Stock Only
 					</v-btn>
-					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadStockLevels"
+					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="refresh"
 						:loading="loadingLevels" class="text-none font-semibold">
 						<template #prepend><Icon name="mdi:refresh" class="w-4 h-4" /></template>
 						All Stock
@@ -698,7 +698,7 @@
 		<div v-if="activeTab === 'valuation'" class="space-y-6">
 			<div class="flex justify-between items-center mb-2">
 				<h2 class="text-xl font-light tracking-tight">Inventory Valuation</h2>
-				<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadValuation"
+				<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="refresh"
 					:loading="loadingValuation" class="text-none font-semibold">
 					<template #prepend><Icon name="mdi:refresh" class="w-4 h-4" /></template>
 					Refresh
@@ -799,7 +799,7 @@
 						<Icon name="mdi:chevron-down"
 							class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
 					</div>
-					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="loadAudit"
+					<v-btn size="small" variant="outlined" color="primary" rounded="pill" @click="refresh"
 						:loading="loadingAudit" class="text-none font-semibold">
 						<template #prepend><Icon name="mdi:refresh" class="w-4 h-4" /></template>
 						Refresh
@@ -1381,7 +1381,7 @@ const { data: pageData, pending, refresh } = await useAsyncData(
 
 		// Fetch static dropdown dependencies
 		const { getBranches } = useBranches()
-		const { getAllProducts } = useAdminUsers()
+		const { fetchBusinessProducts } = useProducts()
 		const { getSuppliers: getSuppliersApi } = useInventory()
 
 		let branches = []
@@ -1400,7 +1400,7 @@ const { data: pageData, pending, refresh } = await useAsyncData(
 		}
 
 		try {
-			const productsRes = await getAllProducts({ limit: 100 })
+			const productsRes = await fetchBusinessProducts({ limit: 100, business_id: params.business_id })
 			allProducts = productsRes?.data?.items || productsRes?.data || []
 		} catch (e) {
 			console.error(e)
@@ -1649,6 +1649,27 @@ const deletePO = async (po) => {
 	}
 }
 
+const searchProducts = async () => {
+	if (!productSearch.value.trim()) return
+	searchingProducts.value = true
+	try {
+		const { fetchBusinessProducts } = useProducts()
+		const bizId = authStore.user?.business_id || authStore.user?.business?.id
+		const res = await fetchBusinessProducts({
+			search: productSearch.value,
+			limit: 10,
+			business_id: bizId
+		})
+		foundProducts.value = res?.data?.items || res?.data || []
+	} catch (e) {
+		console.error(e)
+	} finally {
+		searchingProducts.value = false
+	}
+}
+
+const debouncedProductSearch = useDebounceFn(searchProducts, 400)
+
 const viewPO = async (po) => {
 	selectedPO.value = po
 	showPODetailsModal.value = true
@@ -1707,19 +1728,6 @@ const savePurchaseOrder = async () => {
 }
 
 // ─── Stock Adjustments Handlers ──────────────────────────────────────────────
-const searchProducts = async () => {
-	if (!productSearch.value.trim()) return
-	searchingProducts.value = true
-	try {
-		const { getAllProducts } = useAdminUsers()
-		const res = await getAllProducts({ search: productSearch.value, limit: 10 })
-		foundProducts.value = res?.data?.items || res?.data || []
-	} catch (e) {
-		console.error(e)
-	} finally {
-		searchingProducts.value = false
-	}
-}
 
 const selectProduct = (p) => {
 	selectedProd.value = p
