@@ -1964,7 +1964,7 @@ const selectProduct = (p) => {
 	selectedProd.value = p
 	stockForm.value.product_id = p.id || p.product_id
 	transferForm.value.product_id = p.id || p.product_id
-	toast.info(`Selected Product: ${p.name}`)
+	toast.info(`Selected Product: ${p.product_name || p.name}`)
 }
 
 const clearProductSearch = () => {
