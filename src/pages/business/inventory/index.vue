@@ -28,20 +28,36 @@
 				</button>
 			</div>
 
-			<div v-if="['orders','transfers','levels','audit'].includes(activeTab)" class="flex items-center gap-3">
-				<span class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">Filter by Branch</span>
-				<div class="relative">
-					<select v-model="selectedBranchFilterId" @change="onBranchFilterChange"
-						class="appearance-none pl-4 pr-10 py-2.5 bg-card border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer min-w-[200px]"
-						style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
-						<option value="">All Branches</option>
-						<option v-for="b in branchesList" :key="b.id" :value="b.branch_id || b.id">
-							{{ b.name || b.branch_name || `Branch #${b.id}` }}
-						</option>
-					</select>
-					<Icon name="mdi:chevron-down"
-						class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+			<div class="flex items-center gap-3">
+				<div v-if="['orders','transfers','levels','audit'].includes(activeTab)" class="flex items-center gap-3">
+					<span class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest">Filter by Branch</span>
+					<div class="relative">
+						<select v-model="selectedBranchFilterId" @change="onBranchFilterChange"
+							class="appearance-none pl-4 pr-10 py-2.5 bg-card border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer min-w-[200px]"
+							style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+							<option value="">All Branches</option>
+							<option v-for="b in branchesList" :key="b.id" :value="b.branch_id || b.id">
+								{{ b.name || b.branch_name || `Branch #${b.id}` }}
+							</option>
+						</select>
+						<Icon name="mdi:chevron-down"
+							class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+					</div>
 				</div>
+
+				<v-btn
+					v-if="['orders','transfers','levels','audit','suppliers'].includes(activeTab)"
+					color="primary"
+					variant="outlined"
+					rounded="pill"
+					@click="openFilterDrawer"
+					class="text-none tracking-widest font-semibold"
+				>
+					<template #prepend>
+						<Icon name="mdi:filter-variant" class="w-4 h-4" />
+					</template>
+					Filters
+				</v-btn>
 			</div>
 		</div>
 
@@ -1351,6 +1367,46 @@ const auditTypeBadge = (type) => {
 
 const pagination = ref({ total_count: 0, skip: 0, limit: 20, has_more: false })
 const totalPages = computed(() => Math.ceil(pagination.value.total_count / pagination.value.limit) || 1)
+
+// ─── Filter Drawer ────────────────────────────────────────────────────────────
+const filterDrawer = ref(false)
+const openFilterDrawer = () => {
+	localFilters.value = {
+		search: route.query?.search || '',
+		branch_id: route.query?.branch_id || '',
+		supplier_id: route.query?.supplier_id || '',
+		product_id: route.query?.product_id || '',
+		adjustment_type: route.query?.adjustment_type || '',
+		low_stock: route.query?.low_stock === 'true'
+	}
+	filterDrawer.value = true
+}
+const localFilters = ref({
+	search: '',
+	branch_id: '',
+	supplier_id: '',
+	product_id: '',
+	adjustment_type: '',
+	low_stock: false
+})
+
+const resetFilters = () => {
+	localFilters.value = { search: '', branch_id: '', supplier_id: '', product_id: '', adjustment_type: '', low_stock: false }
+	router.push({ query: { tab: route.query?.tab, page: 1 } })
+	filterDrawer.value = false
+}
+
+const applyFilters = () => {
+	const query = { tab: route.query?.tab, page: 1 }
+	if (localFilters.value.search) query.search = localFilters.value.search
+	if (localFilters.value.branch_id) query.branch_id = localFilters.value.branch_id
+	if (localFilters.value.supplier_id) query.supplier_id = localFilters.value.supplier_id
+	if (localFilters.value.product_id) query.product_id = localFilters.value.product_id
+	if (localFilters.value.adjustment_type) query.adjustment_type = localFilters.value.adjustment_type
+	if (localFilters.value.low_stock) query.low_stock = 'true'
+	router.push({ query })
+	filterDrawer.value = false
+}
 
 const cachedAdminBusinessId = ref(null)
 
