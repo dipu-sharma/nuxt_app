@@ -23,49 +23,113 @@
 			<p>No businesses registered yet</p>
 		</div>
 		<div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-			<div v-for="biz in businesses" :key="biz.id" class="rounded-xl p-6 shadow transition-shadow hover:shadow-lg"
-				style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
-				<div class="flex items-start justify-between mb-4">
-					<div>
-						<h3 class="font-bold text-base">{{ biz.business_name || biz.name }}</h3>
-						<p class="text-xs opacity-60 mt-1">{{ biz.business_email || biz.email }}</p>
+			<div v-for="biz in businesses" :key="biz.id" class="rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-lg border flex flex-col justify-between"
+				style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+				
+				<div>
+					<!-- Header -->
+					<div class="flex items-start justify-between mb-4">
+						<div>
+							<div class="flex items-center gap-1.5 flex-wrap">
+								<h3 class="font-bold text-base text-text leading-tight">{{ biz.business_name || biz.name }}</h3>
+								<v-icon v-if="biz.is_verified" color="success" size="16" class="mt-0.5" icon="mdi:checkbox-marked-circle" title="Verified Business" />
+							</div>
+							<p class="text-[10px] text-primary font-bold uppercase tracking-wider mt-1">{{ biz.business_type || '—' }}</p>
+						</div>
+						<span class="px-2 py-0.5 text-[10px] rounded-full font-bold uppercase tracking-wider"
+							:class="bizStatusClass(biz.status || biz.is_active)">
+							{{ biz.status || (biz.is_active ? 'Active' : 'Inactive') }}
+						</span>
 					</div>
-					<span class="px-2 py-1 text-xs rounded-full font-medium"
-						:class="bizStatusClass(biz.status || biz.is_active)">
-						{{ biz.status || (biz.is_active ? 'Active' : 'Inactive') }}
-					</span>
+
+					<!-- Grid Details -->
+					<div class="space-y-2.5 mb-6 text-xs text-text/80">
+						<!-- Contact -->
+						<div class="flex items-center gap-2">
+							<span class="opacity-60 text-sm">📧</span>
+							<a :href="`mailto:${biz.email || biz.business_email}`" class="hover:underline text-primary truncate flex-1">{{ biz.email || biz.business_email || '—' }}</a>
+						</div>
+						<div class="flex items-center gap-2">
+							<span class="opacity-60 text-sm">📞</span>
+							<span>{{ biz.phone || biz.business_phone || '—' }}</span>
+						</div>
+						<div v-if="biz.website" class="flex items-center gap-2">
+							<span class="opacity-60 text-sm">🌐</span>
+							<a :href="biz.website" target="_blank" class="hover:underline text-primary truncate flex-1">{{ biz.website }}</a>
+						</div>
+
+						<hr class="opacity-10" />
+
+						<!-- Subscription & Created At -->
+						<div class="grid grid-cols-2 gap-2 bg-secondary/20 p-2.5 rounded-xl border border-border/40">
+							<div>
+								<p class="text-[9px] uppercase opacity-55 font-bold">Subscription</p>
+								<p class="font-semibold text-text text-[11px]">{{ biz.subscription_plan || 'FREE' }} ({{ biz.subscription_status || 'TRIAL' }})</p>
+							</div>
+							<div>
+								<p class="text-[9px] uppercase opacity-55 font-bold">Registered</p>
+								<p class="font-semibold text-text text-[11px]">{{ formatDate(biz.created_at) }}</p>
+							</div>
+						</div>
+
+						<!-- Legal IDs -->
+						<div class="grid grid-cols-3 gap-2 text-[10px] opacity-90 pt-1">
+							<div>
+								<span class="block text-[8px] uppercase opacity-50 font-bold">Reg No</span>
+								<span class="font-mono font-medium truncate block" :title="biz.registration_number">{{ biz.registration_number || '—' }}</span>
+							</div>
+							<div>
+								<span class="block text-[8px] uppercase opacity-50 font-bold">Tax ID</span>
+								<span class="font-mono font-medium truncate block" :title="biz.tax_id">{{ biz.tax_id || '—' }}</span>
+							</div>
+							<div>
+								<span class="block text-[8px] uppercase opacity-50 font-bold">PAN</span>
+								<span class="font-mono font-medium truncate block" :title="biz.pan_number">{{ biz.pan_number || '—' }}</span>
+							</div>
+						</div>
+
+						<hr class="opacity-10" />
+
+						<!-- Address details -->
+						<div class="bg-secondary/10 p-3 rounded-xl border border-border/20">
+							<p class="text-[9px] uppercase opacity-55 font-bold mb-1">HQ Address</p>
+							<div v-if="biz.address && typeof biz.address === 'object'" class="leading-normal opacity-95 text-[11px]">
+								<p class="font-semibold text-text">{{ biz.address.address_line_1 }}<span v-if="biz.address.address_line_2">, {{ biz.address.address_line_2 }}</span></p>
+								<p>{{ biz.address.city }}, {{ biz.address.state }} - {{ biz.address.zip_code }}</p>
+								<p class="text-[10px] opacity-60 mt-0.5">Landmark: {{ biz.address.landmark || '—' }}</p>
+								<p class="text-[10px] opacity-70 font-bold">{{ biz.address.country }}</p>
+							</div>
+							<div v-else class="opacity-50 italic">No address provided</div>
+						</div>
+					</div>
 				</div>
-				<div class="text-xs opacity-60 space-y-1 mb-4">
-					<p>📞 {{ biz.business_phone || '—' }}</p>
-					<p>📦 {{ biz.total_products ?? '—' }} products</p>
-					<p>🗓 {{ formatDate(biz.created_at) }}</p>
-				</div>
-				<div class="flex flex-col gap-2 pt-3" style="border-top: 1px solid rgb(var(--color-border))">
+
+				<div class="flex flex-col gap-2 pt-3 border-t" style="border-color: rgb(var(--color-border))">
 					<div class="flex gap-2">
 						<!-- Approve / Approved Button -->
 						<button v-if="isApproved(biz)" disabled
-							class="flex-1 py-1.5 text-xs rounded-lg font-medium bg-green-100 text-green-700 cursor-not-allowed">
+							class="flex-1 py-1.5 text-xs rounded-lg font-semibold bg-green-150 text-green-700 cursor-not-allowed border border-green-200/50">
 							✓ Approved
 						</button>
 						<button v-else @click="approveBiz(biz)"
-							class="flex-1 py-1.5 text-xs rounded-lg font-medium text-white shadow-sm hover:opacity-90 transition-opacity"
+							class="flex-1 py-1.5 text-xs rounded-lg font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
 							style="background-color: rgb(var(--color-primary))">
 							✓ Approve
 						</button>
 
 						<!-- Suspend / Suspended Button -->
 						<button v-if="isSuspended(biz)" disabled
-							class="flex-1 py-1.5 text-xs rounded-lg font-medium bg-red-100 text-red-700 cursor-not-allowed">
+							class="flex-1 py-1.5 text-xs rounded-lg font-semibold bg-red-100 text-red-700 cursor-not-allowed">
 							⏸ Suspended
 						</button>
 						<button v-else @click="suspendBiz(biz)"
-							class="flex-1 py-1.5 text-xs rounded-lg font-medium border"
+							class="flex-1 py-1.5 text-xs rounded-lg font-semibold border"
 							style="color: rgb(var(--color-text)); border-color: rgb(var(--color-border))">
 							⏸ Suspend
 						</button>
 					</div>
 					<button @click="viewProducts(biz)"
-						class="w-full py-1.5 text-xs rounded-lg font-medium text-white shadow-sm hover:opacity-90 transition-opacity"
+						class="w-full py-1.5 text-xs rounded-lg font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
 						style="background-color: rgb(var(--color-primary))">
 						📦 View Products
 					</button>
