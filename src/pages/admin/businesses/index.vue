@@ -334,9 +334,23 @@
 									style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
 							</div>
 						</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<label class="block text-xs font-semibold mb-1 opacity-70">Latitude</label>
+								<input v-model="createForm.address.latitude" placeholder="e.g. 19.0760" type="number" step="any"
+									class="w-full px-4 py-2 rounded-lg text-sm"
+									style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
+							</div>
+							<div>
+								<label class="block text-xs font-semibold mb-1 opacity-70">Longitude</label>
+								<input v-model="createForm.address.longitude" placeholder="e.g. 72.8777" type="number" step="any"
+									class="w-full px-4 py-2 rounded-lg text-sm"
+									style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
+							</div>
+						</div>
 						
 						<!-- Address Type & Config Switches -->
-						<div class="bg-opacity-5 rounded-lg p-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs" style="background-color: rgb(var(--color-background))">
+						<div class="bg-opacity-5 rounded-lg p-3 grid grid-cols-2 md:grid-cols-5 gap-3 text-xs" style="background-color: rgb(var(--color-background))">
 							<label class="flex items-center gap-2 cursor-pointer">
 								<input type="checkbox" v-model="createForm.address.is_default" class="rounded text-primary" />
 								<span>Is Default</span>
@@ -352,6 +366,10 @@
 							<label class="flex items-center gap-2 cursor-pointer">
 								<input type="checkbox" v-model="createForm.address.is_work" class="rounded text-primary" />
 								<span>Is Work</span>
+							</label>
+							<label class="flex items-center gap-2 cursor-pointer">
+								<input type="checkbox" v-model="createForm.address.is_other" class="rounded text-primary" />
+								<span>Is Other</span>
 							</label>
 						</div>
 					</div>
@@ -486,10 +504,13 @@ const getInitialForm = () => ({
     city: '',
     zip_code: '',
     landmark: '',
+    latitude: null,
+    longitude: null,
     is_default: true,
     is_billing: true,
     is_home: false,
     is_work: true,
+    is_other: false,
     label: 'Headquarters'
   }
 })
@@ -673,10 +694,13 @@ const confirmCreate = async () => {
 				city: createForm.value.address.city.trim(),
 				zip_code: createForm.value.address.zip_code.trim(),
 				landmark: createForm.value.address.landmark?.trim() || null,
+				latitude: createForm.value.address.latitude !== null && String(createForm.value.address.latitude).trim() !== '' ? parseFloat(createForm.value.address.latitude) : null,
+				longitude: createForm.value.address.longitude !== null && String(createForm.value.address.longitude).trim() !== '' ? parseFloat(createForm.value.address.longitude) : null,
 				is_default: !!createForm.value.address.is_default,
 				is_billing: !!createForm.value.address.is_billing,
 				is_home: !!createForm.value.address.is_home,
 				is_work: !!createForm.value.address.is_work,
+				is_other: !!createForm.value.address.is_other,
 				label: createForm.value.address.label?.trim() || 'Headquarters'
 			}
 		}

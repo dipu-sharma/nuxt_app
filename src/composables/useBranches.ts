@@ -24,7 +24,11 @@ export const useBranches = () => {
       const bizId = businessId || payload.business_id
       const body = {
         branch_name: payload.branch_name,
-        location: payload.location,
+        branch_code: payload.branch_code,
+        phone: payload.phone,
+        email: payload.email,
+        is_active: payload.is_active,
+        address: payload.address,
         business_id: bizId
       }
       return await api('/api/branches/', {
@@ -37,7 +41,11 @@ export const useBranches = () => {
       const bizId = businessId || payload.business_id
       const body = {
         branch_name: payload.branch_name,
-        location: payload.location,
+        branch_code: payload.branch_code,
+        phone: payload.phone,
+        email: payload.email,
+        is_active: payload.is_active,
+        address: payload.address,
         business_id: bizId
       }
       return await api(`/api/branches/${id}`, {
