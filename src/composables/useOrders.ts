@@ -63,7 +63,7 @@ export const useOrders = () => {
     // ── Business ───────────────────────────────
     /** Business: Get all orders */
     async getBusinessOrders(params: Record<string, any> = {}) {
-      return await api('/api/business/orders/', { method: 'GET', query: params })
+      return await api('/api/business/orders', { method: 'GET', query: params })
     },
 
     /** Business: Get order detail */

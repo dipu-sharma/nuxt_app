@@ -192,8 +192,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useEmployees } from '~/composables/useEmployees'
+import { useFilterStore } from '~/stores/filterStore'
+import { useAuthStore } from '~/stores/auth'
+import { toast } from 'vue3-toastify'
+import { handleAxiosError } from '~/utils/ErrorHandle/error'
 
 definePageMeta({
 	title: 'Employees',
@@ -202,6 +206,7 @@ definePageMeta({
 })
 
 const { fetchEmployees, createEmployee, updateEmployee, deleteEmployee, bulkDelete, bulkUpdate } = useEmployees()
+const filterStore = useFilterStore()
 
 // State
 const showFormDialog = ref(false)
@@ -214,6 +219,43 @@ const deletingEmployee = ref(null)
 const sort = ref({
 	key: 'created_at',
 	order: 'desc',
+})
+
+const loading = ref(false)
+const employees = ref([])
+const search = ref('')
+const currentPage = ref(1)
+const itemsPerPage = ref(10)
+const total_data = ref(0)
+const stats = ref({
+	total: 0,
+	active: 0,
+	inactive: 0,
+	new_this_month: 0,
+})
+const pagination = ref({
+	total: 0,
+	total_pages: 1,
+})
+
+const items = computed(() => employees.value)
+const isLoading = computed(() => loading.value)
+
+const queryParams = computed(() => {
+	const params = {
+		page: currentPage.value,
+		per_page: itemsPerPage.value,
+		is_paginate: true,
+		search: search.value || undefined,
+		sort_by: sort.value.order === 'desc' ? `-${sort.value.key}` : sort.value.key,
+	}
+	if (filterStore.startDate) {
+		params.startDate = filterStore.startDate.toISOString()
+	}
+	if (filterStore.endDate) {
+		params.endDate = filterStore.endDate.toISOString()
+	}
+	return params
 })
 
 // Headers
@@ -234,23 +276,65 @@ const loadData = async () => {
 	loading.value = true
 	try {
 		const response = await fetchEmployees(queryParams.value)
-		employees.value = response?.data?.items?.map((emp) => ({
+		
+		if (response?.data?.detail?.status_code === 401) {
+			const authStore = useAuthStore()
+			authStore.doLogout()
+			navigateTo('/login')
+			return
+		}
+
+		employees.value = (response?.data?.items || []).map((emp, i) => ({
 			...emp.user,
 			...emp,
-			
+			index: (currentPage.value - 1) * itemsPerPage.value + i + 1,
 		}))
-		pagination.value.total = response.data?.total
-		pagination.value.total_pages = response?.data?.total_pages
-		stats.value.total = response.data?.stats?.total
-		stats.value.active = response.data?.stats?.active
-		stats.value.inactive = response.data?.stats?.inactive
-		stats.value.new_this_month = response.data?.stats?.new_this_month
+
+		total_data.value = response?.data?.total || response?.data?.total_count || 0
+		pagination.value.total = total_data.value
+		pagination.value.total_pages = response?.data?.total_pages || 1
+
+		if (response?.data?.stats) {
+			stats.value = {
+				total: response.data.stats.total || 0,
+				active: response.data.stats.active || 0,
+				inactive: response.data.stats.inactive || 0,
+				new_this_month: response.data.stats.new_this_month || 0,
+			}
+		}
 	} catch (error) {
 		console.error('Failed to load employees:', error)
+		handleAxiosError(error?.response?.data?.status_code, error?.response?.data?.message, toast)
 	} finally {
 		loading.value = false
 	}
 }
+
+const fetchData = loadData
+
+watch([() => filterStore.startDate, () => filterStore.endDate, search], () => {
+	currentPage.value = 1
+	loadData()
+})
+
+onMounted(loadData)
+
+const handlePageChange = (newPage) => {
+	currentPage.value = newPage
+	loadData()
+}
+
+const handleItemsPerPageChange = (newItemsPerPage) => {
+	itemsPerPage.value = newItemsPerPage
+	currentPage.value = 1
+	loadData()
+}
+
+const handleSearch = (searchKeyword) => {
+	search.value = searchKeyword
+	currentPage.value = 1
+}
+
 const openAddDialog = () => {
 	editingEmployee.value = null
 	showFormDialog.value = true
@@ -329,7 +413,7 @@ const editFromView = () => {
 const handleSort = ({ key, order }) => {
 	sort.value.key = key
 	sort.value.order = order
-	fetchData()
+	loadData()
 }
 
 // Utility functions
