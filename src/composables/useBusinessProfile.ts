@@ -8,6 +8,9 @@ export const useBusinessProfile = () => {
     async getProfile() {
       return await api('/api/business/profile', { method: 'GET' })
     },
+    async setupBusiness(payload: any) {
+      return await api('/api/business/setup', { method: 'POST', body: payload })
+    },
     async updateProfile(payload: any) {
       return await api('/api/business/profile', { method: 'PUT', body: payload })
     },

@@ -59,5 +59,24 @@ export const useOrders = () => {
         body: { status },
       })
     },
+
+    // ── Business ───────────────────────────────
+    /** Business: Get all orders */
+    async getBusinessOrders(params: Record<string, any> = {}) {
+      return await api('/api/business/orders/', { method: 'GET', query: params })
+    },
+
+    /** Business: Get order detail */
+    async getBusinessOrderDetail(order_id: string) {
+      return await api(`/api/business/orders/${order_id}`, { method: 'GET' })
+    },
+
+    /** Business: Update order status */
+    async updateBusinessOrderStatus(order_id: string, status: string) {
+      return await api(`/api/business/orders/${order_id}/status`, {
+        method: 'PUT',
+        body: { status },
+      })
+    },
   }
 }

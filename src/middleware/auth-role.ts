@@ -50,10 +50,38 @@ export default defineNuxtRouteMiddleware(async (to) => {
 		return navigateTo(getRoleHome(role.value))
 	}
 
+	// Business setup and status routing check
+	if (['BUSINESS_OWNER', 'BUSINESS_MEMBER'].includes(role.value || '')) {
+		if (authStore.businessStatus === null && token.value) {
+			try {
+				const { getProfile } = useBusinessProfile()
+				const res = await getProfile()
+				const bizData = res?.data || res
+				if (bizData && (bizData.status || bizData.business_id)) {
+					authStore.businessStatus = bizData.status || 'PENDING'
+				} else {
+					authStore.businessStatus = 'NOT_SET'
+				}
+			} catch (err) {
+				authStore.businessStatus = 'NOT_SET'
+			}
+		}
+
+		if (authStore.businessStatus === 'NOT_SET' || authStore.businessStatus === 'PENDING') {
+			if (to.path !== '/business/setup') {
+				return navigateTo('/business/setup')
+			}
+		} else if (authStore.businessStatus === 'ACTIVE') {
+			if (to.path === '/business/setup') {
+				return navigateTo('/business')
+			}
+		}
+	}
+
 	// Role-based access control
 	if (role.value) {
 		const rolePathPrefix = getRolePathPrefix(role.value)
-		const sharedRoutes = ['/settings', '/profile', '/logout', '/business/branches']
+		const sharedRoutes = ['/settings', '/profile', '/logout', '/business/branches', '/business/setup']
 		
 		const isSharedRoute = sharedRoutes.some((route) => to?.path?.startsWith(route))
 		const isRoleAllowed = to.path.startsWith(rolePathPrefix) || isSharedRoute

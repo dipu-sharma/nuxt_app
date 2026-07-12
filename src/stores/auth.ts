@@ -5,6 +5,7 @@ interface AuthState {
 	token: string | null
 	role: string | null
 	user: any
+	businessStatus: string | null
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -12,6 +13,7 @@ export const useAuthStore = defineStore('auth', {
 		token: null,
 		role: null,
 		user: null,
+		businessStatus: null,
 	}),
 	actions: {
 		addRole(payload: string) {
@@ -38,6 +40,7 @@ export const useAuthStore = defineStore('auth', {
 			this.token = null
 			this.role = null
 			this.user = null
+			this.businessStatus = null
 			
 			const tokenCookie = useCookie('auth_token')
 			tokenCookie.value = null

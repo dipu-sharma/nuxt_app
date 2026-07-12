@@ -74,7 +74,7 @@ definePageMeta({
 })
 
 const filterStore = useFilterStore()
-const { getAdminOrders, updateOrderStatus: apiUpdateOrderStatus } = useOrders()
+const { getBusinessOrders, updateBusinessOrderStatus } = useOrders()
 
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
@@ -113,7 +113,7 @@ const loadOrders = async () => {
             params.to_date = dayjs(filterStore.endDate).endOf('day').toISOString()
         }
 
-        const res = await getAdminOrders(params)
+        const res = await getBusinessOrders(params)
         
         data_table.value.items = (res?.data || []).map(o => ({
             id: o.order_id,
@@ -159,7 +159,7 @@ const updateOrderStatus = async () => {
 	if (!selectedOrder.value) return
 	isLoading.value = true
 	try {
-        await apiUpdateOrderStatus(selectedOrder.value.id, selectedStatus.value)
+        await updateBusinessOrderStatus(selectedOrder.value.id, selectedStatus.value)
         toast.success(`Order #${selectedOrder.value.id} status updated to ${selectedStatus.value}`)
 		isChangeStatusDialogVisible.value = false
 		loadOrders()
