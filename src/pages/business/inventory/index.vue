@@ -1193,8 +1193,8 @@ const auditHeaders = [
 definePageMeta({
 	title: 'Inventory',
 	middleware: ['auth-role'],
-	layout: 'business',
-	role: ['BUSINESS'],
+	layout: 'admin',
+	role: ['BUSINESS_OWNER', 'BUSINESS_MEMBER'],
 })
 
 const tabs = [
