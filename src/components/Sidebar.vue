@@ -146,6 +146,11 @@ const allSidebarItems = {
 			path: '/business/tax',
 			icon: 'mdi-percent-outline',
 		},
+		{
+			label: 'Settings',
+			path: '/business/settings',
+			icon: 'mdi-cog-outline',
+		},
 	],
 	BUSINESS_MEMBER: [
 		{

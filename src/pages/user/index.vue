@@ -339,7 +339,7 @@ definePageMeta({
   title: 'User Dashboard',
   description: 'Manage your user profile',
   middleware: ['auth-role'],
-  role: ['User', 'ADMIN'],
+  role: ['User', 'ADMIN', 'BUSINESS_OWNER', 'BUSINESS_MEMBER'],
   layout: 'user'
 })
 

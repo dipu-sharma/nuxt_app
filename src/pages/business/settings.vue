@@ -40,6 +40,115 @@
 		</div>
 
 		<div v-else class="max-w-3xl">
+			<!-- TAB 0: BUSINESS PROFILE SETTINGS -->
+			<div v-if="activeTab === 'business'" class="bg-card rounded-[2.5rem] p-6 sm:p-8 border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)] mb-6"
+				style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+				<div class="flex items-center gap-3 mb-6 border-b border-border/50 pb-4">
+					<div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: rgb(var(--color-primary) / 0.1)">
+						<Icon name="mdi:store-outline" class="w-5 h-5" style="color: rgb(var(--color-primary))" />
+					</div>
+					<h2 class="text-lg font-bold text-text">Business Profile Details</h2>
+				</div>
+				<div class="space-y-6">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+						<div>
+							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Business Name *</label>
+							<input v-model="businessForm.business_name" type="text" placeholder="e.g. My Shop" required
+								class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+								style="border-color: rgb(var(--color-border))" />
+						</div>
+						<div>
+							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Business Type *</label>
+							<div class="relative">
+								<select v-model="businessForm.business_type" required
+									class="appearance-none w-full pl-4 pr-10 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text shadow-sm cursor-pointer"
+									style="border-color: rgb(var(--color-border))">
+									<option value="ECOMMERCE">ECOMMERCE</option>
+									<option value="RETAIL">RETAIL</option>
+									<option value="SERVICE">SERVICE</option>
+									<option value="WHOLESALE">WHOLESALE</option>
+									<option value="MANUFACTURING">MANUFACTURING</option>
+								</select>
+								<Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none" />
+							</div>
+						</div>
+						<div>
+							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Business Email</label>
+							<input v-model="businessForm.email" type="email" placeholder="e.g. contact@myshop.com"
+								class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+								style="border-color: rgb(var(--color-border))" />
+						</div>
+						<div>
+							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Business Phone</label>
+							<input v-model="businessForm.phone" type="text" placeholder="e.g. 9555282779"
+								class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+								style="border-color: rgb(var(--color-border))" />
+						</div>
+						<div>
+							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Website URL</label>
+							<input v-model="businessForm.website" type="text" placeholder="e.g. https://myshop.com"
+								class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+								style="border-color: rgb(var(--color-border))" />
+						</div>
+						<div>
+							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Registration Number</label>
+							<input v-model="businessForm.registration_number" type="text" placeholder="e.g. REG-12345"
+								class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+								style="border-color: rgb(var(--color-border))" />
+						</div>
+						<div>
+							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Tax ID</label>
+							<input v-model="businessForm.tax_id" type="text" placeholder="e.g. GST-12345 / PAN-ABCDE1234F"
+								class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+								style="border-color: rgb(var(--color-border))" />
+						</div>
+					</div>
+
+					<!-- Headquarters Address -->
+					<div class="border-t border-border/30 pt-4 space-y-4">
+						<h3 class="font-bold text-sm text-text">Headquarters Address</h3>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+							<div class="md:col-span-2">
+								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Address Line 1 *</label>
+								<input v-model="businessForm.address.address_line_1" type="text" placeholder="e.g. Mundadih" required
+									class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+									style="border-color: rgb(var(--color-border))" />
+							</div>
+							<div class="md:col-span-2">
+								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Address Line 2</label>
+								<input v-model="businessForm.address.address_line_2" type="text" placeholder="e.g. Suite 400"
+									class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+									style="border-color: rgb(var(--color-border))" />
+							</div>
+							<div>
+								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">City *</label>
+								<input v-model="businessForm.address.city" type="text" placeholder="e.g. Ballia" required
+									class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+									style="border-color: rgb(var(--color-border))" />
+							</div>
+							<div>
+								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">State *</label>
+								<input v-model="businessForm.address.state" type="text" placeholder="e.g. Uttar Pradesh" required
+									class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+									style="border-color: rgb(var(--color-border))" />
+							</div>
+							<div>
+								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Country *</label>
+								<input v-model="businessForm.address.country" type="text" placeholder="e.g. India" required
+									class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+									style="border-color: rgb(var(--color-border))" />
+							</div>
+							<div>
+								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Zip Code *</label>
+								<input v-model="businessForm.address.zip_code" type="text" placeholder="e.g. 277201" required
+									class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
+									style="border-color: rgb(var(--color-border))" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<!-- TAB 1: GENERAL SETTINGS -->
 			<div v-if="activeTab === 'general'" class="bg-card rounded-[2.5rem] p-6 sm:p-8 border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.03)]"
 				style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
@@ -310,6 +419,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useSettings } from '@/composables/useSettings'
+import { useBusinessProfile } from '~/composables/useBusinessProfile'
 import { toast } from 'vue3-toastify'
 
 definePageMeta({
@@ -330,11 +440,37 @@ const {
 	updateBusinessDynamicSettings
 } = useSettings()
 
+const { getProfile, updateProfile } = useBusinessProfile()
+
 const loading = ref(true)
 const saving = ref(false)
-const activeTab = ref('general')
+const activeTab = ref('business')
 
 // Core forms models
+const businessForm = ref({
+	business_name: '',
+	business_type: 'ECOMMERCE',
+	email: '',
+	phone: '',
+	website: '',
+	registration_number: '',
+	tax_id: '',
+	address: {
+		address_id: '',
+		address_line_1: '',
+		address_line_2: '',
+		landmark: '',
+		city: '',
+		state: '',
+		country: '',
+		zip_code: '',
+		latitude: null,
+		longitude: null,
+		is_default: true,
+		is_billing: true,
+	}
+})
+
 const generalForm = ref({ timezone: 'Asia/Kolkata', date_format: 'DD/MM/YYYY', language: 'en', currency_display: 'INR' })
 const taxForm = ref({
 	tax_inclusive_pricing: false,
@@ -354,6 +490,7 @@ const dynamicSettings = ref([])
 const dynamicForm = ref({})
 
 const tabs = [
+	{ key: 'business', label: 'Business Profile' },
 	{ key: 'general', label: 'General' },
 	{ key: 'tax', label: 'Taxes' },
 	{ key: 'inventory', label: 'Inventory' },
@@ -379,7 +516,35 @@ const changeTab = (tabKey) => {
 const loadTabData = async () => {
 	loading.value = true
 	try {
-		if (activeTab.value === 'general') {
+		if (activeTab.value === 'business') {
+			const res = await getProfile()
+			const bizData = res?.data?.[0] || res?.data || res
+			if (bizData) {
+				businessForm.value = {
+					business_name: bizData.business_name || '',
+					business_type: bizData.business_type || 'ECOMMERCE',
+					email: bizData.email || '',
+					phone: bizData.phone || '',
+					website: bizData.website || '',
+					registration_number: bizData.registration_number || '',
+					tax_id: bizData.tax_id || '',
+					address: {
+						address_id: bizData.address?.address_id || '',
+						address_line_1: bizData.address?.address_line_1 || '',
+						address_line_2: bizData.address?.address_line_2 || '',
+						landmark: bizData.address?.landmark || '',
+						city: bizData.address?.city || '',
+						state: bizData.address?.state || '',
+						country: bizData.address?.country || '',
+						zip_code: bizData.address?.zip_code || '',
+						latitude: bizData.address?.latitude || null,
+						longitude: bizData.address?.longitude || null,
+						is_default: bizData.address?.is_default ?? true,
+						is_billing: bizData.address?.is_billing ?? true,
+					}
+				}
+			}
+		} else if (activeTab.value === 'general') {
 			const res = await getBusinessGeneral()
 			generalForm.value = { ...generalForm.value, ...(res?.data || res) }
 		} else if (activeTab.value === 'tax') {
@@ -424,7 +589,33 @@ const fetchDynamicSettings = async () => {
 const saveSettings = async () => {
 	saving.value = true
 	try {
-		if (activeTab.value === 'general') {
+		if (activeTab.value === 'business') {
+			const payload = {
+				business_name: businessForm.value.business_name.trim(),
+				business_type: businessForm.value.business_type,
+				email: businessForm.value.email ? businessForm.value.email.trim() : null,
+				phone: businessForm.value.phone ? businessForm.value.phone.trim() : null,
+				website: businessForm.value.website ? businessForm.value.website.trim() : null,
+				registration_number: businessForm.value.registration_number ? businessForm.value.registration_number.trim() : null,
+				tax_id: businessForm.value.tax_id ? businessForm.value.tax_id.trim() : null,
+				address: {
+					address_id: businessForm.value.address.address_id || undefined,
+					address_line_1: businessForm.value.address.address_line_1.trim(),
+					address_line_2: businessForm.value.address.address_line_2 ? businessForm.value.address.address_line_2.trim() : null,
+					landmark: businessForm.value.address.landmark ? businessForm.value.address.landmark.trim() : null,
+					city: businessForm.value.address.city.trim(),
+					state: businessForm.value.address.state.trim(),
+					country: businessForm.value.address.country.trim(),
+					zip_code: businessForm.value.address.zip_code.trim(),
+					latitude: businessForm.value.address.latitude,
+					longitude: businessForm.value.address.longitude,
+					is_default: businessForm.value.address.is_default,
+					is_billing: businessForm.value.address.is_billing,
+				}
+			}
+			await updateProfile(payload)
+			toast.success('Business Profile details saved successfully!')
+		} else if (activeTab.value === 'general') {
 			await updateBusinessGeneral(generalForm.value)
 			toast.success('General settings saved successfully!')
 		} else if (activeTab.value === 'tax') {
