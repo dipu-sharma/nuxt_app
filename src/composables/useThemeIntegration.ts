@@ -38,7 +38,7 @@ export const useThemeIntegration = () => {
 		}
 
 		// Apply data-theme attribute
-		if (process.client) {
+		if (import.meta.client) {
 			document.documentElement.setAttribute('data-theme', currentTheme)
 		}
 	}
@@ -75,7 +75,7 @@ export const useThemeIntegration = () => {
 
 	// Get CSS variable value
 	const getCSSVariable = (variableName: string): string => {
-		if (process.client) {
+		if (import.meta.client) {
 			return getComputedStyle(document.documentElement)
 				.getPropertyValue(`--${variableName}`)
 				.trim()

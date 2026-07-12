@@ -16,7 +16,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 		role.value = cookieRole
 	}
 
-	if (process.client) {
+	if (import.meta.client) {
 		const localStorageUser = localStorage.getItem('user')
 		if (localStorageUser && !user.value) {
 			try {

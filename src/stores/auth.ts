@@ -47,7 +47,7 @@ export const useAuthStore = defineStore('auth', {
 			const roleCookie = useCookie('role')
 			roleCookie.value = null
 			
-			if (process.client) {
+			if (import.meta.client) {
 				localStorage.removeItem('user')
 			}
 			
@@ -60,7 +60,7 @@ export const useAuthStore = defineStore('auth', {
 			this.token = tokenCookie.value || null
 			this.role = roleCookie.value || null
 			
-			if (process.client) {
+			if (import.meta.client) {
 				const savedUser = localStorage.getItem('user')
 				if (savedUser) {
 					try {
@@ -76,13 +76,13 @@ export const useAuthStore = defineStore('auth', {
 			const tokenCookie = useCookie('auth_token')
 			tokenCookie.value = payload
 			// Also set directly on document.cookie so getRawCookie() in useApi picks it up immediately
-			if (process.client) {
+			if (import.meta.client) {
 				document.cookie = `auth_token=${encodeURIComponent(payload)}; path=/; max-age=86400; SameSite=Lax`
 			}
 		},
 		addUser(payload: any) {
 			this.user = payload
-			if (process.client) {
+			if (import.meta.client) {
 				localStorage.setItem('user', JSON.stringify(payload))
 			}
 		},

@@ -10,7 +10,7 @@ export const useThemeStore = defineStore('theme', () => {
 	function setTheme(theme) {
 		if (themes.includes(theme)) {
 			currentTheme.value = theme
-			if (process.client) {
+			if (import.meta.client) {
 				localStorage.setItem('theme', theme)
 				const themeCookie = useCookie('theme', { maxAge: 60 * 60 * 24 * 365 })
 				themeCookie.value = theme
@@ -21,7 +21,7 @@ export const useThemeStore = defineStore('theme', () => {
 
 	function initializeTheme() {
 		let theme = 'light';
-		if (process.client) {
+		if (import.meta.client) {
 			const themeCookie = useCookie('theme');
 			theme = themeCookie.value || localStorage.getItem('theme') || 'light';
 		} else {

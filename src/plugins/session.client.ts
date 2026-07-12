@@ -1,5 +1,5 @@
 export default defineNuxtPlugin(() => {
-  if (process.client) {
+  if (import.meta.client) {
     window.addEventListener('beforeunload', () => {
       const match = document.cookie.match(new RegExp('(?:^|; )auth_token=([^;]*)'));
       const token = match ? decodeURIComponent(match[1]) : null;

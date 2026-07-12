@@ -41,7 +41,7 @@ const changeValue = (rowIndex, callIndex) => {
 let interval = null // Declare interval outside
 
 const startRollback = () => {
-	if (process.client) {
+	if (import.meta.client) {
 		interval = setInterval(() => {
 			if (selectedCell.value.size === 0) {
 				clearInterval(interval)

@@ -8,7 +8,7 @@ import { useAuthStore } from '~/stores/auth'
  * Falls back to null on server.
  */
 const getRawCookie = (name: string): string | null => {
-  if (!process.client) return null
+  if (!import.meta.client) return null
   const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'))
   return match ? decodeURIComponent(match[1]) : null
 }

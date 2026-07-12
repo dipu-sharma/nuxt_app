@@ -182,7 +182,7 @@ const handleClickOutside = (event) => {
 }
 
 onMounted(() => {
-	if (process.client) {
+	if (import.meta.client) {
 		document.addEventListener('click', handleClickOutside)
 	}
 	// Fetch Cart
@@ -192,7 +192,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-	if (process.client) {
+	if (import.meta.client) {
 		document.removeEventListener('click', handleClickOutside)
 	}
 })
