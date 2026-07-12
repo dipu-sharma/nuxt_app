@@ -1125,7 +1125,6 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 import { useInventory } from '@/composables/useInventory'
 import { useBranches } from '@/composables/useBranches'
@@ -1212,54 +1211,54 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const activeTab = computed({
-	get: () => route.query.tab || 'suppliers',
+	get: () => route.query?.tab || 'suppliers',
 	set: (val) => {
 		router.push({ query: { ...route.query, tab: val, page: 1 } })
 	}
 })
 
 const currentPage = computed({
-	get: () => Number(route.query.page) || 1,
+	get: () => Number(route.query?.page) || 1,
 	set: (val) => {
 		router.push({ query: { ...route.query, page: val } })
 	}
 })
 
 const selectedBranchFilterId = computed({
-	get: () => route.query.branch_id || '',
+	get: () => route.query?.branch_id || '',
 	set: (val) => {
 		router.push({ query: { ...route.query, branch_id: val || undefined, page: 1 } })
 	}
 })
 
 const selectedSupplierFilterId = computed({
-	get: () => route.query.supplier_id || '',
+	get: () => route.query?.supplier_id || '',
 	set: (val) => {
 		router.push({ query: { ...route.query, supplier_id: val || undefined, page: 1 } })
 	}
 })
 
 const selectedProductFilterId = computed({
-	get: () => route.query.product_id || '',
+	get: () => route.query?.product_id || '',
 	set: (val) => {
 		router.push({ query: { ...route.query, product_id: val || undefined, page: 1 } })
 	}
 })
 
 const auditTypeFilter = computed({
-	get: () => route.query.adjustment_type || '',
+	get: () => route.query?.adjustment_type || '',
 	set: (val) => {
 		router.push({ query: { ...route.query, adjustment_type: val || undefined, page: 1 } })
 	}
 })
 
 // Debounced search for suppliers
-const supplierSearch = ref(route.query.search || '')
+const supplierSearch = ref(route.query?.search || '')
 const onSearchInput = useDebounceFn((val) => {
 	router.push({ query: { ...route.query, search: val || undefined, page: 1 } })
 }, 400)
 
-watch(() => route.query.search, (val) => {
+watch(() => route.query?.search, (val) => {
 	supplierSearch.value = val || ''
 })
 
@@ -1430,18 +1429,18 @@ const { data: pageData, pending, refresh } = await useAsyncData(
 		let tabData = null
 
 		if (currentTab === 'suppliers') {
-			if (route.query.search) apiParams.search = route.query.search
+			if (route.query?.search) apiParams.search = route.query?.search
 			tabData = await getSuppliers(apiParams)
 		} else if (currentTab === 'orders') {
-			if (route.query.branch_id) apiParams.branch_id = route.query.branch_id
-			if (route.query.supplier_id) apiParams.supplier_id = route.query.supplier_id
+			if (route.query?.branch_id) apiParams.branch_id = route.query?.branch_id
+			if (route.query?.supplier_id) apiParams.supplier_id = route.query?.supplier_id
 			tabData = await getPurchaseOrders(apiParams)
 		} else if (currentTab === 'transfers') {
-			if (route.query.branch_id) apiParams.branch_id = route.query.branch_id
+			if (route.query?.branch_id) apiParams.branch_id = route.query?.branch_id
 			tabData = await getStockTransfers(apiParams)
 		} else if (currentTab === 'levels') {
-			if (route.query.branch_id) apiParams.branch_id = route.query.branch_id
-			if (route.query.product_id) apiParams.product_id = route.query.product_id
+			if (route.query?.branch_id) apiParams.branch_id = route.query?.branch_id
+			if (route.query?.product_id) apiParams.product_id = route.query?.product_id
 			if (route.query.low_stock === 'true') {
 				const { getLowStock } = useInventory()
 				tabData = await getLowStock(apiParams)
@@ -1451,9 +1450,9 @@ const { data: pageData, pending, refresh } = await useAsyncData(
 		} else if (currentTab === 'valuation') {
 			tabData = await getInventoryValuation(apiParams)
 		} else if (currentTab === 'audit') {
-			if (route.query.branch_id) apiParams.branch_id = route.query.branch_id
-			if (route.query.product_id) apiParams.product_id = route.query.product_id
-			if (route.query.adjustment_type) apiParams.adjustment_type = route.query.adjustment_type
+			if (route.query?.branch_id) apiParams.branch_id = route.query?.branch_id
+			if (route.query?.product_id) apiParams.product_id = route.query?.product_id
+			if (route.query?.adjustment_type) apiParams.adjustment_type = route.query?.adjustment_type
 			tabData = await getAdjustments(apiParams)
 		}
 
