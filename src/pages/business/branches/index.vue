@@ -93,8 +93,12 @@
 import { toast } from 'vue3-toastify'
 import { useAuthStore } from '~/stores/auth'
 import { computed, ref, onMounted, watch } from 'vue'
+import { useValidation } from '~/composables/useValidation'
+import { noLeadingSpace } from '~/utils/validations'
 
 definePageMeta({ title: 'Branch Management', middleware: ['auth-role'], layout: 'admin', role: ['ADMIN', 'BUSINESS_OWNER', 'BUSINESS_MEMBER'] })
+
+const { required: isRequired, validEmail: isValidEmail } = useValidation()
 
 const authStore = useAuthStore()
 const loading = ref(false)
