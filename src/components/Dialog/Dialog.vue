@@ -1,5 +1,5 @@
 <template>
-	<v-dialog v-model="isOpen" persistent :max-width="maxWidth" :content-class="isChat ? 'chat-dialog' : ''">
+	<v-dialog v-model="isOpen" persistent scroll-strategy="none" :max-width="maxWidth" :content-class="isChat ? 'chat-dialog' : ''">
 		<v-card class="p-4">
 			<v-card-title>
 				<div class="flex justify-between items-center">

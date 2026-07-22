@@ -1,6 +1,39 @@
 <template>
   <div>
     <ClientOnly>
+      <!-- Header for Admin/Business Profiles -->
+      <div v-if="['ADMIN', 'BUSINESS_OWNER', 'BUSINESS_MEMBER'].includes(authStore.role)" class="mb-8 border-b border-border pb-6"
+        style="border-color: rgb(var(--color-border))">
+        <div>
+          <h1 class="text-3xl font-semibold tracking-tight text-text mb-2">My Profile</h1>
+          <p class="text-text opacity-70 text-sm font-medium tracking-wide">
+            Manage your personal profile details, contact information, and security preferences.
+          </p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs for Admin/Business Roles inside page -->
+      <div v-if="['ADMIN', 'BUSINESS_OWNER', 'BUSINESS_MEMBER'].includes(authStore.role)"
+        class="flex gap-1 p-1.5 rounded-[1.5rem] bg-card border border-border w-fit shadow-sm flex-wrap mb-8"
+        style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))">
+        <button @click="activeTab = 'profile'"
+          class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:opacity-100 uppercase tracking-wider"
+          :class="activeTab === 'profile' ? 'shadow-md hover:scale-102' : 'opacity-60'"
+          :style="activeTab === 'profile'
+            ? 'background-color: rgb(var(--color-primary)); color: white'
+            : 'color: rgb(var(--color-text))'">
+          Personal Details
+        </button>
+        <button @click="activeTab = 'security'"
+          class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:opacity-100 uppercase tracking-wider"
+          :class="activeTab === 'security' ? 'shadow-md hover:scale-102' : 'opacity-60'"
+          :style="activeTab === 'security'
+            ? 'background-color: rgb(var(--color-primary)); color: white'
+            : 'color: rgb(var(--color-text))'">
+          Security
+        </button>
+      </div>
+
       <UserSessions v-if="activeTab === 'sessions'" />
       <UserOrderHistory v-if="activeTab === 'orders'" />
 
@@ -344,10 +377,17 @@ definePageMeta({
 })
 
 const authStore = useAuthStore()
+
+if (['ADMIN', 'BUSINESS_OWNER', 'BUSINESS_MEMBER'].includes(authStore.role)) {
+  setPageLayout('admin')
+} else {
+  setPageLayout('user')
+}
+
 const { validEmail } = useValidation()
 const route = useRoute()
 
-const activeTab = ref(route.query.tab || 'overview')
+const activeTab = ref(route.query.tab || (['ADMIN', 'BUSINESS_OWNER', 'BUSINESS_MEMBER'].includes(authStore.role) ? 'profile' : 'overview'))
 const saving = ref(false)
 const savingAddress = ref(false)
 const savingPwd = ref(false)

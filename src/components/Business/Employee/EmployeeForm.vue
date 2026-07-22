@@ -1,18 +1,6 @@
 <template>
 	<form @submit.prevent="handleSubmit" class="employee-form">
 		<div class="form-grid">
-			<!-- Profile Image -->
-			<div class="form-section full-width">
-				<h4 class="section-title">Profile Image</h4>
-				<ImageUploader
-					v-model="formData.profile_image"
-					:multiple="false"
-					:max-size="2 * 1024 * 1024"
-					preview-width="150px"
-					preview-height="150px"
-				/>
-			</div>
-
 			<!-- Personal Information -->
 			<div class="form-section full-width">
 				<h4 class="section-title">Personal Information</h4>
@@ -24,7 +12,11 @@
 						:required="true"
 						:rules="[rules.required]"
 					/>
-
+					<FormField
+						v-model="formData.middle_name"
+						label="Middle Name"
+						placeholder="Enter middle name"
+					/>
 					<FormField
 						v-model="formData.last_name"
 						label="Last Name"
@@ -33,7 +25,6 @@
 						:rules="[rules.required]"
 					/>
 				</div>
-
 				<div class="form-row">
 					<FormField
 						v-model="formData.email"
@@ -43,29 +34,47 @@
 						:required="true"
 						:rules="[rules.required, rules.email]"
 					/>
-
 					<FormField
 						v-model="formData.phone"
 						type="tel"
 						label="Phone Number"
-						placeholder="+1 (555) 000-0000"
+						placeholder="10-digit number"
 						:required="true"
-						:rules="[rules.required, rules.phone]"
+						:rules="[rules.required]"
 					/>
 				</div>
+				<div class="form-row">
+					<FormField
+						v-model="formData.dob"
+						type="date"
+						label="Date of Birth"
+						placeholder="Select date"
+					/>
+				</div>
+			</div>
 
-				<FormField
-					v-model="formData.date_of_birth"
-					type="date"
-					label="Date of Birth"
-					placeholder="Select date"
-				/>
+			<!-- Identity Information -->
+			<div class="form-section full-width">
+				<h4 class="section-title">Identity Information</h4>
+				<div class="form-row">
+					<FormField
+						v-model="formData.aadhar_number"
+						label="Aadhar Number"
+						placeholder="12-digit Aadhar number"
+						maxlength="12"
+					/>
+					<FormField
+						v-model="formData.pan_no"
+						label="PAN Number"
+						placeholder="PAN number"
+						maxlength="10"
+					/>
+				</div>
 			</div>
 
 			<!-- Employment Details -->
 			<div class="form-section full-width">
 				<h4 class="section-title">Employment Details</h4>
-
 				<div class="form-row">
 					<FormField
 						v-model="formData.role"
@@ -76,25 +85,6 @@
 						:options="roleOptions"
 						:rules="[rules.required]"
 					/>
-
-					<FormField
-						v-model="formData.department"
-						type="select"
-						label="Department"
-						placeholder="Select department"
-						:required="true"
-						:options="departmentOptions"
-						:rules="[rules.required]"
-					/>
-				</div>
-
-				<div class="form-row">
-					<FormField
-						v-model="formData.designation"
-						label="Designation"
-						placeholder="e.g., Senior Developer"
-					/>
-
 					<FormField
 						v-model="formData.status"
 						type="select"
@@ -114,11 +104,9 @@
 						v-model="formData.salary"
 						type="number"
 						label="Monthly Salary"
-						placeholder="0.00"
-						prefix="$"
-						helper-text="Enter monthly salary amount"
+						placeholder="0"
+						prefix="₹"
 					/>
-
 					<FormField
 						v-model="formData.payment_type"
 						type="select"
@@ -131,59 +119,47 @@
 			<!-- Address Information -->
 			<div class="form-section full-width">
 				<h4 class="section-title">Address Information</h4>
-				<label>
+				<label class="update-address-toggle">
 					<input type="checkbox" v-model="updateAddress" />
 					Update Address
 				</label>
 				<div v-if="updateAddress">
 					<FormField
-						v-model="formData.address"
-						type="textarea"
-						label="Street Address"
-						placeholder="Enter street address"
-						:rows="3"
+						v-model="formData.address_line_1"
+						label="Address Line 1"
+						placeholder="House, Flat no, Building, Street"
 					/>
-
+					<FormField
+						v-model="formData.address_line_2"
+						label="Address Line 2 (optional)"
+						placeholder="Apartment, Colony, Area, Landmark"
+					/>
 					<div class="form-row">
 						<FormField
 							v-model="formData.city"
 							label="City"
 							placeholder="Enter city"
 						/>
-
 						<FormField
 							v-model="formData.state"
-							label="State/Province"
+							label="State"
 							placeholder="Enter state"
 						/>
 					</div>
-
 					<div class="form-row">
-						<FormField
-							v-model="formData.postal_code"
-							label="Postal Code"
-							placeholder="Enter postal code"
-						/>
-
 						<FormField
 							v-model="formData.country"
 							label="Country"
-							placeholder="Enter country"
+							placeholder="India"
+						/>
+						<FormField
+							v-model="formData.zip_code"
+							label="Pincode"
+							placeholder="6-digit pincode"
+							maxlength="6"
 						/>
 					</div>
 				</div>
-			</div>
-
-			<!-- Notes -->
-			<div class="form-section full-width">
-				<FormField
-					v-model="formData.notes"
-					type="textarea"
-					label="Notes"
-					placeholder="Add any additional notes..."
-					:rows="4"
-					:max-length="500"
-				/>
 			</div>
 		</div>
 
@@ -211,7 +187,6 @@
 
 <script setup>
 import FormField from '@/components/Shared/FormField.vue'
-import ImageUploader from '@/components/Shared/ImageUploader.vue'
 import { useEmployees } from '~/composables/useEmployees'
 import { toast } from 'vue3-toastify'
 
@@ -229,123 +204,97 @@ const saving = ref(false)
 const editMode = ref(false)
 const updateAddress = ref(false)
 
-// Form data
 const formData = ref({
 	first_name: '',
+	middle_name: '',
 	last_name: '',
 	email: '',
 	phone: '',
-	date_of_birth: '',
-	role: '',
-	department: '',
-	designation: '',
+	dob: '',
+	aadhar_number: '',
+	pan_no: '',
+	role: 'BUSINESS_MEMBER',
 	salary: '',
-	payment_type: 'Monthly',
+	payment_type: '',
 	status: 'Active',
-	address: '',
+	address_line_1: '',
+	address_line_2: '',
 	city: '',
 	state: '',
-	postal_code: '',
-	country: '',
-	notes: '',
-	profile_image: null
+	country: 'India',
+	zip_code: '',
 })
 
-// Options
 const roleOptions = [
-     {value: 'BUSINESS_MEMBER', label: 'Member'},
-	{ value: 'MANAGER', label: 'Manager' },
-	{ value: 'TEAM_LEAD', label: 'Team Lead' },
-	{ value: 'SENIOR_EMPLOYEE', label: 'Senior Employee' },
-	{ value: 'EMPLOYEE', label: 'Employee' },
-	{ value: 'INTERN', label: 'Intern' },
-	{ value: 'CONTRACTOR', label: 'Contractor' }
-]
-
-const departmentOptions = [
-	{ value: 'Sales', label: 'Sales' },
-	{ value: 'E-Commerce', label: 'E-Commerce' },
-	{ value: 'Marketing', label: 'Marketing' },
-	{ value: 'Engineering', label: 'Engineering' },
-	{ value: 'Design', label: 'Design' },
-	{ value: 'Product', label: 'Product' },
-	{ value: 'HR', label: 'Human Resources' },
-	{ value: 'Finance', label: 'Finance' },
-	{ value: 'Operations', label: 'Operations' },
-	{ value: 'Customer Support', label: 'Customer Support' },
-	{ value: 'IT', label: 'Information Technology' }
+	{ value: 'business_member', label: 'Member' },
+	{ value: 'manager', label: 'Manager' },
+	{ value: 'team_lead', label: 'Team Lead' },
+	{ value: 'senior_employee', label: 'Senior Employee' },
+	{ value: 'employee', label: 'Employee' },
+	{ value: 'intern', label: 'Intern' },
+	{ value: 'contractor', label: 'Contractor' }
 ]
 
 const statusOptions = [
 	{ value: 'Active', label: 'Active' },
-	{ value: 'Inactive', label: 'Inactive' },
-	{ value: 'On Leave', label: 'On Leave' },
-	{ value: 'Terminated', label: 'Terminated' }
+	{ value: 'Inactive', label: 'Inactive' }
 ]
 
 const paymentTypeOptions = [
-	{ value: 'Monthly', label: 'Monthly' },
-	{ value: 'Hourly', label: 'Hourly' },
-	{ value: 'Contract', label: 'Contract' }
+	{ value: 'monthly', label: 'Monthly' },
+	{ value: 'hourly', label: 'Hourly' },
+	{ value: 'contract', label: 'Contract' }
 ]
 
-// Validation rules
 const rules = {
 	required: (value) => !!value || 'This field is required',
 	email: (value) => {
 		const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 		return !value || pattern.test(value) || 'Please enter a valid email address'
 	},
-	phone: (value) => {
-		const pattern = /^[\d\s\-\+\(\)]+$/
-		return !value || pattern.test(value) || 'Please enter a valid phone number'
-	}
 }
 
-// Methods
 const handleSubmit = async () => {
 	saving.value = true
-
 	try {
-		const payload = { ...formData.value }
-
-		if (!updateAddress.value) {
-			delete payload.address
-			delete payload.city
-			delete payload.state
-			delete payload.postal_code
-			delete payload.country
+		const payload = {
+			first_name: formData.value.first_name,
+			middle_name: formData.value.middle_name || null,
+			last_name: formData.value.last_name,
+			email: formData.value.email,
+			mobile_number: formData.value.phone || null,
+			dob: formData.value.dob || null,
+			aadhar_number: formData.value.aadhar_number || null,
+			pan_no: formData.value.pan_no || null,
+			role: formData.value.role,
+			salary: formData.value.salary ? Number(formData.value.salary) : null,
+			payment_type: formData.value.payment_type || null,
 		}
 
-		// Remove null/undefined values
-		Object.keys(payload).forEach(key => {
-			if (payload[key] === null || payload[key] === undefined || payload[key] === '') {
-				delete payload[key]
+		if (updateAddress.value) {
+			payload.address = {
+				address_line_1: formData.value.address_line_1,
+				address_line_2: formData.value.address_line_2 || null,
+				city: formData.value.city,
+				state: formData.value.state,
+				country: formData.value.country || 'India',
+				zip_code: formData.value.zip_code,
+				is_default: true,
 			}
-		})
-
-		let employeeId = editMode.value ? props.employee.id : null;
+		}
 
 		if (editMode.value) {
-			await updateEmployee(employeeId, payload)
-            toast.success('Employee updated successfully.')
+			await updateEmployee(props.employee.id, payload)
+			toast.success('Employee updated successfully.')
 		} else {
-			const response = await createEmployee(payload)
-            if(response.data){
-                employeeId = response.data.id
-            }
+			await createEmployee(payload)
 			toast.success('Employee created successfully.')
-		}
-
-		if (formData.value.profile_image && formData.value.profile_image instanceof File) {
-			if (employeeId) {
-				console.warn("Image upload is not implemented in the API yet.")
-			}
 		}
 
 		emit('submit')
 	} catch (error) {
 		console.error('Error saving employee:', error)
+		toast.error(error?.response?.data?.message || 'Failed to save employee')
 	} finally {
 		saving.value = false
 	}
@@ -354,26 +303,55 @@ const handleSubmit = async () => {
 const loadEmployeeData = () => {
 	if (props.employee) {
 		editMode.value = true
-		updateAddress.value = false // Reset checkbox
-		Object.keys(formData.value).forEach(key => {
-			if (props.employee[key] !== undefined) {
-				formData.value[key] = props.employee[key]
-			}
-		})
+		updateAddress.value = false
 
-		if (props.employee.image_url) {
-			formData.value.profile_image = props.employee.image_url
+		const emp = props.employee
+		const user = emp
+
+		formData.value = {
+			first_name: user.first_name || '',
+			middle_name: user.middle_name || '',
+			last_name: user.last_name || '',
+			email: user.email || '',
+			phone: user.phone || '',
+			dob: user.dob || '',
+			aadhar_number: user.aadhar_number || '',
+			pan_no: user.pan_no || '',
+			role: emp.role || 'business_member',
+			salary: emp.salary || '',
+			payment_type: emp.payment_type || '',
+			status: emp.is_active ? 'Active' : 'Inactive',
+			address_line_1: emp.address?.[0]?.address_line_1 || '',
+			address_line_2: emp.address?.[0]?.address_line_2 || '',
+			city: emp.address?.[0]?.city || '',
+			state: emp.address?.[0]?.state || '',
+			country: emp.address?.[0]?.country || 'India',
+			zip_code: emp.address?.[0]?.zip_code || '',
 		}
 	} else {
-        editMode.value = false
-		updateAddress.value = true // Enable for new employees
-        Object.keys(formData.value).forEach(key => {
-            formData.value[key] = ''
-        })
-        formData.value.payment_type = 'Monthly'
-        formData.value.status = 'Active'
-        formData.value.profile_image = null
-    }
+		editMode.value = false
+		updateAddress.value = true
+		formData.value = {
+			first_name: '',
+			middle_name: '',
+			last_name: '',
+			email: '',
+			phone: '',
+			dob: '',
+			aadhar_number: '',
+			pan_no: '',
+			role: 'business_member',
+			salary: '',
+			payment_type: '',
+			status: 'Active',
+			address_line_1: '',
+			address_line_2: '',
+			city: '',
+			state: '',
+			country: 'India',
+			zip_code: '',
+		}
+	}
 }
 
 watch(() => props.employee, loadEmployeeData, { immediate: true })
@@ -415,6 +393,17 @@ onMounted(() => {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 	gap: 1rem;
+}
+
+.update-address-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: rgb(var(--color-text));
+	cursor: pointer;
+	margin-bottom: 1rem;
 }
 
 .form-actions {

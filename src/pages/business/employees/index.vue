@@ -103,7 +103,7 @@
 							</h3>
 							<p>{{ viewingEmployee.designation || viewingEmployee.role }}</p>
 							<SharedStatusBadge
-								:status="viewingEmployee.status?.toLowerCase() || ''"
+								:status="viewingEmployee.status?.toLowerCase() || 'default'"
 								:label="viewingEmployee.status"
 							/>
 						</div>
@@ -111,8 +111,8 @@
 
 					<div class="detail-grid">
 						<div class="detail-item">
-							<span class="detail-label">Employee ID:</span>
-							<span class="detail-value">{{ viewingEmployee.employee_id }}</span>
+							<span class="detail-label">User ID:</span>
+							<span class="detail-value">{{ viewingEmployee.user_id }}</span>
 						</div>
 						<div class="detail-item">
 							<span class="detail-label">Email:</span>
@@ -120,38 +120,52 @@
 						</div>
 						<div class="detail-item">
 							<span class="detail-label">Phone:</span>
-							<span class="detail-value">{{ viewingEmployee.phone }}</span>
+							<span class="detail-value">{{ viewingEmployee.phone || '-' }}</span>
 						</div>
 						<div class="detail-item">
-							<span class="detail-label">Department:</span>
-							<span class="detail-value">{{ viewingEmployee.department }}</span>
+							<span class="detail-label">Date of Birth:</span>
+							<span class="detail-value">{{ formatDate(viewingEmployee.dob) }}</span>
+						</div>
+						<div class="detail-item">
+							<span class="detail-label">Aadhar Number:</span>
+							<span class="detail-value">{{ viewingEmployee.aadhar_number || '-' }}</span>
+						</div>
+						<div class="detail-item">
+							<span class="detail-label">PAN Number:</span>
+							<span class="detail-value">{{ viewingEmployee.pan_no || '-' }}</span>
 						</div>
 						<div class="detail-item">
 							<span class="detail-label">Role:</span>
-							<span class="detail-value">{{ viewingEmployee.role }}</span>
+							<span class="detail-value">{{ viewingEmployee.role?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) }}</span>
 						</div>
 						<div class="detail-item">
-							<span class="detail-label">Join Date:</span>
-							<span class="detail-value">{{ formatDate(viewingEmployee.join_date) }}</span>
+							<span class="detail-label">Status:</span>
+							<span class="detail-value">{{ viewingEmployee.status }}</span>
 						</div>
 						<div class="detail-item">
 							<span class="detail-label">Salary:</span>
-							<span class="detail-value">${{ formatNumber(viewingEmployee.salary) }}</span>
+							<span class="detail-value">{{ viewingEmployee.salary ? `₹${formatNumber(viewingEmployee.salary)}` : '-' }}</span>
 						</div>
 						<div class="detail-item">
 							<span class="detail-label">Payment Type:</span>
-							<span class="detail-value">{{ viewingEmployee.payment_type }}</span>
+							<span class="detail-value">{{ viewingEmployee.payment_type || '-' }}</span>
+						</div>
+						<div class="detail-item">
+							<span class="detail-label">Joined:</span>
+							<span class="detail-value">{{ formatDate(viewingEmployee.joined_at) }}</span>
 						</div>
 					</div>
 
-					<div v-if="viewingEmployee.address" class="detail-section">
+					<div v-if="viewingEmployee.address?.length" class="detail-section">
 						<h4>Address</h4>
-						<p>{{ viewingEmployee.address }}</p>
-						<p v-if="viewingEmployee.city || viewingEmployee.state">
-							{{ viewingEmployee.city }}{{ viewingEmployee.city && viewingEmployee.state ? ', ' : ''
-							}}{{ viewingEmployee.state }} {{ viewingEmployee.postal_code }}
-						</p>
-						<p v-if="viewingEmployee.country">{{ viewingEmployee.country }}</p>
+						<div v-for="addr in viewingEmployee.address" :key="addr.id">
+							<p>{{ addr.address_line_1 }}</p>
+							<p v-if="addr.address_line2">{{ addr.address_line2 }}</p>
+							<p v-if="addr.city || addr.state">
+								{{ addr.city }}{{ addr.city && addr.state ? ', ' : '' }}{{ addr.state }} {{ addr.zip_code }}
+							</p>
+							<p v-if="addr.country">{{ addr.country }}</p>
+						</div>
 					</div>
 
 					<div v-if="viewingEmployee.notes" class="detail-section">
@@ -260,13 +274,11 @@ const queryParams = computed(() => {
 
 // Headers
 const tableHeaders = [
-	{ key: 'employee_id', label: 'Employee ID' },
 	{ key: 'full_name', label: 'Name' },
 	{ key: 'email', label: 'Email' },
 	{ key: 'phone', label: 'Phone' },
 	{ key: 'role', label: 'Role' },
-	{ key: 'department', label: 'Department' },
-	{ key: 'join_date', label: 'Join Date' },
+	{ key: 'joined_at', label: 'Join Date' },
 	{ key: 'salary', label: 'Salary' },
 	{ key: 'status', label: 'Status' },
 ]
@@ -284,23 +296,46 @@ const loadData = async () => {
 			return
 		}
 
-		employees.value = (response?.data?.items || []).map((emp, i) => ({
-			...emp.user,
-			...emp,
+		const rawItems = response?.data?.data?.items || response?.data?.items || []
+		employees.value = rawItems.map((emp, i) => ({
+			id: emp.id,
+			full_name: emp.user?.full_name || `${emp.user?.first_name || ''} ${emp.user?.last_name || ''}`.trim(),
+			first_name: emp.user?.first_name || '',
+			middle_name: emp.user?.middle_name || '',
+			last_name: emp.user?.last_name || '',
+			email: emp.user?.username || '',
+			phone: emp.user?.mobile_number || '',
+			dob: emp.user?.dob || '',
+			aadhar_number: emp.user?.aadhar_number || '',
+			pan_no: emp.user?.pan_no || '',
+			role: emp.role || '',
+			salary: emp.salary || 0,
+			payment_type: emp.payment_type || '',
+			status: emp.user?.is_active ? 'Active' : 'Inactive',
+			is_active: emp.user?.is_active,
+			joined_at: emp.joined_at || emp.created_at,
+			created_at: emp.created_at,
+			user_id: emp.user?.user_id || '',
+			image_url: emp.user?.image_url || '',
+			address: emp.user?.address || [],
 			index: (currentPage.value - 1) * itemsPerPage.value + i + 1,
 		}))
 
-		total_data.value = response?.data?.total || response?.data?.total_count || 0
+		const total = response?.data?.data?.items?.length || response?.data?.items?.length || 0
+		const hasMore = response?.data?.data?.has_more ?? false
+		total_data.value = hasMore ? (currentPage.value * itemsPerPage.value + 1) : (currentPage.value - 1) * itemsPerPage.value + total
 		pagination.value.total = total_data.value
-		pagination.value.total_pages = response?.data?.total_pages || 1
+		pagination.value.total_pages = hasMore ? currentPage.value + 1 : currentPage.value
 
-		if (response?.data?.stats) {
-			stats.value = {
-				total: response.data.stats.total || 0,
-				active: response.data.stats.active || 0,
-				inactive: response.data.stats.inactive || 0,
-				new_this_month: response.data.stats.new_this_month || 0,
-			}
+		stats.value = {
+			total: total_data.value,
+			active: employees.value.filter(e => e.is_active).length,
+			inactive: employees.value.filter(e => !e.is_active).length,
+			new_this_month: employees.value.filter(e => {
+				const d = new Date(e.joined_at)
+				const now = new Date()
+				return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+			}).length,
 		}
 	} catch (error) {
 		console.error('Failed to load employees:', error)

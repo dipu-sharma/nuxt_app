@@ -72,16 +72,12 @@
 		</template>
 
 		<template #item.role="{ value }">
-			<SharedStatusBadge :status="getRoleBadgeStatus(value)" :label="value" size="small" />
-		</template>
-
-		<template #item.department="{ value }">
-			<span class="department-tag">{{ value }}</span>
+			<SharedStatusBadge :status="getRoleBadgeStatus(value)" :label="value?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || ''" size="small" />
 		</template>
 
 		<template #item.status="{ value }">
 			<SharedStatusBadge
-				:status="value === 'Active' ? 'active' : value === 'Inactive' ? 'inactive' : 'pending'"
+				:status="value === 'Active' ? 'active' : 'inactive'"
 				:label="value"
 				size="small"
 			/>
@@ -92,7 +88,7 @@
 		</template>
 
 		<template #item.salary="{ value }">
-			<span class="salary-text">${{ formatNumber(value) }}</span>
+			<span class="salary-text">{{ value ? `₹${formatNumber(value)}` : '-' }}</span>
 		</template>
 
 		<template #item.phone="{ value }">
@@ -177,11 +173,10 @@ defineProps({
 
 // Table headers
 const headers = [
-	//{ key: 'employee_id', label: 'Employee ID', sortable: true },
 	{ key: 'full_name', label: 'Name', sortable: true },
-	{ key: 'role', label: 'Role', sortable: true },
-	{ key: 'department', label: 'Department', sortable: true },
+	{ key: 'email', label: 'Email', sortable: true },
 	{ key: 'phone', label: 'Phone', sortable: false },
+	{ key: 'role', label: 'Role', sortable: true },
 	{ key: 'joined_at', label: 'Join Date', sortable: true },
 	{ key: 'salary', label: 'Salary', sortable: true },
 	{ key: 'status', label: 'Status', sortable: true },
@@ -252,13 +247,22 @@ const getInitials = (firstName, lastName) => {
 
 const getRoleBadgeStatus = (role) => {
 	const roleMap = {
+		'owner': 'success',
+		'business_owner': 'success',
 		'BUSINESS_OWNER': 'success',
+		'business_member': 'default',
 		'BUSINESS_MEMBER': 'default',
+		'manager': 'success',
 		'BUSINESS_MANAGER': 'success',
+		'team_lead': 'info',
 		'TEAM_LEADE': 'info',
+		'senior_employee': 'warning',
 		'SENIOR_EMPLOYEE': 'warning',
-		'EMPLOYEE':'default',
+		'employee': 'default',
+		'EMPLOYEE': 'default',
+		'intern': 'warning',
 		'INTERN': 'warning',
+		'contractor': 'default',
 		'CONTRACTOR': 'default'
 	}
 	return roleMap[role] || 'default'

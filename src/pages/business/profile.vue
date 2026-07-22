@@ -4,7 +4,7 @@
       <div class="mb-8 border-b border-border pb-6"
         style="border-color: rgb(var(--color-border))">
         <div>
-          <h1 class="text-3xl font-semibold tracking-tight text-text mb-2">Admin Profile</h1>
+          <h1 class="text-3xl font-semibold tracking-tight text-text mb-2">My Profile</h1>
           <p class="text-text opacity-70 text-sm font-medium tracking-wide">
             Manage your personal profile details, contact information, and security preferences.
           </p>
@@ -38,7 +38,7 @@
         <div class="px-5 sm:px-8 pb-6 sm:pb-8">
           <div class="flex items-end gap-4 -mt-8 mb-6">
             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-4 border-card bg-secondary/50 flex items-center justify-center overflow-hidden shadow-xl flex-shrink-0">
-              <Icon name="mdi:shield-crown-outline" class="text-primary w-8 h-8 sm:w-10 sm:h-10" />
+              <Icon name="mdi:account-box-outline" class="text-primary w-8 h-8 sm:w-10 sm:h-10" />
             </div>
             <div class="pb-1">
               <h2 class="text-xl sm:text-2xl font-bold text-text">Profile Details</h2>
@@ -159,14 +159,13 @@
 <script setup>
 import { toast } from 'vue3-toastify'
 import { useAuthStore } from '~/stores/auth'
-import { useAdminUsers } from '~/composables/useAdminUsers'
 import { useProfile } from '~/composables/useProfile'
 
 definePageMeta({
-  title: 'Admin Profile',
-  description: 'Manage your admin profile',
+  title: 'My Profile',
+  description: 'Manage your personal profile',
   middleware: ['auth-role'],
-  role: ['ADMIN'],
+  role: ['BUSINESS_OWNER', 'BUSINESS_MEMBER'],
   layout: 'admin'
 })
 
@@ -196,19 +195,6 @@ const filterDigits = (val, maxLen) => {
 
 const loadProfile = async () => {
   try {
-    const { getAdminMe } = useAdminUsers()
-    const res = await getAdminMe()
-    if (res?.data) {
-      Object.assign(profileData.value, {
-        first_name: res.data.first_name || '',
-        last_name: res.data.last_name || '',
-        phone: res.data.phone || '',
-        username: res.data.username || '',
-        bio: res.data.bio || '',
-      })
-      authStore.addUser({ ...authStore.user, ...res.data })
-    }
-  } catch {
     const { getAuthMe } = useProfile()
     const res = await getAuthMe()
     if (res?.data) {
@@ -221,7 +207,7 @@ const loadProfile = async () => {
       })
       authStore.addUser({ ...authStore.user, ...res.data })
     }
-  }
+  } catch { }
 }
 
 const saveProfile = async () => {
@@ -233,8 +219,8 @@ const saveProfile = async () => {
   }
   saving.value = true
   try {
-    const { updateAdminMe } = useAdminUsers()
-    await updateAdminMe({
+    const { updateMe } = useProfile()
+    await updateMe({
       first_name: profileData.value.first_name,
       last_name: profileData.value.last_name,
       phone: profileData.value.phone,
@@ -255,8 +241,8 @@ const changePassword = async () => {
   if (pwdForm.value.new_password !== pwdForm.value.confirm) return toast.error('Passwords do not match')
   savingPwd.value = true
   try {
-    const { updateAdminMe } = useAdminUsers()
-    await updateAdminMe({ current_password: pwdForm.value.current, new_password: pwdForm.value.new_password })
+    const { updateMe } = useProfile()
+    await updateMe({ current_password: pwdForm.value.current, new_password: pwdForm.value.new_password })
     toast.success('Password changed!')
     pwdForm.value = { current: '', new_password: '', confirm: '' }
   } catch {

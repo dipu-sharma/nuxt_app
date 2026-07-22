@@ -198,7 +198,7 @@
 
 						<v-list class="p-2 space-y-1 overflow-hidden"
 							style="background-color: rgb(var(--color-background))">
-							<v-list-item to="/user?tab=profile"
+							<v-list-item :to="profileLink"
 								class="rounded-xl transition-all hover:bg-primary/10 hover:text-primary hover:translate-x-1"
 								active-class="bg-primary/10 text-primary">
 								<template v-slot:prepend>
@@ -269,6 +269,13 @@ const userInitial = computed(() => {
 	const u = authStore.user
 	if (!u) return 'U'
 	return (u.first_name?.[0] || u.username?.[0] || u.email?.[0] || 'U').toUpperCase()
+})
+
+const profileLink = computed(() => {
+	const role = authStore.role
+	if (role === 'ADMIN') return '/admin/profile'
+	if (role === 'BUSINESS_OWNER' || role === 'BUSINESS_MEMBER') return '/business/profile'
+	return '/user?tab=profile'
 })
 
 const onNotifMenuOpen = async (open) => {

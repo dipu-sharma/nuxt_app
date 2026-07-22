@@ -104,6 +104,11 @@ const allSidebarItems = {
 			path: '/admin/settings',
 			icon: 'mdi-cog-outline',
 		},
+		{
+			label: 'Profile',
+			path: '/admin/profile',
+			icon: 'mdi-account-outline',
+		},
 	],
 	BUSINESS_OWNER: [
 		{
@@ -151,6 +156,11 @@ const allSidebarItems = {
 			path: '/business/settings',
 			icon: 'mdi-cog-outline',
 		},
+		{
+			label: 'Profile',
+			path: '/business/profile',
+			icon: 'mdi-account-outline',
+		},
 	],
 	BUSINESS_MEMBER: [
 		{
@@ -182,6 +192,11 @@ const allSidebarItems = {
 			label: 'Employees',
 			path: '/business/employees',
 			icon: 'mdi-account-group-outline',
+		},
+		{
+			label: 'Profile',
+			path: '/business/profile',
+			icon: 'mdi-account-outline',
 		},
 	],
 }
