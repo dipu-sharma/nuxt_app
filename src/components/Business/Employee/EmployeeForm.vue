@@ -13,11 +13,6 @@
 						:rules="[rules.required]"
 					/>
 					<FormField
-						v-model="formData.middle_name"
-						label="Middle Name"
-						placeholder="Enter middle name"
-					/>
-					<FormField
 						v-model="formData.last_name"
 						label="Last Name"
 						placeholder="Enter last name"
@@ -30,17 +25,9 @@
 						v-model="formData.email"
 						type="email"
 						label="Email Address"
-						placeholder="employee@example.com"
+						placeholder="member@example.com"
 						:required="true"
 						:rules="[rules.required, rules.email]"
-					/>
-					<FormField
-						v-model="formData.phone"
-						type="tel"
-						label="Phone Number"
-						placeholder="10-digit number"
-						:required="true"
-						:rules="[rules.required]"
 					/>
 				</div>
 				<div class="form-row">
@@ -49,25 +36,6 @@
 						type="date"
 						label="Date of Birth"
 						placeholder="Select date"
-					/>
-				</div>
-			</div>
-
-			<!-- Identity Information -->
-			<div class="form-section full-width">
-				<h4 class="section-title">Identity Information</h4>
-				<div class="form-row">
-					<FormField
-						v-model="formData.aadhar_number"
-						label="Aadhar Number"
-						placeholder="12-digit Aadhar number"
-						maxlength="12"
-					/>
-					<FormField
-						v-model="formData.pan_no"
-						label="PAN Number"
-						placeholder="PAN number"
-						maxlength="10"
 					/>
 				</div>
 			</div>
@@ -116,51 +84,6 @@
 				</div>
 			</div>
 
-			<!-- Address Information -->
-			<div class="form-section full-width">
-				<h4 class="section-title">Address Information</h4>
-				<label class="update-address-toggle">
-					<input type="checkbox" v-model="updateAddress" />
-					Update Address
-				</label>
-				<div v-if="updateAddress">
-					<FormField
-						v-model="formData.address_line_1"
-						label="Address Line 1"
-						placeholder="House, Flat no, Building, Street"
-					/>
-					<FormField
-						v-model="formData.address_line_2"
-						label="Address Line 2 (optional)"
-						placeholder="Apartment, Colony, Area, Landmark"
-					/>
-					<div class="form-row">
-						<FormField
-							v-model="formData.city"
-							label="City"
-							placeholder="Enter city"
-						/>
-						<FormField
-							v-model="formData.state"
-							label="State"
-							placeholder="Enter state"
-						/>
-					</div>
-					<div class="form-row">
-						<FormField
-							v-model="formData.country"
-							label="Country"
-							placeholder="India"
-						/>
-						<FormField
-							v-model="formData.zip_code"
-							label="Pincode"
-							placeholder="6-digit pincode"
-							maxlength="6"
-						/>
-					</div>
-				</div>
-			</div>
 		</div>
 
 		<!-- Form Actions -->
@@ -179,7 +102,7 @@
 				:disabled="saving"
 			>
 				<Icon v-if="saving" name="mdi:loading" class="spin" />
-				<span>{{ saving ? 'Saving...' : (editMode ? 'Update Employee' : 'Create Employee') }}</span>
+				<span>{{ saving ? 'Saving...' : (editMode ? 'Update Member' : 'Create Member') }}</span>
 			</button>
 		</div>
 	</form>
@@ -229,8 +152,8 @@ const roleOptions = [
 	{ value: 'business_member', label: 'Member' },
 	{ value: 'manager', label: 'Manager' },
 	{ value: 'team_lead', label: 'Team Lead' },
-	{ value: 'senior_employee', label: 'Senior Employee' },
-	{ value: 'employee', label: 'Employee' },
+	{ value: 'senior_employee', label: 'Senior Member' },
+	{ value: 'employee', label: 'Member' },
 	{ value: 'intern', label: 'Intern' },
 	{ value: 'contractor', label: 'Contractor' }
 ]
@@ -259,42 +182,26 @@ const handleSubmit = async () => {
 	try {
 		const payload = {
 			first_name: formData.value.first_name,
-			middle_name: formData.value.middle_name || null,
 			last_name: formData.value.last_name,
 			email: formData.value.email,
-			mobile_number: formData.value.phone || null,
-			dob: formData.value.dob || null,
-			aadhar_number: formData.value.aadhar_number || null,
-			pan_no: formData.value.pan_no || null,
 			role: formData.value.role,
 			salary: formData.value.salary ? Number(formData.value.salary) : null,
 			payment_type: formData.value.payment_type || null,
-		}
-
-		if (updateAddress.value) {
-			payload.address = {
-				address_line_1: formData.value.address_line_1,
-				address_line_2: formData.value.address_line_2 || null,
-				city: formData.value.city,
-				state: formData.value.state,
-				country: formData.value.country || 'India',
-				zip_code: formData.value.zip_code,
-				is_default: true,
-			}
+			dob: formData.value.dob || null,
 		}
 
 		if (editMode.value) {
 			await updateEmployee(props.employee.id, payload)
-			toast.success('Employee updated successfully.')
+			toast.success('Member updated successfully.')
 		} else {
 			await createEmployee(payload)
-			toast.success('Employee created successfully.')
+			toast.success('Member created successfully.')
 		}
 
 		emit('submit')
 	} catch (error) {
-		console.error('Error saving employee:', error)
-		toast.error(error?.response?.data?.message || 'Failed to save employee')
+		console.error('Error saving member:', error)
+		toast.error(error?.response?.data?.message || 'Failed to save member')
 	} finally {
 		saving.value = false
 	}

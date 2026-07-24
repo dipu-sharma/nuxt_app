@@ -137,8 +137,8 @@ const allSidebarItems = {
 			icon: 'mdi-cart-outline',
 		},
 		{
-			label: 'Employees',
-			path: '/business/employees',
+			label: 'Members',
+			path: '/business/members',
 			icon: 'mdi-account-group-outline',
 		},
 		{
@@ -189,8 +189,8 @@ const allSidebarItems = {
 			icon: 'mdi-cart-outline',
 		},
 		{
-			label: 'Employees',
-			path: '/business/employees',
+			label: 'Members',
+			path: '/business/members',
 			icon: 'mdi-account-group-outline',
 		},
 		{

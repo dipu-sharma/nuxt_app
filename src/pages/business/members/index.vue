@@ -3,13 +3,14 @@
 		<!-- Page Header -->
 		<div class="page-header">
 			<div class="header-content">
-				<p class="page-subtitle">Manage your team and track employee information</p>
+				<p class="page-subtitle">Manage your team and track member information</p>
 			</div>
 			<div class="header-actions">
 				<button @click="filterStore.toggleFilterSidebar()" class="btn btn-secondary">
-					<Icon name="mdi:filter" />
+					<Icon name="mdi:filter-variant" />
+					<span>Filters</span>
 				</button>
-				<SharedExportButton :data="items" :headers="tableHeaders" filename="all_employees" format="excel" />
+				<SharedExportButton :data="items" :headers="tableHeaders" filename="all_members" format="excel" />
 				<button @click="openAddDialog" class="btn btn-primary">
 					<Icon name="mdi:plus" />
 					<!-- <span>Add Employee</span> -->
@@ -20,7 +21,7 @@
 		<!-- Stats Cards -->
 		<div class="stats-grid">
 			<SharedStatsCard
-				title="Total Employees"
+				title="Total Members"
 				:value="stats.total || 0"
 				icon="mdi:account-group"
 				icon-color="#3B82F6"
@@ -28,7 +29,7 @@
 				subtitle="Active workforce"
 			/>
 			<SharedStatsCard
-				title="Active Employees"
+				title="Active Members"
 				:value="stats.active || 0"
 				icon="mdi:account-check"
 				icon-color="#10B981"
@@ -36,7 +37,7 @@
 				subtitle="Currently working"
 			/>
 			<SharedStatsCard
-				title="Inactive Employees"
+				title="Inactive Members"
 				:value="stats.inactive || 0"
 				icon="mdi:account-off"
 				icon-color="#EF4444"
@@ -74,7 +75,7 @@
 		<!-- Add/Edit Dialog -->
 		<Dialog
 			v-model="showFormDialog"
-			:title="editingEmployee ? 'Edit Employee' : 'Add New Employee'"
+			:title="editingEmployee ? 'Edit Member' : 'Add New Member'"
 			maxWidth="900px"
 			:show-button="false"
 		>
@@ -84,7 +85,7 @@
 		</Dialog>
 
 		<!-- View Dialog -->
-		<Dialog v-model="showViewDialog" title="Employee Details" maxWidth="700px" :show-button="false">
+		<Dialog v-model="showViewDialog" title="Member Details" maxWidth="700px" :show-button="false">
 			<template #content>
 				<div v-if="viewingEmployee" class="employee-details">
 					<div class="detail-header">
@@ -176,11 +177,11 @@
 					<div class="detail-actions">
 						<button @click="editFromView" class="btn btn-primary">
 							<Icon name="mdi:pencil" />
-							<span>Edit Employee</span>
+							<span>Edit Member</span>
 						</button>
 						<button @click="handleDelete(viewingEmployee)" class="btn btn-danger">
 							<Icon name="mdi:delete" />
-							<span>Delete Employee</span>
+							<span>Delete Member</span>
 						</button>
 					</div>
 				</div>
@@ -190,7 +191,7 @@
 		<!-- Delete Confirmation Dialog -->
 		<Dialog
 			v-model="showDeleteDialog"
-			title="Delete Employee?"
+			title="Delete Member?"
 			maxWidth="400px"
 			buttonText="Delete"
 			@confirm="confirmDelete"
@@ -198,7 +199,7 @@
 			<template #content>
 				<div class="confirm-dialog">
 					<Icon name="mdi:alert-circle-outline" class="confirm-icon" />
-					<p>Are you sure you want to delete this employee? This action cannot be undone.</p>
+					<p>Are you sure you want to delete this member? This action cannot be undone.</p>
 				</div>
 			</template>
 		</Dialog>
@@ -214,7 +215,7 @@ import { toast } from 'vue3-toastify'
 import { handleAxiosError } from '~/utils/ErrorHandle/error'
 
 definePageMeta({
-	title: 'Employees',
+	title: 'Members',
 	middleware: 'auth-role',
 	layout: 'admin',
 })
@@ -298,10 +299,9 @@ const loadData = async () => {
 
 		const rawItems = response?.data?.data?.items || response?.data?.items || []
 		employees.value = rawItems.map((emp, i) => ({
-			id: emp.id,
+			id: emp.member_id || emp.id,
 			full_name: emp.user?.full_name || `${emp.user?.first_name || ''} ${emp.user?.last_name || ''}`.trim(),
 			first_name: emp.user?.first_name || '',
-			middle_name: emp.user?.middle_name || '',
 			last_name: emp.user?.last_name || '',
 			email: emp.user?.username || '',
 			phone: emp.user?.mobile_number || '',
@@ -311,8 +311,8 @@ const loadData = async () => {
 			role: emp.role || '',
 			salary: emp.salary || 0,
 			payment_type: emp.payment_type || '',
-			status: emp.user?.is_active ? 'Active' : 'Inactive',
-			is_active: emp.user?.is_active,
+			status: emp.status || 'Active',
+			is_active: emp.status === 'Active' || emp.status === 'ACTIVE',
 			joined_at: emp.joined_at || emp.created_at,
 			created_at: emp.created_at,
 			user_id: emp.user?.user_id || '',
@@ -416,14 +416,14 @@ const confirmDelete = async () => {
 }
 
 const handleBulkDelete = async (emps) => {
-	if (confirm(`Delete ${emps.length} employees?`)) {
+	if (confirm(`Delete ${emps.length} members?`)) {
 		const employeeIds = emps.map((emp) => emp.id)
 		try {
 			await bulkDelete(employeeIds)
-			toast.success(`${employeeIds.length} employees deleted`)
+			toast.success(`${employeeIds.length} members deleted`)
 			await fetchData()
 		} catch (error) {
-			toast.error('Failed to delete employees')
+			toast.error('Failed to delete members')
 		}
 	}
 }
@@ -431,10 +431,10 @@ const handleBulkDelete = async (emps) => {
 const handleBulkUpdate = async ({ employeeIds, updates }) => {
 	try {
 		await bulkUpdate(employeeIds, updates)
-		toast.success(`${employeeIds.length} employees updated`)
+		toast.success(`${employeeIds.length} members updated`)
 		await loadData()
 	} catch (error) {
-		toast.error('Failed to update employees')
+		toast.error('Failed to update members')
 	}
 }
 

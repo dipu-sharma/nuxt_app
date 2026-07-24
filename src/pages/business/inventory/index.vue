@@ -924,10 +924,45 @@
 								@input="supplierForm.phone = filterDigits(supplierForm.phone, 10)"
 								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
 						</div>
+						<!-- Address Line 1 -->
 						<div>
-							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Address</label>
-							<input v-model="supplierForm.address" placeholder="e.g. 123 Supplier Street, New Delhi" maxlength="255" pattern="[^\s].*" title="Cannot start with a space"
+							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Address Line 1</label>
+							<input v-model="supplierForm.address_line_1" placeholder="e.g. 123 Supplier Street" maxlength="255" pattern="[^\s].*" title="Cannot start with a space"
 								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+						</div>
+						<!-- Address Line 2 -->
+						<div>
+							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Address Line 2 (Optional)</label>
+							<input v-model="supplierForm.address_line_2" placeholder="e.g. Building 4, Suite 200" maxlength="255" pattern="[^\s].*" title="Cannot start with a space"
+								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+						</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<!-- City -->
+							<div>
+								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">City</label>
+								<input v-model="supplierForm.city" placeholder="e.g. New Delhi" maxlength="255" pattern="[^\s].*" title="Cannot start with a space"
+									class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+							</div>
+							<!-- State -->
+							<div>
+								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">State</label>
+								<input v-model="supplierForm.state" placeholder="e.g. Delhi" maxlength="255" pattern="[^\s].*" title="Cannot start with a space"
+									class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+							</div>
+						</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<!-- Country -->
+							<div>
+								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Country</label>
+								<input v-model="supplierForm.country" placeholder="e.g. India" maxlength="255" pattern="[^\s].*" title="Cannot start with a space"
+									class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+							</div>
+							<!-- Zip Code -->
+							<div>
+								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Pincode</label>
+								<input v-model="supplierForm.zip_code" placeholder="e.g. 110001" maxlength="255" pattern="[^\s].*" title="Cannot start with a space"
+									class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
+							</div>
 						</div>
 						<div class="flex gap-4 pt-6 border-t border-border" style="border-color: rgb(var(--color-border))">
 							<v-btn variant="text" size="large" class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full" @click="showSupplierModal = false">
@@ -1594,7 +1629,18 @@ const onBranchFilterChange = () => {}
 // ─── Modal / Action Handlers ──────────────────────────────────────────────────
 const openSupplierModal = () => {
 	editingSupplierId.value = null
-	supplierForm.value = { name: '', email: '', phone: '', contact_person: '', address: '' }
+	supplierForm.value = { 
+		name: '', 
+		email: '', 
+		phone: '', 
+		contact_person: '', 
+		address_line_1: '',
+		address_line_2: '',
+		city: '',
+		state: '',
+		country: 'India',
+		zip_code: ''
+	}
 	showSupplierModal.value = true
 }
 
@@ -1605,7 +1651,12 @@ const openEditSupplierModal = (s) => {
 		email: s.email || '',
 		phone: s.phone || '',
 		contact_person: s.contact_person || '',
-		address: s.address || ''
+		address_line_1: s.address?.address_line_1 || '',
+		address_line_2: s.address?.address_line_2 || '',
+		city: s.address?.city || '',
+		state: s.address?.state || '',
+		country: s.address?.country || 'India',
+		zip_code: s.address?.zip_code || ''
 	}
 	showSupplierModal.value = true
 }
@@ -1620,7 +1671,18 @@ const saveSupplier = async () => {
 			email: supplierForm.value.email || null,
 			phone: supplierForm.value.phone || null,
 			contact_person: supplierForm.value.contact_person || null,
-			address: supplierForm.value.address || null
+			address: supplierForm.value.address_line_1 ? {
+				address_line_1: supplierForm.value.address_line_1,
+				address_line_2: supplierForm.value.address_line_2 || '',
+				country: supplierForm.value.country || 'India',
+				state: supplierForm.value.state || '',
+				city: supplierForm.value.city || '',
+				zip_code: supplierForm.value.zip_code || '',
+				is_default: false,
+				is_billing: false,
+				is_work: true,
+				label: 'Warehouse'
+			} : null
 		}
 		if (editingSupplierId.value) {
 			await updateSupplier(editingSupplierId.value, payload)

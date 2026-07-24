@@ -4,7 +4,7 @@
 		:items="employees"
 		:item-key="'id'"
 		:searchable="true"
-		search-placeholder="Search employees by name, email, or department..."
+		search-placeholder="Search members by name, email, or department..."
 		:selectable="true"
 		:paginate="true"
 		:items-per-page-prop="perPage"
@@ -24,7 +24,7 @@
 		<template #header-actions>
 			<button @click="$emit('add-employee')" class="btn btn-primary">
 				<Icon name="mdi:plus" />
-				<span>Add Employee</span>
+				<span>Add Member</span>
 			</button>
 		</template>
 
@@ -45,7 +45,7 @@
 			<SharedExportButton
 				:data="selected"
 				:headers="headers"
-				filename="selected_employees"
+				filename="selected_members"
 				format="excel"
 				variant="secondary"
 			/>
@@ -126,10 +126,10 @@
 		<template #empty>
 			<div class="empty-state">
 				<Icon name="mdi:account-off-outline" class="empty-icon" />
-				<p>No employees found</p>
+				<p>No members found</p>
 				<button @click="$emit('add-employee')" class="btn btn-primary">
 					<Icon name="mdi:plus" />
-					<span>Add Your First Employee</span>
+					<span>Add Your First Member</span>
 				</button>
 			</div>
 		</template>
