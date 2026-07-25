@@ -471,6 +471,20 @@ const businessForm = ref({
 	}
 })
 
+const { fetchCityState } = usePincode()
+
+watch(() => businessForm.value.address.zip_code, async (newVal) => {
+	if (newVal && newVal.length === 6) {
+		const details = await fetchCityState(newVal)
+		if (details) {
+			businessForm.value.address.city = details.city
+			businessForm.value.address.state = details.state
+			if (!businessForm.value.address.address_line_1) businessForm.value.address.address_line_1 = details.address_1
+			if (!businessForm.value.address.address_line_2) businessForm.value.address.address_line_2 = details.address_2
+		}
+	}
+})
+
 const generalForm = ref({ timezone: 'Asia/Kolkata', date_format: 'DD/MM/YYYY', language: 'en', currency_display: 'INR' })
 const taxForm = ref({
 	tax_inclusive_pricing: false,

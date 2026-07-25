@@ -2,7 +2,6 @@
   <div>
     <div class="flex items-center justify-between mb-6">
       <p class="text-text opacity-60 text-base font-medium tracking-wide">{{ total }} invoices total</p>
-      <v-btn color="primary" prepend-icon="mdi:plus" rounded="pill" @click="openCreate" class="text-none tracking-widest font-medium text-white shadow-lg">New Invoice</v-btn>
     </div>
 
     <v-card rounded="xl">
@@ -19,63 +18,9 @@
           <template #item.created_at="{ item }">
             {{ formatDate(item.created_at) }}
           </template>
-          <template #item.actions="{ item }">
-            <v-btn icon size="small" variant="text" @click="openEdit(item)">
-              <Icon name="mdi:pencil-outline" />
-            </v-btn>
-            <v-btn icon size="small" variant="text" color="error" @click="confirmDelete(item)">
-              <Icon name="mdi:trash-can-outline" />
-            </v-btn>
-          </template>
         </v-data-table>
       </v-card>
     </div>
-
-    <!-- Create/Edit Dialog -->
-    <v-dialog v-model="dialog" max-width="540">
-      <v-card rounded="xl" class="pa-6">
-        <h2 class="text-xl font-bold mb-4">{{ editing ? 'Edit' : 'New' }} Invoice</h2>
-        <v-form @submit.prevent="save">
-          <v-row>
-            <v-col cols="12" sm="6">
-              <v-text-field v-model="form.title" label="Invoice Title" variant="outlined" rounded="lg"
-                :rules="[isRequired]" />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-text-field v-model.number="form.amount" label="Amount (₹)" type="number"
-                variant="outlined" rounded="lg" prefix="₹" :rules="[isPositive]" />
-            </v-col>
-            <v-col cols="12">
-              <v-select v-model="form.status" :items="['draft','sent','paid','overdue','cancelled']"
-                label="Status" variant="outlined" rounded="lg" />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-text-field v-model="form.due_date" label="Due Date" type="date" variant="outlined" rounded="lg" />
-            </v-col>
-            <v-col cols="12">
-              <v-textarea v-model="form.notes" label="Notes" variant="outlined" rounded="lg" rows="3" />
-            </v-col>
-          </v-row>
-          <div class="flex gap-3 justify-end mt-2">
-            <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
-            <v-btn color="primary" type="submit" :loading="saving">{{ editing ? 'Update' : 'Create' }}</v-btn>
-          </div>
-        </v-form>
-      </v-card>
-    </v-dialog>
-
-    <!-- Delete Confirm -->
-    <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card rounded="xl" class="pa-6 text-center">
-        <Icon name="mdi:receipt-text-remove" class="w-16 h-16 text-red-500 mx-auto mb-4" />
-        <h3 class="font-bold text-lg mb-2">Delete Invoice?</h3>
-        <p class="text-slate-500 mb-5">This invoice will be permanently deleted.</p>
-        <div class="flex gap-3 justify-center">
-          <v-btn variant="outlined" @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="error" :loading="deleting" @click="doDelete">Delete</v-btn>
-        </div>
-      </v-card>
-    </v-dialog>
 </template>
 
 <script setup>
@@ -85,16 +30,8 @@ import dayjs from 'dayjs'
 definePageMeta({ title: 'My Invoices', middleware: ['auth-role'], layout: 'user' })
 
 const loading = ref(false)
-const saving = ref(false)
-const deleting = ref(false)
-const dialog = ref(false)
-const deleteDialog = ref(false)
-const editing = ref(null)
-const deletingItem = ref(null)
 const invoices = ref([])
 const total = ref(0)
-
-const form = ref({ title: '', amount: 0, status: 'draft', due_date: '', notes: '' })
 
 const headers = [
   { title: 'Invoice #', key: 'invoice_number' },
@@ -103,7 +40,6 @@ const headers = [
   { title: 'Status', key: 'status' },
   { title: 'Due Date', key: 'due_date' },
   { title: 'Created', key: 'created_at' },
-  { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]
 
 const statusColor = (s) => ({
@@ -123,39 +59,6 @@ const fetch = async () => {
   finally { loading.value = false }
 }
 
-const openCreate = () => {
-  editing.value = null
-  form.value = { title: '', amount: 0, status: 'draft', due_date: '', notes: '' }
-  dialog.value = true
-}
-
-const openEdit = (item) => {
-  editing.value = item
-  form.value = { title: item.title, amount: item.amount, status: item.status, due_date: item.due_date, notes: item.notes }
-  dialog.value = true
-}
-
-const save = async () => {
-  saving.value = true
-  try {
-    const { createInvoice, updateInvoice } = useInvoices()
-    if (editing.value) { await updateInvoice(editing.value.id, form.value); toast.success('Invoice updated!') }
-    else { await createInvoice(form.value); toast.success('Invoice created!') }
-    dialog.value = false; fetch()
-  } catch { toast.error('Failed to save invoice') }
-  finally { saving.value = false }
-}
-
-const confirmDelete = (item) => { deletingItem.value = item; deleteDialog.value = true }
-const doDelete = async () => {
-  deleting.value = true
-  try {
-    const { deleteInvoice } = useInvoices()
-    await deleteInvoice(deletingItem.value.id)
-    toast.success('Invoice deleted!'); deleteDialog.value = false; fetch()
-  } catch { toast.error('Failed to delete invoice') }
-  finally { deleting.value = false }
-}
-
 onMounted(fetch)
 </script>
+

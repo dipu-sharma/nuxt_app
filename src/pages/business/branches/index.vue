@@ -130,6 +130,7 @@ import { useAuthStore } from '~/stores/auth'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useValidation } from '~/composables/useValidation'
 import { noLeadingSpace, isPhone, isPincode, filterDigits } from '~/utils/validations'
+import { usePincode } from '~/composables/usePincode'
 
 definePageMeta({ title: 'Branch Management', middleware: ['auth-role'], layout: 'admin', role: ['ADMIN', 'BUSINESS_OWNER', 'BUSINESS_MEMBER'] })
 
@@ -170,6 +171,20 @@ const getInitialForm = () => ({
 })
 
 const form = ref(getInitialForm())
+
+const { fetchCityState } = usePincode()
+
+watch(() => form.value.postal_code, async (newVal) => {
+  if (newVal && newVal.length === 6) {
+    const details = await fetchCityState(newVal)
+    if (details) {
+      form.value.city = details.city
+      form.value.state = details.state
+      if (!form.value.address) form.value.address = details.address_1
+      if (!form.value.address_line_2) form.value.address_line_2 = details.address_2
+    }
+  }
+})
 
 // Business selector state for ADMIN
 const isAdmin = computed(() => authStore.role === 'ADMIN' || authStore.role === 'SUPERADMIN')

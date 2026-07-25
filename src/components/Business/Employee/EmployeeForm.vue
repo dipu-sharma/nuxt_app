@@ -122,6 +122,7 @@ const props = defineProps({
 
 const emit = defineEmits(['submit', 'cancel'])
 const { createEmployee, updateEmployee } = useEmployees()
+const { fetchCityState } = usePincode()
 
 const saving = ref(false)
 const editMode = ref(false)
@@ -146,6 +147,18 @@ const formData = ref({
 	state: '',
 	country: 'India',
 	zip_code: '',
+})
+
+watch(() => formData.value.zip_code, async (newVal) => {
+	if (newVal && newVal.length === 6) {
+		const details = await fetchCityState(newVal)
+		if (details) {
+			formData.value.city = details.city
+			formData.value.state = details.state
+			if (!formData.value.address_line_1) formData.value.address_line_1 = details.address_1
+			if (!formData.value.address_line_2) formData.value.address_line_2 = details.address_2
+		}
+	}
 })
 
 const roleOptions = [

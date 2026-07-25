@@ -365,6 +365,7 @@ import { useOrders } from '~/composables/useOrders'
 import { useCart } from '~/composables/useCart'
 import { useWishlist } from '~/composables/useWishlist'
 import { useAddress } from '~/composables/useAddress'
+import { usePincode } from '~/composables/usePincode'
 
 definePageMeta({
   title: 'User Dashboard',
@@ -418,6 +419,20 @@ const profileData = ref({
 
 const addressForm = ref({ address_line1: '', address_line2: '', city: '', state: '', country: 'India', pincode: '', is_default: false, latitude: null, longitude: null })
 const pwdForm = ref({ current: '', new_password: '', confirm: '' })
+
+const { fetchCityState, loadingPincode } = usePincode()
+
+watch(() => addressForm.value.pincode, async (newVal) => {
+  if (newVal && newVal.length === 6) {
+    const details = await fetchCityState(newVal)
+    if (details) {
+      addressForm.value.city = details.city
+      addressForm.value.state = details.state
+      if (!addressForm.value.address_line1) addressForm.value.address_line1 = details.address_1
+      if (!addressForm.value.address_line2) addressForm.value.address_line2 = details.address_2
+    }
+  }
+})
 
 const orderItems = computed(() => selectedOrder.value?.items || selectedOrder.value?.order_items || [])
 const orderSubtotal = computed(() => selectedOrder.value?.subtotal || selectedOrder.value?.total_price || 0)

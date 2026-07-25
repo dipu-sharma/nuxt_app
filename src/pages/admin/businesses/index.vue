@@ -466,6 +466,7 @@
 
 <script setup>
 import { toast } from 'vue3-toastify'
+import { usePincode } from '~/composables/usePincode'
 
 definePageMeta({
 	title: 'Business Management',
@@ -516,6 +517,20 @@ const getInitialForm = () => ({
 })
 
 const createForm = ref(getInitialForm())
+
+const { fetchCityState } = usePincode()
+
+watch(() => createForm.value.address.zip_code, async (newVal) => {
+  if (newVal && newVal.length === 6) {
+    const details = await fetchCityState(newVal)
+    if (details) {
+      createForm.value.address.city = details.city
+      createForm.value.address.state = details.state
+      if (!createForm.value.address.address_line_1) createForm.value.address.address_line_1 = details.address_1
+      if (!createForm.value.address.address_line_2) createForm.value.address.address_line_2 = details.address_2
+    }
+  }
+})
 
 // View products state
 const showProductsModal = ref(false)

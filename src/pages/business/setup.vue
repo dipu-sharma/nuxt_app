@@ -216,6 +216,7 @@ import { toast } from 'vue3-toastify'
 import { useAuthStore } from '~/stores/auth'
 import { useBusinessProfile } from '~/composables/useBusinessProfile'
 import { useValidation } from '~/composables/useValidation'
+import { usePincode } from '~/composables/usePincode'
 
 definePageMeta({
 	title: 'Business Setup',
@@ -246,6 +247,21 @@ const form = ref({
 		state: '',
 		country: 'India',
 		zip_code: ''
+	}
+})
+
+const { fetchCityState } = usePincode()
+
+watch(() => form.value.address.zip_code, async (newVal) => {
+	if (newVal && newVal.length === 6) {
+		const details = await fetchCityState(newVal)
+		if (details) {
+			form.value.address.city = details.city
+			form.value.address.state = details.state
+			if (!form.value.address.address_line_1) {
+				form.value.address.address_line_1 = [details.address_1, details.address_2].filter(Boolean).join(', ')
+			}
+		}
 	}
 })
 
