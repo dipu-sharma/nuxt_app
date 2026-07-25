@@ -58,12 +58,14 @@ onMounted(async () => {
 const redirectToRole = (userType) => {
 	const UserType = {
 		ADMIN: 'ADMIN',
+		SUPERADMIN: 'SUPERADMIN',
 		BUSINESS_OWNER: 'BUSINESS_OWNER',
 		BUSINESS_MEMBER: 'BUSINESS_MEMBER',
 		USER: 'USER',
 	}
-	switch (userType) {
+	switch (userType?.toUpperCase()) {
 		case UserType.ADMIN:
+		case UserType.SUPERADMIN:
 			router.push('/admin')
 			break
 		case UserType.BUSINESS_OWNER:

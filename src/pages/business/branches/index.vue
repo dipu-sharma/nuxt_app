@@ -172,7 +172,7 @@ const getInitialForm = () => ({
 const form = ref(getInitialForm())
 
 // Business selector state for ADMIN
-const isAdmin = computed(() => authStore.role === 'ADMIN')
+const isAdmin = computed(() => authStore.role === 'ADMIN' || authStore.role === 'SUPERADMIN')
 const businessesList = ref([])
 const selectedBusinessId = ref(null)
 

@@ -1628,7 +1628,7 @@ const { data: dropdownData } = await useAsyncData(
 
 		if (userBusinessId) {
 			params.business_id = userBusinessId
-		} else if (authStore.role === 'ADMIN') {
+		} else if (authStore.role === 'ADMIN' || authStore.role === 'SUPERADMIN') {
 			if (!cachedAdminBusinessId.value) {
 				try {
 					const { getBusinesses } = useAdminUsers()
@@ -1699,7 +1699,7 @@ const { data: tabResult, pending, refresh } = await useAsyncData(
 
 		if (userBusinessId) {
 			params.business_id = userBusinessId
-		} else if (authStore.role === 'ADMIN') {
+		} else if (authStore.role === 'ADMIN' || authStore.role === 'SUPERADMIN') {
 			if (cachedAdminBusinessId.value) {
 				params.business_id = cachedAdminBusinessId.value
 			}

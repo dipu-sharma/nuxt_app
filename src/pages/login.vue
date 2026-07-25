@@ -167,6 +167,7 @@ const loginform = ref({
 
 const UserType = {
 	ADMIN: 'ADMIN',
+	SUPERADMIN: 'SUPERADMIN',
 	BUSINESS_OWNER: 'BUSINESS_OWNER',
 	BUSINESS_MEMBER: 'BUSINESS_MEMBER',
 	USER: 'USER',
@@ -241,8 +242,9 @@ onMounted(() => {
 })
 
 const redirectToRole = (userType) => {
-	switch (userType) {
+	switch (userType?.toUpperCase()) {
 		case UserType.ADMIN:
+		case UserType.SUPERADMIN:
 			navigateTo('/admin')
 			break
 		case UserType.BUSINESS_OWNER:

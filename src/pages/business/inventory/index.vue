@@ -1453,7 +1453,7 @@ const { data: pageData, pending, refresh } = await useAsyncData(
 		
 		if (userBusinessId) {
 			params.business_id = userBusinessId
-		} else if (authStore.role === 'ADMIN') {
+		} else if (authStore.role === 'ADMIN' || authStore.role === 'SUPERADMIN') {
 			if (!cachedAdminBusinessId.value) {
 				try {
 					const { getBusinesses } = useAdminUsers()

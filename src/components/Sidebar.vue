@@ -202,7 +202,8 @@ const allSidebarItems = {
 }
 
 const filteredSidebarItems = computed(() => {
-	return allSidebarItems[role.value] || []
+	const currentRole = role.value === 'SUPERADMIN' ? 'ADMIN' : role.value
+	return allSidebarItems[currentRole] || []
 })
 
 function isActive(path) {

@@ -95,7 +95,14 @@ export default defineNuxtRouteMiddleware(async (to) => {
 	const rawRouteRoles = to.meta.roles || to.meta.role
 	if (rawRouteRoles && role.value) {
 		const routeRoles = Array.isArray(rawRouteRoles) ? rawRouteRoles : [rawRouteRoles]
-		const hasAccess = routeRoles.some((r) => typeof r === 'string' && r.toUpperCase() === role.value.toUpperCase())
+		const hasAccess = routeRoles.some((r) => {
+			if (typeof r !== 'string') return false
+			const reqRole = r.toUpperCase()
+			const userRole = role.value.toUpperCase()
+			if (reqRole === userRole) return true
+			if (userRole === 'SUPERADMIN' && reqRole === 'ADMIN') return true
+			return false
+		})
 		if (!hasAccess) {
 			return navigateTo('/403')
 		}
@@ -103,7 +110,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
 })
 
 function getRoleHome(role: string): string {
-	switch (role) {
+	switch (role?.toUpperCase()) {
+		case 'SUPERADMIN':
 		case 'ADMIN':
 			return '/admin'
 		case 'BUSINESS_OWNER':
@@ -117,7 +125,8 @@ function getRoleHome(role: string): string {
 }
 
 function getRolePathPrefix(role: string): string {
-	switch (role) {
+	switch (role?.toUpperCase()) {
+		case 'SUPERADMIN':
 		case 'ADMIN':
 			return '/admin'
 		case 'BUSINESS_OWNER':

@@ -273,7 +273,7 @@ const userInitial = computed(() => {
 
 const profileLink = computed(() => {
 	const role = authStore.role
-	if (role === 'ADMIN') return '/admin/profile'
+	if (role === 'ADMIN' || role === 'SUPERADMIN') return '/admin/profile'
 	if (role === 'BUSINESS_OWNER' || role === 'BUSINESS_MEMBER') return '/business/profile'
 	return '/user?tab=profile'
 })
