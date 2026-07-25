@@ -56,9 +56,7 @@
         </div>
         <div class="px-5 sm:px-8 pb-6 sm:pb-8">
           <div class="flex items-end gap-4 -mt-8 mb-6">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-4 border-card bg-secondary/50 flex items-center justify-center overflow-hidden shadow-xl flex-shrink-0">
-              <Icon name="mdi:account-box-outline" class="text-primary w-8 h-8 sm:w-10 sm:h-10" />
-            </div>
+            <ProfilePictureEditor placeholder-icon="mdi:account-box-outline" />
             <div class="pb-1">
               <h2 class="text-xl sm:text-2xl font-bold text-text">Profile Details</h2>
               <p class="text-xs text-text/50 mt-0.5">Keep your information up to date</p>

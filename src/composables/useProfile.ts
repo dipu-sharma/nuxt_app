@@ -20,7 +20,7 @@ export const useProfile = () => {
       return await api('/api/auth/me', { method: 'GET' })
     },
 
-    /** Upload profile image (multipart/form-data) */
+    /** Upload profile image (multipart/form-data) - Legacy */
     async uploadProfileImage(file: File) {
       const formData = new FormData()
       formData.append('file', file)
@@ -30,7 +30,7 @@ export const useProfile = () => {
         headers: { 'Content-Type': undefined as any }, // let browser set boundary
       })
     },
-    // Update profile image using PUT (multipart/form-data)
+    // Update profile image using PUT (multipart/form-data) - Legacy
     async updateProfileImage(file: File) {
       const formData = new FormData()
       formData.append('file', file)
@@ -44,6 +44,42 @@ export const useProfile = () => {
     /** Delete user profile */
     async deleteProfile() {
       return await api('/api/user/profile', { method: 'DELETE' })
+    },
+
+    // ==========================================
+    // NEW Profile Picture API Endpoints
+    // ==========================================
+    
+    /** Retrieve Profile Picture */
+    async getProfilePicture() {
+      return await api('/api/profile', { method: 'GET' })
+    },
+    
+    /** Initial Profile Picture Upload */
+    async uploadProfilePicture(file: File) {
+      const formData = new FormData()
+      formData.append('file', file)
+      return await api('/api/profile', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Content-Type': undefined as any },
+      })
+    },
+    
+    /** Update Profile Picture */
+    async updateProfilePicture(file: File) {
+      const formData = new FormData()
+      formData.append('file', file)
+      return await api('/api/profile', {
+        method: 'PUT',
+        body: formData,
+        headers: { 'Content-Type': undefined as any },
+      })
+    },
+    
+    /** Delete Profile Picture */
+    async deleteProfilePicture() {
+      return await api('/api/profile', { method: 'DELETE' })
     },
 
     /** Update user account details (email/username) */
