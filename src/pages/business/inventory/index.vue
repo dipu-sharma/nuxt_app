@@ -995,7 +995,7 @@
 									<select v-model="poForm.supplier_id" required
 										class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all appearance-none cursor-pointer">
 										<option value="" disabled>Select Supplier</option>
-										<option v-for="s in suppliers" :key="s.id" :value="s.id">{{ s.name }}</option>
+										<option v-for="s in suppliers" :key="s.id" :value="s.supplier_id">{{ s.name }}</option>
 									</select>
 									<div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text opacity-40">
 										<Icon name="mdi:chevron-down" class="w-5 h-5" />
@@ -1792,9 +1792,10 @@ const viewPO = async (po) => {
 	showPODetailsModal.value = true
 	loadingPODetails.value = true
 	selectedPOItems.value = []
+	const purchase_order_id = po.po_id || po.id
 	try {
 		const { getPurchaseOrderDetails } = useInventory()
-		const res = await getPurchaseOrderDetails(po.po_id || po.id)
+		const res = await getPurchaseOrderDetails(purchase_order_id)
 		selectedPOItems.value = res?.data?.items || res?.data || []
 	} catch (e) {
 		console.error(e)
@@ -1817,12 +1818,14 @@ const savePurchaseOrder = async () => {
 	try {
 		const { createPurchaseOrder, updatePurchaseOrder } = useInventory()
 		const payload = {
-			supplier_id: Number(poForm.value.supplier_id),
-			branch_id: Number(poForm.value.branch_id),
+			supplier_id: String(poForm.value.supplier_id),
+			branch_id: String(poForm.value.branch_id),
 			status: poForm.value.status,
-			expected_delivery_date: poForm.value.expected_delivery_date || null,
+			expected_delivery_date: poForm.expected_delivery_date
+				? `${poForm.expected_delivery_date}T00:00:00`
+				: null,
 			items: cleanItems.map(i => ({
-				product_id: Number(i.product_id),
+				product_id: String(i.product_id),
 				quantity: Number(i.quantity),
 				cost_per_unit: Number(i.cost_per_unit)
 			}))
