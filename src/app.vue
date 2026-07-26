@@ -7,9 +7,13 @@
 <script setup>
 import { useThemeStore } from '~/stores/themeStore'
 import { useThemeIntegration } from '~/composables/useThemeIntegration'
+import { useNotifications } from '~/composables/useNotifications'
 
 const themeStore = useThemeStore()
 useThemeIntegration()
+
+// Initialize real-time global websocket notifications
+useNotifications()
 
 useHead({
 	htmlAttrs: {

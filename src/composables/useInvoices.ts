@@ -17,5 +17,14 @@ export const useInvoices = () => {
     async deleteInvoice(id: string) {
       return await api(`/api/user/invoice/${id}`, { method: 'DELETE' })
     },
+    async getInvoiceTemplates() {
+      return await api('/api/user/invoice/templates', { method: 'GET' })
+    },
+    async downloadInvoicePDF(id: string) {
+      return await api(`/api/user/invoice/${id}/pdf`, { 
+        method: 'GET',
+        responseType: 'blob' 
+      })
+    }
   }
 }
