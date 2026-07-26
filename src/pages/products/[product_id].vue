@@ -315,7 +315,7 @@ const handleAddToCart = async () => {
 
 	addingToCart.value = true
 	try {
-		await cartStore.addProductToCart(product.value.product_id, 1)
+		await cartStore.addProductToCart(product.value.product_id || String(product.value.id), 1)
 	} catch (err) {
 		console.error('Add to cart failed:', err)
 	} finally {

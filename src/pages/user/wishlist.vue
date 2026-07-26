@@ -70,10 +70,10 @@ const removeItem = async (product_id) => {
 }
 
 const addToCart = async (item) => {
-  addingToCart.value = item.product_id
+  addingToCart.value = item.product_id || String(item.id)
   try {
     const { addToCart: doAdd } = useCart()
-    await doAdd(item.product_id, 1)
+    await doAdd(item.product_id || String(item.id), 1)
     toast.success(`${item.name} added to cart!`)
   } catch { toast.error('Failed to add to cart') }
   finally { addingToCart.value = null }

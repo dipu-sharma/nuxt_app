@@ -78,7 +78,7 @@
             </div>
 
             <!-- Add to Cart Button - Neon Gradient -->
-            <button v-if="cartStore.isInCart(product.product_id)"
+            <button v-if="cartStore.isInCart(product.product_id || String(product.id))"
               @click.stop="router.push('/user/cart')"
               class="relative w-full rounded-2xl py-3 text-xs font-extrabold uppercase tracking-widest transition-all duration-300 active:scale-95 flex justify-center items-center gap-2 overflow-hidden bg-primary/20 border border-primary/30">
               <span class="relative z-10 text-primary flex items-center gap-2">
@@ -86,7 +86,7 @@
                 In Cart
               </span>
             </button>
-            <button v-else @click.stop="handleAddToCart(String(product.product_id))"
+            <button v-else @click.stop="handleAddToCart(String(product.product_id || product.id))"
               class="neon-cart-btn relative w-full rounded-2xl py-3 text-xs font-extrabold uppercase tracking-widest transition-all duration-300 active:scale-95 flex justify-center items-center gap-2 overflow-hidden">
               <!-- Animated gradient background -->
               <div class="btn-gradient-bg absolute inset-0 rounded-2xl"></div>
@@ -157,7 +157,7 @@ const handleAddToCart = async (product_id) => {
 }
 
 const getDetails = (product_id) => {
-  router.push(`/products/${product_id}`)
+  router.push(`/products/${product_id || String(props.product?.id)}`)
 }
 </script>
 
