@@ -327,12 +327,12 @@
                   <label for="is_featured" class="text-sm font-semibold">Featured Showcase</label>
                 </div>
               </div>
-            </div>
 
-            <!-- Image Upload Block if editing -->
-            <div v-if="editingProduct" class="mb-6 p-6 bg-card border border-border rounded-[2rem] shadow-inner" style="border-color: rgb(var(--color-border))">
-              <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-4">Upload Catalog Images</label>
-              <ProductImageUpload :productId="editingProduct.id" @uploaded="onImageUploaded" />
+              <!-- Image Upload Block if editing -->
+              <div v-if="editingProduct" class="md:col-span-2 mt-4 p-6 bg-card border border-border rounded-[2rem] shadow-inner" style="border-color: rgb(var(--color-border))">
+                <label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-4">Upload Catalog Images</label>
+                <ProductImageUpload :productId="editingProduct.id" @uploaded="onImageUploaded" />
+              </div>
             </div>
 
             <!-- Form Actions -->
@@ -341,7 +341,7 @@
                 Cancel
               </v-btn>
               <v-btn color="primary" variant="flat" rounded="pill" size="large" class="flex-1 text-none tracking-widest font-medium text-white shadow-sm" :disabled="saving" type="submit">
-                {{ saving ? 'SAVING...' : (editingProduct ? 'SAVE CHANGES' : 'CREATE PRODUCT') }}
+                {{ saving ? 'SAVING...' : (editingProduct ? 'UPDATE' : 'CREATE PRODUCT') }}
               </v-btn>
             </div>
           </form>

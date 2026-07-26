@@ -112,7 +112,7 @@
             </div>
 
             <!-- Reset Filter Button -->
-            <button v-if="searchQuery || selectedCategory || amount_range[0] > 10 || amount_range[1] < 100000" @click="resetFilters"
+            <button v-if="searchQuery || selectedCategory || amount_range[0] > 1 || amount_range[1] < 100000" @click="resetFilters"
               class="w-full mt-6 py-3 rounded-xl text-sm font-bold bg-secondary/50 text-text/70 hover:bg-primary hover:text-white transition-all shadow-sm relative z-10">
               Reset Filters
             </button>
@@ -170,7 +170,7 @@ useSeoMeta({
 
 const { getPublicCategories, searchProducts } = useSearch()
 
-const amount_range = ref([10, 100000])
+const amount_range = ref([1, 100000])
 const selectedCategory = ref('')
 const searchQuery = ref('')
 
@@ -255,7 +255,7 @@ const filteredProducts = computed(() => {
 })
 
 const resetFilters = () => {
-  amount_range.value = [10, 100000]
+  amount_range.value = [1, 100000]
   selectedCategory.value = ''
   searchQuery.value = ''
 }

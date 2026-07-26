@@ -111,6 +111,7 @@
 <script setup>
 import FormField from '@/components/Shared/FormField.vue'
 import { useEmployees } from '~/composables/useEmployees'
+import { usePincode } from '~/composables/usePincode'
 import { toast } from 'vue3-toastify'
 
 const props = defineProps({

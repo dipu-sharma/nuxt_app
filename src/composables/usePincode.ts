@@ -20,8 +20,8 @@ export const usePincode = () => {
         return {
           city: postOffice.District || postOffice.Block || postOffice.Region || '',
           state: postOffice.State || '',
-          address_line1: postOffice.Name || '',
-          address_line2: postOffice.Block || postOffice.Division || postOffice.Circle || ''
+          address_1: postOffice.Name || '',
+          address_2: postOffice.Block || postOffice.Division || postOffice.Circle || ''
         }
       } else {
         toast.warning('Invalid pincode or details not found.')

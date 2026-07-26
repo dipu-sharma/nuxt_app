@@ -2033,8 +2033,8 @@ const debouncedProductSearch = useDebounceFn(searchProducts, 400)
 
 const selectProduct = (p) => {
 	selectedProd.value = p
-	stockForm.value.product_id = p.id || p.product_id
-	transferForm.value.product_id = p.id || p.product_id
+	stockForm.value.product_id = p.product_id || p.id
+	transferForm.value.product_id = p.product_id || p.id
 	toast.info(`Selected Product: ${p.product_name || p.name}`)
 }
 
@@ -2054,8 +2054,8 @@ const submitStockAdjust = async () => {
 	try {
 		const { adjustStock } = useInventory()
 		await adjustStock({
-			product_id: Number(stockForm.value.product_id),
-			branch_id: Number(stockForm.value.branch_id),
+			product_id: stockForm.value.product_id,
+			branch_id: stockForm.value.branch_id,
 			quantity: Number(stockForm.value.quantity),
 			adjustment_type: stockForm.value.adjustment_type === 'add' ? 'MANUAL' : 'DAMAGE',
 			reason: stockForm.value.reason || null
