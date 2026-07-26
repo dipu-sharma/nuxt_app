@@ -115,7 +115,8 @@ const loadOrders = async () => {
 
         const res = await getBusinessOrders(params)
         
-        data_table.value.items = (res?.data || []).map(o => ({
+        const items = res?.data?.items || (Array.isArray(res?.data) ? res.data : [])
+        data_table.value.items = items.map(o => ({
             id: o.order_id,
             customer: o.user ? `${o.user.first_name || ''} ${o.user.last_name || ''}`.trim() : `ID: ${o.user_id}`,
             amount: `₹${o.total_price?.toLocaleString('en-IN')}`,
@@ -123,7 +124,7 @@ const loadOrders = async () => {
             date: dayjs(o.created_at).format('MMM D, YYYY'),
             original: o
         }))
-        data_table.value.total_data = res?.total || res?.data?.length || 0
+        data_table.value.total_data = res?.data?.total || res?.data?.total_count || items.length || 0
 	} catch (err) {
         console.error(err)
 		toast.error('Failed to load orders')
