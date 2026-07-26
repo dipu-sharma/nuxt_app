@@ -97,6 +97,11 @@
             </div>
           </div>
         </div>
+        
+        <!-- Live Horizontal Order Tracker -->
+        <div class="mt-8 border-t border-border pt-4 px-2 md:px-8">
+            <OrderTracker :status="order.status.toUpperCase()" />
+        </div>
       </div>
 
       <!-- Pagination -->
@@ -243,6 +248,7 @@
 import { toast } from 'vue3-toastify'
 import dayjs from 'dayjs'
 import { useDebounceFn } from '@vueuse/core'
+import OrderTracker from '~/components/OrderTracker.vue'
 
 const loading = ref(false)
 const orders = ref([])

@@ -55,6 +55,35 @@
             ></v-select>
 		</template>
 	</Dialog>
+
+    <Dialog
+		v-model="isDetailsDialogVisible"
+		title="Order Tracking Details"
+		button-text="Close"
+		max-width="800px"
+        :showButton="true"
+        title_align="left"
+		@confirm="isDetailsDialogVisible = false"
+	>
+		<template #content>
+            <div v-if="detailsOrder" class="mb-4 space-y-4">
+                <div class="flex justify-between items-start bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Order ID: {{ detailsOrder.order_id }}</h3>
+                        <p class="text-sm text-gray-500">Placed on {{ dayjs(detailsOrder.created_at).format('MMM D, YYYY') }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500">Total Amount</p>
+                        <p class="text-lg font-bold text-primary">₹{{ detailsOrder.total_price?.toLocaleString('en-IN') }}</p>
+                    </div>
+                </div>
+                
+                <h3 class="text-lg font-bold px-2 border-b pb-2">Live Status Tracking</h3>
+                <!-- OrderTracker Component -->
+                <OrderTracker :status="detailsOrder.status" :history="detailsOrder.status_history || []" />
+            </div>
+		</template>
+	</Dialog>
 </template>
 
 <script setup>
@@ -62,6 +91,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { toast } from 'vue3-toastify'
 import { useFilterStore } from '~/stores/filterStore'
 import Dialog from '~/components/Dialog/Dialog.vue'
+import OrderTracker from '~/components/OrderTracker.vue'
 import { useOrders } from '~/composables/useOrders'
 import dayjs from 'dayjs'
 
@@ -80,8 +110,10 @@ const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const isLoading = ref(false)
 const isChangeStatusDialogVisible = ref(false)
+const isDetailsDialogVisible = ref(false)
 const selectedStatus = ref('PENDING')
 const selectedOrder = ref(null)
+const detailsOrder = ref(null)
 const searchQuery = ref('')
 
 const data_table = ref({
@@ -173,7 +205,8 @@ const updateOrderStatus = async () => {
 }
 
 const handleViewDetails = (order) => {
-	toast.info(`Viewing details for Order #${order.id}`)
+	detailsOrder.value = order.original
+    isDetailsDialogVisible.value = true
 }
 
 const exportToExcel = () => {
