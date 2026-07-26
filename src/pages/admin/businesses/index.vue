@@ -393,11 +393,25 @@
 			class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
 			<div class="rounded-2xl p-6 w-full max-w-4xl shadow-xl flex flex-col justify-between max-h-[85vh] overflow-hidden"
 				style="background-color: rgb(var(--color-card)); border: 1px solid rgb(var(--color-border))">
-				<div class="flex items-center justify-between mb-4 pb-2 border-b border-border">
-					<h2 class="text-xl font-bold text-text">Products of {{ selectedBiz?.business_name ||
-						selectedBiz?.name }}</h2>
+				<div class="flex items-start md:items-center justify-between mb-4 pb-2 border-b border-border flex-col md:flex-row gap-4">
+					<div class="flex items-center gap-4 flex-wrap w-full md:w-auto">
+						<h2 class="text-xl font-bold text-text">Products of {{ selectedBiz?.business_name || selectedBiz?.name }}</h2>
+						<v-select
+							v-model="selectedColumns"
+							:items="availableColumns"
+							item-title="title"
+							item-value="value"
+							multiple
+							chips
+							closable-chips
+							density="compact"
+							hide-details
+							placeholder="Select Columns"
+							class="min-w-[300px]"
+						></v-select>
+					</div>
 					<button @click="showProductsModal = false"
-						class="text-text opacity-70 hover:opacity-100 text-lg">✕</button>
+						class="text-text opacity-70 hover:opacity-100 text-lg md:self-start">✕</button>
 				</div>
 
 				<div class="overflow-y-auto flex-1 mb-4 pr-1">
@@ -407,30 +421,38 @@
 						No products found for this business.
 					</div>
 					<div v-else class="overflow-x-auto rounded-xl border border-border/50">
-						<table class="w-full text-sm">
+						<table class="w-full text-sm whitespace-nowrap">
 							<thead style="background-color: rgb(var(--color-background))">
 								<tr>
-									<th class="px-4 py-3 text-left font-semibold opacity-70">ID</th>
-									<th class="px-4 py-3 text-left font-semibold opacity-70">Name</th>
-									<th class="px-4 py-3 text-left font-semibold opacity-70">Price</th>
-									<th class="px-4 py-3 text-left font-semibold opacity-70">Stock</th>
-									<th class="px-4 py-3 text-left font-semibold opacity-70">Status</th>
+									<th v-if="selectedColumns.includes('id')" class="px-4 py-3 text-left font-semibold opacity-70">ID</th>
+									<th v-if="selectedColumns.includes('name')" class="px-4 py-3 text-left font-semibold opacity-70">Name</th>
+									<th v-if="selectedColumns.includes('sku')" class="px-4 py-3 text-left font-semibold opacity-70">SKU</th>
+									<th v-if="selectedColumns.includes('brand')" class="px-4 py-3 text-left font-semibold opacity-70">Brand</th>
+									<th v-if="selectedColumns.includes('cost_price')" class="px-4 py-3 text-left font-semibold opacity-70">Cost</th>
+									<th v-if="selectedColumns.includes('selling_price')" class="px-4 py-3 text-left font-semibold opacity-70">Selling Price</th>
+									<th v-if="selectedColumns.includes('mrp')" class="px-4 py-3 text-left font-semibold opacity-70">MRP</th>
+									<th v-if="selectedColumns.includes('discount')" class="px-4 py-3 text-left font-semibold opacity-70">Discount</th>
+									<th v-if="selectedColumns.includes('stock')" class="px-4 py-3 text-left font-semibold opacity-70">Stock</th>
+									<th v-if="selectedColumns.includes('status')" class="px-4 py-3 text-left font-semibold opacity-70">Status</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr v-for="prod in bizProducts" :key="prod?.id || prod?.product_id" class="border-t" style="border-color: rgb(var(--color-border))">
-									<td class="px-4 py-3 font-mono text-xs opacity-60">{{ prod?.id || prod?.product_id }}</td>
-									<td class="px-4 py-3 font-medium">{{ prod?.product_name || prod?.name || '—' }}</td>
-									<td class="px-4 py-3 text-indigo-600">₹{{ (prod?.selling_price || prod?.product_mrp ||
-										prod?.price)?.toLocaleString('en-IN') || '0.00' }}</td>
-									<td class="px-4 py-3">
+									<td v-if="selectedColumns.includes('id')" class="px-4 py-3 font-mono text-xs opacity-60">{{ prod?.id || prod?.product_id }}</td>
+									<td v-if="selectedColumns.includes('name')" class="px-4 py-3 font-medium">{{ prod?.product_name || prod?.name || '—' }}</td>
+									<td v-if="selectedColumns.includes('sku')" class="px-4 py-3 opacity-80">{{ prod?.product_sku || '—' }}</td>
+									<td v-if="selectedColumns.includes('brand')" class="px-4 py-3 opacity-80">{{ prod?.brand_name || '—' }}</td>
+									<td v-if="selectedColumns.includes('cost_price')" class="px-4 py-3 opacity-80">₹{{ prod?.product_cost_price?.toLocaleString('en-IN') || '0.00' }}</td>
+									<td v-if="selectedColumns.includes('selling_price')" class="px-4 py-3 text-indigo-600">₹{{ (prod?.selling_price || prod?.product_mrp || prod?.price)?.toLocaleString('en-IN') || '0.00' }}</td>
+									<td v-if="selectedColumns.includes('mrp')" class="px-4 py-3 opacity-80">₹{{ prod?.product_mrp?.toLocaleString('en-IN') || '0.00' }}</td>
+									<td v-if="selectedColumns.includes('discount')" class="px-4 py-3 opacity-80">{{ prod?.discount_percent ? prod.discount_percent + '%' : '0%' }}</td>
+									<td v-if="selectedColumns.includes('stock')" class="px-4 py-3">
 										<span class="px-2 py-0.5 rounded-full text-xs font-semibold"
-											:class="(prod?.low_stock_threshold !== undefined ? prod?.low_stock_threshold : (prod?.stock_quantity ?? 0)) > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-750'">
-											{{ prod?.low_stock_threshold !== undefined ? prod?.low_stock_threshold :
-												(prod?.stock_quantity ?? 0) }} units
+											:class="(prod?.total_available_quantity ?? prod?.stock_quantity ?? 0) > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-750'">
+											{{ prod?.total_available_quantity ?? prod?.stock_quantity ?? 0 }} units
 										</span>
 									</td>
-									<td class="px-4 py-3">
+									<td v-if="selectedColumns.includes('status')" class="px-4 py-3">
 										<span class="px-2 py-0.5 rounded-full text-xs font-semibold"
 											:class="prod?.is_active ? 'bg-primary/10 text-primary' : 'bg-secondary text-text opacity-50'">
 											{{ prod?.is_active ? 'Active' : 'Inactive' }}
@@ -480,6 +502,20 @@ const creating = ref(false)
 const businesses = ref([])
 const showCreateModal = ref(false)
 const activeTab = ref('general')
+
+const availableColumns = [
+	{ title: 'ID', value: 'id' },
+	{ title: 'Name', value: 'name' },
+	{ title: 'SKU', value: 'sku' },
+	{ title: 'Brand', value: 'brand' },
+	{ title: 'Cost Price', value: 'cost_price' },
+	{ title: 'Selling Price', value: 'selling_price' },
+	{ title: 'MRP', value: 'mrp' },
+	{ title: 'Discount', value: 'discount' },
+	{ title: 'Stock', value: 'stock' },
+	{ title: 'Status', value: 'status' }
+]
+const selectedColumns = ref(['id', 'name', 'selling_price', 'stock', 'status'])
 
 const getInitialForm = () => ({
   business_name: '',

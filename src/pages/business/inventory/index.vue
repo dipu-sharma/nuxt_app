@@ -988,26 +988,27 @@
 					</h2>
 
 					<form @submit.prevent="savePurchaseOrder" class="space-y-4 text-sm">
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<div>
-								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Supplier *</label>
-								<div class="relative">
-									<select v-model="poForm.supplier_id" required
-										class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all appearance-none cursor-pointer">
-										<option value="" disabled>Select Supplier</option>
-										<option v-for="s in suppliers" :key="s.id" :value="s.supplier_id">{{ s.name }}</option>
-									</select>
-									<div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text opacity-40">
-										<Icon name="mdi:chevron-down" class="w-5 h-5" />
+						<div class="max-h-[60vh] overflow-y-auto custom-scrollbar pr-2 pb-2">
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Supplier *</label>
+									<div class="relative">
+										<select v-model="poForm.supplier_id" required
+											class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all appearance-none cursor-pointer">
+											<option value="" disabled>Select Supplier</option>
+											<option v-for="s in suppliers" :key="s.id" :value="s.supplier_id || String(s.id)">{{ s.name }}</option>
+										</select>
+										<div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-text opacity-40">
+											<Icon name="mdi:chevron-down" class="w-5 h-5" />
+										</div>
 									</div>
 								</div>
-							</div>
 							<div>
 								<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Receiving Branch *</label>
 								<div class="relative">
 									<select v-model="poForm.branch_id" required
 										class="w-full pl-5 pr-10 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all appearance-none cursor-pointer">
-										<option v-for="b in branchesList" :key="b.id" :value="b.branch_id || b.id">
+										<option v-for="b in branchesList" :key="b.id" :value="b.branch_id || String(b.id)">
 											{{ b.name || b.branch_name || `Branch #${b.id}` }}
 										</option>
 									</select>
@@ -1064,7 +1065,7 @@
 											<select v-model="item.product_id" required
 												class="w-full pl-3 pr-8 py-2 bg-background border border-border rounded-full text-xs focus:outline-none text-text appearance-none cursor-pointer">
 												<option value="" disabled>Select Product</option>
-												<option v-for="p in allProductsList" :key="p.id" :value="p.id">{{ p.product_name || p.name }}</option>
+												<option v-for="p in allProductsList" :key="p.id" :value="p.product_id || String(p.id)">{{ p.product_name || p.name }}</option>
 											</select>
 											<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-text opacity-40">
 												<Icon name="mdi:chevron-down" class="w-4 h-4" />
@@ -1087,6 +1088,7 @@
 								</div>
 							</div>
 						</div>
+					</div>
 
 						<div class="flex gap-4 pt-6 border-t border-border" style="border-color: rgb(var(--color-border))">
 							<v-btn variant="text" size="large" class="flex-1 text-none tracking-widest font-medium text-text opacity-60 rounded-full" @click="showPOModal = false">Cancel</v-btn>
@@ -1738,19 +1740,29 @@ const removePOItemLine = (idx) => {
 	}
 }
 
-const editPO = (po) => {
+const editPO = async (po) => {
 	editingPOId.value = po.po_id || po.id
-	poForm.value = {
-		supplier_id: po.supplier_id || '',
-		branch_id: po.branch_id || '',
-		order_date: po.created_at ? new Date(po.created_at).toISOString().split('T')[0] : '',
-		expected_delivery_date: po.expected_delivery_date ? new Date(po.expected_delivery_date).toISOString().split('T')[0] : '',
-		status: po.status || 'PENDING',
-		items: po.items && po.items.length > 0
-			? po.items.map(i => ({ product_id: i.product_id, quantity: i.quantity, cost_per_unit: i.cost_per_unit }))
-			: [{ product_id: '', quantity: '', cost_per_unit: '' }]
+	try {
+		const { getPurchaseOrderDetails } = useInventory()
+		const res = await getPurchaseOrderDetails(editingPOId.value)
+		const fullPO = res?.data || po
+		const poItems = fullPO.items || res?.data?.items || []
+
+		poForm.value = {
+			supplier_id: String(fullPO.supplier_id || fullPO.supplier?.supplier_id || fullPO.supplier?.id || ''),
+			branch_id: String(fullPO.branch_id || fullPO.branch?.branch_id || fullPO.branch?.id || ''),
+			order_date: (fullPO.order_date || fullPO.created_at) ? new Date(fullPO.order_date || fullPO.created_at).toISOString().split('T')[0] : '',
+			expected_delivery_date: fullPO.expected_delivery_date ? new Date(fullPO.expected_delivery_date).toISOString().split('T')[0] : '',
+			status: fullPO.status || 'PENDING',
+			items: poItems.length > 0
+				? poItems.map(i => ({ product_id: String(i.product_id), quantity: i.quantity, cost_per_unit: i.cost_per_unit }))
+				: [{ product_id: '', quantity: '', cost_per_unit: '' }]
+		}
+		showPOModal.value = true
+	} catch (e) {
+		console.error(e)
+		toast.error('Failed to load PO details for editing')
 	}
-	showPOModal.value = true
 }
 
 const deletePO = async (po) => {
@@ -1821,8 +1833,11 @@ const savePurchaseOrder = async () => {
 			supplier_id: String(poForm.value.supplier_id),
 			branch_id: String(poForm.value.branch_id),
 			status: poForm.value.status,
-			expected_delivery_date: poForm.expected_delivery_date
-				? `${poForm.expected_delivery_date}T00:00:00`
+			order_date: poForm.value.order_date
+				? `${poForm.value.order_date}T00:00:00`
+				: null,
+			expected_delivery_date: poForm.value.expected_delivery_date
+				? `${poForm.value.expected_delivery_date}T00:00:00`
 				: null,
 			items: cleanItems.map(i => ({
 				product_id: String(i.product_id),
