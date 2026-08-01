@@ -25,7 +25,7 @@ export const useBranches = () => {
       const body = {
         branch_name: payload.branch_name,
         branch_code: payload.branch_code,
-        phone: payload.phone,
+        mobile_number: payload.mobile_number !== undefined ? payload.mobile_number : payload.phone,
         email: payload.email,
         is_active: payload.is_active,
         address: payload.address,
@@ -42,7 +42,7 @@ export const useBranches = () => {
       const body = {
         branch_name: payload.branch_name,
         branch_code: payload.branch_code,
-        phone: payload.phone,
+        mobile_number: payload.mobile_number !== undefined ? payload.mobile_number : payload.phone,
         email: payload.email,
         is_active: payload.is_active,
         address: payload.address,

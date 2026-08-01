@@ -37,7 +37,50 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@pinia/nuxt',
     'vuetify-nuxt-module',
+    '@vite-pwa/nuxt',
   ],
+
+  // === PWA Configuration ===
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'Nuxt Application',
+      short_name: 'NuxtApp',
+      theme_color: '#3B82F6',
+      background_color: '#FFFFFF',
+      display: 'standalone',
+      orientation: 'portrait',
+      scope: '/',
+      start_url: '/',
+      icons: [
+        {
+          src: '/pwa-192x192.svg',
+          sizes: '192x192',
+          type: 'image/svg+xml',
+        },
+        {
+          src: '/pwa-512x512.svg',
+          sizes: '512x512',
+          type: 'image/svg+xml',
+          purpose: 'any maskable',
+        },
+      ],
+    },
+    workbox: {
+      navigateFallback: '/',
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    client: {
+      installPrompt: true,
+      periodicSyncForUpdates: 3600,
+    },
+    devOptions: {
+      enabled: true,
+      suppressWarnings: true,
+      navigateFallbackAllowlist: [/^\/$/],
+      type: 'module',
+    },
+  },
 
   // === Pinia configuration ===
   pinia: {

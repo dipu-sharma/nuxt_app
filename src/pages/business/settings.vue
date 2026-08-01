@@ -79,8 +79,8 @@
 								style="border-color: rgb(var(--color-border))" />
 						</div>
 						<div>
-							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Business Phone</label>
-							<input v-model="businessForm.phone" type="text" placeholder="e.g. 9555282779"
+							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Business Mobile Number</label>
+							<input v-model="businessForm.mobile_number" type="text" placeholder="e.g. 9555282779"
 								class="w-full px-4 py-3 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text"
 								style="border-color: rgb(var(--color-border))" />
 						</div>
@@ -451,7 +451,7 @@ const businessForm = ref({
 	business_name: '',
 	business_type: 'ECOMMERCE',
 	email: '',
-	phone: '',
+	mobile_number: '',
 	website: '',
 	registration_number: '',
 	tax_id: '',
@@ -538,7 +538,7 @@ const loadTabData = async () => {
 					business_name: bizData.business_name || '',
 					business_type: bizData.business_type || 'ECOMMERCE',
 					email: bizData.email || '',
-					phone: bizData.phone || '',
+					mobile_number: bizData.mobile_number || bizData.phone || '',
 					website: bizData.website || '',
 					registration_number: bizData.registration_number || '',
 					tax_id: bizData.tax_id || '',
@@ -608,7 +608,7 @@ const saveSettings = async () => {
 				business_name: businessForm.value.business_name.trim(),
 				business_type: businessForm.value.business_type,
 				email: businessForm.value.email ? businessForm.value.email.trim() : null,
-				phone: businessForm.value.phone ? businessForm.value.phone.trim() : null,
+				mobile_number: businessForm.value.mobile_number ? businessForm.value.mobile_number.trim() : null,
 				website: businessForm.value.website ? businessForm.value.website.trim() : null,
 				registration_number: businessForm.value.registration_number ? businessForm.value.registration_number.trim() : null,
 				tax_id: businessForm.value.tax_id ? businessForm.value.tax_id.trim() : null,

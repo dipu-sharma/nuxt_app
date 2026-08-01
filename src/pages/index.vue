@@ -186,7 +186,7 @@ const fetchParams = computed(() => {
 })
 
 const { data: productResponse, refresh } = await useAsyncData('homeProducts', () => {
-  return searchProducts(fetchParams.value).catch(() => null)
+  return searchProducts(fetchParams.value).catch(() => ([]))
 })
 
 const categoriesData = ref([])

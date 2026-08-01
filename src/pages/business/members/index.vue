@@ -120,8 +120,8 @@
 							<span class="detail-value">{{ viewingEmployee.email }}</span>
 						</div>
 						<div class="detail-item">
-							<span class="detail-label">Phone:</span>
-							<span class="detail-value">{{ viewingEmployee.phone || '-' }}</span>
+							<span class="detail-label">Mobile Number:</span>
+							<span class="detail-value">{{ viewingEmployee.mobile_number || viewingEmployee.phone || '-' }}</span>
 						</div>
 						<div class="detail-item">
 							<span class="detail-label">Date of Birth:</span>
@@ -278,7 +278,7 @@ const queryParams = computed(() => {
 const tableHeaders = [
 	{ key: 'full_name', label: 'Name' },
 	{ key: 'email', label: 'Email' },
-	{ key: 'phone', label: 'Phone' },
+	{ key: 'mobile_number', label: 'Mobile Number' },
 	{ key: 'role', label: 'Role' },
 	{ key: 'joined_at', label: 'Join Date' },
 	{ key: 'salary', label: 'Salary' },
@@ -305,7 +305,7 @@ const loadData = async () => {
 			first_name: emp.user?.first_name || '',
 			last_name: emp.user?.last_name || '',
 			email: emp.user?.username || '',
-			phone: emp.user?.mobile_number || '',
+			mobile_number: emp.user?.mobile_number || emp.user?.phone || '',
 			dob: emp.user?.dob || '',
 			aadhar_number: emp.user?.aadhar_number || '',
 			pan_no: emp.user?.pan_no || '',

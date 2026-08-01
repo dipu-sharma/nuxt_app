@@ -48,7 +48,7 @@
             <p v-else-if="branch.address" class="text-slate-500 text-sm mb-3">{{ branch.address }}</p>
             <p v-else class="text-slate-400 italic text-sm mb-3">No address provided</p>
             
-            <p class="text-slate-500 text-sm mt-1">📞 {{ branch.phone || '—' }}</p>
+            <p class="text-slate-500 text-sm mt-1">📞 {{ branch.mobile_number || branch.phone || '—' }}</p>
             <p class="text-slate-500 text-sm">✉ {{ branch.email || '—' }}</p>
           </div>
           <div class="mt-4">
@@ -84,7 +84,7 @@
               <v-col cols="6"><v-text-field v-model="form.country" label="Country *" variant="outlined" rounded="lg" :rules="[isRequired, noLeadingSpace]" maxlength="100" /></v-col>
               <v-col cols="6"><v-text-field v-model="form.latitude" label="Latitude" type="number" step="any" variant="outlined" rounded="lg" /></v-col>
               <v-col cols="6"><v-text-field v-model="form.longitude" label="Longitude" type="number" step="any" variant="outlined" rounded="lg" /></v-col>
-              <v-col cols="6"><v-text-field v-model="form.phone" label="Phone" variant="outlined" rounded="lg" :rules="[isPhone]" maxlength="10" @input="form.phone = filterDigits(form.phone, 10)" /></v-col>
+              <v-col cols="6"><v-text-field v-model="form.mobile_number" label="Mobile Number" variant="outlined" rounded="lg" :rules="[isPhone]" maxlength="10" @input="form.mobile_number = filterDigits(form.mobile_number, 10)" /></v-col>
               <v-col cols="6"><v-text-field v-model="form.email" label="Email" variant="outlined" rounded="lg" :rules="[isValidEmail, noLeadingSpace]" maxlength="100" /></v-col>
               <v-col cols="12"><v-text-field v-model="form.label" label="Address Label" variant="outlined" rounded="lg" :rules="[noLeadingSpace]" maxlength="50" /></v-col>
               
@@ -149,7 +149,7 @@ const branches = ref([])
 const getInitialForm = () => ({
   name: '',
   branch_code: '',
-  phone: '',
+  mobile_number: '',
   email: '',
   is_active: true,
   // Address fields:
@@ -237,7 +237,7 @@ const openEdit = (item) => {
     country: addressObj.country || 'India',
     latitude: addressObj.latitude !== undefined && addressObj.latitude !== null ? String(addressObj.latitude) : '',
     longitude: addressObj.longitude !== undefined && addressObj.longitude !== null ? String(addressObj.longitude) : '',
-    phone: item.phone || item.contact_number || '',
+    mobile_number: item.mobile_number || item.phone || item.contact_number || '',
     email: item.email || '',
     is_active: item.is_active !== undefined ? item.is_active : true,
     is_default: addressObj.is_default !== undefined ? !!addressObj.is_default : false,
@@ -261,7 +261,7 @@ const save = async () => {
     const payload = {
       branch_name: form.value.name.trim(),
       branch_code: form.value.branch_code?.trim() || null,
-      phone: form.value.phone?.trim() || null,
+      mobile_number: form.value.mobile_number?.trim() || null,
       email: form.value.email?.trim() || null,
       is_active: !!form.value.is_active,
       address: {

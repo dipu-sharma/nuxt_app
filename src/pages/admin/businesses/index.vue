@@ -51,7 +51,7 @@
 						</div>
 						<div class="flex items-center gap-2">
 							<span class="opacity-60 text-sm">📞</span>
-							<span>{{ biz.phone || biz.business_phone || '—' }}</span>
+							<span>{{ biz.mobile_number || biz.phone || biz.business_phone || '—' }}</span>
 						</div>
 						<div v-if="biz.website" class="flex items-center gap-2">
 							<span class="opacity-60 text-sm">🌐</span>
@@ -192,8 +192,8 @@
 									style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
 							</div>
 							<div>
-								<label class="block text-xs font-semibold mb-1 opacity-70">Phone Number *</label>
-								<input v-model="createForm.phone" placeholder="e.g. 9555282779" maxlength="10"
+								<label class="block text-xs font-semibold mb-1 opacity-70">Mobile Number *</label>
+								<input v-model="createForm.mobile_number" placeholder="e.g. 9555282779" maxlength="10"
 									class="w-full px-4 py-2 rounded-lg text-sm"
 									style="background-color: rgb(var(--color-background)); border: 1px solid rgb(var(--color-border)); color: rgb(var(--color-text))" />
 							</div>
@@ -521,7 +521,7 @@ const getInitialForm = () => ({
   business_name: '',
   business_type: 'ECOMMERCE',
   email: '',
-  phone: '',
+  mobile_number: '',
   website: '',
   slug: '',
   registration_number: '',
@@ -683,9 +683,9 @@ const confirmCreate = async () => {
 		activeTab.value = 'general'
 		return toast.error('Valid email is required')
 	}
-	if (!createForm.value.phone?.trim()) {
+	if (!createForm.value.mobile_number?.trim()) {
 		activeTab.value = 'general'
-		return toast.error('Phone number is required')
+		return toast.error('Mobile number is required')
 	}
 	if (!createForm.value.slug?.trim()) {
 		activeTab.value = 'general'
@@ -726,7 +726,7 @@ const confirmCreate = async () => {
 			business_name: createForm.value.business_name.trim(),
 			business_type: createForm.value.business_type,
 			email: createForm.value.email.trim(),
-			phone: createForm.value.phone.trim(),
+			mobile_number: createForm.value.mobile_number.trim(),
 			website: createForm.value.website?.trim() || null,
 			slug: createForm.value.slug.trim(),
 			registration_number: createForm.value.registration_number?.trim() || null,

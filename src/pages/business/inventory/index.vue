@@ -238,8 +238,8 @@
 						<template #item.email="{ item }">
 							<span class="text-text opacity-70">{{ item.email || '—' }}</span>
 						</template>
-						<template #item.phone="{ item }">
-							<span class="text-text opacity-70 font-mono">{{ item.phone || '—' }}</span>
+						<template #item.mobile_number="{ item }">
+							<span class="text-text opacity-70 font-mono">{{ item.mobile_number || item.phone || '—' }}</span>
 						</template>
 						<template #item.address="{ item }">
 							<span class="text-text opacity-70 truncate max-w-xs block">{{ item.address || '—' }}</span>
@@ -920,8 +920,8 @@
 						</div>
 						<div>
 							<label class="text-[10px] text-text opacity-50 font-bold uppercase tracking-widest block mb-2">Phone Number</label>
-							<input v-model="supplierForm.phone" placeholder="e.g. 9876543210" maxlength="10" pattern="\d{10}" title="Phone number must be exactly 10 digits"
-								@input="supplierForm.phone = filterDigits(supplierForm.phone, 10)"
+							<input v-model="supplierForm.mobile_number" placeholder="e.g. 9876543210" maxlength="10" pattern="\d{10}" title="Phone number must be exactly 10 digits"
+								@input="supplierForm.mobile_number = filterDigits(supplierForm.mobile_number, 10)"
 								class="w-full px-5 py-3 bg-background border border-border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-text transition-all shadow-sm" />
 						</div>
 						<!-- Address Line 1 -->
@@ -1189,7 +1189,7 @@ const supplierHeaders = [
 	{ title: 'Supplier Name', key: 'name', sortable: false },
 	{ title: 'Contact Person', key: 'contact_person', sortable: false },
 	{ title: 'Email Address', key: 'email', sortable: false },
-	{ title: 'Phone', key: 'phone', sortable: false },
+	{ title: 'Mobile Number', key: 'mobile_number', sortable: false },
 	{ title: 'Address', key: 'address', sortable: false },
 	{ title: 'Actions', key: 'actions', sortable: false, align: 'end' }
 ]
@@ -1350,7 +1350,7 @@ const selectedPOItems = ref([])
 const loadingPODetails = ref(false)
 
 // ─── Forms ────────────────────────────────────────────────────────────────────
-const supplierForm = ref({ name: '', email: '', phone: '', contact_person: '', address: '' })
+const supplierForm = ref({ name: '', email: '', mobile_number: '', contact_person: '', address: '' })
 const poForm = ref({
 	supplier_id: '',
 	branch_id: '',
@@ -1634,7 +1634,7 @@ const openSupplierModal = () => {
 	supplierForm.value = { 
 		name: '', 
 		email: '', 
-		phone: '', 
+		mobile_number: '', 
 		contact_person: '', 
 		address_line_1: '',
 		address_line_2: '',
@@ -1651,7 +1651,7 @@ const openEditSupplierModal = (s) => {
 	supplierForm.value = {
 		name: s.name || '',
 		email: s.email || '',
-		phone: s.phone || '',
+		mobile_number: s.mobile_number || s.phone || '',
 		contact_person: s.contact_person || '',
 		address_line_1: s.address?.address_line_1 || '',
 		address_line_2: s.address?.address_line_2 || '',
@@ -1671,7 +1671,7 @@ const saveSupplier = async () => {
 		const payload = {
 			name: supplierForm.value.name,
 			email: supplierForm.value.email || null,
-			phone: supplierForm.value.phone || null,
+			mobile_number: supplierForm.value.mobile_number || null,
 			contact_person: supplierForm.value.contact_person || null,
 			address: supplierForm.value.address_line_1 ? {
 				address_line_1: supplierForm.value.address_line_1,

@@ -108,11 +108,11 @@
 						</v-col>
 						<v-col cols="12" sm="6">
 							<v-text-field 
-								v-model="form.phone" 
-								label="Business Phone" 
+								v-model="form.mobile_number" 
+								label="Business Mobile Number" 
 								variant="outlined" 
 								rounded="lg"
-								placeholder="e.g. +1234567890"
+								placeholder="e.g. 9876543210"
 							/>
 						</v-col>
 						<v-col cols="12" sm="6">
@@ -238,7 +238,7 @@ const form = ref({
 	business_name: '',
 	business_type: 'ECOMMERCE',
 	email: '',
-	phone: '',
+	mobile_number: '',
 	website: '',
 	registration_number: '',
 	address: {
@@ -307,7 +307,7 @@ const handleSubmit = async () => {
 			business_name: form.value.business_name.trim(),
 			business_type: form.value.business_type,
 			email: form.value.email?.trim() || null,
-			phone: form.value.phone?.trim() || null,
+			mobile_number: form.value.mobile_number?.trim() || null,
 			website: form.value.website?.trim() || null,
 			registration_number: form.value.registration_number?.trim() || null,
 			address: {

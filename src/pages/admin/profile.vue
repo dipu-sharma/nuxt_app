@@ -60,10 +60,10 @@
                 </div>
               </div>
               <div>
-                <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Phone Number</label>
+                <label class="block text-xs font-bold uppercase tracking-widest text-text opacity-50 mb-2">Mobile Number</label>
                 <div class="relative">
                   <Icon name="mdi:phone-outline" class="absolute left-4 top-1/2 -translate-y-1/2 text-text opacity-40 w-5 h-5" />
-                  <input v-model="profileData.phone" type="tel" maxlength="10" @input="profileData.phone = filterDigits(profileData.phone, 10)" placeholder="10-digit number" class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
+                  <input v-model="profileData.mobile_number" type="tel" maxlength="10" @input="profileData.mobile_number = filterDigits(profileData.mobile_number, 10)" placeholder="10-digit number" class="w-full pl-12 pr-4 py-3.5 bg-background border border-border/60 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-text" />
                 </div>
               </div>
               <div>
@@ -180,7 +180,7 @@ const showConfirmPwd = ref(false)
 const profileData = ref({
   first_name: authStore.user?.first_name || '',
   last_name: authStore.user?.last_name || '',
-  phone: authStore.user?.phone || '',
+  mobile_number: authStore.user?.mobile_number || authStore.user?.phone || '',
   username: authStore.user?.username || '',
   bio: authStore.user?.bio || '',
 })
@@ -200,7 +200,7 @@ const loadProfile = async () => {
       Object.assign(profileData.value, {
         first_name: res.data.first_name || '',
         last_name: res.data.last_name || '',
-        phone: res.data.phone || '',
+        mobile_number: res.data.mobile_number || res.data.phone || '',
         username: res.data.username || '',
         bio: res.data.bio || '',
       })
@@ -213,7 +213,7 @@ const loadProfile = async () => {
       Object.assign(profileData.value, {
         first_name: res.data.first_name || '',
         last_name: res.data.last_name || '',
-        phone: res.data.phone || '',
+        mobile_number: res.data.mobile_number || res.data.phone || '',
         username: res.data.username || '',
         bio: res.data.bio || '',
       })
@@ -226,8 +226,8 @@ const saveProfile = async () => {
   if (!profileData.value.first_name?.trim() || !profileData.value.last_name?.trim()) {
     return toast.error('First and Last name are required')
   }
-  if (profileData.value.phone && profileData.value.phone.length !== 10) {
-    return toast.error('Phone number must be exactly 10 digits')
+  if (profileData.value.mobile_number && profileData.value.mobile_number.length !== 10) {
+    return toast.error('Mobile number must be exactly 10 digits')
   }
   saving.value = true
   try {
@@ -235,7 +235,7 @@ const saveProfile = async () => {
     await updateAdminMe({
       first_name: profileData.value.first_name,
       last_name: profileData.value.last_name,
-      phone: profileData.value.phone,
+      mobile_number: profileData.value.mobile_number,
       bio: profileData.value.bio
     })
     await loadProfile()

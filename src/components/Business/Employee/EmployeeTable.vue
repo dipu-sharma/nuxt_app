@@ -91,8 +91,8 @@
 			<span class="salary-text">{{ value ? `₹${formatNumber(value)}` : '-' }}</span>
 		</template>
 
-		<template #item.phone="{ value }">
-			<span class="phone-text">{{ value }}</span>
+		<template #item.mobile_number="{ value }">
+			<span class="phone-text">{{ value || '-' }}</span>
 		</template>
 
 		<!-- Actions Column -->
@@ -175,7 +175,7 @@ defineProps({
 const headers = [
 	{ key: 'full_name', label: 'Name', sortable: true },
 	{ key: 'email', label: 'Email', sortable: true },
-	{ key: 'phone', label: 'Phone', sortable: false },
+	{ key: 'mobile_number', label: 'Mobile Number', sortable: false },
 	{ key: 'role', label: 'Role', sortable: true },
 	{ key: 'joined_at', label: 'Join Date', sortable: true },
 	{ key: 'salary', label: 'Salary', sortable: true },
