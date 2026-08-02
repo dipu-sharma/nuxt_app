@@ -1,11 +1,13 @@
 // src/composables/useNotifications.ts
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch, getCurrentInstance } from 'vue'
 import { toast } from 'vue3-toastify'
 import { useAuthStore } from '~/stores/auth'
+import { useApi } from './useApi'
 
 export const useNotifications = () => {
   const ws = ref<WebSocket | null>(null)
   const authStore = useAuthStore()
+  const api = useApi()
 
   const connectWebSocket = () => {
     // Only connect if the user is authenticated and we have their ID
@@ -73,12 +75,18 @@ export const useNotifications = () => {
     }
   }
 
-  // Usually called in app.vue or a global layout
-  onMounted(() => {
-    if (authStore.user?.id) {
-      connectWebSocket()
-    }
-  })
+  // Only register lifecycle hooks when called inside a component's setup()
+  if (getCurrentInstance()) {
+    onMounted(() => {
+      if (authStore.user?.id) {
+        connectWebSocket()
+      }
+    })
+
+    onUnmounted(() => {
+      disconnectWebSocket()
+    })
+  }
 
   // Re-connect if user changes (e.g., login)
   watch(() => authStore.user?.id, (newId) => {
@@ -89,12 +97,20 @@ export const useNotifications = () => {
     }
   })
 
-  onUnmounted(() => {
-    disconnectWebSocket()
-  })
-
   return {
     connectWebSocket,
-    disconnectWebSocket
+    disconnectWebSocket,
+    async getNotifications(params?: any) {
+      return await api('/api/notifications', { method: 'GET', query: params })
+    },
+    async getUnreadCount() {
+      return await api('/api/notifications/unread-count', { method: 'GET' })
+    },
+    async markAsRead(id: string | number) {
+      return await api(`/api/notifications/${id}/read`, { method: 'POST' })
+    },
+    async markAllRead() {
+      return await api('/api/notifications/read-all', { method: 'POST' })
+    }
   }
 }

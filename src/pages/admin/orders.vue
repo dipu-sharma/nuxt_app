@@ -1,9 +1,37 @@
 <template>
   <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       <div>
         <h1 class="text-3xl font-semibold text-text tracking-tight mb-2">Order Management</h1>
         <p class="text-sm text-text/60 mt-1">View and manage all system orders</p>
+      </div>
+
+      <div
+        v-if="(authStore.role === 'ADMIN' || authStore.role === 'SUPERADMIN') && businessesList.length > 0"
+        class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3"
+      >
+        <span class="text-xs font-bold text-text/60 uppercase tracking-wider whitespace-nowrap">Filter Business:</span>
+        <div class="relative min-w-[240px]">
+          <select
+            v-model="selectedBusinessId"
+            @change="onFilterChange"
+            class="appearance-none w-full pl-4 pr-10 py-2.5 bg-card border border-border rounded-xl text-sm font-semibold text-text shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer"
+            style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))"
+          >
+            <option :value="null">All Businesses (Global)</option>
+            <option
+              v-for="biz in businessesList"
+              :key="biz.id || biz.business_id"
+              :value="biz.business_id || biz.id"
+            >
+              {{ biz.name || biz.business_name || `Business #${biz.business_id || biz.id}` }}
+            </option>
+          </select>
+          <Icon
+            name="mdi:chevron-down"
+            class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text/50 pointer-events-none"
+          />
+        </div>
       </div>
     </div>
 
@@ -29,7 +57,7 @@
             density="comfortable"
             hide-details
             clearable
-            @update:model-value="loadOrders"
+            @update:model-value="onFilterChange"
           />
           <v-text-field
             v-model="filters.from_date"
@@ -38,7 +66,7 @@
             variant="outlined"
             density="comfortable"
             hide-details
-            @update:model-value="loadOrders"
+            @update:model-value="onFilterChange"
           />
           <v-text-field
             v-model="filters.to_date"
@@ -47,7 +75,7 @@
             variant="outlined"
             density="comfortable"
             hide-details
-            @update:model-value="loadOrders"
+            @update:model-value="onFilterChange"
           />
         </div>
       </v-card-text>
@@ -55,16 +83,30 @@
 
     <!-- Data Table -->
     <v-card class="rounded-2xl shadow-sm border border-border/50 bg-card overflow-hidden" elevation="0">
-      <v-data-table-server
-        v-model:options="tableOptions"
+      <div v-if="loading" class="p-12 text-center">
+        <v-progress-circular indeterminate color="primary" :size="36" :width="2" class="opacity-50" />
+      </div>
+      
+      <div v-else-if="orders.length === 0" class="p-16 text-center">
+        <div class="w-20 h-20 mx-auto mb-6 bg-secondary/50 rounded-full flex items-center justify-center">
+          <Icon name="mdi:clipboard-text-outline" class="w-8 h-8 text-text/40" />
+        </div>
+        <p class="text-text/60 text-sm font-medium">No orders found matching your criteria.</p>
+      </div>
+
+      <v-data-table
+        v-else
         :headers="headers"
         :items="orders"
-        :items-length="totalOrders"
         :loading="loading"
+        :items-per-page="limit"
         class="bg-transparent"
-        @update:options="loadOrders"
         hover
       >
+        <template #bottom>
+          <!-- Hide default navigation -->
+        </template>
+
         <template #item.order_id="{ item }">
           <div class="font-mono text-sm font-semibold text-primary cursor-pointer hover:underline" @click="openDetails(item)">
             {{ item.order_id }}
@@ -81,7 +123,7 @@
           <span class="text-sm text-text/70">{{ formatDate(item.created_at) }}</span>
         </template>
         <template #item.total_price="{ item }">
-          <span class="font-bold text-text">₹{{ item.total_price?.toLocaleString('en-IN') }}</span>
+          <span class="font-bold text-text">₹{{ (item.total_price || item.total_amount || 0).toLocaleString('en-IN') }}</span>
         </template>
         <template #item.status="{ item }">
           <v-chip
@@ -95,7 +137,56 @@
         <template #item.actions="{ item }">
           <v-btn icon="mdi-eye-outline" variant="text" size="small" color="primary" @click="openDetails(item)" />
         </template>
-      </v-data-table-server>
+      </v-data-table>
+
+      <!-- Cursor-Based Pagination Control -->
+      <div v-if="orders.length > 0 || page > 1" class="flex flex-col sm:flex-row justify-between items-center gap-4 p-6 border-t border-border/50">
+        <div class="flex items-center gap-4">
+          <div class="text-xs font-bold uppercase tracking-widest text-text/70">
+            Showing page {{ page }} ({{ orders.length }} rows)
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-text/70">Rows per page:</span>
+            <select :value="limit" @change="updateLimit(Number($event.target.value))" 
+              class="px-3 py-1 bg-background border border-border rounded-full text-xs font-semibold text-text focus:outline-none focus:border-primary cursor-pointer shadow-sm">
+              <option :value="5">5</option>
+              <option :value="10">10</option>
+              <option :value="20">20</option>
+              <option :value="50">50</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          <v-btn
+            variant="outlined"
+            size="small"
+            rounded="pill"
+            :disabled="page <= 1 && !previousCursor"
+            @click="goToPreviousPage"
+            class="px-4 text-xs font-bold uppercase tracking-widest border-border text-text hover:bg-primary/5 hover:text-primary hover:border-primary transition-all shadow-sm"
+          >
+            <Icon name="mdi:chevron-left" class="w-4 h-4 mr-1" />
+            Previous
+          </v-btn>
+          
+          <div class="px-4 py-1 rounded-full bg-primary/10 text-primary font-bold text-xs">
+            Page {{ page }}
+          </div>
+
+          <v-btn
+            variant="outlined"
+            size="small"
+            rounded="pill"
+            :disabled="!hasMore && !nextCursor"
+            @click="goToNextPage"
+            class="px-4 text-xs font-bold uppercase tracking-widest border-border text-text hover:bg-primary/5 hover:text-primary hover:border-primary transition-all shadow-sm"
+          >
+            Next
+            <Icon name="mdi:chevron-right" class="w-4 h-4 ml-1" />
+          </v-btn>
+        </div>
+      </div>
     </v-card>
 
     <!-- Order Details Dialog -->
@@ -183,8 +274,12 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import { useOrders } from '~/composables/useOrders'
+import { useAdminUsers } from '~/composables/useAdminUsers'
+import { useAuthStore } from '~/stores/auth'
 import { toast } from 'vue3-toastify'
 import dayjs from 'dayjs'
+
+const authStore = useAuthStore()
 
 definePageMeta({ title: 'Manage Orders', layout: 'admin', middleware: ['auth-role'] })
 
@@ -192,8 +287,15 @@ const { getAdminOrders, getAdminOrderDetail, updateOrderStatus } = useOrders()
 
 const loading = ref(true)
 const orders = ref([])
-const totalOrders = ref(0)
-const tableOptions = ref({ page: 1, itemsPerPage: 10, sortBy: [] })
+const page = ref(1)
+const limit = ref(10)
+const nextCursor = ref(null)
+const previousCursor = ref(null)
+const hasMore = ref(false)
+const cursorHistory = ref([null])
+
+const businessesList = ref([])
+const selectedBusinessId = ref(null)
 
 const filters = ref({
   search: '',
@@ -217,37 +319,94 @@ let searchTimeout = null
 const debouncedLoad = () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
-    tableOptions.value.page = 1
+    page.value = 1
+    cursorHistory.value = [null]
     loadOrders()
   }, 500)
 }
 
-const loadOrders = async () => {
+const onFilterChange = () => {
+  page.value = 1
+  cursorHistory.value = [null]
+  loadOrders()
+}
+
+const loadOrders = async (cursor = null) => {
   loading.value = true
   try {
     const params = {
-      page: tableOptions.value.page,
-      per_page: tableOptions.value.itemsPerPage,
+      limit: limit.value,
       ...(filters.value.search && { search: filters.value.search }),
       ...(filters.value.status && { status: filters.value.status }),
       ...(filters.value.from_date && { from_date: dayjs(filters.value.from_date).startOf('day').toISOString() }),
-      ...(filters.value.to_date && { to_date: dayjs(filters.value.to_date).endOf('day').toISOString() })
+      ...(filters.value.to_date && { to_date: dayjs(filters.value.to_date).endOf('day').toISOString() }),
+      ...(selectedBusinessId.value && { business_id: selectedBusinessId.value })
     }
-    
-    // Convert Vuetify sorting to API format
-    if (tableOptions.value.sortBy.length) {
-      const sort = tableOptions.value.sortBy[0]
-      params.sort_by = sort.order === 'desc' ? `-${sort.key}` : sort.key
+    const activeCursor = cursor !== null && cursor !== undefined ? cursor : (cursorHistory.value[page.value - 1] || null)
+    if (activeCursor) {
+      params.cursor = activeCursor
     }
     
     const res = await getAdminOrders(params)
-    orders.value = res?.data || []
-    totalOrders.value = res?.total || res?.data?.length || 0 // Provide fallback
+    const data = res?.data || res || {}
+    orders.value = data?.items || (Array.isArray(data) ? data : [])
+    hasMore.value = !!data?.has_more
+    nextCursor.value = data?.next_cursor || null
+    previousCursor.value = data?.previous_cursor || null
+    if (data?.limit && !isNaN(Number(data.limit))) {
+      limit.value = Number(data.limit)
+    }
   } catch (err) {
     console.error(err)
     toast.error('Failed to load orders')
+    orders.value = []
+    hasMore.value = false
+    nextCursor.value = null
+    previousCursor.value = null
   } finally {
     loading.value = false
+  }
+}
+
+const updateLimit = (val) => {
+  limit.value = val
+  page.value = 1
+  cursorHistory.value = [null]
+  loadOrders()
+}
+
+const goToNextPage = () => {
+  if (!hasMore.value && !nextCursor.value) return
+  cursorHistory.value[page.value] = nextCursor.value
+  page.value++
+  loadOrders(nextCursor.value)
+}
+
+const goToPreviousPage = () => {
+  if (page.value <= 1 && !previousCursor.value) return
+  if (page.value > 1) {
+    page.value--
+    const prevCursor = cursorHistory.value[page.value - 1] || previousCursor.value || null
+    loadOrders(prevCursor)
+  } else if (previousCursor.value) {
+    loadOrders(previousCursor.value)
+  }
+}
+
+const loadBusinesses = async () => {
+  if (authStore.role === 'ADMIN' || authStore.role === 'SUPERADMIN') {
+    try {
+      const { getBusinesses } = useAdminUsers()
+      const bizRes = await getBusinesses({ limit: 100 })
+      const resData =
+        bizRes?.data?.items ||
+        bizRes?.data?.data ||
+        bizRes?.data ||
+        (Array.isArray(bizRes) ? bizRes : [])
+      businessesList.value = Array.isArray(resData) ? resData : []
+    } catch (e) {
+      console.error('Failed to resolve admin businesses', e)
+    }
   }
 }
 
@@ -309,5 +468,8 @@ const getStatusColor = (status) => {
   }
 }
 
-onMounted(() => loadOrders())
+onMounted(async () => {
+  await loadBusinesses()
+  loadOrders()
+})
 </script>

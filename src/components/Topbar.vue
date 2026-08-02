@@ -126,7 +126,7 @@
 							</div>
 							<template v-else-if="notifications.length">
 								<v-list-item v-for="notif in notifications" :key="notif.id"
-									:class="notif.is_read ? 'opacity-60' : 'bg-indigo-50'" @click="readNotif(notif)">
+									:class="notif.is_read ? 'opacity-60' : 'bg-indigo-50'" @click="openNotifDetails(notif)">
 									<template v-slot:prepend>
 										<div class="w-2 h-2 rounded-full mr-2 flex-shrink-0"
 											:class="notif.is_read ? 'bg-transparent' : 'bg-indigo-500'" />
@@ -240,6 +240,71 @@
 				</v-menu>
 			</ul>
 		</div>
+
+		<!-- Notification Details Modal -->
+		<v-dialog v-model="notifDetailsDialog" max-width="500">
+			<v-card v-if="selectedNotif" class="rounded-[1.5rem] border border-border overflow-hidden shadow-2xl"
+				style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text)); border-color: rgb(var(--color-border))">
+				
+				<!-- Modal Header -->
+				<div class="px-6 py-5 flex items-center justify-between border-b border-border"
+					style="background: linear-gradient(135deg, rgba(var(--color-primary), 0.08), rgba(var(--color-accent, var(--color-primary)), 0.04))">
+					<div class="flex items-center space-x-3">
+						<div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+							:class="selectedNotif.is_read ? 'bg-slate-500/10 text-slate-500' : 'bg-primary/20 text-primary'">
+							<Icon :name="selectedNotif.is_read ? 'mdi:email-open-outline' : 'mdi:bell-ring-outline'" class="w-5 h-5" />
+						</div>
+						<div>
+							<h3 class="font-bold text-base leading-tight">{{ selectedNotif.title || selectedNotif.type || 'Notification' }}</h3>
+							<span class="text-[11px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full inline-block mt-1"
+								:class="selectedNotif.is_read ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'">
+								{{ selectedNotif.is_read ? 'Read' : 'Unread' }}
+							</span>
+						</div>
+					</div>
+					<v-btn icon size="small" variant="text" @click="notifDetailsDialog = false">
+						<Icon name="mdi:close" class="w-5 h-5 opacity-60" />
+					</v-btn>
+				</div>
+
+				<!-- Modal Body -->
+				<div class="p-6 space-y-4">
+					<p class="text-sm leading-relaxed whitespace-pre-wrap text-text/90">
+						{{ selectedNotif.message || selectedNotif.body || 'No additional message details provided.' }}
+					</p>
+
+					<!-- Additional metadata if present -->
+					<div v-if="selectedNotif.created_at || selectedNotif.order_id || selectedNotif.invoice_id"
+						class="pt-4 mt-4 border-t border-border/50 text-xs text-text/70 space-y-1.5 grid grid-cols-1 gap-1">
+						<div v-if="selectedNotif.created_at" class="flex justify-between">
+							<span class="font-semibold opacity-75">Received:</span>
+							<span>{{ new Date(selectedNotif.created_at).toLocaleString() }}</span>
+						</div>
+						<div v-if="selectedNotif.order_id" class="flex justify-between">
+							<span class="font-semibold opacity-75">Order ID:</span>
+							<span class="font-mono">{{ selectedNotif.order_id }}</span>
+						</div>
+						<div v-if="selectedNotif.invoice_id" class="flex justify-between">
+							<span class="font-semibold opacity-75">Invoice ID:</span>
+							<span class="font-mono">{{ selectedNotif.invoice_id }}</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Modal Actions -->
+				<div class="px-6 py-4 flex items-center justify-end space-x-3 border-t border-border"
+					style="background-color: rgb(var(--color-background, var(--color-card)))">
+					<v-btn variant="text" size="small" class="rounded-lg text-xs capitalize" @click="notifDetailsDialog = false">
+						Close
+					</v-btn>
+					<v-btn v-if="!selectedNotif.is_read" color="primary" variant="flat" size="small" class="rounded-lg text-xs capitalize font-semibold px-4 shadow-sm"
+						@click="handleMarkAsReadInDialog">
+						<Icon name="mdi:check-circle-outline" class="w-4 h-4 mr-1.5" />
+						Mark as Read
+					</v-btn>
+				</div>
+			</v-card>
+		</v-dialog>
 	</v-app-bar>
 </template>
 <script setup>
@@ -278,11 +343,12 @@ const profileLink = computed(() => {
 	return '/user?tab=profile'
 })
 
+const { getNotifications, markAsRead, markAllRead: doMarkAll, getUnreadCount } = useNotifications()
+
 const onNotifMenuOpen = async (open) => {
 	if (!open) return
 	loadingNotifs.value = true
 	try {
-		const { getNotifications } = useNotifications()
 		const res = await getNotifications({ per_page: 20 })
 		notifications.value = res?.data?.items || res?.data || []
 		unreadCount.value = notifications.value.filter(n => !n.is_read).length
@@ -293,16 +359,29 @@ const onNotifMenuOpen = async (open) => {
 const readNotif = async (notif) => {
 	if (notif.is_read) return
 	try {
-		const { markAsRead } = useNotifications()
 		await markAsRead(notif.id)
 		notif.is_read = true
 		unreadCount.value = Math.max(0, unreadCount.value - 1)
 	} catch { /* silently fail */ }
 }
 
+const notifDetailsDialog = ref(false)
+const selectedNotif = ref(null)
+
+const openNotifDetails = (notif) => {
+	selectedNotif.value = notif
+	notifDetailsDialog.value = true
+}
+
+const handleMarkAsReadInDialog = async () => {
+	if (selectedNotif.value && !selectedNotif.value.is_read) {
+		await readNotif(selectedNotif.value)
+		toast.success('Marked as read')
+	}
+}
+
 const markAllRead = async () => {
 	try {
-		const { markAllRead: doMarkAll } = useNotifications()
 		await doMarkAll()
 		notifications.value.forEach(n => n.is_read = true)
 		unreadCount.value = 0
@@ -317,7 +396,6 @@ onMounted(async () => {
 	}
 
 	try {
-		const { getUnreadCount } = useNotifications()
 		const res = await getUnreadCount()
 		unreadCount.value = res?.data?.count || 0
 	} catch { /* silently fail */ }

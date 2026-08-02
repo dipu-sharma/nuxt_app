@@ -243,6 +243,9 @@ const search = ref('')
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const total_data = ref(0)
+const nextCursor = ref(null)
+const previousCursor = ref(null)
+const cursorHistory = ref([null])
 const stats = ref({
 	total: 0,
 	active: 0,
@@ -261,6 +264,7 @@ const queryParams = computed(() => {
 	const params = {
 		page: currentPage.value,
 		per_page: itemsPerPage.value,
+		limit: itemsPerPage.value,
 		is_paginate: true,
 		search: search.value || undefined,
 		sort_by: sort.value.order === 'desc' ? `-${sort.value.key}` : sort.value.key,
@@ -270,6 +274,10 @@ const queryParams = computed(() => {
 	}
 	if (filterStore.endDate) {
 		params.endDate = filterStore.endDate.toISOString()
+	}
+	const currentCursor = cursorHistory.value[currentPage.value - 1] || null
+	if (currentCursor) {
+		params.cursor = currentCursor
 	}
 	return params
 })
@@ -298,7 +306,8 @@ const loadData = async () => {
 			return
 		}
 
-		const rawItems = response?.data?.data?.items || response?.data?.items || []
+		const responseData = response?.data?.data || response?.data || response || {}
+		const rawItems = responseData.items || (Array.isArray(responseData) ? responseData : [])
 		employees.value = rawItems.map((emp, i) => ({
 			id: emp.member_id || emp.id,
 			full_name: emp.user?.full_name || `${emp.user?.first_name || ''} ${emp.user?.last_name || ''}`.trim(),
@@ -322,8 +331,11 @@ const loadData = async () => {
 			index: (currentPage.value - 1) * itemsPerPage.value + i + 1,
 		}))
 
-		const total = response?.data?.data?.items?.length || response?.data?.items?.length || 0
-		const hasMore = response?.data?.data?.has_more ?? false
+		const total = rawItems.length
+		const hasMore = responseData.has_more ?? false
+		nextCursor.value = responseData.next_cursor || null
+		previousCursor.value = responseData.previous_cursor || null
+
 		total_data.value = hasMore ? (currentPage.value * itemsPerPage.value + 1) : (currentPage.value - 1) * itemsPerPage.value + total
 		pagination.value.total = total_data.value
 		pagination.value.total_pages = hasMore ? currentPage.value + 1 : currentPage.value
@@ -350,12 +362,16 @@ const fetchData = loadData
 
 watch([() => filterStore.startDate, () => filterStore.endDate, search], () => {
 	currentPage.value = 1
+	cursorHistory.value = [null]
 	loadData()
 })
 
 onMounted(loadData)
 
 const handlePageChange = (newPage) => {
+	if (newPage > currentPage.value && nextCursor.value) {
+		cursorHistory.value[newPage - 1] = nextCursor.value
+	}
 	currentPage.value = newPage
 	loadData()
 }
@@ -363,12 +379,14 @@ const handlePageChange = (newPage) => {
 const handleItemsPerPageChange = (newItemsPerPage) => {
 	itemsPerPage.value = newItemsPerPage
 	currentPage.value = 1
+	cursorHistory.value = [null]
 	loadData()
 }
 
 const handleSearch = (searchKeyword) => {
 	search.value = searchKeyword
 	currentPage.value = 1
+	cursorHistory.value = [null]
 }
 
 const openAddDialog = () => {
@@ -449,6 +467,8 @@ const editFromView = () => {
 const handleSort = ({ key, order }) => {
 	sort.value.key = key
 	sort.value.order = order
+	currentPage.value = 1
+	cursorHistory.value = [null]
 	loadData()
 }
 

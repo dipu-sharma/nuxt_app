@@ -7,7 +7,7 @@ export const useCategories = () => {
   return {
     /** Get all categories (public) */
     async getCategories(params: Record<string, any> = {}) {
-      return await api('/api/categories', { method: 'GET', query: params })
+      return await api('/api/categories/', { method: 'GET', query: params })
     },
 
     /** Get Category Tree (SSR friendly) */

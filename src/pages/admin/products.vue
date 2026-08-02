@@ -12,13 +12,42 @@
 				</p>
 			</div>
 			
-			<v-btn color="primary" variant="flat" rounded="pill" size="large" @click="openCreateDialog"
-				class="px-8 text-none tracking-widest font-medium text-white shadow-md hover:-translate-y-0.5 transition-transform" elevation="0">
-				<template #prepend>
-					<Icon name="mdi:plus" class="w-4 h-4 mr-0.5" />
-				</template>
-				ADD PRODUCT
-			</v-btn>
+			<div class="flex flex-col sm:flex-row sm:items-center gap-4">
+				<div
+					v-if="(authStore.role === 'ADMIN' || authStore.role === 'SUPERADMIN') && businessesList.length > 0"
+					class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3"
+				>
+					<span class="text-xs font-bold text-text opacity-60 uppercase tracking-wider whitespace-nowrap">Selected Business:</span>
+					<div class="relative min-w-[240px]">
+						<select
+							v-model="selectedBusinessId"
+							@change="onBusinessChange"
+							class="appearance-none w-full pl-4 pr-10 py-2.5 bg-card border border-border rounded-xl text-sm font-semibold text-text shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer"
+							style="background-color: rgb(var(--color-card)); border-color: rgb(var(--color-border))"
+						>
+							<option
+								v-for="biz in businessesList"
+								:key="biz.id || biz.business_id"
+								:value="biz.business_id || biz.id"
+							>
+								{{ biz.name || biz.business_name || `Business #${biz.business_id || biz.id}` }}
+							</option>
+						</select>
+						<Icon
+							name="mdi:chevron-down"
+							class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text opacity-50 pointer-events-none"
+						/>
+					</div>
+				</div>
+
+				<v-btn color="primary" variant="flat" rounded="pill" size="large" @click="openCreateDialog"
+					class="px-8 text-none tracking-widest font-medium text-white shadow-md hover:-translate-y-0.5 transition-transform" elevation="0">
+					<template #prepend>
+						<Icon name="mdi:plus" class="w-4 h-4 mr-0.5" />
+					</template>
+					ADD PRODUCT
+				</v-btn>
+			</div>
 		</div>
 
 		<!-- Search & Action Card -->
@@ -53,7 +82,7 @@
 					</v-btn>
 				</div>
 
-				<v-data-table v-else :headers="headers" :items="products" :loading="loading" items-per-page="-1"
+				<v-data-table v-else :headers="headers" :items="products" :loading="loading" :items-per-page="limit"
 					class="custom-data-table" hover>
 					
 					<template #item.product="{ item }">
@@ -160,23 +189,52 @@
 				</v-data-table>
 			</div>
 
-			<!-- Pagination Control -->
-			<div v-if="totalPages > 1" class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-6 border-t border-border" style="border-color: rgb(var(--color-border))">
-				<div class="text-xs font-bold uppercase tracking-widest text-text opacity-50">
-					Showing {{ (page - 1) * itemsPerPage + 1 }} to {{ Math.min(page * itemsPerPage, totalItems) }} of {{ totalItems }} items
-				</div>
+			<!-- Cursor-Based Pagination Control -->
+			<div v-if="products.length > 0 || page > 1" class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-6 border-t border-border" style="border-color: rgb(var(--color-border))">
 				<div class="flex items-center gap-4">
+					<div class="text-xs font-bold uppercase tracking-widest text-text opacity-70">
+						Showing page {{ page }} ({{ products.length }} rows)
+					</div>
 					<div class="flex items-center gap-2">
 						<span class="text-xs font-semibold text-text opacity-70">Rows per page:</span>
-						<select :value="itemsPerPage" @change="updateItemsPerPage(Number($event.target.value))" 
-							class="px-3 py-1 bg-background border border-border rounded-full text-xs font-semibold text-text focus:outline-none focus:border-primary">
+						<select :value="limit" @change="updateLimit(Number($event.target.value))" 
+							class="px-3 py-1 bg-background border border-border rounded-full text-xs font-semibold text-text focus:outline-none focus:border-primary cursor-pointer shadow-sm">
 							<option :value="5">5</option>
 							<option :value="10">10</option>
 							<option :value="20">20</option>
 							<option :value="50">50</option>
 						</select>
 					</div>
-					<v-pagination v-model="page" :length="totalPages" :total-visible="5" density="compact" active-color="primary" />
+				</div>
+				
+				<div class="flex items-center gap-2">
+					<v-btn
+						variant="outlined"
+						size="small"
+						rounded="pill"
+						:disabled="page <= 1 && !previousCursor"
+						@click="goToPreviousPage"
+						class="px-4 text-xs font-bold uppercase tracking-widest border-border text-text hover:bg-primary/5 hover:text-primary hover:border-primary transition-all shadow-sm"
+					>
+						<Icon name="mdi:chevron-left" class="w-4 h-4 mr-1" />
+						Previous
+					</v-btn>
+					
+					<div class="px-4 py-1 rounded-full bg-primary/10 text-primary font-bold text-xs">
+						Page {{ page }}
+					</div>
+
+					<v-btn
+						variant="outlined"
+						size="small"
+						rounded="pill"
+						:disabled="!hasMore && !nextCursor"
+						@click="goToNextPage"
+						class="px-4 text-xs font-bold uppercase tracking-widest border-border text-text hover:bg-primary/5 hover:text-primary hover:border-primary transition-all shadow-sm"
+					>
+						Next
+						<Icon name="mdi:chevron-right" class="w-4 h-4 ml-1" />
+					</v-btn>
 				</div>
 			</div>
 		</div>
@@ -643,10 +701,13 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
 import { useProducts } from '~/composables/useProducts'
+import { useAdminUsers } from '~/composables/useAdminUsers'
+import { useAuthStore } from '~/stores/auth'
 import { toast } from 'vue3-toastify'
 import { useFilterStore } from '~/stores/filterStore'
 import { useDebounceFn } from '@vueuse/core'
 
+const authStore = useAuthStore()
 const filterStore = useFilterStore();
 
 definePageMeta({
@@ -655,13 +716,25 @@ definePageMeta({
 	middleware: ['auth-role'],
 })
 
-const { fetchBusinessProducts, createProduct, updateProduct, deleteProduct } = useProducts()
+const { fetchBusinessProducts, getAdminBusinessProducts, createProduct, updateProduct, deleteProduct } = useProducts()
+
+const businessesList = ref([])
+const selectedBusinessId = ref(null)
+
+const onBusinessChange = () => {
+	page.value = 1
+	cursorHistory.value = [null]
+	fetchData()
+}
 
 const products = ref([])
 const loading = ref(false)
 const page = ref(1)
-const itemsPerPage = ref(10)
-const totalItems = ref(0)
+const limit = ref(10)
+const nextCursor = ref(null)
+const previousCursor = ref(null)
+const hasMore = ref(false)
+const cursorHistory = ref([null])
 const search = ref('')
 
 const showEditProductDialog = ref(false)
@@ -772,44 +845,52 @@ const headers = [
 	{ title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]
 
-const totalPages = computed(() => {
-	const total = totalItems.value || 0
-	const perPage = itemsPerPage.value || 10
-	return Math.ceil(total / perPage)
-})
-
 const debouncedSearch = useDebounceFn(() => {
 	page.value = 1
+	cursorHistory.value = [null]
 	fetchData()
 }, 450)
 
-const fetchData = async () => {
+const fetchData = async (cursor = null) => {
 	loading.value = true
 	try {
 		const params = {
-			page: page.value,
-			per_page: itemsPerPage.value,
-			is_paginate: true,
+			limit: limit.value,
+		}
+		const activeCursor = cursor !== null && cursor !== undefined ? cursor : (cursorHistory.value[page.value - 1] || null)
+		if (activeCursor) {
+			params.cursor = activeCursor
 		}
 		if (search.value) {
 			params.search = search.value
 		}
-		const response = await fetchBusinessProducts(params)
-		const list = response?.data?.items || response?.data || []
+		let response;
+		if ((authStore.role === 'ADMIN' || authStore.role === 'SUPERADMIN') && selectedBusinessId.value) {
+			response = await getAdminBusinessProducts(selectedBusinessId.value, params)
+		} else {
+			response = await fetchBusinessProducts(params)
+		}
+		const data = response?.data || response || {}
+		const list = data.items || (Array.isArray(data) ? data : [])
 		products.value = list.map(p => ({
 			...p,
 			name: p.product_name || p.name || '',
 			price: p.selling_price || p.product_mrp || p.price || 0,
 			quantity: p.low_stock_threshold !== undefined ? p.low_stock_threshold : (p.stock_quantity ?? p.stock ?? p.quantity ?? 0)
 		}))
-		totalItems.value = response?.data?.total || list.length
-		page.value = response?.data?.page || 1
-		itemsPerPage.value = response?.data?.per_page || 10
+		hasMore.value = !!data.has_more
+		nextCursor.value = data.next_cursor || null
+		previousCursor.value = data.previous_cursor || null
+		if (data.limit && !isNaN(Number(data.limit))) {
+			limit.value = Number(data.limit)
+		}
 	} catch (error) {
 		console.error(error)
 		toast.error('Failed to fetch products')
 		products.value = []
-		totalItems.value = 0
+		hasMore.value = false
+		nextCursor.value = null
+		previousCursor.value = null
 	} finally {
 		loading.value = false
 	}
@@ -915,7 +996,8 @@ const saveProduct = async () => {
 			category_id: productData.value.category_id,
 			is_active: productData.value.is_active,
 			is_featured: productData.value.is_featured,
-			low_stock_threshold: Number(productData.value.quantity)
+			low_stock_threshold: Number(productData.value.quantity),
+			business_id: selectedBusinessId.value ? Number(selectedBusinessId.value) : undefined
 		}
 
 		const parsed = ProductPayloadSchema.safeParse(payload)
@@ -950,18 +1032,53 @@ const confirmDeleteProduct = async (item) => {
 	}
 }
 
-const updatePage = (newPage) => {
-	page.value = newPage
+const updateLimit = (val) => {
+	limit.value = val
+	page.value = 1
+	cursorHistory.value = [null]
 	fetchData()
 }
 
-const updateItemsPerPage = (newItemsPerPage) => {
-	itemsPerPage.value = newItemsPerPage
-	page.value = 1;
-	fetchData()
+const goToNextPage = () => {
+	if (!hasMore.value && !nextCursor.value) return
+	cursorHistory.value[page.value] = nextCursor.value
+	page.value++
+	fetchData(nextCursor.value)
 }
 
-onMounted(() => {
+const goToPreviousPage = () => {
+	if (page.value <= 1 && !previousCursor.value) return
+	if (page.value > 1) {
+		page.value--
+		const prevCursor = cursorHistory.value[page.value - 1] || previousCursor.value || null
+		fetchData(prevCursor)
+	} else if (previousCursor.value) {
+		fetchData(previousCursor.value)
+	}
+}
+
+const loadBusinesses = async () => {
+	if (authStore.role === 'ADMIN' || authStore.role === 'SUPERADMIN') {
+		try {
+			const { getBusinesses } = useAdminUsers()
+			const bizRes = await getBusinesses({ limit: 100 })
+			const resData =
+				bizRes?.data?.items ||
+				bizRes?.data?.data ||
+				bizRes?.data ||
+				(Array.isArray(bizRes) ? bizRes : [])
+			businessesList.value = Array.isArray(resData) ? resData : []
+			if (!selectedBusinessId.value && businessesList.value.length > 0) {
+				selectedBusinessId.value = businessesList.value[0]?.business_id || businessesList.value[0]?.id
+			}
+		} catch (e) {
+			console.error('Failed to resolve admin businesses', e)
+		}
+	}
+}
+
+onMounted(async () => {
+	await loadBusinesses()
 	fetchData()
 	loadCategories()
 })

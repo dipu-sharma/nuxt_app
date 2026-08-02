@@ -59,7 +59,7 @@
           </v-btn>
         </div>
 
-        <v-data-table v-else :headers="headers" :items="products" :loading="loading" items-per-page="-1"
+        <v-data-table v-else :headers="headers" :items="products" :loading="loading" :items-per-page="limit"
           class="custom-data-table" hover>
           
           <template #item.product="{ item }">
@@ -117,18 +117,59 @@
           </template>
 
           <template #bottom>
-            <!-- Hide default navigation since we support cursor pagination -->
+            <!-- Hide default navigation -->
           </template>
 
         </v-data-table>
       </div>
 
-      <!-- Pagination Load More -->
-      <div v-if="hasMore" class="p-6 text-center border-t border-border mt-4">
-        <v-btn color="primary" rounded="pill" size="large" :loading="loadingMore" @click="loadMore"
-          class="px-10 text-none tracking-widest font-medium text-white shadow-sm" elevation="0">
-          LOAD MORE
-        </v-btn>
+      <!-- Cursor-Based Pagination Control -->
+      <div v-if="products.length > 0 || page > 1" class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-6 border-t border-border" style="border-color: rgb(var(--color-border))">
+        <div class="flex items-center gap-4">
+          <div class="text-xs font-bold uppercase tracking-widest text-text opacity-70">
+            Showing page {{ page }} ({{ products.length }} rows)
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-text opacity-70">Rows per page:</span>
+            <select :value="limit" @change="updateLimit(Number($event.target.value))" 
+              class="px-3 py-1 bg-background border border-border rounded-full text-xs font-semibold text-text focus:outline-none focus:border-primary cursor-pointer shadow-sm">
+              <option :value="5">5</option>
+              <option :value="10">10</option>
+              <option :value="20">20</option>
+              <option :value="50">50</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          <v-btn
+            variant="outlined"
+            size="small"
+            rounded="pill"
+            :disabled="page <= 1 && !previousCursor"
+            @click="goToPreviousPage"
+            class="px-4 text-xs font-bold uppercase tracking-widest border-border text-text hover:bg-primary/5 hover:text-primary hover:border-primary transition-all shadow-sm"
+          >
+            <Icon name="mdi:chevron-left" class="w-4 h-4 mr-1" />
+            Previous
+          </v-btn>
+          
+          <div class="px-4 py-1 rounded-full bg-primary/10 text-primary font-bold text-xs">
+            Page {{ page }}
+          </div>
+
+          <v-btn
+            variant="outlined"
+            size="small"
+            rounded="pill"
+            :disabled="!hasMore && !nextCursor"
+            @click="goToNextPage"
+            class="px-4 text-xs font-bold uppercase tracking-widest border-border text-text hover:bg-primary/5 hover:text-primary hover:border-primary transition-all shadow-sm"
+          >
+            Next
+            <Icon name="mdi:chevron-right" class="w-4 h-4 ml-1" />
+          </v-btn>
+        </div>
       </div>
 
     </div>
@@ -598,14 +639,43 @@ definePageMeta({
 })
 
 const loading = ref(false)
-const loadingMore = ref(false)
 const saving = ref(false)
 const products = ref([])
 const search = ref('')
-const cursor = ref(null)
-const hasMore = ref(false)
 const showModal = ref(false)
 const editingProduct = ref(null)
+
+const page = ref(1)
+const limit = ref(10)
+const nextCursor = ref(null)
+const previousCursor = ref(null)
+const hasMore = ref(false)
+const cursorHistory = ref([null])
+
+const updateLimit = (val) => {
+  limit.value = val
+  page.value = 1
+  cursorHistory.value = [null]
+  loadProducts()
+}
+
+const goToNextPage = () => {
+  if (!hasMore.value && !nextCursor.value) return
+  cursorHistory.value[page.value] = nextCursor.value
+  page.value++
+  loadProducts(nextCursor.value)
+}
+
+const goToPreviousPage = () => {
+  if (page.value <= 1 && !previousCursor.value) return
+  if (page.value > 1) {
+    page.value--
+    const prevCursor = cursorHistory.value[page.value - 1] || previousCursor.value || null
+    loadProducts(prevCursor)
+  } else if (previousCursor.value) {
+    loadProducts(previousCursor.value)
+  }
+}
 
 const showDetailsDialog = ref(false)
 const selectedProduct = ref(null)
@@ -681,45 +751,46 @@ const headers = [
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]
 
-const debouncedSearch = useDebounceFn(() => { loadProducts() }, 400)
+const debouncedSearch = useDebounceFn(() => { 
+  page.value = 1
+  cursorHistory.value = [null]
+  loadProducts() 
+}, 400)
 
-const loadProducts = async () => {
+const loadProducts = async (cursor = null) => {
   loading.value = true
   try {
     const { getProducts } = useBusinessProducts()
-    const params = { limit: 20 }
-    if (search.value) params.search = search.value
+    const params = {
+      limit: limit.value,
+    }
+    const activeCursor = cursor !== null && cursor !== undefined ? cursor : (cursorHistory.value[page.value - 1] || null)
+    if (activeCursor) {
+      params.cursor = activeCursor
+    }
+    if (search.value) {
+      params.search = search.value
+    }
 
     const res = await getProducts(params)
-    products.value = res?.data?.items || res?.data || []
-    cursor.value = res?.data?.next_cursor || null
-    hasMore.value = !!res?.data?.has_more
+    const data = res?.data || res || {}
+    const list = data.items || (Array.isArray(data) ? data : [])
+    products.value = list
+    hasMore.value = !!data.has_more
+    nextCursor.value = data.next_cursor || null
+    previousCursor.value = data.previous_cursor || null
+    if (data.limit && !isNaN(Number(data.limit))) {
+      limit.value = Number(data.limit)
+    }
   } catch (error) {
     console.error(error)
     toast.error('Failed to fetch product catalog list')
     products.value = []
+    hasMore.value = false
+    nextCursor.value = null
+    previousCursor.value = null
   } finally {
     loading.value = false
-  }
-}
-
-const loadMore = async () => {
-  if (loadingMore.value || !hasMore.value) return
-  loadingMore.value = true
-  try {
-    const { getProducts } = useBusinessProducts()
-    const params = { limit: 20, cursor: cursor.value }
-    if (search.value) params.search = search.value
-
-    const res = await getProducts(params)
-    const newItems = res?.data?.items || res?.data || []
-    products.value.push(...newItems)
-    cursor.value = res?.data?.next_cursor || null
-    hasMore.value = !!res?.data?.has_more
-  } catch (error) {
-    console.error('Failed to load more products', error)
-  } finally {
-    loadingMore.value = false
   }
 }
 
