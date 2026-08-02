@@ -66,6 +66,11 @@
 												clip-rule="evenodd"></path>
 										</svg>
 									</template>
+									<template v-else-if="themeStore.currentTheme === 'coolBlue'">
+										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+											<path d="M11,2V4.07L8,3.58L7.58,5.5L10,5.89V8H8.11L6,5.89L4.5,7.38L6.71,9.6H4.6L2.83,7.83L1.41,9.24L3.76,11.59H2V13.59H3.76L1.41,15.94L2.83,17.35L4.6,15.58H6.71L4.5,17.8L6,19.29L8.11,17.18H10V19.29L7.58,19.68L8,21.6L11,21.11V23.18H13V21.11L16,21.6L16.42,19.68L14,19.29V17.18H15.89L18,19.29L19.5,17.8L17.29,15.58H19.4L21.17,17.35L22.59,15.94L20.24,13.59H22V11.59H20.24L22.59,9.24L21.17,7.83L19.4,9.6H17.29L19.5,7.38L18,5.89L15.89,8H14V5.89L16.42,5.5L16,3.58L13,4.07V2H11Z"></path>
+										</svg>
+									</template>
 									<template v-else-if="themeStore.currentTheme === 'glassmorphism'">
 										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
 											<path fill-rule="evenodd"
@@ -85,6 +90,11 @@
 											<path
 												d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z">
 											</path>
+										</svg>
+									</template>
+									<template v-else>
+										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+											<path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 0 11-2 0v-1a1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
 										</svg>
 									</template>
 								</div>

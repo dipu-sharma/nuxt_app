@@ -1,25 +1,27 @@
 <template>
-  <div class="p-6" style="color: rgb(var(--color-text))">
+  <div class="p-6 transition-colors duration-300" style="color: rgb(var(--color-text))">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-bold">Coupon Management</h1>
-        <p class="text-slate-500 text-sm mt-1">{{ total }} coupons total</p>
+        <h1 class="text-2xl font-bold" style="color: rgb(var(--color-text))">Coupon Management</h1>
+        <p class="text-xs font-semibold opacity-70 mt-1" style="color: rgb(var(--color-text))">{{ total }} coupons total</p>
       </div>
-      <v-btn color="primary" prepend-icon="mdi:plus" rounded="lg" @click="openCreate">Create Coupon</v-btn>
+      <v-btn color="primary" prepend-icon="mdi:plus" rounded="lg" @click="openCreate" class="font-bold text-xs tracking-wider">Create Coupon</v-btn>
     </div>
 
-    <v-card rounded="xl">
-      <v-data-table :headers="headers" :items="coupons" :loading="loading" hover class="rounded-xl">
+    <v-card rounded="xl" class="border border-border/50 shadow-sm transition-colors duration-300" style="background-color: rgb(var(--color-card)); color: rgb(var(--color-text)); border-color: rgb(var(--color-border))">
+      <v-data-table :headers="headers" :items="coupons" :loading="loading" hover class="custom-data-table rounded-xl">
         <template #item.code="{ item }">
           <v-chip color="primary" variant="outlined" size="small" label>{{ item.code }}</v-chip>
         </template>
         <template #item.discount_value="{ item }">
-          <span class="font-semibold text-green-600">
+          <!-- text-success matches theme success palette -->
+          <span class="font-semibold text-success">
             {{ item.discount_type === 'percentage' ? `${item.discount_value}%` : `₹${item.discount_value}` }}
           </span>
         </template>
         <template #item.expires_at="{ item }">
-          <span :class="isExpired(item.expires_at) ? 'text-red-500' : 'text-slate-600'">
+          <!-- Swapped text-red-500 and text-slate-600 for theme variables -->
+          <span :class="isExpired(item.expires_at) ? 'text-error' : 'text-medium-emphasis'">
             {{ item.expires_at ? formatDate(item.expires_at) : 'Never' }}
           </span>
         </template>
@@ -29,8 +31,12 @@
           </v-chip>
         </template>
         <template #item.actions="{ item }">
-          <v-btn icon size="small" variant="text" @click="openEdit(item)"><Icon name="mdi:pencil-outline" /></v-btn>
-          <v-btn icon size="small" variant="text" color="error" @click="confirmDelete(item)"><Icon name="mdi:trash-can-outline" /></v-btn>
+          <v-btn icon size="small" variant="text" class="text-text opacity-80 hover:opacity-100 transition-opacity" style="color: rgb(var(--color-text))" @click="openEdit(item)">
+            <Icon name="mdi:pencil-outline" class="w-5 h-5" style="color: rgb(var(--color-text))" />
+          </v-btn>
+          <v-btn icon size="small" variant="text" color="error" class="opacity-80 hover:opacity-100 transition-opacity" @click="confirmDelete(item)">
+            <Icon name="mdi:trash-can-outline" class="w-5 h-5" />
+          </v-btn>
         </template>
       </v-data-table>
     </v-card>
@@ -83,9 +89,10 @@
     <!-- Delete Confirm -->
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card rounded="xl" class="pa-6 text-center">
-        <Icon name="mdi:ticket-percent-outline" class="w-16 h-16 text-red-500 mx-auto mb-4" />
+        <!-- Changed text-red-500 to text-error -->
+        <Icon name="mdi:ticket-percent-outline" class="w-16 h-16 text-error mx-auto mb-4" />
         <h3 class="text-lg font-bold mb-2">Delete Coupon?</h3>
-        <p class="text-slate-500 mb-6">Delete coupon <strong>{{ deletingItem?.code }}</strong>? This cannot be undone.</p>
+        <p class="text-medium-emphasis mb-6">Delete coupon <strong>{{ deletingItem?.code }}</strong>? This cannot be undone.</p>
         <div class="flex gap-3 justify-center">
           <v-btn variant="outlined" @click="deleteDialog = false">Cancel</v-btn>
           <v-btn color="error" :loading="deleting" @click="doDelete">Delete</v-btn>
@@ -94,6 +101,7 @@
     </v-dialog>
   </div>
 </template>
+
 
 <script setup>
 import { toast } from 'vue3-toastify'
@@ -169,3 +177,41 @@ const doDelete = async () => {
 
 onMounted(fetch)
 </script>
+
+<style scoped>
+.custom-data-table {
+  background: transparent !important;
+  color: rgb(var(--color-text)) !important;
+}
+:deep(.v-data-table-header__content),
+:deep(th.v-data-table__th),
+:deep(.v-data-table-header__content span) {
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  color: rgb(var(--color-text)) !important;
+  opacity: 0.9 !important;
+}
+:deep(.v-table),
+:deep(.v-table__wrapper) {
+  background: transparent !important;
+  color: rgb(var(--color-text)) !important;
+}
+:deep(.v-data-table__tr:hover) {
+  background-color: rgb(var(--color-secondary), 0.15) !important;
+}
+:deep(.v-data-table-header__sort-icon),
+:deep(.v-icon),
+:deep(.v-data-table-footer .v-icon),
+:deep(.v-btn--icon .v-icon),
+:deep(.v-data-table-footer__pagination-icon) {
+  color: rgb(var(--color-text)) !important;
+  opacity: 0.85 !important;
+}
+:deep(.v-data-table-footer__items-per-page),
+:deep(.v-data-table-footer__info),
+:deep(.v-select__selection) {
+  color: rgb(var(--color-text)) !important;
+}
+</style>

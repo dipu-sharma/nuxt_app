@@ -775,7 +775,12 @@ const loadProducts = async (cursor = null) => {
     const res = await getProducts(params)
     const data = res?.data || res || {}
     const list = data.items || (Array.isArray(data) ? data : [])
-    products.value = list
+    products.value = list.map((item) => {
+      return {
+        ...item,
+        category_name: categoriesList.value.find((cat) => cat.category_id === item.category_id)?.name || '—'
+      }
+    })
     hasMore.value = !!data.has_more
     nextCursor.value = data.next_cursor || null
     previousCursor.value = data.previous_cursor || null
